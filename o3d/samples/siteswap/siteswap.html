@@ -1,0 +1,323 @@
+<!-- @@REWRITE(insert html-copyright) -->
+<!--
+O3D Siteswap animator
+@@REWRITE(delete-start)
+Author: Eric Uhrhane (ericu@google.com)
+@@REWRITE(delete-end)
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+  Site Swap Simulator
+</title>
+<style type="text/css">
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
+</style>
+<!-- Our javascript code -->
+<script type="text/javascript" src="../o3djs/base.js"></script>
+<script type="text/javascript" src="siteswap.js"></script>
+<script type="text/javascript" src="math.js"></script>
+<script type="text/javascript" src="animation.js"></script>
+<script type="text/javascript">
+
+o3djs.require('o3djs.util');
+
+// Set up the client area.
+function init() {
+  o3djs.util.setMainEngine(o3djs.util.Engine.V8);
+  o3djs.util.addScriptUri('');  // Allow V8 to load scripts in the cwd.
+  o3djs.util.makeClients(initStep2);
+  setUpSelection();
+}
+
+// Select the entire input pattern, so that the user can just type.
+function setUpSelection() {
+  var input_pattern = document.getElementById('input_pattern');
+  input_pattern.focus();
+  input_pattern.selectionStart = 0;
+  input_pattern.selectionEnd = input_pattern.value.length;
+}
+
+/*
+ * Wrappers to enable button presses to call through to the embedded V8 engine.
+ */
+
+// Update whether we're animating or frozen based on the value of the checkbox.
+function updateAnimatingWrapper() {
+  g.o3dElement.eval('updateAnimating()');
+}
+
+// Compute a new pattern.
+function onComputePatternWrapper() {
+  g.o3dElement.eval('onComputePattern()');
+}
+
+// Adjust the view matrix to the new proportions of the plugin window.
+// TODO: Switch to using the resize event once that's checked in.
+function onResizeWrapper() {
+  g.o3dElement.eval('onResize()');
+}
+window.onresize = onResizeWrapper;
+
+// Clean up all our callbacks, etc.
+function cleanupWrapper() {
+  if (g && g.o3dElement) {
+    g.o3dElement.eval('cleanup()');
+  }
+}
+
+// The point of this function is to suppress form submit; we want to use the
+// pattern entered when the user hits return, not submit the page to the
+// webserver.
+function suppressSubmit(event) {
+  onComputePatternWrapper(); // TODO: This suppresses form autocomplete storage.
+  return false;
+}
+
+</script>
+</head>
+<body onload="init()" onunload="cleanupWrapper()">
+<table width="100%" style="height:100%;">
+  <tr>
+    <td>
+      <h1>Juggler</h1>
+      This sample displays a site-swap juggling pattern with animation done by
+      a vertex shader.
+      <form name="the_form" onsubmit="return suppressSubmit(event)">
+        <table>
+          <tr>
+            <td>
+              <table>
+                <tr>
+                  <td>
+                    <input
+                        type="radio"
+                        name="radio_group_hands"
+                        value="1"
+                        onclick=onComputePatternWrapper()>
+                      1 Hand<br>
+                    <input
+                        type="radio"
+                        name="radio_group_hands"
+                        value="2"
+                        onclick=onComputePatternWrapper()
+                        checked>
+                      2 Hands<br>
+                    <input
+                        type="radio"
+                        name="radio_group_hands"
+                        value="3"
+                        onclick=onComputePatternWrapper()>
+                      3 Hands<br>
+                    <input
+                        type="radio"
+                        name="radio_group_hands"
+                        value="4"
+                        onclick=onComputePatternWrapper()>
+                      4 Hands<br>
+                  </td>
+                  <td>
+                    <input type="text" name="input_pattern" id="input_pattern"
+                        value="3 4 5">
+                  </td>
+                  <td>
+                    <input type="checkbox" name="check_box" checked
+                        onclick=updateAnimatingWrapper()>Animate
+                    <input
+                        type="checkbox"
+                        name="pair_hands"
+                        onclick=onComputePatternWrapper();
+                        >Pair Hands
+                  </td>
+                  <td>
+                    <input type="button" name="computePattern"
+                        value="Compute Pattern"
+                        onclick=onComputePatternWrapper()>
+                  </td>
+                </tr>
+              </table>
+            </td>
+            <td>
+            </td>
+          </tr>
+        </table>
+      </form>
+      <table id="container" width="90%" style="height:70%;">
+        <tr>
+          <td height="100%">
+          <!-- Start of g.o3d plugin -->
+          <div id="o3d" style="width: 100%; height: 100%;"></div>
+          <!-- End of g.o3d plugin -->
+          </td>
+        </tr>
+      </table>
+      <!-- a simple way to get a multiline string -->
+      <textarea id="shader" name="shader" cols="80" rows="20"
+       style="display: none;">
+// the 4x4 world view projection matrix
+float4x4 worldViewProjection : WorldViewProjection;
+
+// positions of the light and camera
+float3 light_pos;
+float3 camera_pos;
+
+// phong lighting properties of the material
+float4 light_ambient;
+float4 light_diffuse;
+float4 light_specular;
+
+// shininess of the material (for specular lighting)
+float shininess;
+
+// time for animation
+float time;
+
+// coefficients for a t^2 + b t + c for each of x, y, z
+float3 coeff_a;
+float3 coeff_b;
+float3 coeff_c;
+
+// flag and coefficient for optional LERP with rate t * coeff_lerp;
+float coeff_lerp;
+
+// coefficients for a t^2 + b t + c for each of x, y, z, for optional LERP
+float3 coeff_l_a;
+float3 coeff_l_b;
+float3 coeff_l_c;
+
+// coefficients for d sin(f t) + e cos(e t) for each of x, y, z
+float3 coeff_d;
+float3 coeff_e;
+float3 coeff_f;
+
+// to be subtracted from time to get the t for the above equation
+float time_base;
+
+// input parameters for our vertex shader
+struct VertexShaderInput {
+  float4 position : POSITION;
+  float3 normal : NORMAL;
+  float4 color : COLOR;
+};
+
+// input parameters for our pixel shader
+// also the output parameters for our vertex shader
+struct PixelShaderInput {
+  float4 position : POSITION;
+  float3 lightVector : TEXCOORD0;
+  float3 normal : TEXCOORD1;
+  float3 viewPosition : TEXCOORD2;
+  float4 color : COLOR;
+};
+
+/**
+ * Vertex Shader - vertex shader for phong illumination
+ */
+PixelShaderInput vertexShaderFunction(VertexShaderInput input) {
+  /**
+   * We use the standard phong illumination equation here.
+   * We restrict (clamp) the dot products so that we
+   * don't get any negative values.
+   * All vectors are normalized for proper calculations.
+   *
+   * The output color is the summation of the
+   * ambient, diffuse, and specular contributions.
+   *
+   * Note that we have to transform each vertex and normal
+   * by the world view projection matrix first.
+   */
+  PixelShaderInput output;
+
+  float t = time - time_base;
+  float3 offset = float3(0, 0, 0);
+  offset += t * t * coeff_a + t * coeff_b + coeff_c;
+  offset += coeff_d * sin(t * coeff_f);
+  offset += coeff_e * cos(t * coeff_f);
+
+  float3 lerpOffset = t * t * coeff_l_a + t * coeff_l_b + coeff_l_c;
+  if (coeff_lerp > 0) {
+    float rate = min(coeff_lerp * t, 1);
+    float3 lerpVector = float3(rate, rate, rate);
+    offset = lerp(offset, lerpOffset, lerpVector);
+  } else if (coeff_lerp < 0) {
+    float rate = min(-coeff_lerp * t, 1);
+    float3 lerpVector = float3(rate, rate, rate);
+    offset = lerp(lerpOffset, offset, lerpVector);
+  }
+
+  input.position = input.position + float4(offset.xyz, 0);
+
+  output.position = mul(input.position, worldViewProjection);
+
+  /**
+   * lightVector - light vector
+   * normal - normal vector
+   * viewPosition - view vector (from camera)
+   */
+
+  // NOTE: In this case we do not need to multiply by any matrices since the
+  // WORLD transformation matrix is the identity. If you were moving the
+  // object such that the WORLD transform matrix was not the identity, you
+  // would need to multiply the normal by the WORLDINVERSETTRANSFORM matrix
+  // since the normal is in object space. Other values (light_pos, camera_pos)
+  // are already in world space.
+  float3 lightVector = light_pos - input.position.xyz;
+  float3 normal = input.normal;
+  float3 viewPosition = camera_pos - input.position.xyz;
+
+  output.lightVector = lightVector;
+  output.normal = normal;
+  output.viewPosition = viewPosition;
+  output.color = input.color;
+  return output;
+}
+
+/**
+ * Pixel Shader
+ */
+float4 pixelShaderFunction(PixelShaderInput input): COLOR {
+  float3 lightVector = normalize(input.lightVector);
+  float3 normal = normalize(input.normal);
+  float3 viewPosition = normalize(input.viewPosition);
+  float3 halfVector = normalize(lightVector + viewPosition);
+
+  // use lit function to calculate phong shading
+  // x component contains the ambient coefficient
+  // y component contains the diffuse coefficient:
+  //     max(dot(normal, lightVector),0)
+  // z component contains the specular coefficient:
+  //     dot(normal, lightVector) < 0 || dot(normal, halfVector) < 0 ?
+  //         0 : pow(dot(normal, halfVector), shininess)
+  // NOTE: This is actually Blinn-Phong shading, not Phong shading
+  // which would use the reflection vector instead of the half vector
+
+  float4 phong_coeff = lit(dot(normal, lightVector),
+                           dot(normal, halfVector), shininess);
+
+  float4 ambient = light_ambient * phong_coeff.x * input.color;
+  float4 diffuse = light_diffuse * phong_coeff.y * input.color;
+  float4 specular = light_specular * phong_coeff.z * input.color;
+
+  return ambient + diffuse + specular;
+}
+
+// Here we tell our effect file *which* functions are
+// our vertex and pixel shaders.
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+      </textarea>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

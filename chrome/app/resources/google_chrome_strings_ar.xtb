@@ -1,0 +1,71 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="ar">
+<translation id="6676384891291319759">الدخول إلى الإنترنت</translation>
+<translation id="8579274574697852281">يتطلب Google Chrome نظام التشغيل Windows Vista أو Windows XP المزود بحزمة الخدمة 1 أو الأعلى منها.</translation>
+<translation id="698670068493841342">تم تثبيت Google Chrome بالفعل لهذا المستخدم. إذا كان برنامج Google Chrome لا يعمل، يُرجى إزالة تثبيت البرنامج، وتنزيله مرة أخرى.</translation>
+<translation id="7400722733683201933">معلومات عن Google Chrome</translation>
+<translation id="7101265395643981223">بدء تشغيل Google Chrome</translation>
+<translation id="1549918799472947005">يستخدم Google Chrome محرّك البحث الافتراضي، وهو حاليًا <ph name="PAGE_TITLE"/>. هل تريد إبقاء محرّك البحث الافتراضي الحاليّ؟</translation>
+<translation id="2370289711218562573">يقوم Google Chrome الآن باستيراد المفضلة/الإشارات.</translation>
+<translation id="8970027151245482499">لم يتم تثبيت Google Chrome، أو فشل البرنامج في العثور على دليل التثبيت. يُرجى تنزيل Google Chrome مرة أخرى.</translation>
+<translation id="7958215378280655655">عند إعادة ضبط خيارات Google Chrome، تمّحى أي تعديلات سابقة وتحلّ محلّها الإعدادت الافتراضية. هل تريد إعادة ضبط الخيارات؟</translation>
+<translation id="4281844954008187215">شروط الخدمة</translation>
+<translation id="2197898401230534722">حذف جميع بيانات الملف الشخصي</translation>
+<translation id="1137776625614346046">تعرض منطقة &quot;المواقع الأكثر زيارةً&quot; المواقع التي تتردّد إليها. فبعد مرور مدّة قصيرة على استخدام Google Chrome يمكنك مشاهدة المواقع الأكثر زيارةً كلّما فتحت علامة تبويب جديدة. لمزيد من المعلومات عن هذه الميزة وعن سواها من الميزات، اذهب إلى الرّابط <ph name="BEGIN_LINK"/>صفحة بدء التشغيل<ph name="END_LINK"/>.</translation>
+<translation id="4728575227883772061">فشلت عملية التثبيت بسبب خطأ غير محدد. إذا كان Google Chrome في حالة التشغيل حاليًا، يُرجى إغلاقه وإعادة المحاولة.</translation>
+<translation id="4149882025268051530">فشلت أداة المثبِّت في فك ضغط الأرشيف. يُرجى تنزيل Google Chrome مرة أخرى.</translation>
+<translation id="4343226815564935778">يبدو أن دليل تثبيت Google Chrome قيد الاستخدام. الرجاء إعادة تشغيل الكمبيوتر والمحاولة من جديد.</translation>
+<translation id="4506896920521131223">حقوق الطبع والنشر © 2006-2009 Google Inc. جميع الحقوق محفوظة.</translation>
+<translation id="6817660909204164466">المساعدة في تحسين Google Chrome عن طريق إرسال إحصائيات الاستخدام وتقارير الأعطال تلقائيًا إلى Google</translation>
+<translation id="8227755444512189073">تقتضي معالجة روابط <ph name="SCHEME"/> تشغيل تطبيق خارجيّ. والرّابط المطلوب هو <ph name="PROTOLINK"/>.</translation>
+<translation id="1281036569101707544"><ph name="TERMS_OF_SERVICE_LINK"/> في Google Chrome</translation>
+<translation id="8815061062167142136">عذرًا! لقد طرأ عطل على Google Chrome. هل تريد إعادة تشغيله؟</translation>
+<translation id="5016204670686360703">إذا ألغيت طلب الاستيراد  الآن، لن يتمّ استيراد العناصر  كلّها. يمكنك استيراد ما تبقّى منها في مرحلة لاحقة من قائمة Chrome.</translation>
+<translation id="7241541963706135274">سيؤدّي Google Chrome المهام التالية:</translation>
+<translation id="8446794773162156990">خلل في عمل Google Chrome</translation>
+<translation id="3889417619312448367">إزالة Google Chrome</translation>
+<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
+<translation id="8810218179782551669">لغة Google Chrome:</translation>
+<translation id="3940866277504106378">قد يستخدم Google Chrome خدمات الويب لتحسين تجربة التصفح لديك - ويمكنك حسب اختيارك تعطيل هذه الخدمات.</translation>
+<translation id="7001386529596391893">إنشاء اختصارات لـ Google Chrome في هذه الأماكن:</translation>
+<translation id="6134282421960734039">هل تريد أن يحفظ Chrome كلمة المرور؟</translation>
+<translation id="1195935957447623558">لم يتمّ إغلاق Google Chrome بطريقة صحيحة. لإعادة فتح الصفحات التي سبق فتحها، انقر على زرّ إعادة.</translation>
+<translation id="2499193704281978000">Google Chrome لا يستجيب. هل تريد إعادة تشغيله الآن؟</translation>
+<translation id="7747138024166251722">تعذر على أداة المثبِّت إنشاء دليل مؤقت. يُرجى التحقق من وجود مساحة خالية على القرص وتوفر الإذن اللازم لتثبيت البرنامج.</translation>
+<translation id="6009537148180854585">لقد حاولت الوصول إلى الموقع &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;، لكنّ الشهادة التي قدّمها الخادم تحتوي على أخطاء. لا يستطيع Google Chrome استخدام شهادة فيها أخطاء، والتحقّق من هوية الموقع المقصود. الاتصال غير آمن ويجب عدم المتابعة.</translation>
+<translation id="3324235665723428530">يتعذّر استخدام ملفّ تعريف الارتباط لأنهّ ينمتي إلى إصدار حديث من Google Chrome \n\ وقد ينقصه بعض الميزات المعيّنة. يرجى اختيار دليل آخر لتحديد ملّف التعريف أو استخدام إصدار أحدث من Chrome.</translation>
+<translation id="1759842336958782510">Chrome</translation>
+<translation id="2044287590254833138">شريط أدوات Google Chrome</translation>
+<translation id="6481075104394517441">لقد حاولت الوصول إلى الموقع &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong، لكنّ الشهادة التي قدّمها الخادم لا تزال غير صالحة . وفي غياب أي معلومات عن موثوقية الشهادة، لا يستطيع  Google Chrome أن يضمن أنّك على اتّصال بالموقع  &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;  وليس بمتسلّل. تأكّد من  إعدادات الساعة والمنطقة الزمنية في الكمبيوتر، فإذا لم تكن صحيحة يجب إعادة ضبطها وتحديث الصفحة، وإذا كانت صحيحة، يجب التوقّف عند هذا الحدّ وعدم متابعة عملية البحث</translation>
+<translation id="8862326446509486874">لا تملك الحقوق الكافية للتثبيت على مستوى النظام. يُرجى محاولة تشغيل المثبِّت بصفة مشرف.</translation>
+<translation id="2874156562296220396">أصبح Google Chrome متاحًا من خلال مشروع المصدر المفتوح <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> و<ph name="BEGIN_LINK_OSS"/>برامج أخرى مفتوحة المصدر<ph name="END_LINK_OSS"/>.</translation>
+<translation id="6921913858457830952">Google Chrome جاهز لإكمال عملية التثبيت.</translation>
+<translation id="7100330187273168372">يتعذّر على Google Chrome القراءة والكتابة إلى دليل البيانات:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">هل تريد بالتأكيد إزالة Google Chrome؟</translation>
+<translation id="5941830788786076944">جعل Google Chrome المتصفّح الافتراضي</translation>
+<translation id="4127951844153999091">هذا يعني أنّ العنوان المذكور في الشهادة لا يتطابق  مع عنوان الموقع الذي يحاول المتصفّح دخوله. وقد يعزى ذلك إلى محاولة متسلّل ما اعتراض اتّصالاتك بإرسال شهادة تتعلّق بموقع آخر، ممّا يفسّر حالة عدم التطابق. أو إلى كون الخادم مبرمجاً بحيث يُرجع الشهادة نفسها لعدّة مواقع، من ضمنها الموقع المقصود، حتّى لو لم تكن صالحة للمواقع كلّها.  يؤكّد Google Chrome أنّك وصلت إلى الموقع &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;، ولكن لا يمكنه التحقّق من أنّه هو نفسه الموقع &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;  المقصود. إذا استأنفت البحث، لن يدقّق Google Chrome  في حالات عدم التطابق الأخرى. من المفضّل والحالة هذه التوقّف عند هذا الحدّ وعدم متابعة عملية البحث.</translation>
+<translation id="2712549016134575851">تم اكتشاف تعارض مع تطبيق آخر مثبَّت.</translation>
+<translation id="7161904924553537242">مرحبًا بك في Google Chrome</translation>
+<translation id="8236873504073475138">لا يعمل Google Chrome بموجب نظام التشغيل Windows 2000. لهذا قد يتعذّر تشغيل بعض الميزات.</translation>
+<translation id="5046764976540625289">إنهاء Chrome</translation>
+<translation id="8865765905101981392">متصفح الإنترنت</translation>
+<translation id="582763753075639530">يجب إغلاق جميع نوافذ Chrome وإعادة تشغيله حتى يسري هذا التغيّر.</translation>
+<translation id="8776515774046280928">تم تثبيت Google Chrome بالفعل، وهو متاح لجميع مستخدمي جهاز الكمبيوتر هذا. إذا كنت تريد تثبيت Google Chrome على مستوى المستخدم، يجب أن تقوم أولاً بإزالة تثبيت النسخة التي قام بتثبيتها أحد المشرفين على مستوى النظام.</translation>
+<translation id="3335672657969596251">لا يعمل Google Chrome بموجب نظام التشغيل <ph name="OS_NAME"/>.</translation>
+<translation id="3636771339108070045">توجد في جهاز الكمبيوتر نسخة أحدث من Google Chrome. إذا كان برنامج Google Chrome لا يعمل، يُرجى إلغاء تثبيت البرنامج، وتنزيله مرة أخرى.</translation>
+<translation id="3396666154568987767">Google Chrome الخاص بـ <ph name="PROFILE_NAME"/></translation>
+<translation id="1964682833763362793">يُرجى إغلاق جميع نوافذ Chrome وتكرار المحاولة.</translation>
+<translation id="1001534784610492198">أرشيف المثبت تالف أو غير صالح. يُرجى تنزيل Google Chrome مرة أخرى.</translation>
+<translation id="6626317981028933585">لا يمكن استيراد إعدادات موزيلا فايرفوكس أثناء تشغيل المتصفّح. لاستيراد الإعدادات إلى متصفّح Google Chrome، احفظ عملك وأغلق جميع نوافذ فايرفوكس، ثمّ انقر على زرّ المتابعة.</translation>
+<translation id="8540666473246803645">Google Chrome</translation>
+<translation id="6049075767726609708">قام أحد المشرفين بتثبيت Google Chrome على هذا الجهاز، وهو متاح لجميع المستخدمين. سيحل Google Chrome على مستوى النظام محل النسخة المثبتة على مستوى المستخدم لديك الآن.</translation>
+<translation id="3870154837782082782">Google Inc‎.‎</translation>
+<translation id="1446473746922165495">تغيّير اللغة المُستخدمة في القوائم ومربّعات الحوار والنوافذ التفسيرية (Tooltips) في Google Chrome.</translation>
+<translation id="9189723490960700326">لقد حاولت الوصول إلى الموقع &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;، لكنّ الشهادة التي قدّمها الخادم منتهية الصلاحية. وبما أنّ لا معلومات أكيدة عمّا إذا كان قد تمّ سرقة الشهادة أو تعديلها منذ انقضاء مدّة صلاحيتها، لا يستطيع Google Chrome أن يضمن أنّ الاتصال يتمّ بالموقع &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; وليس بمتسلّل. يجب عدم المتابعة.</translation>
+<translation id="7106741999175697885">مدير المهام - Google Chrome</translation>
+<translation id="8449380764213232436">Google Chrome في صدد استيراد العناصر التالية من <ph name="BROWSER_COMPONENT"/>:</translation>
+<translation id="3396977131400919238">حدث خطأ في نظام التشغيل أثناء عملية التثبيت. يُرجى تنزيل Google Chrome مرة أخرى.</translation>
+<translation id="2618799103663374905">إضافة اختصارات Google Chrome إلى سطح المكتب وشريط التشغيل السريع وقائمة بدء التشغيل</translation>
+<translation id="1144950271450340860">لقد حاولت الوصول إلى الموقع &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;، لكنّ الشهادة التي قدّمها الخادم لم تصدر عن جهة معتمدة من الكمبيوتر.  وهذا يعني أنّ الخادم أنشأ بيانات اعتماد خاصة لا يستطيع Google Chrome الوثوق بها كمعلومات إثبات هوية، أو أنّ متسلّلاً ما يحاول اعتراض اتصالاتك. يجب عدم المتابعة &lt;strong&gt;بخاصة&lt;/strong&gt;  إن لم يسبق لك تلقّي إنذار كهذا في شأن هذا الموقع.</translation>
+</translationbundle>

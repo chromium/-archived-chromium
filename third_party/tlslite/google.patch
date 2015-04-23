@@ -1,0 +1,16 @@
+diff -u tlslite-0.3.8/tlslite/TLSRecordLayer.py chromium//tlslite/TLSRecordLayer.py
+--- tlslite-0.3.8/tlslite/TLSRecordLayer.py	2005-02-21 21:31:41.000000000 -0800
++++ chromium/tlslite/TLSRecordLayer.py	2008-11-25 21:58:04.000000000 -0800
+@@ -322,6 +322,12 @@
+                         AlertDescription.close_notify, AlertLevel.warning)):
+                     yield result
+                 alert = None
++                # Forcing a shutdown as the OS does not seem to be
++                # responsive to the close notify.
++                prevCloseSocket = self.closeSocket
++                self.closeSocket = True
++                self._shutdown(True)
++                self.closeSocket = prevCloseSocket
+                 while not alert:
+                     for result in self._getMsg((ContentType.alert, \
+                                               ContentType.application_data)):

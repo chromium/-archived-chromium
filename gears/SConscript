@@ -1,0 +1,992 @@
+# Copyright (c) 2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Notes:
+# This is the main Gears SConscript file.  From here, we include sub-scripts
+# that handle building various targets (third party libs, common exes, the
+# browser plugins themselves, and installers).  Some sub-scripts return a
+# dictionary of variables to be appended to the environment, so other
+# sub-scripts can use them.
+#
+# To check out the Gears sources, you need to make sure this directory is in
+# your .gclient file, so its DEPS get processed.  Example:
+#   { "name"        : "src/gears",
+#     "url"         : "svn://chrome-svn/chrome/trunk/src/gears",
+#   },
+#
+# This is a work-in-progress conversion of the current Gears set of Makefiles.
+# A lot of the stuff doesn't translate to SCons-land well, and I'm not sure
+# how faithful we want to be to the original.
+#
+# Questions:
+# Should we flatten the output directory into
+# Hammer/gears/platform/browser/*.obj like Gears does now?  If so, how?
+
+# Notes to self:
+# - os.path.abspath('.') (the CWD) is variant_dir if it exists, else it's the
+# toplevel_dir (which contains the SConstruct).
+# - env.Entry('.') is the entry representing the variant_dir.
+# - env.Entry('#') is the entry representing the toplevel_dir.
+# - str(entry) gives the path relative to variant_dir, or abspath if the entry
+# is outside the variant_dir.
+# - entry.path gives the path relative to toplevel_dir.
+# - entry.abspath gives the absolute path.
+
+import os
+
+Import('env')
+
+env = env.Clone(
+    OPEN_DIR = "gears",
+    PRIVATE_DIR = "gears_internal",
+    THIRD_PARTY_DIR = "third_party",
+    PRIVATE_THIRD_PARTY_DIR = "third_party_internal",
+)
+
+if not os.path.exists(env.Dir('#/$OPEN_DIR').abspath):
+  print 'Skipping Gears build: no perforce tree checked out.'
+  Return()
+
+# Argument switches
+
+# TODO: how do we detect linux vs osx?
+os_guess = env['PLATFORM']
+if os_guess == 'posix':
+  os_guess = 'linux'
+elif os_guess == 'darwin':
+  os_guess = 'osx'
+
+# Map of OS -> valid browser targets for that OS.
+os_browsers_map = {
+    'win32': ['IE', 'FF2', 'FF3', 'NPAPI'],
+    'wince': ['IE'],
+    'linux': ['FF2', 'FF3'],
+    'osx': ['SF', 'FF2', 'FF3'],
+    'android': ['NPAPI'],
+    'symbian': ['NPAPI'],
+}
+
+vars = Variables(None, ARGUMENTS)
+vars.AddVariables(
+    EnumVariable('OS',
+        'Which OS is the target', os_guess, os_browsers_map.keys()),
+    EnumVariable('MODE',
+        'Type of binary to generate', 'dbg', ['dbg', 'opt']),
+    BoolVariable('OFFICIAL_BUILD',
+        'Create a binary suitable for public release', 0),
+    BoolVariable('GEARS_STATIC_LIB',
+        'Create a static library for linking with Chrome', 0),
+)
+vars.Update(env)
+
+env['VALID_BROWSERS'] = os_browsers_map[env['OS']]
+
+# Add BROWSER last, since its valid inputs depend on $OS.
+vars.Add(
+    EnumVariable('BROWSER',
+        'Which browser we want to build the plugin for.  "all" builds all '
+        'browsers for this OS.',
+        'all', env['VALID_BROWSERS'] + ['all']))
+vars.Update(env)
+
+env.Replace(
+    USING_CCTESTS = (env['MODE'] == 'dbg' or not env['OFFICIAL_BUILD'])
+)
+
+# Version
+env.Replace(
+    MAJOR = '0',
+    MINOR = '5',
+    BUILD = '7',
+    PATCH = '0',
+    VERSION = '${MAJOR}.${MINOR}.${BUILD}.${PATCH}',
+
+    FRIENDLY_NAME = 'Google Gears',
+    SHORT_NAME = 'gears',
+)
+
+# Platform
+# TODO: Symbian builds will override this value.
+# For other platforms we set just one value.
+if env['OS'] in ['wince', 'android']:
+  env.Replace(ARCH = 'arm')
+elif env['OS'] == 'osx':
+  # On OSX we build a fat binary.
+  env.Replace(ARCH = 'i386+ppc')
+else:
+  env.Replace(ARCH = 'i386')
+
+# Output dirs
+env.Replace(
+    BASE_OUTDIR = '$GEARS_DIR/$OS-$ARCH-$MODE',
+    COMMON_OUTDIR = '$BASE_OUTDIR/common',
+    BROWSER_OUTDIR = '$BASE_OUTDIR/${BROWSER.lower()}',
+    IE_OUTDIR = '$BASE_OUTDIR/ie',
+    FF2_OUTDIR = '$BASE_OUTDIR/ff2',
+    FF3_OUTDIR = '$BASE_OUTDIR/ff3',
+    NPAPI_OUTDIR = '$BASE_OUTDIR/npapi',
+    SF_OUTDIR = '$BASE_OUTDIR/sf',
+
+    GENFILES_DIR = "$BROWSER_OUTDIR/genfiles",
+    COMMON_GENFILES_DIR = "$COMMON_OUTDIR/genfiles",
+
+    INSTALLER_OUTDIR = '$BASE_OUTDIR/installers',
+)
+
+# Outputs
+env.Replace(
+    INSTALLER_BASENAME = 'gears-${OS}-${MODE}-${VERSION}',
+
+    FF_XPI = '$INSTALLER_OUTDIR/${INSTALLER_BASENAME}.xpi',
+    WIN32_INSTALLER_MSI = '$INSTALLER_OUTDIR/${INSTALLER_BASENAME}.msi',
+    WINCE_INSTALLER_CAB = '$INSTALLER_OUTDIR/${INSTALLER_BASENAME}.cab',
+    # Keyston SF Metapackage installer, bundled with Keystone as part of a
+    # DMG.
+    SF_KEYSTONE_INSTALLER_DMG = '$INSTALLER_OUTDIR/${INSTALLER_BASENAME}.dmg',
+    SF_KEYSTONE_INSTALLER_MPKG = '$INSTALLER_OUTDIR/Safari/${FRIENDLY_NAME}.mpkg',
+
+    SF_INSTALLER_PLUGIN_BUNDLE = '$INSTALLER_OUTDIR/Safari/StatsPane.bundle',
+    SF_PLUGIN_BUNDLE = '$INSTALLER_OUTDIR/Safari/Gears.bundle',
+    SF_PLUGIN_PROXY_BUNDLE = '$INSTALLER_OUTDIR/Safari/Gears.plugin',
+    SF_INPUTMANAGER_BUNDLE = '$INSTALLER_OUTDIR/Safari/GearsEnabler',
+    SF_INSTALLER_PKG = '$INSTALLER_OUTDIR/Safari/Gears.pkg',
+)
+
+# Library flags
+env.Replace(
+    MOZJS_INCLUDE_PATHS = [
+        '$MOZJS_DIR',
+        '$THIRD_PARTY_DIR/spidermonkey/nspr/pr/include',
+        '$THIRD_PARTY_DIR/spidermonkey/nspr/pr/include/private',
+        '$THIRD_PARTY_DIR/spidermonkey/nspr/pr/include/obsolete',
+        '$OSX_SDK_ROOT/Developer/Headers/FlatCarbon/',
+    ],
+    MOZJS_DIR = '$THIRD_PARTY_DIR/spidermonkey',
+)
+
+# Add our tools to the PATH.
+if env['OS'] in ['win32', 'wince']:
+  if os.path.exists(env.Dir('#/$PRIVATE_THIRD_PARTY_DIR').abspath):
+    # Clear out our environment so we don't accidentally use the system's
+    # libs.
+    env['ENV']['PATH'] = ''
+    env['ENV']['LIB'] = ''
+    env['ENV']['INCLUDE'] = ''
+
+    paths = []
+
+    # Keep system32 for 'xcopy'.
+    paths += [env.subst('${ENV["SYSTEMROOT"]}/system32')]
+    if env['OS'] == 'win32':
+      env.Append(
+          VC80 = env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/vc_80/files').abspath)
+      paths += [
+          env.subst('$VC80/common7/ide'),
+          env.subst('$VC80/vc/bin'),
+          env.subst('$VC80/common7/tools'),
+          env.subst('$VC80/common7/tools/bin'),
+          env.subst('$VC80/team_tools/performance_tools'),
+      ]
+    else:  # wince
+      env.Append(
+          VC80 = env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/vc_80ce/files').abspath)
+      paths += [
+          env.subst('$VC80/bin/x86_arm'),
+          env.subst('$VC80/common7/ide'),
+          env.subst('$VC80/common7/tools'),
+          env.subst('$VC80/common7/tools/bin'),
+          env.subst('$VC80/vc/bin'),
+          env.subst('$VC80/smartdevices/sdktools'),
+      ]
+
+    paths += [
+        env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/wix/v3_0_2925/files').abspath]
+
+    paths += [env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/gnu/files').abspath]
+    paths += [env.Dir('#/$PRIVATE_THIRD_PARTY_DIR/python_24').abspath]
+
+    # Prepend them so our tools come first.
+    for each in reversed(paths):
+      env.PrependENVPath('PATH', each)
+  else:
+    # If we don't have a private third_party dir, we expect the system
+    # environment to be set up correctly to point to tool paths.
+    env['ENV']['PATH'] = os.environ['PATH']
+    env['ENV']['LIB'] = os.environ['LIB']
+    env['ENV']['INCLUDE'] = os.environ['INCLUDE']
+
+  mtcom = 'echo Manifest creation disabled, since it breaks a lot.'
+  env['MANIFEST_COM'] = mtcom
+  env['SHMANIFEST_COM'] = mtcom
+
+# Building M4 files
+env.Tool('m4')
+
+env.Append(
+    M4ARCH = (env['ARCH'] == 'i386' and 'x86' or '$ARCH'),
+    M4FLAGS = [
+        '--prefix-builtins',
+        '-DPRODUCT_VERSION=$VERSION',
+        '-DPRODUCT_VERSION_MAJOR=$MAJOR',
+        '-DPRODUCT_VERSION_MINOR=$MINOR',
+        '-DPRODUCT_VERSION_BUILD=$BUILD',
+        '-DPRODUCT_VERSION_PATCH=$PATCH',
+        '-DPRODUCT_OS=$OS',
+        '-DPRODUCT_ARCH="$M4ARCH"',
+        '-DPRODUCT_GCC_VERSION="gcc3"',
+        '-DPRODUCT_MAINTAINER="google"',
+        '-DPRODUCT_FRIENDLY_NAME_UQ="$FRIENDLY_NAME"',
+        '-DPRODUCT_SHORT_NAME_UQ="$SHORT_NAME"',
+        '-DI18N_LANGUAGES="(${",".join(I18N_LANGS)})"',
+    ],
+    M4PATH = [
+        '$OPEN_DIR',
+        '.',
+    ],
+)
+
+# SCons magic to make M4PATH work.
+env.Replace(
+    M4INCPREFIX = '-I',
+    M4INCSUFFIX = '',
+    _M4INCFLAGS = ('${_concat(M4INCPREFIX, M4PATH, M4INCSUFFIX, '
+                 '__env__, RDirs, TARGET, SOURCE)}'),
+    M4COM = '$M4 $M4FLAGS ${_M4INCFLAGS} $SOURCE > $TARGET',
+)
+
+# TODO: Dependency scanner for m4 files - doesn't work.  It can't detect files
+# that don't exist!
+#m4_include_re = re.compile(r'm4_include\((.*)\)', re.M)
+#def m4_scan(node, env, path):
+#  contents = node.get_contents()
+#  includes = m4_include_re.findall(contents)
+#  ret_includes = []
+#  for include in includes:
+#    for dir in path:
+#      file = os.path.join(dir, include)
+#      if os.path.exists(file):
+#        ret_includes.append(file)
+#        break
+#  return ret_includes
+#
+#m4_scanner = Scanner(function = m4_scan, skeys = ['.m4', '.html_m4'])
+#env.Append(SCANNERS = m4_scanner)
+
+
+# OS X Iceberg package builder
+
+env.Replace(ICEBERG = '/usr/local/bin/freeze')
+if env.WhereIs('$ICEBERG'):
+  env.Replace(ICEBERGCOM = '"$ICEBERG" -v $SOURCE')
+else:
+  env.Replace(ICEBERGCOM =
+      'echo To create a Safari installer for Gears, you must install Iceberg'
+      ' from http://s.sudre.free.fr/Software/Iceberg.html.  You can install'
+      ' the Safari version manually by running the'
+      ' $OPEN_DIR/tools/osx/install_gears.sh script.')
+
+iceberg_builder = Builder(action = '$ICEBERGCOM',
+    suffix = '.pkg', src_suffix = '.packproj')
+env.Append(BUILDERS = {'Iceberg': iceberg_builder})
+
+
+# C++ build flags.
+
+# Clear out the inherited defines from Chrome's build.  I want to match Gears'
+# current build as closely as possible until we switch everyone to SCons, then
+# gradually integrate.
+env.Replace(
+    CPPPATH = [
+        '$OPEN_DIR',
+        '$OPEN_DIR/..',
+        '$THIRD_PARTY_DIR',
+        '$THIRD_PARTY_DIR/googleurl',
+        '$THIRD_PARTY_DIR/npapi',
+        '$THIRD_PARTY_DIR/zlib',
+        '$THIRD_PARTY_DIR/v8/bindings_local',
+        '.',
+        '$COMMON_OUTDIR',
+    ],
+    CFLAGS = [],
+    CCFLAGS = [],
+    CXXFLAGS = [],
+    CCPDBFLAGS = [],
+    CPPDEFINES = [
+    # SpiderMonkey (the Firefox JS engine)'s JS_GET_CLASS macro in jsapi.h needs
+    # this defined to work with the gecko SDK that we've built.
+    # The definition of JS_THREADSAFE must be kept in sync with MOZJS_CPPFLAGS.
+        'JS_THREADSAFE'
+    ],
+    FRAMEWORKPATH = [],
+    FRAMEWORKS = [],
+    LIBS = [],
+    LIBPATH = ['$COMPONENT_LIBRARY_DIR'],
+    COMMON_LINKFLAGS = [],  # for both executables and shared libs
+    LINKFLAGS = ['$COMMON_LINKFLAGS'],  # for executables
+    SHLINKFLAGS = ['$COMMON_LINKFLAGS'],  # for shared libs
+    COMPONENT_LIBRARY_DIR = '$COMMON_OUTDIR/lib',
+)
+
+if env['MODE'] == 'dbg':
+  env.Append(
+      CPPDEFINES = [
+          'DEBUG=1',
+          '_DEBUG=1',
+      ],
+      M4FLAGS = '-DDEBUG=1',
+  )
+else:
+  env.Append(
+      CPPDEFINES = 'NDEBUG=1',
+      M4FLAGS = '-DNDEBUG=1',
+  )
+if env['USING_CCTESTS']:
+  env.Append(
+      CPPDEFINES = 'USING_CCTESTS=1',
+      M4FLAGS = '-DUSING_CCTESTS=1',
+  )
+if env['OFFICIAL_BUILD']:
+  env.Append(
+      CPPDEFINES = 'OFFICIAL_BUILD=1',
+      M4FLAGS = '-DOFFICIAL_BUILD=1',
+  )
+if env['GEARS_STATIC_LIB']:
+  env.Append(
+      CPPDEFINES = 'GEARS_STATIC_LIB=1',
+  )
+
+# TODO: if USING_LIBPNG
+env.Append(
+    CPPDEFINES = [
+        'PNG_USER_CONFIG',
+        'CHROME_PNG_WRITE_SUPPORT',
+    ]
+)
+if not env['GEARS_STATIC_LIB']:
+  # If we're not linking with Chrome, don't prefix all the symbols with
+  # webkit_.
+  env.Append(CPPDEFINES = ['GEARS_PNG_BUILD'])
+
+
+# TODO: if USING_ZLIB
+env.Append(
+    CPPDEFINES = [
+        'NO_GZIP',
+        'NO_GZCOMPRESS',
+    ]
+)
+if env['OS'] == 'wince':
+  env.Append(CPPDEFINES = 'NO_ERRNO_H')
+
+# Languages
+
+env['I18N_LANGS'] = [
+    'en-US',
+    'ar',
+    'bg',
+    'ca',
+    'cs',
+    'da',
+    'de',
+    'el',
+    'en-GB',
+    'es',
+    'et',
+    'fa',
+    'fi',
+    'fil',
+    'fr',
+    'he',
+    'hi',
+    'hr',
+    'hu',
+    'id',
+    'is',
+    'it',
+    'ja',
+    'ko',
+    'lt',
+    'lv',
+    'ms',
+    'nl',
+    'no',
+    'pl',
+    'pt-BR',
+    'pt-PT',
+    'ro',
+    'ru',
+    'sk',
+    'sl',
+    'sr',
+    'sv',
+    'th',
+    'tr',
+    'uk',
+    'ur',
+    'vi',
+    'zh-CN',
+    'zh-TW',
+    'ml',
+    'te',
+    'gu',
+    'kn',
+    'or',
+    'bn',
+    'ta',
+    'mr',
+]
+
+# Platform-specific flags follow.
+
+if env['OS'] in ['win32', 'wince']:
+  env.Replace(ARFLAGS = [])
+  env.Append(
+      CPPDEFINES = [
+          'STRICT',
+          '_UNICODE',
+          'UNICODE',
+          '_USRDLL',
+          'WIN32',
+          '_WINDLL',
+          '_CRT_SECURE_NO_DEPRECATE',
+          'NOMINMAX',
+
+# In VC8, the way to disable exceptions is to remove all /EH* flags, and to
+# define _HAS_EXCEPTIONS=0 (for C++ headers) and _ATL_NO_EXCEPTIONS (for ATL).
+          '_HAS_EXCEPTIONS=0',
+          '_ATL_NO_EXCEPTIONS',
+# Do not export UTF functions.
+          'U_STATIC_IMPLEMENTATION',
+      ],
+# Static lib flags.
+      ARFLAGS = [
+          '/NOLOGO',
+      ],
+# Shared lib and exe flags.
+      COMMON_LINKFLAGS = [
+          '/NOLOGO',
+          '/DEBUG',
+          '/RELEASE',
+          '/PDB:${TARGET.base}.pdb',
+      ],
+      SHLINKFLAGS = [
+          '/DLL',
+# Set the preferred base address.  This value was chosen because (a) it's near
+# the top of the valid address range, and (b) it doesn't conflict with other
+# DLLs loaded by Chrome in either the browser or plugin process.
+          '/BASE:0x65000000',
+      ],
+      CPPFLAGS = [
+          '/nologo',
+          '/c',
+          '/W3',
+          '/WX',
+          '/GR-',
+          '/Fd"${TARGET.base}.pdb"',
+      ],
+      CXXFLAGS = [
+          '/TP',
+          '/J',
+      ],
+      CPPPATH = [
+          '$VC80_CPPPATH',
+          '$THIRD_PARTY_DIR/breakpad/src',
+      ],
+      CCPDBFLAGS = [
+          '/Zi',  # TODO: Chrome defines /Z7, no idea what these are.
+      ],
+      LIBPATH = [
+          '$VC80_LIBPATH',
+      ],
+  )
+  if env['OS'] == 'win32':
+    env.Append(
+        CPPDEFINES = [
+# We require APPVER=5.0 for things like HWND_MESSAGE.
+# When APPVER=5.0, win32.mak in the Platform SDK sets:
+#   C defines:  WINVER=0x0500
+#               _WIN32_WINNT=0x0500
+#               _WIN32_IE=0x0500
+#               _RICHEDIT_VER=0x0010
+#   RC defines: WINVER=0x0500
+#   MIDL flags: /target NT50
+# Note: _WIN32_WINDOWS was replaced by _WIN32_WINNT for post-Win95 builds.
+# Note: XP_WIN is only used by Firefox headers
+            '_WINDOWS',
+            'WINVER=0x0500',
+            '_WIN32_WINNT=0x0500',
+            '_WIN32_IE=0x0500',
+            '_RICHEDIT_VER=0x0010',
+            '_MERGE_PROXYSTUB',
+            'BREAKPAD_AVOID_STREAMS',
+            'XP_WIN',
+        ],
+        ARFLAGS = [
+            '/MACHINE:X86',
+        ],
+        COMMON_LINKFLAGS = [
+            '/MACHINE:X86',
+            '/NODEFAULTLIB:msvcrt',
+# Flags for security hardening (only available for win32, not wince).
+            '/DYNAMICBASE',
+            '/SAFESEH',
+        ],
+        SHLINKFLAGS = [
+# We only use /SUBSYSTEM on DLLs. For EXEs we omit the flag, and
+# the presence of main() or WinMain() determines the subsystem.
+            '/SUBSYSTEM:WINDOWS',
+        ],
+        VC80_CPPPATH = [
+# TODO: switch over to Chrome's SDK.
+# Note: these must come after $THIRD_PARTY_DIR/npapi because we want our own
+# npapi.h to take precedence.
+            '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80/files/include',
+            '$PRIVATE_THIRD_PARTY_DIR/platformsdk_vc80/files/include',
+            '$PRIVATE_THIRD_PARTY_DIR/vc_80/files/vc/include',
+        ],
+        VC80_LIBPATH = [
+            '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80/files/lib',
+            '$PRIVATE_THIRD_PARTY_DIR/platformsdk_vc80/files/lib',
+            '$PRIVATE_THIRD_PARTY_DIR/vc_80/files/vc/lib',
+        ],
+    )
+  else:  # OS=wince
+    env.Append(
+        CPPDEFINES = [
+# For Windows Mobile we need:
+#   C defines:  _WIN32_WCE=0x0501
+#               _UNDER_CE=0x0501
+            '_WIN32_WCE=0x501',
+            'WINVER=_WIN32_WCE',
+            'UNDER_CE=0x501',
+            'OS_WINCE',
+            'WIN32_PLATFORM_PSPC',
+            'ARM',
+            '_ARM_',
+            'POCKETPC2003_UI_MODEL',
+            '_CE_ALLOW_SINGLE_THREADED_OBJECTS_IN_MTA',
+            '_CE_CRT_ALLOW_WIN_MINMAX',
+        ],
+        ARFLAGS = [
+            '/MACHINE:THUMB',
+        ],
+        COMMON_LINKFLAGS = [
+            '/MACHINE:THUMB',
+            '/NODEFAULTLIB:secchk.lib',
+            '/NODEFAULTLIB:oldnames.lib',
+        ],
+        SHLINKFLAGS = [
+            '/SUBSYSTEM:WINDOWSCE,5.01',
+        ],
+        VC80_CPPPATH = [
+            '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80ce/files/include',
+            '$PRIVATE_THIRD_PARTY_DIR/vc_80ce/files/include',
+# Visual Studio must be setup before the PocketPC SDK.
+            '$PRIVATE_THIRD_PARTY_DIR/pocketpc_sdk_ce_50/files/include/armv4i',
+        ],
+        VC80_LIBPATH = [
+            '$PRIVATE_THIRD_PARTY_DIR/atlmfc_vc80ce/files/lib/armv4i',
+            '$PRIVATE_THIRD_PARTY_DIR/vc_80ce/files/lib/armv4i',
+            '$PRIVATE_THIRD_PARTY_DIR/pocketpc_sdk_ce_50/files/lib/armv4i',
+        ],
+    )
+
+  if env['MODE'] == 'dbg':
+    env.Append(
+        CPPFLAGS = [
+          '/MTd',
+        ],
+    )
+  else:  # MODE=opt
+    env.Append(
+        CPPFLAGS = [
+          '/MT',
+          '/O2',
+        ],
+        COMMON_LINKFLAGS = [
+          '/INCREMENTAL:NO',
+          '/OPT:REF',
+          '/OPT:ICF',
+        ],
+    )
+  if not env['GEARS_STATIC_LIB']:
+    # Build with 2-byte wchar_t's only if we're building a DLL.  To link with
+    # Chrome, we need 4-byte wchar_t.
+    env.Append(
+        CPPFLAGS = [
+          '/Zc:wchar_t-',
+        ],
+    )
+        
+#--------------------------- LINUX ---------------------------
+elif env['OS'] == 'linux':
+  env.Append(
+      CPPDEFINES = [
+          'LINUX',
+      ],
+      CPPPATH = [
+          '$THIRD_PARTY_DIR/gtk/include/gtk-2.0',
+          '$THIRD_PARTY_DIR/gtk/include/atk-1.0',
+          '$THIRD_PARTY_DIR/gtk/include/glib-2.0',
+          '$THIRD_PARTY_DIR/gtk/include/pango-1.0',
+          '$THIRD_PARTY_DIR/gtk/include/cairo',
+          '$THIRD_PARTY_DIR/gtk/lib/gtk-2.0/include',
+          '$THIRD_PARTY_DIR/gtk/lib/glib-2.0/include',
+      ],
+      CCFLAGS = [
+          '-fPIC',
+          '-fmessage-length=0',
+          '-Wall',
+          '-Werror',
+# NS_LITERAL_STRING does not work properly without this compiler option
+          '-fshort-wchar',
+# Additions to compile on hardy
+          '-Wno-unused-variable',
+          '-Wno-missing-braces',
+          '-Wno-address',
+          '-m32',
+      ],
+      CXXFLAGS = [
+          '-fno-exceptions',
+          '-fno-rtti',
+          '-Wno-non-virtual-dtor',
+          '-Wno-ctor-dtor-privacy',
+          '-funsigned-char',
+          '-Wno-char-subscripts',
+      ],
+      COMMON_LINKFLAGS = [
+          '-fPIC',
+          '-Bsymbolic',
+          '-pthread',
+      ],
+      SHLINKFLAGS = [
+          '-shared',
+          '-Wl,--version-script',
+          '-Wl,$OPEN_DIR/tools/xpcom-ld-script',
+# Additions to compile on hardy
+          '-m32',
+      ],
+  )
+  if env['MODE'] == 'dbg':
+    env.Append(
+      CPPFLAGS = [
+          '-g',
+          '-O0',
+      ],
+    )
+  else:  # MODE=opt
+    env.Append(
+      CPPFLAGS = [
+          '-O2',
+      ],
+    )
+#--------------------------- OSX ---------------------------
+elif env['OS'] == 'osx':
+# Gears uses the 10.4 SDK, so we need to build with g++-4.0.
+# Chrome uses g++-4.2 so we override this here.
+  env['CC'] = 'gcc-4.0'
+  env['CXX'] = 'g++-4.0'
+# Compile assembly files with the same command line as C files.
+  env['ASCOM'] = '$CCCOM'
+  
+  env.Append(OSX_SDK_ROOT = '/Developer/SDKs/MacOSX10.4u.sdk')
+
+  env.Append(
+      CPPDEFINES = [
+          'OSX',
+          'OS_MACOSX',
+# for breakpad
+          'USE_PROTECTED_ALLOCATIONS=1',
+      ],
+      CPPPATH = [
+# Breakpad assumes it is in the include path
+          '$THIRD_PARTY_DIR/breakpad_osx/src',
+      ],
+      CCFLAGS = [
+           '-mmacosx-version-min=10.4',
+          ('-arch', 'ppc'),
+          ('-arch', 'i386'),
+          '-fPIC',
+          '-fmessage-length=0',
+# TODO
+#          '-Wall',
+# NS_LITERAL_STRING does not work properly without this compiler option
+          '-fshort-wchar',
+          '-fvisibility=hidden',
+# Breakpad on OSX needs debug symbols to use the STABS format, rather than the
+# default DWARF debug symbols format. Note that we enable gstabs for debug &
+# opt; we strip them later in opt.
+          '-gstabs+',
+      ],
+      CXXFLAGS = [
+          '-fvisibility-inlines-hidden',
+          '-fno-exceptions',
+          '-fno-rtti',
+          ('-Wall',
+           '-Wno-non-virtual-dtor',
+           '-Wno-ctor-dtor-privacy',
+           '-Wno-char-subscripts',
+# When a function is deprecated in gcc, it stupidly warns about all functions
+# and member functions that have the same name, regardless of signature.
+# Example: Standard osx headers deprecate 'SetPort', which causes a warning for
+# url_canon::Replacements::SetPort().
+           '-Wno-deprecated-declarations',
+          ),
+          '-funsigned-char',
+          ('-include', env.File('#/$OPEN_DIR/base/safari/prefix_header.h').abspath),
+          ('-isysroot', '$OSX_SDK_ROOT')
+      ],
+      COMMON_LINKFLAGS = [
+           '-mmacosx-version-min=10.4',
+           '-fPIC',
+           '-Bsymbolic',
+           ('-arch', 'ppc'),
+           ('-arch', 'i386'),
+           ('-isysroot', '$OSX_SDK_ROOT'),
+           '-Wl,-dead_strip',
+      ],
+      SHLINKFLAGS = [
+          '-bundle',  # DLLFLAGS
+      ],
+      FRAMEWORKS = [
+          'Carbon',
+          'CoreServices',
+          'Cocoa',
+          'WebKit',
+      ],
+      M4FLAGS = [
+          '-DGEARS_ENABLER_PATH="$SF_INPUTMANAGER_BUNDLE"',
+          '-DGEARS_PLUGIN_PATH="$SF_PLUGIN_PROXY_BUNDLE"',
+          '-DGEARS_INSTALLER_OUT_DIR="$INSTALLER_OUTDIR/Safari"',
+
+          # Keystone
+          '-DKEYSTONE_BASE_DIR="$MAIN_DIR/$PRIVATE_THIRD_PARTY_DIR/googlemac/Releases/Keystone/"',
+          '-DGEARS_INSTALLER_PACKAGE="$SF_INSTALLER_PKG"',
+          '-DGEARS_GENFILES_DIR="$SF_OUTDIR/genfiles"',
+          '-DGEARS_TOOLS_DIR="$MAIN_DIR/$PRIVATE_DIR/tools"',
+      ],
+  )
+  if env['MODE'] == 'dbg':
+    env.Append(
+        CPPFLAGS = [
+            '-g',
+            '-O0',
+        ],
+    )
+  else:  # MODE=opt
+    env.Append(
+        CPPFLAGS = [
+            '-O2',
+        ],
+    )
+#--------------------------- ANDROID ---------------------------
+elif env['OS'] == 'android':
+  if not os.environ['ANDROID_BUILD_TOP']:
+    print ("Please set ANDROID_BUILD_TOP to the top"
+           " level of your Android source.")
+    Return()
+
+  if not os.environ['ANDROID_TOOLCHAIN']:
+    print ("Cannot determine location of the target toolchain."
+           " Please set ANDROID_TOOLCHAIN manually.")
+    Return()
+
+  env['ANDROID_BUILD_TOP'] = os.environ['ANDROID_BUILD_TOP']
+
+  # Figure out the cross-compile prefix by finding the *-gcc executable
+  # and taking the '*' as the prefix for the rest.
+  cross_prefix_command = os.popen(
+    r"ls %s/*-gcc | sed 's|\(.*/.*\-\)gcc|\1|g'" %
+    os.environ['ANDROID_TOOLCHAIN'])
+  cross_prefix = cross_prefix_command.read().strip()
+  if cross_prefix_command.close() != None:
+    Return()
+
+  # Find the output directory. Assume the only target output directory.
+  product_out_command = os.popen("ls %s/out/target/product/*" %
+                                 os.environ['ANDROID_BUILD_TOP'])
+  product_out = product_out_command.read().strip()
+  if product_out_command.close() != None:
+    Return()
+
+  env['CC'] = cross_prefix + 'gcc'
+  env['CXX'] = cross_prefix + 'g++'
+
+  env.Append(
+      CPPPATH = [
+          '$OPEN_DIR/base/android',
+          '$THIRD_PARTY_DIR/stlport/stlport',
+          '$THIRD_PARTY_DIR/stlport/stlport/stl',
+          '$THIRD_PARTY_DIR/stlport/stlport/stl/config',
+          '$THIRD_PARTY_DIR/spidermonkey/nspr/pr/include',
+          '$ANDROID_BUILD_TOP/include',
+          '$ANDROID_BUILD_TOP/include/nativehelper',
+          '$ANDROID_BUILD_TOP/system',
+          '$ANDROID_BUILD_TOP/system/bionic/include',
+          '$ANDROID_BUILD_TOP/system/bionic/arch-arm/include',
+          '$ANDROID_BUILD_TOP/system/kernel_headers',
+          '$ANDROID_BUILD_TOP/system/bionic/kernel/arch-arm',
+          '$ANDROID_BUILD_TOP/system/bionic/kernel/common',
+          '$ANDROID_BUILD_TOP/system/libm/include ',
+          '$ANDROID_BUILD_TOP/bionic',
+          '$ANDROID_BUILD_TOP/bionic/libc/include',
+          '$ANDROID_BUILD_TOP/bionic/libc/arch-arm',
+          '$ANDROID_BUILD_TOP/bionic/libc/arch-arm/include',
+          '$ANDROID_BUILD_TOP/bionic/libc/kernel/arch-arm',
+          '$ANDROID_BUILD_TOP/bionic/libc/kernel/common',
+          '$ANDROID_BUILD_TOP/bionic/libm/include',
+          '$ANDROID_BUILD_TOP/dalvik/libnativehelper/include',
+          '$ANDROID_BUILD_TOP/extlibs',
+          '$ANDROID_BUILD_TOP/extlibs/icu4c-3.8/common',
+          '$ANDROID_BUILD_TOP/extlibs/icu4c-3.8/i18n',
+          '$ANDROID_BUILD_TOP/extlibs/jpeg-6b',
+          '$ANDROID_BUILD_TOP/extlibs/sqlite',
+          '$ANDROID_BUILD_TOP/extlibs/zlib-1.2.3',
+          '$ANDROID_BUILD_TOP/external',
+          '$ANDROID_BUILD_TOP/external/icu4c/common',
+          '$ANDROID_BUILD_TOP/external/icu4c/i18n',
+          '$ANDROID_BUILD_TOP/external/jpeg',
+          '$ANDROID_BUILD_TOP/external/sqlite/dist',
+          '$ANDROID_BUILD_TOP/external/zlib',
+          '$ANDROID_BUILD_TOP/frameworks/base/include',
+          '$ANDROID_BUILD_TOP/system/core/include',
+      ],
+      CPPFLAGS = [
+          '-g',
+          '-c',
+          '-fPIC',
+          '-fmessage-length=0',
+          '-Wall',
+          '-fvisibility=hidden',
+# NS_LITERAL_STRING does not work properly without this compiler option
+          '-fshort-wchar',
+          '-funsigned-char',
+          '-march=armv5te',
+          '-mtune=xscale',
+          '-mthumb-interwork',
+          '-ffunction-sections',
+          '-fdata-sections',
+          '-fno-exceptions',
+      ],
+      CXXFLAGS = [
+          '-fno-rtti',
+          '-fvisibility-inlines-hidden',
+          '-Wno-non-virtual-dtor',
+          '-Wno-ctor-dtor-privacy',
+      ],
+      CPPDEFINES = [
+          'OS_ANDROID',
+          'ANDROID',
+          'TARGET_OS=android',
+          'BUILD_OSNAME=android',
+          'OSNAME=android',
+          'COMPILER_NAME=gcc',
+          '__SGI_STL_INTERNAL_PAIR_H',
+          '_CPP_UTILITY',
+          '_LITTLE_ENDIAN=1234',
+          '_BIG_ENDIAN=4321',
+          '_PDP_ENDIAN=3412',
+          '_BYTE_ORDER=_LITTLE_ENDIAN',
+      ],
+      COMMON_LINKFLAGS = [
+          '-g',
+          '-fPIC',
+          '-Bsymbolic',
+          '-nostdlib',
+      ],
+      SHLINKFLAGS = [
+          '-shared',
+          '-Wl,--gc-sections',
+          '-L$ANDROID_PRODUCT_OUT/system/lib',
+# Workaround for the Android C library not implementing
+# __aeabi_atexit, which is used to destruct static C++ objects.  This
+# causes all calls to be rewritten by the linker to
+# __wrap___aeabi_atexit, which we then implement.
+          '-Wl,--wrap,__aeabi_atexit',
+      ],
+  )
+  if env['MODE'] == 'dbg':
+    env.Append(
+      CPPFLAGS = [
+          '-g',
+          '-O',
+          '-funwind-tables',
+          '-mapcs-frame',
+      ],
+    )
+  else:  # MODE=opt
+    env.Append(
+      CPPFLAGS = [
+          '-O2',
+          '-mthumb',
+          '-fomit-frame-pointer',
+      ],
+    )
+
+# Custom builder to work around a scons and/or hammer bug.  ComponentLibrary
+# tries to install the library to COMPONENT_LIBRARY_DIR, but since we overrode
+# that value, scons gets confused.  I'm not sure who is at fault here.
+# See http://code.google.com/p/chromium/issues/detail?id=4177.
+def GearsStaticLibrary(env, *args, **kw):
+  lib = env.ChromeLibrary(*args, **kw)
+  env.Install('$COMPONENT_LIBRARY_DIR', lib[0])
+  return lib
+env.AddMethod(GearsStaticLibrary)
+
+# Load all the components
+
+sconscripts = [
+    'SConscript.googleurl',
+    'SConscript.libjpeg',
+    'SConscript.libpng',
+    'SConscript.libmozjs',
+    'SConscript.sqlite',
+    'SConscript.zlib',
+    'SConscript.libbreakpad_osx',
+    'SConscript.libgd',
+]
+
+for each in sconscripts:
+  env.SConscript(each,
+                 exports=['env'],
+                 variant_dir='$COMMON_OUTDIR',
+                 duplicate=0)
+
+# Order of execution is important here.  Each sub-script adds to the
+# environment, for use by later scripts.
+env = env.SConscript('SConscript.inputs', exports=['env'])
+
+outputs = env.SConscript('SConscript.common',
+               exports=['env'],
+               variant_dir='$COMMON_OUTDIR',
+               duplicate=0)
+env.Append(**outputs)
+
+browsers = [env['BROWSER']]
+if browsers[0] == 'all':
+  browsers = env['VALID_BROWSERS']
+print 'Building:', browsers
+
+# We run the browser script once for each browser target we want to build.
+# Each script adds variables to the environment in the form of
+# '${BROWSER}_foo = bar' for use by the installers script.
+for each in browsers:
+  env.Replace(BROWSER = each)
+  outputs = env.SConscript('SConscript.browser',
+                 exports=['env'],
+                 variant_dir='$BROWSER_OUTDIR',
+                 duplicate=0)
+  browser_outputs = {}
+  for key, value in outputs.iteritems():
+    browser_outputs[each + '_' + key] = value
+  env.Append(**browser_outputs)
+
+# Note: even though the installers write to $INSTALLER_OUTDIR, they need to
+# read files from other dirs, so we give them a variant_dir at the toplevel.
+env.SConscript('SConscript.installers',
+               exports=['env'],
+               variant_dir='$BASE_OUTDIR',
+               duplicate=0)
+
+env.Alias('gears-installers', 'gears')

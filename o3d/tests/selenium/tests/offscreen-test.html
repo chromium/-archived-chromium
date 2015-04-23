@@ -1,0 +1,158 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+Offscreen Test
+
+Make sure client areas that are not visible are not rendered.
+But that tick callbacks are called.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Offscreen Test.
+</title>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="../../../samples/o3djs/base.js"></script>
+
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.rendergraph');
+
+// Events
+// init() once the page has finished loading.
+// unload() when the page is unloaded.
+window.onload = init;
+window.onunload = uninit;
+
+// Events
+// init() once the page has finished loading.
+window.onload = init;
+
+// global variables
+var g_clients = [];
+var g_packs = [];
+var g_viewInfos = [];
+var g_renderCounts = [0, 0];
+var g_tickCounts = [0, 0];
+var g_testResult;
+
+function onRender(index) {
+  g_viewInfos[index].clearBuffer.clearColor = [Math.random(),
+                                               Math.random(),
+                                               Math.random(),
+                                               1];
+  g_renderCounts[index] += 1;
+
+  // After 30 frames check that the offscreen client didn't render.
+  if (g_renderCounts[0] > 30) {
+    g_testResult = g_renderCounts[1] < 5 &&
+                   g_tickCounts[1] > 25 &&
+                   g_tickCounts[0] > 25;
+  }
+}
+
+function onTick(index) {
+  g_tickCounts[index] += 1;
+}
+
+/**
+ * Creates the client areas.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D and loads the model into the transform graph.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  for (var ii = 0; ii < clientElements.length; ++ii) {
+    var o3dElement = clientElements[ii];
+
+    g_clients[ii] = o3dElement.client;
+    g_packs[ii] = g_clients[ii].createPack();
+
+    g_viewInfos[ii] = o3djs.rendergraph.createBasicView(
+      g_packs[ii],
+      g_clients[ii].root,
+      g_clients[ii].renderGraphRoot);
+
+    setRenderCallback(ii);
+    setTickCallback(ii);
+  }
+}
+
+/**
+ * Sets the render callback such that it has access to the client.
+ * @param {!o3d.client} client The client to set the render callback on.
+ */
+function setRenderCallback(index) {
+  g_clients[index].setRenderCallback(function() { onRender(index); });
+}
+
+/**
+ * Sets the tick callback such that it has access to the client.
+ * @param {!o3d.client} client The client to set the tick callback on.
+ */
+function setTickCallback(index) {
+  g_clients[index].setTickCallback(function() { onTick(index); });
+}
+
+/**
+ * Cleans up.
+ */
+function uninit() {
+  for (var ii = 0; ii < g_clients.length; ++ii) {
+    g_clients[ii].clearRenderCallback();
+    g_clients[ii].clearTickCallback();
+  }
+}
+
+</script>
+</head>
+<body>
+<h1>Offscreen Test</h1>
+This test verifies that client areas offscreen do not render but that tick
+callbacs get called.
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d-on-screen" style="width: 100px; height: 100px;"></div>
+<div style="width: 100px; height: 4000px; border: red 1px solid;"></div>
+<div id="o3d-off-screen" style="width: 100px; height: 100px;"></div>
+<!-- End of O3D plugin -->
+</body>
+</html>

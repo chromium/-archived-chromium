@@ -1,0 +1,170 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+[include="import/cross/archive_request.h"]
+callback void ArchiveRequestCallback();
+
+%[
+  An ArchiveRequest object is used to carry out an asynchronous request for a
+  compressed archive (containing multiple files).
+
+  Note: The archive must have as its first file a file named 'aaaaaaaa.o3d'
+  who's contents is 'o3d'. This is to prevent O3D being used to open
+  archive files that were not meant for it.
+
+  \code
+  var request = pack.createArchiveRequest();
+  request.open("GET", url);
+
+  request.onfileavailable = myFileAvailableCallback;
+  request.onreadystatechange = myReadyStateChangeCallback;
+  request.send();
+
+  function myFileAvailableCallback() {
+    dump("uri: " + request.data.uri + "\n");
+    dump("content: " + request.data.stringValue + "\n");
+
+    // You can pass a RawData to various creation functions. Note: request.data
+    // is only valid during an onfileavailable callback.
+    // Examples:
+    if (request.data.uri == 'mytexture.jpg')
+      pack.createTexture2d(request.data, makeMips);
+    if (request.data.uri == 'myvertices.bin')
+      vertexBuffer.set(request.data);
+    if (request.data.uri == 'myAudio.mp3')
+      audioSystem.createSound(request.data);
+  }
+
+  function myReadyStateChangeCallback() {
+    if (request.done) {
+      if (request.success) {
+        // there were no errors trying to read the archive
+      } else {
+        dump(request.error);
+      }
+    }
+  }
+
+  // When you are done with the RawDatas loaded by the request, remove
+  // the request from the pack to free them.
+  pack.removeObject(request);
+  \endcode
+%]
+
+[nocpp, include="import/cross/archive_request.h"] class ArchiveRequest
+    : ObjectBase {
+  %[
+    A callback that gets called each time readyState changes.
+  %]
+  [setter]
+  ArchiveRequestCallback? onreadystatechange;
+
+  %[
+    A callback that gets called each time a file fully downloads and becomes
+    available.
+  %]
+  [setter]
+  ArchiveRequestCallback? onfileavailable;
+
+  %[
+    The uri of the archive being downloaded.
+  %]
+  [getter] String uri;
+
+  %[
+    A RawData object representing the file that is currently available.
+    Note: This value is only valid inside the onfileavailable callback.
+  %]
+  [getter] RawData? data;
+
+  %[
+    The length of the entire archive in bytes.
+
+    Use this value along with bytesReceived to figure out the download progress.
+  %]
+  [getter] int streamLength;
+
+  %[
+    The number of bytes downloaded so far.
+
+    You can use this value along with streamLength to figure out the download
+    progress.
+  %]
+  [getter] int bytesReceived;
+
+  %[
+    Holds the same values as in XMLHttpRequest:
+    \li 0 = uninitialized
+    \li 1 = opened
+    \li 2 = sent
+    \li 3 = receiving
+    \li 4 = loaded (the file has been downloaded, but may or may not have been
+    parsed yet)
+  %]
+  [getter] int readyState;
+
+  %[
+    Indicates whether processing for this FileRequest has finished.
+  %]
+  [getter] bool done;
+
+  %[
+    This field is only valid if done is true.  It indicates whether or not the
+    request succeeded. If false see error for an error message.
+  %]
+  [getter] bool success;
+
+  %[
+    An error message.
+    If done is true and success is false this will be an error message
+    describing what went wrong.
+  %]
+  [getter] String error;
+
+  %[
+    Sets up several of the request fields.
+    \param method "GET" is the only supported method at this time
+    \param uri the location of the file to fetch
+  %]
+  [nocpp, userglue, plugin_data] void open(
+      String method, String uri);
+
+  %[
+    Send the request.
+    Unlike XMLHttpRequest the onreadystatechange callback will be called no
+    matter what, with success or failure.
+  %]
+  [nocpp, userglue, plugin_data] void send();
+};
+
+}  // namespace o3d

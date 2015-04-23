@@ -1,0 +1,94 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
+namespace o3d {
+
+%[
+CanvasShader is the base class of 2D gradient shaders that can be applied to a
+CanvasPaint. When a shader is assigned to a CanvasPaint object, all subsequent
+drawing (text and objects) will use the shader pattern as a fill material.
+%]
+
+[nocpp, include="core/cross/canvas_shader.h"]
+class CanvasShader : ParamObject {
+  %[
+    \var TileMode
+    \li CLAMP  copy the edge color if the shader draws outside of its bounds
+    \li REPEAT  repeat horizontally and vertically outside its bounds
+    \li MIRROR  same as above, alternating mirror images
+  %]
+  enum TileMode {
+    CLAMP,  /* copy the edge color if the shader draws outside of its bounds */
+    REPEAT,  /* repeat horizontally and vertically outside its bounds */
+    MIRROR  /* same, alternating mirror images */
+  };
+
+};  // class CanvasShader
+
+%[
+A shader that generates a linear gradient between two specified points. Two or
+more colors need to be specified for the gradient.
+%]
+[nocpp, include="core/cross/canvas_shader.h"]
+class CanvasLinearGradient : CanvasShader {
+  %[
+    The start point of this gradient.
+  %]
+  [getter, setter] Float2 start_point;
+
+  %[
+    The end point of this gradient.
+  %]
+  [getter, setter] Float2 end_point;
+
+  %[
+    The array of colors to be distributed between the two points in RBGA format
+    stored as an array of [r, g, b, a] colors.
+  %]
+  [getter, setter] Float4[] colors;
+
+  %[
+    The relative position of each corresponding color in the color array.
+    Values must begin with 0 and end with 1.0 and there should be exactly as
+    many numbers as there are colors.  If positions is set to an empty array then
+    the colors are distributed evenly between between the start and end point.
+  %]
+  [getter, setter] float[] positions;
+
+  %[
+    The TileMode of this gradient which controls how the gradient pattern
+    repeats.
+  %]
+  [getter, setter] TileMode tile_mode;
+
+};  // class CanvasLinearGradient
+}  // namespace o3d

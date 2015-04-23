@@ -1,0 +1,23 @@
+<html>
+<body>
+ <p>This tests to see if 'style.display' for an element can be set dynamically.  See bug 820947. </p>
+
+<script>
+if (window.layoutTestController)
+    layoutTestController.dumpAsText();
+
+document.writeln("<div  id=\"result\"> \r\n  This test: FAILED </div>\r\n");
+document.writeln("<div  id=\"announce:Top\">\r\n This text should be hidden </div>\r\n");
+
+with(document) {
+  	var announceTop = getElementById("announce:Top");
+	announceTop.style.display = "none";
+	if ( announceTop.style.display == "none" )
+	  { getElementById("result").innerHTML=' This test: PASSED!'}
+   
+} 
+
+</script>
+
+</body>
+</html>

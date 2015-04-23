@@ -1,0 +1,27 @@
+// Copyright (c) 2008 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#include "common.xcconfig"
+
+COPY_PHASE_STRIP = NO
+GCC_OPTIMIZATION_LEVEL = 0
+// Would be nice to define DEBUG to prevent against people incorrectly using
+// it intstead of !NDEBUG, but it causes libxml to spew diagnostic info all
+// over our layout tests.
+// GCC_PREPROCESSOR_DEFINITIONS = $(GCC_PREPROCESSOR_DEFINITIONS) DEBUG
+// Additional libc++ strictness; disabled because they break some things in
+// WebKit and some additional things when building with gcc 4.2.
+// GCC_PREPROCESSOR_DEFINITIONS = $(GCC_PREPROCESSOR_DEFINITIONS) DEBUG _GLIBCXX_CONCEPT_CHECKS _GLIBCXX_DEBUG _GLIBCXX_DEBUG_PEDANTIC
+OTHER_CFLAGS = $(OTHER_CFLAGS) -fstack-protector -fstack-protector-all
+
+// Code coverage support via gcov is disabled for normal debug builds because
+// our build structure results in many "merge mismatch for summaries" messages
+// being printed at the conclusion of many tests in many depend build cases, as
+// well as a long delay while summary data is written.  Since these are not
+// needed in the majority of debug builds, code coverage is left off, but it
+// can be easily enabled by uncommenting the next section.
+//
+//GCC_GENERATE_TEST_COVERAGE_FILES = YES
+//GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES
+//CODECOVERAGE_OTHER_LDFLAGS = -lgcov

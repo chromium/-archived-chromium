@@ -1,0 +1,71 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="nl">
+<translation id="6676384891291319759">Toegang tot internet</translation>
+<translation id="8579274574697852281">Voor Google Chrome is Windows Vista of Windows XP met SP1 of hoger vereist.</translation>
+<translation id="698670068493841342">Google Chrome is al geïnstalleerd voor deze gebruiker. Als de software niet werkt, verwijdert u Google Chrome en downloadt u het programma opnieuw.</translation>
+<translation id="7400722733683201933">Over Google Chrome</translation>
+<translation id="7101265395643981223">Start Google Chrome</translation>
+<translation id="1549918799472947005">Chrome gebruikt uw standaardzoekmachine, die momenteel is ingesteld op <ph name="PAGE_TITLE"/>. Wilt u uw standaardzoekmachine houden?</translation>
+<translation id="2370289711218562573">Google Chrome importeert momenteel favorieten/bladwijzers.</translation>
+<translation id="8970027151245482499">Google Chrome is niet geïnstalleerd of de installatiedirectory is niet gevonden. Download Google Chrome opnieuw.</translation>
+<translation id="7958215378280655655">Wanneer u Chrome-opties herstelt worden wijzigingen die u heeft aangebracht weer teruggezet naar de oorspronkelijke instellingen. Wilt u de Chrome-opties herstellen?</translation>
+<translation id="4281844954008187215">Servicevoorwaarden</translation>
+<translation id="2197898401230534722">Alle profielgegevens verwijderen</translation>
+<translation id="1137776625614346046">Het gedeelte 'Meest bezocht' bevat de websites die u het vaakst bezoekt. Als u Google Chrome een tijdje gebruikt, worden uw meestbezochte sites weergegeven wanneer u een nieuw tabblad opent. U kunt meer informatie hierover en over andere functies raadplegen op de pagina <ph name="BEGIN_LINK"/>Aan de slag<ph name="END_LINK"/>.</translation>
+<translation id="4728575227883772061">De installatie is mislukt wegens een onbekende fout. Als Google Chrome momenteel actief is, sluit u het programma af en probeert u het opnieuw.</translation>
+<translation id="4149882025268051530">Het installatieprogramma kan het archief niet uitpakken. Download Google Chrome opnieuw.</translation>
+<translation id="4343226815564935778">De installatiedirectory voor Google Chrome lijkt in gebruik te zijn. Start uw computer opnieuw op en probeer het opnieuw.</translation>
+<translation id="4506896920521131223">Copyright © 2006-2009 Google Inc. Alle rechten voorbehouden.</translation>
+<translation id="6817660909204164466">Help Google Chrome beter te maken door automatisch gebruiksstatistieken en crashmeldingen naar Google te verzenden</translation>
+<translation id="8227755444512189073"><ph name="SCHEME"/> De opgevraagde link is <ph name="PROTOLINK"/>.</translation>
+<translation id="1281036569101707544"><ph name="TERMS_OF_SERVICE_LINK"/> van Google Chrome</translation>
+<translation id="8815061062167142136">O jee! Google Chrome is vastgelopen. Nu herstarten?</translation>
+<translation id="5016204670686360703">Als u nu annuleert, worden niet alle items geïmporteerd. U kunt later opnieuw importeren via het Chrome-menu.</translation>
+<translation id="7241541963706135274">Google Chrome voert deze taken uit:</translation>
+<translation id="8446794773162156990">Google Chrome doet moeilijk</translation>
+<translation id="3889417619312448367">Google Chrome verwijderen</translation>
+<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
+<translation id="8810218179782551669">Taal van Google Chrome:</translation>
+<translation id="3940866277504106378">Google Chrome kan webservices gebruiken om uw internetervaring te verbeteren. Als u wilt, kunt u deze services uitschakelen.</translation>
+<translation id="7001386529596391893">Maak snelkoppelingen voor Google Chrome op deze locaties:</translation>
+<translation id="6134282421960734039">Wilt u dat Chrome uw wachtwoord opslaat?</translation>
+<translation id="1195935957447623558">Google Chrome is niet correct afgesloten. Klik op Herstellen om de pagina's te openen die actief waren.</translation>
+<translation id="2499193704281978000">Google Chrome reageert niet. Nu herstarten?</translation>
+<translation id="7747138024166251722">Het installatieprogramma kan geen tijdelijke directory maken. Controleer of u nog schijfruimte heeft en of u toestemming heeft om software te installeren.</translation>
+<translation id="6009537148180854585">U probeert &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; te bereiken, maar de server heeft een certificaat geretourneerd dat fouten bevat. Google Chrome kan geen certificaten met fouten verwerken en kan de identiteit niet verifiëren van de site waarmee u verbinding probeert te maken. Uw verbinding is niet veilig en u kunt beter niet verdergaan.</translation>
+<translation id="3324235665723428530">Chrome kan uw profiel niet gebruiken aangezien het van een nieuwere versie van Google Chrome is.\n\nSommige functies zijn misschien niet beschikbaar. Geef een andere profieldirectory aan of gebruik een nieuwere versie van Chrome.</translation>
+<translation id="1759842336958782510">Chrome</translation>
+<translation id="2044287590254833138">Google Chrome Toolbar</translation>
+<translation id="6481075104394517441">U probeert &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; te bereiken, maar de server heeft een certificaat geretourneerd dat nog niet geldig is. Er is nog geen informatie beschikbaar over de betrouwbaarheid van dit certificaat. Chrome kan niet met zekerheid garanderen dat u met &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; communiceert, en niet met een hacker. U moet ervoor zorgen dat uw klok en tijdzone correct zijn ingesteld op uw computer. Zo niet, dan moet u dit aanpassen en deze pagina vernieuwen. Als ze correct zijn, moet u niet verder gaan.</translation>
+<translation id="8862326446509486874">U heeft geen rechten om op systeemniveau te installeren. Meld u aan als beheerder en voer het installatieprogramma opnieuw uit.</translation>
+<translation id="2874156562296220396">Google Chrome wordt mogelijk gemaakt door het open-source project <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> en andere <ph name="BEGIN_LINK_OSS"/>open-source software<ph name="END_LINK_OSS"/>.</translation>
+<translation id="6921913858457830952">U kunt nu uw installatie van Google Chrome voltooien.</translation>
+<translation id="7100330187273168372">Google Chrome kan deze datadirectory niet lezen of beschrijven:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">Weet u zeker dat u Google Chrome wilt verwijderen?</translation>
+<translation id="5941830788786076944">Google Chrome instellen als mijn standaardbrowser</translation>
+<translation id="4127951844153999091">In dit geval komt het adres in het certificaat niet overeen met het adres van de website dat uw browser probeerde te bezoeken. Dit kan komen omdat uw communicatie wordt onderschept door een hacker die een certificaat voor een andere website retourneert, waardoor de adressen niet overeenkomen. Een andere mogelijkheid is dat de server is ingesteld op het retourneren van hetzelfde certificaat voor meerdere websites, inclusief de site die u probeert te bezoeken, hoewel dat certificaat niet geldig is voor al deze websites. Google Chrome kan garanderen dat u &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; heeft bereikt, maar kan niet verifiëren of dat dezelfde site is als &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, die u wilde bezoeken. Als u doorgaat, controleert Chrome niet verder op verschillen tussen namen. Over het algemeen is het beter hier niet verder te gaan.</translation>
+<translation id="2712549016134575851">Er is een conflict gedetecteerd met een andere geïnstalleerde toepassing.</translation>
+<translation id="7161904924553537242">Welkom bij Google Chrome</translation>
+<translation id="8236873504073475138">Google Chrome ondersteunt Windows 2000 niet. Sommige functies werken mogelijk niet.</translation>
+<translation id="5046764976540625289">Chrome sluiten</translation>
+<translation id="8865765905101981392">Internetbrowser</translation>
+<translation id="582763753075639530">Deze wijziging wordt doorgevoerd als u alle Google Chrome-vensters sluit en Google Chrome opnieuw start.</translation>
+<translation id="8776515774046280928">Google Chrome is al geïnstalleerd en beschikbaar voor alle gebruikers van deze computer. Als u Google Chrome wilt installeren op gebruikersniveau, moet u eerst de versie op systeemniveau verwijderen die door een beheerder is geïnstalleerd.</translation>
+<translation id="3335672657969596251">Google Chrome ondersteunt <ph name="OS_NAME"/> niet.</translation>
+<translation id="3636771339108070045">Er staat al een nieuwere versie van Google Chrome op deze computer. Als de software niet werkt, verwijdert u Google Chrome en downloadt u het programma opnieuw.</translation>
+<translation id="3396666154568987767">Google Chrome voor <ph name="PROFILE_NAME"/></translation>
+<translation id="1964682833763362793">Sluit alle Chrome-vensters en probeer het opnieuw.</translation>
+<translation id="1001534784610492198">Het archief van het installatieprogramma is beschadigd of ongeldig. Download Google Chrome opnieuw.</translation>
+<translation id="6626317981028933585">Uw instellingen voor Mozilla Firefox zijn helaas niet beschikbaar als deze browser is geopend. Sla uw werk op en sluit alle Firefox-vensters om de instellingen te kunnen importeren naar Google Chrome. Klik hierna op 'Doorgaan'.</translation>
+<translation id="8540666473246803645">Google Chrome</translation>
+<translation id="6049075767726609708">Een beheerder heeft Google Chrome al geïnstalleerd op deze computer en het programma is beschikbaar voor alle gebruikers. De Google Chrome-installatie op systeemniveau vervangt de installatie op gebruikersniveau.</translation>
+<translation id="3870154837782082782">Google Inc.</translation>
+<translation id="1446473746922165495">Wijzig de taal die wordt gebruikt in de menu's, dialogen en tooltips van Google Chrome.</translation>
+<translation id="9189723490960700326">U probeert &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; te bereiken, maar de server heeft een verlopen certificaat geretourneerd. Er is nog geen informatie beschikbaar waaruit blijkt of het certificaat is geschonden sinds de vervaldatum. Dat betekent dat Google Chrome niet met zekerheid kan garanderen dat u met &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; communiceert en niet met een hacker. U kunt beter niet verder gaan.</translation>
+<translation id="7106741999175697885">Taakbeheer - Google Chrome</translation>
+<translation id="8449380764213232436">Google Chrome importeert de volgende onderdelen van <ph name="BROWSER_COMPONENT"/>:</translation>
+<translation id="3396977131400919238">Er is tijdens de installatie een probleem opgetreden met het besturingssysteem. Download Google Chrome opnieuw.</translation>
+<translation id="2618799103663374905">Snelkoppelingen voor Chrome toevoegen aan uw bureaublad, de balk 'Snelstarten' en het menu 'Start'.</translation>
+<translation id="1144950271450340860">U probeert &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; te bereiken, maar het certificaat dat de server retourneerde, is uitgegeven door een instantie die niet wordt vertrouwd door het besturingssysteem op uw computer. Dit kan betekenen dat de server zelf beveiligingsgegevens heeft gegenereerd, waarop Chrome niet kan vertrouwen voor veiligheidsinformatie, of dat een hacker probeert uw communicatie te onderscheppen. U kunt beter niet verder gaan, &lt;strong&gt;vooral niet&lt;/strong&gt; als deze waarschuwing niet eerder is weergegeven voor deze site.</translation>
+</translationbundle>

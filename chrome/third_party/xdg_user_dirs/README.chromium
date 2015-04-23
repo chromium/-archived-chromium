@@ -1,0 +1,3 @@
+This directory include xdg-user-dir-lookup.c renamed as xdg_user_dir_lookup.cc
+from xdg-user-dirs 0.10. We made xdg_user_dir_lookup() non-static and added a
+xdg_user_dir_lookup.h.

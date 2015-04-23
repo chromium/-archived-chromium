@@ -1,0 +1,92 @@
+# Format: URL = EXPECTED_NODE_LEAKS, EXPECTED_JS_LEAKS
+#
+# This is a list of the top 100 Alexa URLs (as of 3/28/2008) that loaded
+# successfully into our saved cache.
+#
+# Flaky URLs are covered by bug 1177263.
+# Since this test is so flaky, for now set the expected numbers very high to
+# catch only the most egregious regressions.
+
+http://www.yahoo.com = 200,200
+http://www.youtube.com = 200,200
+http://www.live.com = 200,200
+http://www.google.com = 200,200
+http://www.myspace.com = 200,200
+http://www.facebook.com = 200,200
+http://www.msn.com = 200,200
+http://www.hi5.com = 200,200
+http://www.wikipedia.org = 200,200
+http://www.orkut.com = 200,200
+http://www.blogger.com = 200,200
+http://www.fotolog.net = 200,200
+http://www.google.fr = 200,200
+http://www.friendster.com = 200,200
+http://www.microsoft.com = 200,200
+http://www.baidu.com = 200,200
+http://www.megarotic.com = 200,200
+http://www.google.cl = 200,200
+http://www.yahoo.co.jp = 200,200
+http://www.ebay.com = 200,200
+http://www.google.com.br = 200,200
+http://www.google.es = 200,200
+http://www.seznam.cz = 200,200
+http://www.google.com.mx = 200,200
+http://www.dailymotion.com = 200,200
+http://www.photobucket.com = 200,200
+http://www.youporn.com = 200,200
+http://www.imdb.com = 200,200
+http://www.google.pl = 200,200
+http://www.qq.com = 200,200
+http://www.google.co.uk = 200,200
+http://www.flickr.com = 200,200
+http://www.vkontakte.ru = 200,200
+http://www.nasza-klasa.pl = 200,200
+http://www.odnoklassniki.ru = 200,200
+http://www.google.de = 200,200
+http://www.metroflog.com = 200,200
+http://www.google.co.ve = 200,200
+http://www.google.com.ar = 200,200
+http://www.free.fr = 200,200
+http://www.wordpress.com = 200,200
+http://www.wretch.cc = 200,200
+http://www.mininova.org = 200,200
+http://www.onet.pl = 200,200
+http://www.google.com.pe = 200,200
+http://www.aol.com = 200,200
+http://www.google.com.co = 200,200
+http://www.allegro.pl = 200,200
+http://www.yandex.ru = 200,200
+http://www.deviantart.com = 200,200
+http://www.sina.com.cn = 200,200
+http://www.google.co.in = 200,200
+http://www.bbc.co.uk = 200,200
+http://www.google.ca = 200,200
+http://www.craigslist.org = 200,200
+http://www.google.sk = 200,200
+http://www.livejournal.com = 200,200
+http://www.iwiw.hu = 200,200
+http://www.google.com.vn = 200,200
+http://www.globo.com = 200,200
+http://www.wp.pl = 200,200
+http://www.netlog.com = 200,200
+http://www.perfspot.com = 200,200
+http://www.googlesyndication.com = 200,200
+http://www.google.it = 200,200
+http://www.google.co.hu = 200,200
+http://www.fc2.com = 200,200
+http://www.google.cn = 200,200
+http://www.ebay.fr = 200,200
+http://www.veoh.com = 200,200
+http://www.google.co.th = 200,200
+http://www.fotka.pl = 200,200
+http://www.orange.fr = 200,200
+http://www.google.com.tr = 200,200
+http://www.geocities.com = 200,200
+http://www.apple.com = 200,200
+http://www.onemanga.com = 200,200
+http://www.ebay.de = 200,200
+http://www.google.co.jp = 200,200
+http://www.taobao.com = 200,200
+http://www.megaflirt.com = 200,200
+http://www.ebay.co.uk = 200,200
+http://www.sexyono.com = 200,200

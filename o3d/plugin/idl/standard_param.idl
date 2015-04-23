@@ -1,0 +1,200 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+%[
+  A type of ParamMatrix4 that supplies the current world matrix at render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class WorldParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current inverse world matrix at
+  render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class WorldInverseParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current world transpose matrix at
+  render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class WorldTransposeParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current inverse world transpose
+  matrix at render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class WorldInverseTransposeParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current view matrix at render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class ViewParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current inverse view matrix at render
+  time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class ViewInverseParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current view transpose matrix at
+  render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class ViewTransposeParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current inverse view transpose matrix
+  at render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class ViewInverseTransposeParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current projecton matrix at render
+  time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class ProjectionParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current inverse projection matrix at
+  render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class ProjectionInverseParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current projection transpose matrix
+  at render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class ProjectionTransposeParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current inverse projection transpose
+  matrix at render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class ProjectionInverseTransposeParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current world view matrix at
+  render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class WorldViewParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current inverse world view matrix at
+  render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class WorldViewInverseParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current transpose world view matrix
+  at render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class WorldViewTransposeParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current inverse world view
+  transpose matrix at render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class WorldViewInverseTransposeParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current view projection matrix at
+  render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class ViewProjectionParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current inverse view projection
+  matrix at render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class ViewProjectionInverseParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current view projection transpose
+  matrix at render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class ViewProjectionTransposeParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current inverse view projection
+  transpose matrix at render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class ViewProjectionInverseTransposeParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current world view projection matrix
+  at render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class WorldViewProjectionParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current inverse world view projection
+  matrix at render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class WorldViewProjectionInverseParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current world view projection
+  transpose matrix at render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class WorldViewProjectionTransposeParamMatrix4 : ParamMatrix4 {
+};
+
+%[
+  A type of ParamMatrix4 that supplies the current inverse world view projection
+  transpose matrix at render time.
+%]
+[nocpp, include="core/cross/standard_param.h"] class WorldViewProjectionInverseTransposeParamMatrix4 : ParamMatrix4 {
+};
+
+}  // namespace o3d

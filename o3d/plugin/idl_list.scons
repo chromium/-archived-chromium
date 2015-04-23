@@ -1,0 +1,91 @@
+# Copyright 2009, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+O3D_IDL_SOURCES = [
+  'idl/bounding_box.idl',
+  'idl/buffer.idl',
+  'idl/canvas.idl',
+  'idl/canvas_paint.idl',
+  'idl/canvas_shader.idl',
+  'idl/clear_buffer.idl',
+  'idl/client.idl',
+  'idl/counter.idl',
+  'idl/cursor.idl',
+  'idl/curve.idl',
+  'idl/display_mode.idl',
+  'idl/draw_context.idl',
+  'idl/draw_element.idl',
+  'idl/draw_list.idl',
+  'idl/draw_pass.idl',
+  'idl/effect.idl',
+  'idl/element.idl',
+  'idl/event.idl',
+  'idl/field.idl',
+  'idl/file_request.idl',
+  'idl/function.idl',
+  'idl/material.idl',
+  'idl/matrix4_axis_rotation.idl',
+  'idl/matrix4_composition.idl',
+  'idl/matrix4_scale.idl',
+  'idl/matrix4_translation.idl',
+  'idl/named.idl',
+  'idl/pack.idl',
+  'idl/param_array.idl',
+  'idl/param.idl',
+  'idl/param_object.idl',
+  'idl/param_operation.idl',
+  'idl/plugin.idl',
+  'idl/primitive.idl',
+  'idl/ray_intersection_info.idl',
+  'idl/render_event.idl',
+  'idl/render_node.idl',
+  'idl/render_surface.idl',
+  'idl/render_surface_set.idl',
+  'idl/sampler.idl',
+  'idl/shape.idl',
+  'idl/skin.idl',
+  'idl/standard_param.idl',
+  'idl/state.idl',
+  'idl/state_set.idl',
+  'idl/stream.idl',
+  'idl/stream_bank.idl',
+  'idl/texture.idl',
+  'idl/tick_event.idl',
+  'idl/transform.idl',
+  'idl/tree_traversal.idl',
+  'idl/types.idl',
+  'idl/vector.idl',
+  'idl/vertex_source.idl',
+  'idl/viewport.idl',
+  'idl/archive_request.idl',
+  'idl/raw_data.idl',
+]
+
+Export('O3D_IDL_SOURCES')

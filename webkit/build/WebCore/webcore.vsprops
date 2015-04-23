@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="webcore"
+	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\libxslt\build\using_libxslt.vsprops;$(SolutionDir)..\third_party\libpng\using_libpng.vsprops;$(SolutionDir)..\third_party\libjpeg\using_libjpeg.vsprops;$(SolutionDir)..\third_party\zlib\using_zlib.vsprops;..\webkit_common.vsprops"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		PreprocessorDefinitions="__PRETTY_FUNCTION__=__FUNCTION__;DISABLE_ACTIVEX_TYPE_CONVERSION_MPLAYER2"
+		DisableSpecificWarnings="4138; 4244; 4291; 4305; 4344; 4355; 4521; 4099;"
+	/>
+</VisualStudioPropertySheet>

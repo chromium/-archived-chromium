@@ -1,0 +1,862 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<title>o3dPingPong</title>
+
+<script type="text/javascript" src="../o3djs/base.js"></script>
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.event');
+
+var shader='uniform float4x4 worldViewProjMatrix : WORLDVIEWPROJECTION;\n'+
+'void vs(\n'+
+'    float4 pos: POSITION,\n'+
+'    float4 col: COLOR,\n'+
+'\n'+
+'    out float4 oPos: POSITION,\n'+
+'    out float4 color : COLOR0)\n'+
+'{\n'+
+'  oPos = mul(pos,worldViewProjMatrix);\n'+
+'\n'+
+'  color=col; //float4(1,0,0,1);\n'+
+'}\n'+
+'\n'+
+'void fs(\n'+
+'    float4 color: COLOR,\n'+
+'    out float4 oCol: COLOR)\n'+
+'{\n'+
+'  oCol=color;\n'+
+'}\n'+
+'// #o3d VertexShaderEntryPoint vs\n'+
+'// #o3d PixelShaderEntryPoint fs\n'+
+'// #o3d MatrixLoadOrder RowMajor\n';
+
+var camera = {};
+camera.eye = {};
+camera.target = {};
+camera.eye.x = 0;
+camera.eye.y = -100;
+camera.eye.z = 100;
+camera.target.x = 0;
+camera.target.y = 0;
+camera.target.z = 0;
+
+var on = false;
+var cube;
+var none;
+var view;
+var viewInfo;
+var g_material;
+var angleY=0;
+var angleX=0;
+var o3d;
+var math;
+var client;
+var pack;
+var g_finished = false;  // for selenium
+
+var game = {};
+
+function updateView() {
+  var matrix = math.matrix4.identity();
+  math.matrix4.rotateZYX(matrix, [angleX, angleY, 0]);
+  math.matrix4.scale(matrix, math.mulScalarVector(.25, [1, 1, 1]));
+  view.localMatrix = matrix;
+}
+
+var key = {};
+key.LEFT = 37;
+key.UP = 38;
+key.RIGHT = 39;
+key.DOWN = 40;
+
+
+key.A = 65
+key.S = 83
+key.D = 68
+key.W = 87
+
+function keyPressed(e) {
+  /*if (e.keyCode == key.A) rotateY(-0.1);
+  else if (e.keyCode == key.D) rotateY(0.1)
+  else if (e.keyCode == key.W) rotateX(-0.1)
+  else if (e.keyCode == key.S) rotateX(0.1)*/
+}
+
+function move_instance(node, x, y, z, h) {
+  node.identity();
+  node.translate(x, y, z);
+}
+
+var entityID = 0;
+var transformNodes = new Array();
+var meshNodes = new Array();
+
+function createBox(x, y, z, w, d, h, color, parentNode, fadeToColor) {
+
+  var boxVerts = [
+    0, 0, 0, // 0
+    w, 0, 0, // 1
+    w, 0, h, // 2
+    0, 0, h, // 3
+    0, d, 0, // 4
+    w, d, 0, // 5
+    w, d, h, // 6
+    0, d, h, // 7
+    0, 0, 0, // 0b
+    w, 0, 0, // 1b
+    w, 0, h, // 2b
+    0, 0, h, // 3b
+    0, d, 0, // 4b
+    w, d, 0, // 5b
+    w, d, h, // 6b
+    0, d, h  // 7b
+    ];
+
+  var boxIndices = [
+    0, 1, 3, 1, 2, 3, // front
+    0+8, 3+8, 1+8, 1+8, 3+8, 2+8, // frontb
+
+    5+8, 4+8, 6+8, 4+8, 7+8, 6+8, // back
+    5+8, 6+8, 4+8, 4+8, 6+8, 7+8, // backb
+
+    4, 0, 7, 0, 3, 7, // left
+    4+8, 7+8, 0+8, 0+8, 7+8, 3+8, // leftb
+
+    1+8, 5+8, 2+8, 5+8, 6+8, 2+8, // right
+    1, 2+8, 5+8, 5+8, 2+8, 6+8, // rightb
+
+    4, 5, 0, 5, 1, 0, // top
+    4+8, 0+8, 5+8, 5+8, 0+8, 1+8, // top2
+
+    6+8, 7+8, 2+8, 7+8, 3+8, 2+8,  // bottom
+    6+8, 2+8, 7+8, 7+8, 2+8, 3+8  // bottom2
+    ];
+
+
+  var boxIndicesOneSided = [
+    0, 1, 3, 1, 2, 3, // front
+    5+8, 4+8, 6+8, 4+8, 7+8, 6+8, // back
+    4, 0, 7, 0, 3, 7, // left
+    1+8, 5+8, 2+8, 5+8, 6+8, 2+8, // right
+    4, 5, 0, 5, 1, 0, // top
+    6+8, 7+8, 2+8, 7+8, 3+8, 2+8  // bottom
+    ];
+
+  if (color != undefined) {
+    var r = color.r;
+    var g = color.g;
+    var b = color.b;
+    var a = color.a;
+    if (fadeToColor == color) {
+      var boxColors = [
+        r, g, b, a, // 0
+        r, g, b, a, // 1
+        r, g, b, a, // 2
+        r, g, b, a, // 3
+        r, g, b, a, // 4
+        r, g, b, a, // 5
+        r, g, b, a, // 6
+        r, g, b, a, // 7
+        r, g, b, a, // 0b
+        r, g, b, a, // 1b
+        r, g, b, a, // 2b
+        r, g, b, a, // 3b
+        r, g, b, a, // 4b
+        r, g, b, a, // 5b
+        r, g, b, a, // 6b
+        r, g, b, a  // 7b
+        ];
+
+    } else if (fadeToColor != undefined) {
+      r2 = fadeToColor.r;
+      g2 = fadeToColor.g;
+      b2 = fadeToColor.b;
+      var boxColors = [
+        r2, g2, b2, a, // 0
+        r2, g2, b2, a, // 1
+        r, g, b, a, //
+        r, g, b, a, // 3
+        r2, g2, b2, a, // 4
+        r2, g2, b2, a, // 5
+        r, g, b, a, // 6
+        r, g, b, a, // 7
+        r2, g2, b2, a, // 0b
+        r2, g2, b2, a, // 1b
+        r, g, b, a, // 2b
+        r, g, b, a, // 3b
+        r2, g2, b2, a, // 4b
+        r2, g2, b2, a, // 5b
+        r, g, b, a, // 6b
+        r, g, b, a  // 7b
+        ];
+
+    } else {
+      var boxColors = [
+        r, g, b, a, // 0
+        r, g, b, a, // 1
+        r*.7, g*.7, b*.7, a, // 2
+        r*.7, g*.7, b*.7, a, // 3
+        r, g, b, a, // 4
+        r, g, b, a, // 5
+        r*.7, g*.7, b*.7, a, // 6
+        r*.7, g*.7, b*.7, a, // 7
+        r*.8, g*.8, b*.8, a, // 0b
+        r*.8, g*.8, b*.8, a, // 1b
+        r*.8, g*.8, b*.8, a, // 2b
+        r*.8, g*.8, b*.8, a, // 3b
+        r*.4, g*.4, b*.4, a, // 4b
+        r*.4, g*.4, b*.4, a, // 5b
+        r*.4, g*.4, b*.4, a, // 6b
+        r*.4, g*.4, b*.4, a  // 7b
+        ];
+    }
+  } else {
+    var boxColors = [
+      1, 0, 0, 1, // 0
+      1, 0, 0, 1, // 1
+      1, 0, 0, 1, // 2
+      1, 0, 0, 1, // 3
+      0, 1, 0, 1, // 4
+      0, 1, 0, 1, // 5
+      0, 1, 0, 1, // 6
+      0, 1, 0, 1,  // 7
+      .5, 0, 0, 1, // 0b
+      .5, 0, 0, 1, // 1b
+      .5, 0, 0, 1, // 2b
+      .5, 0, 0, 1, // 3b
+      0, .5, 0, 1, // 4b
+      0, .5, 0, 1, // 5b
+      0, .5, 0, 1, // 6b
+      0, .5, 0, 1 // 7b
+      ];
+   }
+
+  entityID++;
+
+  transformName = 'transform' + entityID;
+  shapeName = 'shape' + entityID;
+  meshName = 'mesh' + entityID;
+  transformNodes[entityID] = pack.createObject('Transform');
+
+  transformNodes[entityID].translate(x, y, z);
+
+  meshNodes[entityID] = pack.createObject('Shape');
+  transformNodes[entityID].addShape(meshNodes[entityID])
+  var primitive = pack.createObject('Primitive');
+  var streamBank = pack.createObject('StreamBank');
+  primitive.owner = meshNodes[entityID];
+  primitive.streamBank = streamBank;
+
+  primitive.material = g_material;
+
+  var vertBuffer = pack.createObject('VertexBuffer');
+  var positionField = vertBuffer.createField('FloatField', 3);
+  vertBuffer.set(boxVerts);
+
+  var colorBuffer = pack.createObject('VertexBuffer');
+  var colorField = colorBuffer.createField('FloatField', 4);
+  colorBuffer.set(boxColors);
+
+  var indexBuffer = pack.createObject('IndexBuffer');
+  indexBuffer.set(boxIndices);
+
+  streamBank.setVertexStream(o3d.Stream.POSITION,
+                             0,
+                             positionField,
+                             0);
+  streamBank.setVertexStream(o3d.Stream.COLOR,
+                             0,
+                             colorField,
+                             0);
+  primitive.indexBuffer = indexBuffer;
+
+  primitive.primitiveType = o3d.Primitive.TRIANGLELIST;
+  primitive.numberPrimitives = 24;
+  primitive.numberVertices = 16;
+
+  if (parentNode != undefined) {
+    transformNodes[entityID].parent = parentNode;
+  } else {
+    transformNodes[entityID].parent = view;
+  }
+
+  primitive.createDrawElement(pack, null);
+
+  return transformNodes[entityID];
+}
+
+var Color = function(r, g, b, a) {
+  if (r>1 || g>1 || b>1) {
+    r = r/255;
+    g = g/255;
+    b = b/255;
+  }
+  this.r = r;
+  this.g = g;
+  this.b = b;
+  this.a = a;
+}
+function scrollMe(e) {
+  if (e.deltaY < 0) {
+    camera.eye.x *= 11/12;
+    camera.eye.y *= 11/12;
+    camera.eye.z *= 11/12;
+
+  } else {
+    camera.eye.x *= (1+1/12);
+    camera.eye.y *= (1+1/12);
+    camera.eye.z *= (1+1/12);
+  }
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  var o3dElement = clientElements[0];
+  o3dElement.id = 'o3dObj';
+  o3d = o3dElement.o3d;
+  math = o3djs.math;
+  client = o3dElement.client;
+
+  pack = client.createPack();
+
+  // Create the render graph for a view.
+  viewInfo = o3djs.rendergraph.createBasicView(
+      pack,
+      client.root,
+      client.renderGraphRoot);
+
+  var effect = pack.createObject('Effect');
+  effect.loadFromFXString(shader);
+  g_material = pack.createObject('Material');
+  g_material.drawList = viewInfo.performanceDrawList;
+  g_material.effect = effect;
+  effect.createUniformParameters(g_material);
+
+  view = pack.createObject('Transform');
+  view.parent = client.root;
+
+  var root = client.root;
+
+  var o3d_width  = client.width;
+  var o3d_height = client.height;
+
+  viewInfo.drawContext.projection=math.matrix4.perspective(
+      math.degToRad(30), o3d_width / o3d_height, 1, 5000);
+  target = [0, 0, 0];
+  eye = [0, -100, 0];
+  up = [0, 0, 1];
+  viewInfo.drawContext.view = math.matrix4.lookAt(eye, target, up);
+
+  bg = pack.createObject('Transform');
+  bg.translate(0, 0, 1);
+  bg.parent = client.root;
+
+  red = new Color(1, 0, 0, 1);
+  blue = new Color(0, 0, 1, 1);
+  wallColor = new Color(0, .8, .4, 1);
+  green = new Color(0, .5, 0, 1);
+  lineColor = new Color(0, .7, 0, 1);
+  shadow = new Color(0, .3, 0, .5);
+  silver = new Color(.8, .8, .8, 1);
+  pink = new Color(1, .8, .8, 1);
+
+  window.field = createBox(-120, -80, -10, 240, 160, 10, green)
+  window.centerline = createBox(-3, -80, 0, 6, 160, .5, lineColor)
+  window.paddle1 = createBox(-110, 0, 5, 10, 30, 30, silver);
+  window.shadow1 = createBox(-107, 3, 1, 10, 30, 0, shadow);
+
+  window.paddle2 = createBox(-110, 0, 5, 10, 30, 30, silver);
+  window.shadow2 = createBox(-107, 3, 1, 10, 30, 0, shadow);
+
+  window.ball = createBox(0, 0, 2, 10, 10, 10, pink);
+  window.ballShadow = createBox(0, 0, 1, 10, 10, 0, shadow);
+
+  window.bottomWall = createBox(-120, -90, -10, 240, 10, 15, wallColor);
+  window.topWall = createBox(-120, 80, -10, 240, 10, 15, wallColor);
+
+  suRed = new Color(.7, 0, 0, 1)
+  suGreen = new Color(0, .7, 0, 1)
+  suBlue = new Color(0, 0, .7, 1)
+  suGround = new Color(210, 208, 185, 1);
+  suSky = new Color(212*.8, 225*.8, 225*.8, 1);
+
+  window.xaxis = createBox(0, 0, 0, 5000, .25, .25, suRed, undefined);
+  window.yaxis = createBox(0, 0, 0, .25, 5000, .25, suGreen, undefined);
+  window.zaxis = createBox(0, 0, 0, .25, .25, 5000, suBlue, undefined);
+
+  white = new Color(1, 1, 1, 1);
+
+  mybox3 = createBox(-1500, -1500, -1500, 3000, 3000, 3000, suSky, bg, suGround);
+  bg_Ground1 = createBox(-1500, 1490, -1500, 3000, 10, 1500, suGround, bg, suGround);
+  bg_GroundR = createBox(1490, -1500, -1500, 10, 3000, 1500, suGround, bg, suGround);
+  bg_GroundL = createBox(-1490, -1500, -1500, 10, 3000, 1500, suGround, bg, suGround);
+  bg_Sky = createBox(-1500, 1490, 0, 3000, 10, 1500, suSky, bg, white);
+  bg_SkyR = createBox(1490, -1500, 0, 10, 3000, 1500, suSky, bg, white);
+  bg_SkyL = createBox(-1490, -1500, 0, 10, 3000, 1500, suSky, bg, white);
+
+  on=true;
+  updateView();
+
+  o3djs.event.addEventListener(o3dElement, 'wheel', scrollMe);
+
+  updateLayout();
+
+  g_finished = true;  // for selenium
+}
+
+function rotateX(delta) {
+  angleX=angleX+delta;
+  updateView();
+}
+
+function rotateY(delta) {
+  angleY=angleY+delta;
+  updateView();
+}
+
+function toggle() {
+  if (on) {
+    cube.parentNode = none;
+  } else {
+    cube.parentNode = view;
+  }
+
+  on = !on;
+}
+
+function startGame() {
+  if (window.gameStarted == true) {
+    return
+  }
+  window.gameStarted = true;
+  document.getElementById('o3d').style.visibility = 'visible';
+
+  // Wait until the plug-in has initialized before starting the game.
+  var clearId = window.setInterval(function() {
+    if (client) {
+      client.setRenderCallback(nextFrame);
+    } else {
+      return;
+    }
+    window.clearInterval(clearId);
+  }, 10);
+}
+
+function updateLayout() {
+  document.getElementById('focusHolder').focus();
+  document.body.scrollTop = 0;
+
+}
+
+function uninit() {
+  if (client) {
+    client.cleanup();
+  }
+}
+
+window.onload = init;
+window.onunload = uninit;
+
+</script>
+<body style="overflow:hidden" onscroll="updateLayout();">
+
+<table border=0 width=100% height=100% style="overflow:hidden" >
+<tr><td id="clientBanner" align=center style="cursor:pointer;background-image:url(logo.gif);background-position:center center;background-repeat:no-repeat" onclick="startGame();">
+<div id="client" name="client" >
+<div id="o3d" style="width: 800px; height: 600px; visibility: hidden;"></div>
+<br/><img src="instructions.gif"></div>
+<form>
+<input id="focusHolder" style="position:absolute;top:-100px;">
+</form>
+
+</td></tr></table>
+
+
+</body>
+
+<script>
+
+keyIsDown = new Array();
+
+document.onkeydown = function(e) {
+  var keycode;
+  if (window.event) {
+    keycode = window.event.keyCode;
+  } else if (e) {
+    keycode = e.which;
+  }
+  keyIsDown[keycode] = true;
+}
+
+document.onkeyup = function(e) {
+  var keycode;
+  if (window.event) {
+    keycode = window.event.keyCode;
+  } else if (e) {
+    keycode = e.which;
+  }
+  keyIsDown[keycode] = false;
+
+}
+
+
+var x = 1000+10;
+var y = 1000+20;
+var z = 1;
+
+var BACKSPACE=8
+var TAB=9
+var ENTER=13
+var SHIFT=16
+var CTRL=17
+var ALT=18
+var ESCAPE=27
+var PAGEUP=33
+var PAGEDOWN=34
+var END=35
+var HOME=36
+var LEFT=37
+var UP=38
+var RIGHT=39
+var DOWN=40
+var DELETE=46
+var SPACE=32
+
+var spriteInfo = new Array();
+
+
+var leftID = 0
+var rightID = 1
+var ballID = 2
+var myPaddleID = leftID
+var enemyPaddleID = rightID
+var nextServeDirection = -1
+var isServing = true;
+var loop = 0;
+
+
+
+spriteInfo[leftID] = new Array();
+spriteInfo[rightID] = new Array();
+spriteInfo[ballID] = new Array();
+
+spriteInfo[leftID].velocityY = 0;
+spriteInfo[leftID].velocityX = 0;
+spriteInfo[leftID].x = 10;
+spriteInfo[leftID].y = 80;
+
+spriteInfo[rightID].velocityY = 0;
+spriteInfo[rightID].velocityX = 0;
+spriteInfo[rightID].x = 230;
+spriteInfo[rightID].y = 80;
+
+spriteInfo[ballID].velocityY = 0;
+spriteInfo[ballID].velocityX = 0;
+spriteInfo[ballID].x = 120;
+spriteInfo[ballID].y = 80;
+
+var SCREENHEIGHT = 160;
+var SCREENWIDTH = 240;
+var PADDLE
+
+var BALLWIDTH  = 30
+var BALLHEIGHT = 32
+
+var BALLPAD = 20
+var PADDLEHEIGHT = 30
+var PADDLEWIDTH = 10
+var PADDLEACCELY = 10  // acceleration rate of the paddle
+var PADDLEACCELX = 10 // acceleration rate of the paddle
+var SCREENWIDTH = 240
+var SCREENHEIGHT = 160
+var SCREENCENTERX = 120
+var SCREENCENTERY = 80
+
+var COMPUTERACCURACYX=90  // accuracy in pixels that the computer tries to get its paddle within
+var COMPUTERACCURACYY=10
+
+var points = [0, 0, 0];
+function ScorePoint(playerNumber) {
+
+  if (playerNumber == myPaddleID) {
+    //alert('You Score!');
+  } else {
+    //alert('You Suck!');
+  }
+  spriteInfo[ballID].velocityX = 0;
+  spriteInfo[ballID].velocityY = 0;
+
+  spriteInfo[ballID].x = SCREENWIDTH/2;
+  spriteInfo[ballID].y = SCREENHEIGHT/2;
+  points[playerNumber]++;
+  pts = points[playerNumber];
+
+  ptBox = createBox(-140 + playerNumber*280, -80+pts*15, 0, 10, 10, 3, red);
+
+
+}
+
+
+function nextFrame(render_event) {
+
+  var elapsedTime = render_event.elapsedTime;
+
+  spriteInfo[ballID].x += spriteInfo[ballID].velocityX * elapsedTime;
+  spriteInfo[ballID].y += spriteInfo[ballID].velocityY * elapsedTime;
+
+  spriteInfo[leftID].x += spriteInfo[leftID].velocityX * elapsedTime;
+  spriteInfo[leftID].y += spriteInfo[leftID].velocityY * elapsedTime;
+
+  spriteInfo[rightID].x += spriteInfo[rightID].velocityX * elapsedTime;
+  spriteInfo[rightID].y += spriteInfo[rightID].velocityY * elapsedTime;
+
+  // move my paddle
+  if (keyIsDown[UP]) {
+    spriteInfo[myPaddleID].velocityY -= PADDLEACCELY;
+  } else if (keyIsDown[DOWN]) {
+    spriteInfo[myPaddleID].velocityY += PADDLEACCELY;
+  } else {
+    spriteInfo[myPaddleID].velocityY -= spriteInfo[myPaddleID].velocityY * elapsedTime;
+  }
+
+  if (keyIsDown[LEFT]) {
+    spriteInfo[myPaddleID].velocityX -= PADDLEACCELX;
+  } else if (keyIsDown[RIGHT]) {
+    spriteInfo[myPaddleID].velocityX += PADDLEACCELX;
+  } else {
+    spriteInfo[myPaddleID].velocityX -= spriteInfo[myPaddleID].velocityX * elapsedTime;
+  }
+
+  if (keyIsDown[key.A]) camera.eye.x -= 100 * elapsedTime;
+  if (keyIsDown[key.D]) camera.eye.x += 100 * elapsedTime;
+  if (keyIsDown[key.W]) camera.eye.z += 100 * elapsedTime;
+  if (keyIsDown[key.S]) camera.eye.z -= 100 * elapsedTime;
+
+  target = [0, 0, 0];
+  eye = [camera.eye.x, camera.eye.y, camera.eye.z];
+  up = [0, 0, 1];
+  viewInfo.drawContext.view = math.matrix4.lookAt(eye, target, up);
+
+  // make sure my paddle can't go off the top & bottom of screen
+  if (spriteInfo[myPaddleID].y < PADDLEHEIGHT/2) {
+    spriteInfo[myPaddleID].y = PADDLEHEIGHT/2;
+    spriteInfo[myPaddleID].velocityY = 0;
+  } else if (spriteInfo[myPaddleID].y > SCREENHEIGHT-PADDLEHEIGHT/2) {
+    spriteInfo[myPaddleID].y = SCREENHEIGHT-PADDLEHEIGHT/2;
+    spriteInfo[myPaddleID].velocityY = 0;
+  }
+
+  if (spriteInfo[myPaddleID].x < PADDLEWIDTH) {
+    spriteInfo[myPaddleID].x = PADDLEWIDTH;
+    spriteInfo[myPaddleID].velocityX = 0;
+  } else if (spriteInfo[myPaddleID].x > SCREENWIDTH/2-BALLPAD) {
+    spriteInfo[myPaddleID].x = SCREENWIDTH/2-BALLPAD;
+    spriteInfo[myPaddleID].velocityX = 0;
+  }
+
+  // handle bouncing
+  MoveComputer();
+
+  if ( spriteInfo[ballID].x + BALLWIDTH/2 > spriteInfo[rightID].x &&
+     spriteInfo[ballID].x + BALLWIDTH/2 < spriteInfo[rightID].x + PADDLEWIDTH &&
+     spriteInfo[ballID].y > spriteInfo[rightID].y-PADDLEHEIGHT/2 &&
+     spriteInfo[ballID].y < spriteInfo[rightID].y+PADDLEHEIGHT/2
+     && spriteInfo[ballID].velocityX > 0) {
+
+      spriteInfo[ballID].velocityX *= -1;
+      spriteInfo[ballID].velocityY += spriteInfo[rightID].velocityY/2
+      if (spriteInfo[rightID].velocityX < 0) {
+        spriteInfo[ballID].velocityX += spriteInfo[rightID].velocityX;
+      }
+
+
+  } else if (spriteInfo[ballID].x - BALLWIDTH/2 < spriteInfo[leftID].x &&
+     spriteInfo[ballID].x - BALLWIDTH/2 > spriteInfo[leftID].x - PADDLEWIDTH &&
+     spriteInfo[ballID].y > spriteInfo[leftID].y-PADDLEHEIGHT/2 &&
+     spriteInfo[ballID].y < spriteInfo[leftID].y+PADDLEHEIGHT/2
+     && spriteInfo[ballID].velocityX < 0) {
+
+      spriteInfo[ballID].velocityX *= -1;
+      spriteInfo[ballID].velocityY += spriteInfo[leftID].velocityY/2;
+      if (spriteInfo[leftID].velocityX > 0) {
+        spriteInfo[ballID].velocityX += spriteInfo[leftID].velocityX;
+      }
+
+  }
+
+
+
+  if (isServing) {
+    loop++;
+    if (loop > 20) {
+      loop=0;
+      spriteInfo[ballID].isVisible = true;
+      spriteInfo[ballID].velocityY = ((Math.random()*4)-2)*20;
+      spriteInfo[ballID].velocityX = (((Math.random()*1)+2) * nextServeDirection)*20;
+      isServing = false;
+    }
+  }
+
+
+
+  // bounce along top or bottom
+  if ((spriteInfo[ballID].y > SCREENHEIGHT-10 || spriteInfo[ballID].y < 10) && isServing == false) {
+    spriteInfo[ballID].velocityY *= -1;
+  }
+
+
+  if (spriteInfo[ballID].x < -50) {
+    // right player scores a point!
+    ScorePoint(rightID);
+    nextServeDirection = -1;
+    isServing = true;
+  }
+
+  if (spriteInfo[ballID].x > SCREENWIDTH+50) {
+    // left player scores a point!
+    ScorePoint(leftID);
+    nextServeDirection = -1;
+    isServing = true;
+  }
+
+
+  move_instance(paddle1, -120+spriteInfo[myPaddleID].x-PADDLEWIDTH/2, 80-spriteInfo[myPaddleID].y-PADDLEHEIGHT/2, 5, 30);
+  move_instance(shadow1, -120+spriteInfo[myPaddleID].x+5-PADDLEWIDTH/2, 80-spriteInfo[myPaddleID].y-PADDLEHEIGHT/2+5, 1, 0);
+
+  move_instance(paddle2, -120+spriteInfo[rightID].x-PADDLEWIDTH/2, 80-spriteInfo[rightID].y-PADDLEHEIGHT/2, 5, 30);
+  move_instance(shadow2, -120+spriteInfo[rightID].x+5-PADDLEWIDTH/2, 80-spriteInfo[rightID].y-PADDLEHEIGHT/2+5, 1, 0);
+
+  move_instance(ball, -120+spriteInfo[ballID].x-5, 80-(spriteInfo[ballID].y+5), 10, 10);
+  move_instance(ballShadow, -120+spriteInfo[ballID].x-5+5, 80-(spriteInfo[ballID].y+0), 1, 0);
+}
+
+function MoveComputer() {
+// calculate where the AI wants to be
+      if (spriteInfo[ballID].velocityX > 0) {
+
+        // if the ball is coming our way, calculate where it will go
+        targetX = spriteInfo[ballID].x;
+        targetY = spriteInfo[ballID].y;
+
+      } else {
+
+        // else return to center
+        targetX = 220;
+        targetY = 80;
+
+      }
+
+      if (ComputerDistanceX() < COMPUTERACCURACYX) {
+
+        spriteInfo[rightID].velocityX = spriteInfo[rightID].velocityX/2;
+
+      } else {
+
+        if (targetX < spriteInfo[rightID].x) {
+          spriteInfo[rightID].velocityX -= PADDLEACCELX;
+        } else if (targetX > spriteInfo[rightID].x) {
+          spriteInfo[rightID].velocityX += PADDLEACCELX;
+        } else {
+          spriteInfo[rightID].velocityX = spriteInfo[rightID].velocityX/2;
+        }
+      }
+
+      if (ComputerDistanceY() < COMPUTERACCURACYY) {
+
+        spriteInfo[rightID].velocityY = spriteInfo[rightID].velocityY/2;
+
+      } else {
+
+        if (targetY < spriteInfo[rightID].y) {
+          spriteInfo[rightID].velocityY -= PADDLEACCELY;
+        } else if (targetY > spriteInfo[rightID].y) {
+          spriteInfo[rightID].velocityY += PADDLEACCELY;
+        } else {
+          spriteInfo[rightID].velocityY = spriteInfo[rightID].velocityY/2;
+        }
+
+      }
+
+      // make sure paddle can't go off the top & bottom of screen
+      if (spriteInfo[rightID].y < PADDLEHEIGHT/2) {
+        spriteInfo[rightID].y = PADDLEHEIGHT/2;
+        spriteInfo[rightID].velocityY = 0;
+      } else if (spriteInfo[rightID].y > SCREENHEIGHT-PADDLEHEIGHT/2) {
+        spriteInfo[rightID].y = SCREENHEIGHT-PADDLEHEIGHT/2;
+        spriteInfo[rightID].velocityY = 0;
+      }
+
+      if (spriteInfo[rightID].x > SCREENWIDTH) {
+        spriteInfo[rightID].x = SCREENWIDTH-PADDLEWIDTH;
+        spriteInfo[rightID].velocityX = 0;
+      } else if (spriteInfo[rightID].x < SCREENWIDTH/2+BALLPAD) {
+        spriteInfo[rightID].x = SCREENWIDTH/2+BALLPAD;
+        spriteInfo[rightID].velocityX = 0;
+      }
+
+
+}
+
+function ComputerDistanceX() {
+  var distanceX;
+  distanceX = spriteInfo[rightID].x - spriteInfo[ballID].x;
+  if (distanceX < 0) {
+    distanceX = distanceX * -1;
+  }
+  return distanceX;
+}
+
+function ComputerDistanceY() {
+  var distanceY;
+  distanceY = spriteInfo[ballID].y - spriteInfo[rightID].y;
+  if (distanceY < 0) {
+    distanceY = distanceY * -1;
+  }
+  return distanceY;
+}
+
+
+
+</script>
+

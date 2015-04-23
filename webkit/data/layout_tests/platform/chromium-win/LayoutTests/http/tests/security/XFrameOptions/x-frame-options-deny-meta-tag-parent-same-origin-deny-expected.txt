@@ -1,0 +1,12 @@
+http://localhost:8000/security/XFrameOptions/resources/x-frame-options-deny-meta-tag-subframe-parent-same-origin-deny.html - willSendRequest <WebRequest URL "http://localhost:8000/security/XFrameOptions/resources/x-frame-options-deny-meta-tag-subframe-parent-same-origin-deny.html">
+<unknown> - didFinishLoading
+http://localhost:8000/security/XFrameOptions/resources/x-frame-options-deny-meta-tag-subframe-parent-same-origin-deny.html - didFailLoadingWithError <WebError code -3, failing URL "http://localhost:8000/security/XFrameOptions/resources/x-frame-options-deny-meta-tag-subframe-parent-same-origin-deny.html">
+about:blank - willSendRequest <WebRequest URL "about:blank">
+There should be no content in the iframe below
+
+
+
+--------
+Frame: '<!--framePath //<!--frame0-->-->'
+--------
+

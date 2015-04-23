@@ -1,0 +1,37 @@
+HKCU
+{
+  Software
+  {
+    Classes
+    {
+      o3d_host.NPObjectProxy.1 = s 'NPObjectProxy Class'
+      {
+        CLSID = s '{1D68424D-7A71-4b61-AE5C-56DBCD8B0E53}'
+        'Insertable'
+      }
+      o3d_host.NPObjectProxy = s 'NPObjectProxy Class'
+      {
+        CLSID = s '{1D68424D-7A71-4b61-AE5C-56DBCD8B0E53}'
+        CurVer = s 'o3d_host.NPObjectProxy.1'
+      }
+      NoRemove CLSID
+      {
+        ForceRemove {1D68424D-7A71-4b61-AE5C-56DBCD8B0E53} = s 'NPObjectProxy Class'
+        {
+          ProgID = s 'o3d_host.NPObjectProxy.1'
+          VersionIndependentProgID = s 'o3d_host.NPObjectProxy'
+          ForceRemove 'Programmable'
+          InprocServer32 = s '%MODULE%'
+          {
+            val ThreadingModel = s 'Apartment'
+          }
+          val AppID = s '%APPID%'
+          ForceRemove 'Control'
+          ForceRemove 'Insertable'
+          'TypeLib' = s '{D4F6E31C-E952-48FE-9833-6AE308BD79C6}'
+          'Version' = s '1.0'
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="zh-CN">
+<translation id="4420062214988137980">插件安装失败</translation>
+<translation id="1235745349614807883">清除最近的搜索</translation>
+<translation id="3825324228893189080">需要其他插件</translation>
+<translation id="2965480764085142436"><ph name="PLUGIN"/> 外掛程式尚未安装</translation>
+<translation id="5048533449481078685">列表标记</translation>
+<translation id="4202807286478387388">跳转</translation>
+<translation id="4611115858363067980"><ph name="FILENAME"/><ph name="WIDTH"/>×<ph name="HEIGHT"/></translation>
+<translation id="4317653869502688143"><ph name="PLUGIN"/> 只应安装自己信任的插件。</translation>
+<translation id="7658239707568436148">取消</translation>
+<translation id="795667975304826397">没有选择文件</translation>
+<translation id="1275511093094545429">需要 <ph name="PLUGIN"/> 外掛程式</translation>
+<translation id="8662565117025751661">正在下载插件...</translation>
+<translation id="8141602879876242471">这是一个可搜索的索引。 输入搜索关键字：</translation>
+<translation id="6845533974506654842">按下</translation>
+<translation id="8244226242650769279">影像地图</translation>
+<translation id="1383141426028388991">无法从 <ph name="URL"/> 安装插件</translation>
+<translation id="2548326553472216322">近期无搜索</translation>
+<translation id="5944544982112848342">2048（高强度）</translation>
+<translation id="3040011195152428237">链接</translation>
+<translation id="8281246460978372009">安装插件后，点击此处刷新</translation>
+<translation id="7364796246159120393">选择文件</translation>
+<translation id="8964020114565522021">将文件拖动到此处</translation>
+<translation id="838869780401515933">选中</translation>
+<translation id="2846343701378493991">1024（中等强度）</translation>
+<translation id="5476505524087279545">取消选中</translation>
+<translation id="679352192834563463">未找到显示此内容的插件</translation>
+<translation id="3789841737615482174">安装</translation>
+<translation id="6663448176199120256">近期搜索</translation>
+<translation id="3600343118165084788">点击此处下载插件。</translation>
+<translation id="6807599807928161586">网络区域</translation>
+<translation id="5939518447894949180">重置</translation>
+<translation id="3771786644471114952">获取插件</translation>
+<translation id="1842960171412779397">选择</translation>
+<translation id="6119846243427417423">启动</translation>
+<translation id="3926627843712816530">请确认要安装此插件。 只应安装自己信任的插件。</translation>
+<translation id="4838490908464673667">未安装所需插件</translation>
+<translation id="8597182159515967513">标题</translation>
+<translation id="2653659639078652383">提交</translation>
+</translationbundle>

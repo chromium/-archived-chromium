@@ -1,0 +1,636 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
+// This file contains the public interface specification for the client.
+
+namespace o3d {
+
+%[
+  IdArray is a typdef for an array of Ids.
+%]
+typedef Id[] IdArray;
+
+%[
+  PackArray is a typdef for an array of Packs.
+%]
+typedef Pack[] PackArray;
+
+%[
+  ObjectBaseArray is a typdef for an array of ObjectBase objects.
+%]
+typedef ObjectBase[] ObjectBaseArray;
+
+callback void LostResourcesCallback();
+
+callback void EventCallback(Event event_descriptor);
+
+%[
+  The Renderer class provides the abstract interface to each platform's
+  rendering library.
+%]
+[binding_model=by_pointer, include="core/cross/renderer.h", nocpp, glue_iface]
+class Renderer {
+  %[
+    The initialization status of the renderer.
+
+    \var InitStatus,
+    \li UNINITIALIZED,
+    \li SUCCESS,  The renderer is initialized.
+    \li GPU_NOT_UP_TO_SPEC,  The renderer determined the user's machine cannot
+        run O3D.
+    \li OUT_OF_RESOURCES,  The user's machine does not have enough graphic
+        resources available to start another instance of the O3D renderer.
+    \li INITIALIZATION_ERROR,  Some unknown error such as e.g. drivers not
+        being installed correctly.
+  %]
+  enum InitStatus {
+    UNINITIALIZED,
+    SUCCESS,
+    GPU_NOT_UP_TO_SPEC,
+    OUT_OF_RESOURCES,
+    INITIALIZATION_ERROR
+  };
+
+  %[
+    This is used in SetFullscreenClickRegion to request the current display
+    mode, such that the change to full-screen mode won't change the screen
+    resolution or refresh rate.
+
+    \var DisplayModes,
+    \li DISPLAY_MODE_DEFAULT
+  %]
+  enum DisplayModes {
+    DISPLAY_MODE_DEFAULT
+  };
+};
+
+%[
+  The ClientInfo is used to get information about the client.
+%]
+[binding_model=by_value, include="core/cross/client_info.h", nocpp, glue_iface]
+class ClientInfo {
+  %[
+    The number of objects the client is currently tracking.
+    You can use this to check that you are correctly freeing resources.
+  %]
+  [getter] int num_objects;
+
+  %[
+    The amount of texture memory used.
+  %]
+  [getter] int texture_memory_used;
+
+  %[
+    The amount of texture memory used.
+  %]
+  [getter] int buffer_memory_used;
+
+  %[
+    Whether or not O3D is using the software renderer.
+  %]
+  [getter] bool software_renderer;
+};
+
+%[
+  The Client class is the main point of entry to O3D.  It defines methods
+  for creating and deleting packs. Each new object created by the Client is
+  assigned a unique ID.
+
+  The Client has a root transform for the transform graph and a root render
+  node for the render graph.
+%]
+[binding_model=by_pointer, include="core/cross/client.h",
+ nocpp, glue_iface]
+class Client {
+
+  callback void RenderCallback(RenderEvent render_event);
+  callback void TickCallback(TickEvent tick_event);
+  callback void ErrorCallback(String error_msg);
+
+  %[
+    The transform graph root Transform
+  %]
+  [getter] Transform root_;
+
+  %[
+    Call this function from window.onunload to ensure the browser does not
+    continue to call callbacks (like the render callback) after the page is
+    unloaded.  It is possible that during unload the browser unloads all the
+    javascript code, but then, after that, still asks the plugin to render.  The
+    browser then calls javascript functions that no longer exist which causes an
+    error. To prevent that situation you need to clear all your callbacks on
+    unload. cleanup handles that for you so you don't have to dispose each and
+    every callback by hand.
+  %]
+  void Cleanup();
+
+  %[
+    Creates a pack object.
+    \return  A pack object.
+  %]
+  Pack CreatePack();
+
+  %[
+    Searches the Client for an object matching the given id.
+
+    \param id The id of the object to look for.
+    \return The object or null if a object with the given id is not found.
+  %]
+  [const, noreturndocs] ObjectBase? GetObjectById(Id id);
+
+  %[
+    Searches the Client for objects of a particular name and type.
+    \param name name of object to look for.
+    \param class_name name of class to look for.
+    \return Array of objects found.
+  %]
+  [const, noretundocs] ObjectArray GetObjects(String name, String class_name);
+
+  %[
+    Searches the Client for objects of a particular type.
+    \param class_name name of class to look for.
+    \return Array of objects found.
+  %]
+  [const, noreturndocs] ObjectArray GetObjectsByClassName(String class_name);
+
+  %[
+    \var RenderMode,
+    \li RENDERMODE_CONTINUOUS,  Draw as often as possible up to refresh rate.
+    \li RENDERMODE_ON_DEMAND,   Draw once then only when the OS requests it
+         (like uncovering part of a window.)
+  %]
+  enum RenderMode {
+    RENDERMODE_CONTINUOUS,  // Draw as often as possible up to refresh rate.
+    RENDERMODE_ON_DEMAND    // Draw once then when the OS request it
+                            // (like uncovering part of a window.)
+  };
+
+  %[
+    The current render mode. The default mode is RENDERMODE_CONTINUOUS.\n
+    Valid values are:
+    \li RENDERMODE_CONTINUOUS,  Draw as often as possible up to refresh rate.
+    \li RENDERMODE_ON_DEMAND,   Draw when the OS requests it (like uncovering
+                                part of a window.)
+  %]
+  [getter, setter] RenderMode render_mode_;
+
+  %[
+    Forces a render of the current scene if the current render mode is
+    RENDERMODE_ON_DEMAND.
+  %]
+  void Render();
+
+  %[
+    Renders a render graph.
+
+    Normally the client calls this function automatically for you effectively
+    doing a client.renderTree(client.renderGraphRoot) but there are cases
+    where it is beneficial to be able to call this yourself and pass it
+    different roots when you need to manipulate something between calls.
+
+    This function can only be called from inside a render callback. If you call
+    it the client will not do its default call as mentioned above.
+
+    \param render_node root RenderNode to start rendering from.
+  %]
+  void RenderTree(RenderNode render_node);
+
+  %[
+    Returns an array of DisplayModes which are available for use in full-screen
+    mode.
+    \return An array of DisplayModes.
+  %]
+  [userglue, plugin_data] DisplayMode[] GetDisplayModes();
+
+  %[
+    Makes a region of the plugin area that will invoke full-screen mode if
+    clicked.  The developer is responsible for communicating this to the user,
+    as this region has no visible marker.  The developer is also responsible for
+    updating this region if the plugin gets resized, as we don't know whether or
+    how to scale it.  There can be only one full-screen click region at a time;
+    calling this again will override any previous call.
+
+    \param x x position in pixels.
+    \param y y position in pixels.
+    \param width width in pixels.
+    \param height height in pixels.
+    \param mode_id Id of mode to use.
+  %]
+  [userglue, plugin_data]
+  void SetFullscreenClickRegion(
+      int x, int y, int width, int height, int mode_id);
+  %[
+    Deactivates the plugin click region that was previously created with
+    SetFullscreenClickRegion().
+  %]
+  [userglue, plugin_data]
+  void ClearFullscreenClickRegion();
+  %[
+    Cancels full-screen display, reverting to displaying content only in the
+    plugin region.  If the plugin is already not in full-screen mode, this has
+    no effect.  This does not deactivate the plugin click region--if the user
+    clicks there again, we'll go back to full-screen display.
+  %]
+  [userglue, plugin_data] void CancelFullscreenDisplay();
+
+  %[
+    Gets info about the client.
+  %]
+  [userglue_getter, getter, plugin_data]
+  ClientInfo client_info;
+
+  %[
+    Whether content is displayed in full-screen mode or in a plugin window.  The
+    default is false [not full-screen].
+  %]
+  [userglue_getter, getter, plugin_data]
+  bool fullscreen;
+
+  %[
+    Returns the width of the current drawing area [plugin or full-screen] in
+    pixels.
+  %]
+  [userglue_getter, getter, plugin_data]
+  int width;
+
+  %[
+    Returns the height of the current drawing area [plugin or full-screen] in
+    pixels.
+  %]
+  [userglue_getter, getter, plugin_data]
+  int height;
+
+  %[
+    The root of the render graph.
+  %]
+  [getter] RenderNode render_graph_root_;
+
+  %[
+    Sets the per frame render callback.
+
+    Note: The callback will not be called recursively. When your callback is
+    called if you somehow manage to cause the client to render more frames
+    before you've returned from the callback you will not be called for those
+    frames.
+
+    \code
+    g_client.setRenderCallback(onrender);
+
+    function onrender(render_event) {
+      var elapsedTime = render_event.elapsedTime;
+
+      // elapsedTime is the time elasped since the last callback.
+      // You can use this value to make your application frame rate independent.
+      // For example:
+      //   position = position + velocity_in_units_per_second * elapsedTime;
+    }
+    \endcode
+
+    \param render_callback The callback to call each frame.
+  %]
+  void SetRenderCallback(RenderCallback? render_callback);
+
+  %[
+    Clears the per frame render callback.
+  %]
+  void ClearRenderCallback();
+
+  %[
+    Sets a render callback to be called at the end of the
+    rendering cycle of each frame.
+
+    Note: The callback will not be called recursively. When your callback is
+    called if you somehow manage to cause the client to render more frames
+    before you've returned from the callback you will not be called for those
+    frames.
+
+    \code
+    g_client.setPostRenderCallback(onpostrender);
+
+    function onpostrender(render_event) {
+      var elapsedTime = render_event.elapsedTime;
+
+      // elapsedTime is the time elasped since the last callback.
+      // You can use this value to make your application frame rate independent.
+      // For example:
+      //   position = position + velocity_in_units_per_second * elapsedTime;
+    }
+    \endcode
+
+    \param post_render_callback The callback to call each frame.
+  %]
+  void SetPostRenderCallback(RenderCallback? post_render_callback);
+
+  %[
+    Clears the post render callback.
+  %]
+  void ClearPostRenderCallback();
+
+  %[
+    Sets the lost resources callback.
+
+    The contents of certain resources, RenderSurfaces, can get discarded by the
+    system under certain circumstances. If you application needs that contents
+    to be in a certain state then you can set a callback giving your program the
+    opportunity to restore that state if and when it is lost.
+
+    \param lost_resources_callback The callback when resources are lost.
+  %]
+  void SetLostResourcesCallback(LostResourcesCallback? lost_resources_callback);
+
+  %[
+    Clears the lost resources callback.
+  %]
+  void ClearLostResourcesCallback();
+
+  %[
+    Sets a callback for a given event type.
+    types.
+    There can be only one callback for a given event type at a time; setting a
+    new one deletes the old one.
+
+    \param type Type of event to set callback for.
+    \param handler Function to call on event.
+
+    \sa Event for a list of event
+  %]
+  void SetEventCallback(String type, EventCallback? handler);
+
+  %[
+    Removes the previously-registered callback for an event of the given type.
+    \param type Type of event to clear callback for.
+  %]
+  void ClearEventCallback(String type);
+
+  %[
+    Sets the texture to use when a Texture or Sampler is missing while
+    rendering. The default is a red texture with a yellow no symbol.
+    <span style="color:yellow; background-color: red;">&Oslash;</span>.
+    If you set it to null you'll get an error if you try to render something
+    that is missing a needed Texture, Sampler or ParamSampler.
+
+    For example if you don't care about missing textures, setting it to a black
+    texture would be one option. Another example is if you want to write all
+    your shaders to expect a texture then set this to a white texture. If you
+    want to make sure you are not missing any textures set it null and see if
+    you get any errors using Client.setErrorCallback or Client.lastError.
+
+    \code
+    // Set the error texture to black.
+    var t = g_pack.createTexture2D('', 1, 1, g_o3d.Texture.XRGB8, 1);
+    t.set(0, [0, 0, 0]);
+    g_client.setErrorTexture(t);
+    \endcode
+
+    \param texture texture to use for missing textures or null.
+  %]
+  void SetErrorTexture(Texture? texture);
+
+  %[
+    Sets a callback for when the client ticks. The client processes some things
+    like animation timers at up to 100hz.  This callback will get called before
+    each of those process ticks.
+
+    NOTE: The client takes ownership of the TickCallback you
+    pass in. It will be deleted if you call SetTickCallback a
+    second time or if you call ClearTickCallback.
+
+    Note: The callback will not be called recursively.
+
+    \param tick_callback TickCallback to call when the Client ticks.
+  %]
+  void SetTickCallback(TickCallback? tick_callback);
+
+  %[
+    Clears the tick callback
+
+    NOTE: The client takes ownership of the TickCallback you
+    pass in. It will be deleted if you call SetTickCallback a second
+    time or if you call ClearTickCallback
+  %]
+  void ClearTickCallback();
+
+  %[
+    Sets a callback for when the client gets an error. For example when a shader
+    is compiled and there is an error or if you attempt to bind a param to a
+    param of an incompatible type.
+
+    NOTE: The client takes ownership of the ErrorCallback you
+    pass in. It will be deleted if you call SetErrorCallback a
+    second time or if you call ClearErrorCallback.
+
+    NOTE: The callback will not be called recursively. If you are in a
+    callback, and do something that causes another error before you have
+    returned from the callback, your callback will not be called a second time.
+
+    NOTE: If you put up an alert in response to an error it is best if you
+    clear the error callback before you put up the alert. Otherwise you'll get
+    an alert everytime the client tries to render which is every time you close
+    the current alert which means you'll be in an infinite loop of alerts.
+
+    \param error_callback ErrorCallback to call when the Client gets an error.
+  %]
+  void SetErrorCallback(ErrorCallback? error_callback);
+
+  %[
+    Clears the Error callback
+
+    NOTE: The client takes ownership of the ErrorCallback you
+    pass in. It will be deleted if you call SetErrorCallback a second
+    time or if you call ClearErrorCallback.
+  %]
+  void ClearErrorCallback();
+
+  %[
+    Makes all parameters get re-evaluated.
+  %]
+  void InvalidateAllParameters();
+
+  %[
+    This function is only available in the test version of the plugin.
+    \param file_name Name to save screenshot to.
+    \return True on success.
+  %]
+  bool SaveScreen(String file_name);
+
+  %[
+    Returns the status of initializing the renderer so we can display the
+    appropriate message. We require a certain minimum set of graphics
+    capabilities. If the user's computer does not have his minimum
+    set this will be GPU_NOT_UP_TO_SPEC. If the user is out of graphics
+    resources this will be OUT_OF_RESOURCES. If some other error happened this
+    will be INITIALIZATION_ERROR. Otherwise it will be SUCCESS.
+  %]
+  [userglue_getter, getter, plugin_data]
+  Renderer::InitStatus renderer_init_status;
+
+  %[
+    Gets / Sets the cursor's shape.
+  %]
+  [userglue_getter, userglue_setter, getter, setter, plugin_data]
+  Cursor::CursorType cursor;
+
+  %[
+    Returns the socket address of the IMC message queue associated with the
+    Client.
+    \return The socket address.
+  %]
+  [const] String GetMessageQueueAddress();
+
+  %[
+    The last error reported by the plugin.
+  %]
+  [userglue_getter, getter] String last_error_;
+
+  %[
+    All the objects managed by this client.
+
+    Each access to this field gets the entire list so it is best to get it
+    just once. For example:
+    \code
+    var objects = client.objects;
+    for (var i = 0; i < objects.length; i++) {
+      var object = objects[i];
+    }
+    \endcode
+
+    Note that modifications to this array [e.g. push()] will not affect
+    the underlying Client, while modifications to the array's members
+    <strong>will</strong> affect them.
+  %]
+  [userglue_getter, getter] ObjectBaseArray objects_;
+
+  %[
+    Clears the error returned by GetLastError.
+  %]
+  void ClearLastError();
+
+  %[
+    Resets the profiling information.
+  %]
+  void ProfileReset();
+
+  %[
+    Returns the profiling information as a string.
+    \return The profiling info.
+  %]
+  String ProfileToString();
+
+  %[
+    A unique id for this client.
+  %]
+  [getter=id] Id client_id;
+
+  [verbatim=cpp_glue] %{
+    o3d::String userglue_getter_last_error_(
+        o3d::Client* self) {
+      return self->GetLastError();
+    }
+    o3d::ObjectBaseArray userglue_getter_objects_(
+        o3d::Client* self) {
+      return self->GetByClass<o3d::ObjectBase>();
+    }
+    o3d::ClientInfo userglue_getter_client_info(
+        void *plugin_data, o3d::Client *self) {
+      glue::_o3d::PluginObject *plugin =
+          static_cast<glue::_o3d::PluginObject*>(plugin_data);
+      o3d::ClientInfoManager* client_info_manager =
+          plugin->service_locator()->GetService<o3d::ClientInfoManager>();
+      return client_info_manager->client_info();
+    }
+    std::vector<o3d::DisplayMode> userglue_method_GetDisplayModes(
+        void *plugin_data, o3d::Client *self) {
+      std::vector<o3d::DisplayMode> modes;
+      static_cast<glue::_o3d::PluginObject*>(plugin_data)->GetDisplayModes(
+          &modes);
+      return modes;
+    }
+    void userglue_method_SetFullscreenClickRegion(
+        void *plugin_data, o3d::Client *self, int x, int y, int width,
+        int height, int mode_id) {
+      glue::_o3d::PluginObject *plugin =
+          static_cast<glue::_o3d::PluginObject*>(plugin_data);
+      if (!plugin->SetFullscreenClickRegion(x, y, width, height, mode_id)) {
+        O3D_ERROR(plugin->service_locator())
+            << "Call to SetFullscreenClickRegion failed.";
+      }
+    }
+    void userglue_method_ClearFullscreenClickRegion(
+        void *plugin_data, o3d::Client *self) {
+      static_cast<glue::_o3d::PluginObject*>(plugin_data)->
+          ClearFullscreenClickRegion();
+    }
+    void userglue_method_CancelFullscreenDisplay(
+        void *plugin_data, o3d::Client *self) {
+      static_cast<glue::_o3d::PluginObject*>(plugin_data)->
+          CancelFullscreenDisplay();
+    }
+    bool userglue_getter_fullscreen(
+        void *plugin_data,
+        o3d::Client* self) {
+      return static_cast<glue::_o3d::PluginObject*>(
+          plugin_data)->fullscreen();
+    }
+    int userglue_getter_width(
+        void *plugin_data,
+        o3d::Client* self) {
+      return static_cast<glue::_o3d::PluginObject*>(
+          plugin_data)->width();
+    }
+    int userglue_getter_height(
+        void *plugin_data,
+        o3d::Client* self) {
+      return static_cast<glue::_o3d::PluginObject*>(
+          plugin_data)->height();
+    }
+    void userglue_setter_cursor(void* plugin_data,
+                                o3d::Client* self,
+                                o3d::Cursor::CursorType cursor_type) {
+      static_cast<glue::_o3d::PluginObject*>(plugin_data)->set_cursor(
+          cursor_type);
+    }
+    o3d::Cursor::CursorType userglue_getter_cursor(
+          void* plugin_data,
+          o3d::Client* self) {
+      return static_cast<glue::_o3d::PluginObject*>(
+          plugin_data)->cursor();
+    }
+    o3d::Renderer::InitStatus userglue_getter_renderer_init_status(
+        void* plugin_data, o3d::Client*) {
+      return static_cast<glue::_o3d::PluginObject*>(
+          plugin_data)->renderer_init_status();
+    }
+  %}
+};
+
+
+}  // namespace o3d

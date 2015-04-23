@@ -1,0 +1,14 @@
+This directory contains built 2.7.0 Pthreads-w32 library.
+
+The library is used *only* to build testkjs console application from WebKit.
+
+Current distribution is available from:
+  http://sourceware.org/pthreads-win32/
+
+License information:
+  See http://sourceware.org/pthreads-win32/copying.html
+  This implementation is free software, distributed under the GNU Lesser 
+  General Public License (LGPL).
+
+When updating, no modifications should be necessary aside from building
+the library that will be statically linked.

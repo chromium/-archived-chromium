@@ -1,0 +1,32 @@
+Harfbuzz
+
+http://freedesktop.org/wiki/Software/HarfBuzz
+
+This code was taken from cb83c38045a7dd098f8edd4530d328e999a7bbaf
+(git://anongit.freedesktop.org/harfbuzz)
+
+The contrib/ directory was written by us and is in the process of getting upstreamed. Additionally, this patch was applied:
+
+diff --git a/src/harfbuzz-shaper.h b/src/harfbuzz-shaper.h
+index e8f5513..1577b59 100644
+--- a/src/harfbuzz-shaper.h
++++ b/src/harfbuzz-shaper.h
+@@ -242,7 +242,9 @@ typedef struct HB_Font_ {
+     void *userData;
+ } HB_FontRec;
+ 
+-typedef struct {
++typedef struct HB_ShaperItem_ HB_ShaperItem;
++
++struct HB_ShaperItem_ {
+     const HB_UChar16 *string;
+     hb_uint32 stringLength;
+     HB_ScriptItem item;
+@@ -262,7 +264,7 @@ typedef struct {
+ 
+     /* internal */
+     HB_Bool kerning_applied; /* out: kerning applied by shaper */
+-} HB_ShaperItem;
++};
+ 
+ HB_Bool HB_ShapeItem(HB_ShaperItem *item);

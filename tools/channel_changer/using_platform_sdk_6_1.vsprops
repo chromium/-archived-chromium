@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="using_vista_platform_sdk"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="$(SDKIncludes)"
+		PreprocessorDefinitions="_WIN32_WINNT=0x0600;WINVER=0x0600"
+	/>
+	<Tool
+		Name="VCLibrarianTool"
+		AdditionalLibraryDirectories="$(SDKLibs)"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		AdditionalLibraryDirectories="$(SDKLibs)"
+	/>
+	<UserMacro
+		Name="SDK"
+		Value="$(SolutionDir)..\..\third_party\platformsdk_win2008_6_1\files"
+	/>
+	<UserMacro
+		Name="SDKIncludes"
+		Value="$(SDK)\Include;$(VSInstallDir)\VC\atlmfc\include"
+	/>
+	<UserMacro
+		Name="SDKLibs"
+		Value="$(SDK)\Lib"
+	/>
+</VisualStudioPropertySheet>

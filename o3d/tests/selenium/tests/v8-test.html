@@ -1,0 +1,772 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+V8 Test
+</title>
+</head>
+<body>
+<h1>V8 / ActiveX Bridge Tests</h1>
+This tests V8/NPAPI interoperation and the ActiveX bridge.
+<br/>
+
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 32px; height: 32px;"></div>
+<!-- End of O3D plugin -->
+
+<script type="text/javascript"
+  src="../../../samples/o3djs/base.js"></script>
+<script type="text/javascript">
+
+o3djs.require('o3djs.test');
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+
+var isChrome = navigator.userAgent.indexOf('Chrome') != -1;
+var isSafari = !isChrome && navigator.userAgent.indexOf('Safari') != -1;
+var isFirefox2 = navigator.userAgent.indexOf('Firefox/2.') != -1;
+var isFirefox = navigator.userAgent.indexOf('Firefox') != -1;
+var isInternetExplorer = navigator.userAgent.indexOf('Internet Explorer' != -1);
+
+var g_suite = {};
+
+g_suite.testEvaluatesUndefinedExpression = function() {
+  g_test.assertEquals(undefined, window.g_plugin.eval('undefined'));
+};
+
+g_suite.testEvaluatesNullExpression = function() {
+  g_test.assertEquals(null, window.g_plugin.eval('null'));
+};
+
+g_suite.testEvaluatesDoubleExpression = function() {
+  g_test.assertEquals(4.5, window.g_plugin.eval('2.25+2.25'));
+};
+
+g_suite.testEvaluatesInt32Expression = function() {
+  g_test.assertEquals(4, window.g_plugin.eval('2+2'));
+};
+
+g_suite.testEvaluatesBooleanExpression = function() {
+  g_test.assertTrue(window.g_plugin.eval('true || true'));
+};
+
+g_suite.testEvaluatesStringExpression = function() {
+  g_test.assertEquals('ab', window.g_plugin.eval('"a" + "b"'));
+};
+
+g_suite.testWrapsAndUnwrapsV8ObjectsAndPreservesIdentity = function() {
+  var a = window.g_plugin.eval('var a = {}; a');
+  var v8f = window.g_plugin.eval('function(x) { return a === x; }');
+  g_test.assertTrue(v8f(a));
+};
+
+g_suite.testBrowserConsidersTheSamePluginToBeTheSame = function() {
+  g_test.assertEquals(g_plugin, g_plugin);
+};
+
+g_suite.testBrowserConsidersTheSameNPObjectReturnedMultipleTimesToBeTheSame =
+    function() {
+  // http://code.google.com/p/chromium/issues/detail?id=5751
+  if (!isChrome && !isSafari) {
+    g_test.assertEquals(g_plugin.client, g_plugin.client);
+  }
+};
+
+g_suite.testBrowserConsidersTheSameV8ObjectReturnedMultipleTimesToBeTheSame =
+    function() {
+  // http://code.google.com/p/chromium/issues/detail?id=5751
+  if (!isChrome && !isSafari) {
+    window.g_plugin.eval('var a = {};');
+    var obj1 = window.g_plugin.eval('a');
+    var obj2 = window.g_plugin.eval('a');
+    g_test.assertEquals(obj1, obj2);
+  }
+};
+
+g_suite.testTypeofV8ObjectInBrowserIsObject = function() {
+  var a = window.g_plugin.eval('({})');
+  if (!isSafari) {
+    g_test.assertEquals('object', typeof(a));
+  } else {
+    // Safari thinks its a function!
+    g_test.assertEquals('function', typeof(a));
+  }
+};
+
+g_suite.testTypeofV8FunctionInBrowserIsFunction = function() {
+  var v8f = window.g_plugin.eval('function() {}');
+  g_test.assertEquals('function', typeof(v8f));
+};
+
+g_suite.testV8FunctionIsInstanceOfFunctionInBrowser = function() {
+  var v8f = window.g_plugin.eval('function(x) { return typeof(x); }');
+  g_test.assertTrue(v8f instanceof Function);
+};
+
+g_suite.testV8FunctionKeepsIdentityWhenPassedBackIntoV8 = function() {
+  var v8f = window.g_plugin.eval(
+      'g_originalFunction = function(x) { return typeof(x); }');
+  var comparer = window.g_plugin.eval(
+      'function(func) { return func === g_originalFunction; }');
+  g_test.assertTrue(comparer(v8f));
+};
+
+g_suite.testBrowserCanInvokeV8Functions = function() {
+  var v8f = window.g_plugin.eval('function(x) { return x; }');
+  g_test.assertEquals(2, v8f(2));
+};
+
+g_suite.testBrowserCanInvokeV8Constructors = function() {
+  // http://code.google.com/p/chromium/issues/detail?id=3285
+  if (!isChrome && !isSafari && !isFirefox2) {
+    var v8f = window.g_plugin.eval('function(x) { this.p = x; }');
+    var obj = new v8f(2);
+    g_test.assertEquals(2, obj.p);
+  }
+};
+
+g_suite.testBrowserCalledV8ConstructorsReturnDistinctObjects = function() {
+  // http://code.google.com/p/chromium/issues/detail?id=3285
+  if (!isChrome && !isSafari && !isFirefox2) {
+    var v8f = window.g_plugin.eval('function(x) { this.p = x; }');
+    var obj1 = new v8f(2);
+    var obj2 = new v8f(3);
+    g_test.assertFalse(obj1 === obj2);
+  }
+};
+
+g_suite.testBrowserCanGetV8Properties = function() {
+  var a = window.g_plugin.eval('({ p : 123 })');
+  g_test.assertEquals(123, a.p);
+};
+
+g_suite.testBrowserCanSetV8Properties = function() {
+  var a = window.g_plugin.eval('({ p : 123 })');
+  a.p = 321;
+  g_test.assertEquals(321, a.p);
+};
+
+g_suite.testBrowserCanGetV8ArrayElements = function() {
+  var a = window.g_plugin.eval('([1, 2, 3])');
+  g_test.assertEquals(2, a[1]);
+};
+
+g_suite.testBrowserCanGetV8ArrayLength = function() {
+  var a = window.g_plugin.eval('([1, 2, 3])');
+  g_test.assertEquals(3, a.length);
+};
+
+g_suite.testBrowserCanSetV8ArrayElements = function() {
+  var a = window.g_plugin.eval('([1, 2, 3])');
+  a[1] = 7;
+  g_test.assertEquals(7, a[1]);
+};
+
+g_suite.testBrowserCanSetV8ArrayLength = function() {
+  var a = window.g_plugin.eval('([1, 2, 3])');
+  a.length = 10;
+  g_test.assertEquals(10, a.length);
+};
+
+g_suite.testBrowserCanIterateOverV8Array = function() {
+  // Chrome bug: http://code.google.com/p/chromium/issues/detail?id=5743
+  if (!isChrome && !isFirefox2) {
+    var a = window.g_plugin.eval('([1, 2, 3])');
+    var total = 0;
+    for (var i in a) {
+      total += a[i];
+    }
+    g_test.assertEquals(6, total);
+  }
+};
+
+g_suite.testBrowserCanQueryV8Properties = function() {
+  var a = window.g_plugin.eval('({ p : 123 })');
+  g_test.assertTrue('p' in a);
+  g_test.assertFalse('q' in a);
+  g_test.assertTrue(a.hasOwnProperty('p'));
+  g_test.assertFalse(a.hasOwnProperty('q'));
+};
+
+g_suite.testBrowserCanQueryV8PropertiesThatAreUndefined = function() {
+  var a = window.g_plugin.eval('({ p : undefined })');
+  g_test.assertTrue('p' in a);
+};
+
+g_suite.testBrowserCanRemoveV8Properties = function() {
+  // Firefox does not forward property deletions from the browser
+  // through the NPAPI. Bug:
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=470291
+  // Neither does Chrome:
+  // http://code.google.com/p/chromium/issues/detail?id=5746
+  if (!isChrome && !isSafari && !isFirefox) {
+    var a = window.g_plugin.eval('({ p : 123 })');
+    g_test.assertTrue(delete a.p);
+    g_test.assertFalse('p' in a);
+  }
+};
+
+g_suite.testBrowserCanInvokeV8Methods = function() {
+  var obj = window.g_plugin.eval(
+      'function C() { this.f = 7; this.m = function() { return this.f; } } new C()');
+  g_test.assertEquals(7, obj.m());
+};
+
+g_suite.testBrowserCanEnumerateV8Properties = function() {
+  // Chrome bug: http://code.google.com/p/chromium/issues/detail?id=5743
+  if (!isChrome && !isFirefox2) {
+    var a = window.g_plugin.eval('var a = { p : 123 }; a[1] = 321; a');
+    all = "";
+    for (m in a) {
+      all += m;
+    }
+
+    // The EcmaScript spec says the order property names are returned is
+    // implementation dependent.
+    g_test.assertTrue('1p' === all || 'p1' === all);
+  }
+};
+
+g_suite.testStringValueOfV8ObjectInBrowserIsDefault = function() {
+  var a = window.g_plugin.eval('({})');
+  g_test.assertEquals('[object Object]', a.toString());
+};
+
+g_suite.testStringValueOfV8ObjectInBrowserCanBeOverriden = function() {
+  var a = window.g_plugin.eval('({ toString: function() { return "foo"; } })');
+  g_test.assertEquals('foo', a.toString());
+};
+
+g_suite.testV8SeesSameBrowserObjectAsEqualToItself = function() {
+  if (!isSafari && !isChrome) {
+    var v8f = window.g_plugin.eval('function(a, b) { return a === b; }');
+    var obj = {};
+    g_test.assertTrue(v8f(obj, obj));
+  }
+};
+
+g_suite.testTypeofBrowserObjectInV8IsObject = function() {
+  var v8f = window.g_plugin.eval('function(x) { return typeof(x); }');
+  g_test.assertEquals('object', v8f({}));
+};
+
+// I put in this test because the V8 bridge code uses the absence of
+// a call property as an early out test when determining whether a
+// browser object is a function or not.
+g_suite.testTypeofBrowserObjectInV8IsObjectEvenIfItHasACallProperty =
+    function() {
+  var v8f = window.g_plugin.eval('function(x) { return typeof(x); }');
+  g_test.assertEquals('object', v8f({ call: {} }));
+};
+
+g_suite.testTypeofBrowserFunctionInV8IsFunction = function() {
+  var v8f = window.g_plugin.eval('function(x) { return typeof(x); }');
+  g_test.assertEquals('function', v8f(function() {}));
+};
+
+g_suite.testV8CanInvokeBrowserFunctions = function() {
+  var v8f = window.g_plugin.eval('function(f) { return f(); }');
+  var f = function() { return 12; };
+  g_test.assertEquals(12, v8f(f));
+};
+
+g_suite.testV8ReceivesExceptionOnInvokingUndefinedFunction = function() {
+  var v8f = window.g_plugin.eval(
+      'function(f) { try { f(); } catch(e) { return e; } }');
+  g_test.assertEquals("TypeError: undefined is not a function",
+  v8f(undefined).toString());
+};
+
+g_suite.testV8CanInvokeBrowserConstructor = function() {
+  window.Constructor = function(x) { this.p = x; };
+  var obj = window.g_plugin.eval('new Constructor(7)');
+  g_test.assertEquals(7, obj.p);
+};
+
+g_suite.testV8ReceivesExceptionOnInvokingUndefinedConstructor = function() {
+  var v8f = window.g_plugin.eval(
+      'function(f) { try { new f(); } catch(e) { return e; } }');
+  g_test.assertEquals("TypeError: undefined is not a function",
+  v8f(undefined).toString());
+};
+
+g_suite.testV8CanGetConstructorFromBrowserObject = function() {
+  window.Constructor = function(x) { this.p = x; };
+  var obj = window.g_plugin.eval('new Constructor(7)');
+  g_test.assertTrue(obj.constructor === window.Constructor);
+};
+
+g_suite.testV8CanGetBrowserProperties = function() {
+  var a = { p: 123 };
+  var v8f = window.g_plugin.eval('function(x) { return x.p; }');
+  g_test.assertEquals(123, v8f(a));
+};
+
+g_suite.testV8ReceivesExceptionOnGettingPropertyFromUndefined = function() {
+  var v8f = window.g_plugin.eval(
+      'function(x) { try { return x.p; } catch(e) { return e; } }');
+  g_test.assertEquals("TypeError: Cannot read property 'p' of undefined",
+      v8f(undefined).toString());
+};
+
+g_suite.testV8CodeReceivesUndefinedIfGettingBrowserPropertyFails = function() {
+  var a = window.g_plugin.eval('plugin.nonExistentProperty');
+  g_test.assertEquals(undefined, a);
+};
+
+g_suite.testV8CanSetBrowserProperties = function() {
+  var a = { p: 123 };
+  var v8f = window.g_plugin.eval('function(x) { x.p = 321; }');
+  v8f(a);
+  g_test.assertEquals(321, a.p);
+};
+
+g_suite.testV8CanGetBrowserArrayElements = function() {
+  var a = [1, 2, 3];
+  var v8f = window.g_plugin.eval('function(x) { return x[1]; }');
+  g_test.assertEquals(2, v8f(a));
+};
+
+g_suite.testV8CodeReceivesUndefinedIfGettingBrowserNonExistentArrayElement =
+    function() {
+  var a = window.g_plugin.eval('plugin[17]');
+  g_test.assertEquals(undefined, a);
+};
+
+g_suite.testV8CanGetBrowserArrayLength = function() {
+  var a = [1, 2, 3];
+  var v8f = window.g_plugin.eval('function(x) { return x.length; }');
+  g_test.assertEquals(3, v8f(a));
+};
+
+g_suite.testV8CanSetBrowserArrayElements = function() {
+  var a = [1, 2, 3];
+  var v8f = window.g_plugin.eval('function(x) { x[1] = 7; }');
+  v8f(a);
+  g_test.assertEquals(7, a[1]);
+};
+
+g_suite.testV8CanSetBrowserArrayLength = function() {
+  var a = [1, 2, 3];
+  var v8f = window.g_plugin.eval('function(x) { x.length = 10; }');
+  v8f(a);
+  g_test.assertEquals(10, a.length);
+};
+
+g_suite.testV8CanIterateOverBrowserArray = function() {
+  var a = [1, 2, 3];
+  var v8f = window.g_plugin.eval(
+      'function(x) { var total = 0; for (var i in x) { total += x[i]; } return total; }');
+  g_test.assertEquals(6, v8f(a));
+};
+
+g_suite.testIsArrayWorksInV8ForBrowserArrays = function() {
+  var v8f = g_plugin.eval('function(x) { return o3djs.base.isArray(x); }');
+  g_test.assertTrue(v8f([1, 2, 3]));
+};
+
+g_suite.testIsArrayWorksInV8ForV8Arrays = function() {
+  g_test.assertFalse(g_plugin.eval('o3djs.base.isArray(undefined)'));
+  g_test.assertFalse(g_plugin.eval('o3djs.base.isArray(7)'));
+  g_test.assertTrue(g_plugin.eval('o3djs.base.isArray([1, 2, 3])'));
+};
+
+g_suite.testV8CanQueryBrowserProperties = function() {
+  var a = { p : 123 }; a[1] = 321;
+  var v8f = window.g_plugin.eval(
+      'function(x) { var all = ""; for (m in x) { all += m; } return all; }');
+
+  // The EcmaScript spec says the order property names are returned is
+  // implementation dependent.
+  g_test.assertTrue('1p' === v8f(a) || 'p1' === v8f(a));
+};
+
+g_suite.testV8CanRemoveBrowserProperties = function() {
+  if (!isSafari) {
+    var a = { p : 123 };
+    var v8f = window.g_plugin.eval('function(x) { return delete x.p; }');
+    g_test.assertTrue(v8f(a));
+    // check property does not exist
+    g_test.assertEquals('undefined', typeof(a.p));
+    // delete should still succeed if the property does not exist
+    g_test.assertTrue(v8f(a));
+  }
+};
+
+g_suite.testV8DeleteOperatorReturnsFalseIfPropertyCannotBeRemoved = function() {
+  g_test.assertFalse(window.g_plugin.eval('delete plugin.client'));
+};
+
+g_suite.testV8CanInvokeBrowserMethods = function() {
+  function C() { this.f = 7; this.m = function() { return this.f; } }
+  c = new C();
+  var v8f = window.g_plugin.eval('function(x) { return x.m(); }');
+  g_test.assertEquals(7, v8f(c));
+};
+
+g_suite.testV8CodeReceivesAnExceptionIfBrowserMethodCallFails = function() {
+  var v8f = window.g_plugin.eval(
+      'function() { try { plugin.nonExistentFunction(); } catch(e) { return e; } }');
+  g_test.assertEquals(
+      "TypeError: Object [object Object] has no method 'nonExistentFunction'",
+      v8f().toString());
+};
+
+// This won't work until will can support intercepting on V8 objects built
+// from FunctionTemplates.
+//g_suite.testV8CanInvokeBrowserFunctionsWithExplicitThisThroughCallAndApply =
+//      function() {
+//    var this_copy, arg_copy;
+//    function f(arg) { this_copy = this; arg_copy = arg; return arg; }
+//    var v8f = window.g_plugin.eval('function(x) { return x(7); }');
+//    var obj = {};
+//    g_test.assertEquals(7, v8f.call(obj, 7));
+//    g_test.assertEquals(obj, this_copy);
+//    g_test.assertEquals(7, arg_copy);
+//    obj = {};
+//    g_test.assertEquals(8, v8f.apply(obj, [7]));
+//    g_test.assertEquals(obj, this_copy);
+//    g_test.assertEquals(8, arg_copy);
+//}
+
+g_suite.testStringValueOfBrowserObjectInV8IsDefault = function() {
+  var v8f = window.g_plugin.eval('function(x) { return x.toString(); }');
+  g_test.assertEquals('[object Object]', v8f({}));
+};
+
+g_suite.testStringValueOfBrowserObjectInV8CanBeOverriden = function() {
+  var v8f = window.g_plugin.eval('function(x) { return x.toString(); }');
+  g_test.assertEquals('foo', v8f({ toString: function() { return 'foo' } }));
+};
+
+g_suite.testV8CanInvokeNativeMethod = function() {
+  g_test.assertEquals('My pack', window.g_plugin.eval(
+      'var pack = plugin.client.createPack(); pack.name = \"My pack\"; pack.name'));
+};
+
+g_suite.testV8CanInvokeNativeObject = function() {
+  g_test.assertArrayEquals([-1, -1, -2], window.g_plugin.eval(
+      'var b = plugin.o3d.BoundingBox(' +
+          '[-1, -1, -2], [1, 2, 4]); b.minExtent'));
+};
+
+g_suite.testV8ExceptionsInPluginEvalResultInErrorCallback = function() {
+  var error = 'no error';
+  var exceptionThrown = false;
+  window.g_plugin.client.setErrorCallback(function(e) {
+    error = e; });
+  try {
+    window.g_plugin.eval('throw "error";');
+  } catch(e) {
+    exceptionThrown = true;
+  }
+  // Chrome bug: http://code.google.com/p/chromium/issues/detail?id=5748
+  if (!isChrome && !isSafari) {
+    g_test.assertTrue(exceptionThrown);
+  }
+  g_test.assertEquals('Uncaught error in throw "error";', error);
+};
+
+g_suite.testV8ExceptionsInFunctionCallResultInErrorCallback = function() {
+  var v8f = window.g_plugin.eval('function() { throw "error"; }');
+  var error = 'no error';
+  var exceptionThrown = false;
+  window.g_plugin.client.setErrorCallback(function(e) {
+    error = e; });
+  try {
+    v8f();
+  } catch(e) {
+    exceptionThrown = true;
+  }
+  // Chrome bug: http://code.google.com/p/chromium/issues/detail?id=5748
+  if (!isChrome && !isSafari) {
+    g_test.assertTrue(exceptionThrown);
+  }
+  g_test.assertEquals('Uncaught error in function() { throw "error"; }', error);
+};
+
+g_suite.testV8ExceptionsInMethodCallResultInErrorCallback = function() {
+  var obj = window.g_plugin.eval('({ f: function() { throw "error"; } })');
+  var error = 'no error';
+  var exceptionThrown = false;
+  window.g_plugin.client.setErrorCallback(function(e) {
+    error = e; });
+  try {
+    obj.f();
+  } catch(e) {
+    exceptionThrown = true;
+  }
+  // Chrome bug: http://code.google.com/p/chromium/issues/detail?id=5748
+  if (!isChrome && !isSafari) {
+    g_test.assertTrue(exceptionThrown);
+  }
+  g_test.assertEquals(
+      'Uncaught error in ({ f: function() { throw "error"; } })',
+      error);
+};
+
+g_suite.testV8ExceptionsInConstructorCallResultInErrorCallback = function() {
+  // Chrome bug: http://code.google.com/p/chromium/issues/detail?id=3285
+  if (!isChrome && !isSafari && !isFirefox2) {
+    var obj = window.g_plugin.eval('function() { throw "error"; }');
+    var error = 'no error';
+    var exceptionThrown = false;
+    window.g_plugin.client.setErrorCallback(function(e) {
+      error = e; });
+    try {
+      new obj();
+    } catch(e) {
+      exceptionThrown = true;
+    }
+    // Chrome bug: http://code.google.com/p/chromium/issues/detail?id=5748
+    if (!isChrome && !isSafari) {
+      g_test.assertTrue(exceptionThrown);
+    }
+    g_test.assertEquals(
+        'Uncaught error in function() { throw "error"; }', error);
+  }
+};
+
+g_suite.testV8CanAccessBrowserGlobals = function() {
+  window.g_global = 7;
+  g_test.assertEquals(7, window.g_plugin.eval('g_global'));
+};
+
+g_suite.testV8ModificationsToBrowserGlobalsAreOnlyLocallyVisible = function() {
+  window.g_global = 7;
+  g_test.assertEquals(8, window.g_plugin.eval('g_global = 8; g_global'));
+  g_test.assertEquals(7, window.g_global);
+};
+
+g_suite.testV8CanAccessPluginThroughPluginGlobal = function() {
+  // http://code.google.com/p/chromium/issues/detail?id=5751
+  if (!isChrome && !isSafari) {
+    g_test.assertEquals(g_plugin.client, window.g_plugin.eval('plugin.client'));
+  }
+};
+
+g_suite.testEvalFailsWithBadArguments = function() {
+  // Chrome bug: http://code.google.com/p/chromium/issues/detail?id=5748
+  if (!isChrome && !isSafari) {
+    var numExceptions = 0;
+    try {
+      window.g_plugin.eval();
+    } catch (e) {
+      ++numExceptions;
+    }
+    try {
+      window.g_plugin.eval('a', 'b');
+    } catch (e) {
+      ++numExceptions;
+    }
+    try {
+      window.g_plugin.eval(7);
+    } catch (e) {
+      ++numExceptions;
+    }
+    g_test.assertEquals(3, numExceptions);
+  }
+};
+
+g_suite.testExceptionThrownIfV8CodeIsInvalid = function() {
+  var error = 'no error';
+  var exceptionThrown = false;
+  window.g_plugin.client.setErrorCallback(function(e) {
+    error = e; });
+  try {
+    window.g_plugin.eval('+1)');
+  } catch (e) {
+    exceptionThrown = true;
+  }
+  g_test.assertEquals('Uncaught SyntaxError: Unexpected token ) in +1)', error);
+  if (!isSafari && !isChrome) {
+    g_test.assertTrue(exceptionThrown);
+  }
+};
+
+g_suite.testV8CanAccessDOM = function() {
+  if (!isInternetExplorer) {
+    g_test.assertEquals('P', window.g_plugin.eval(
+        "document.createElement('P').tagName"));
+  }
+};
+
+g_suite.testV8CanRunUtilityCodeNatively = function() {
+  var result = g_plugin.eval("o3djs.math.addVector([1, 2, 3], [3, 2, 1])");
+  g_test.assertArrayEquals([4, 4, 4], result);
+};
+
+o3djs.provide('myNamespace');
+
+myNamespace.anUndefinedConstant = undefined;
+
+myNamespace.aNumberConstant = 7;
+
+myNamespace.aBooleanConstant = true;
+
+myNamespace.anEscapedStringConstant = 'foo\r\n\tbar';
+
+myNamespace.anUnescapedStringConstant = 'foo bar';
+
+myNamespace.aNullConstant = null;
+
+myNamespace.anObjectConstant = {a: 'foo'};
+
+myNamespace.anArrayConstant = [1, 2, 3];
+
+myNamespace.doSomething = function() {
+  return 7;
+};
+
+myNamespace.AConstructor = function(a) {
+  this.a = a;
+};
+
+myNamespace.AConstructor.prototype.getA = function() {
+  return this.a;
+};
+
+myNamespace.getPlugin = function() {
+  return plugin;
+};
+
+myNamespace.doSomethingInBrowser = function() {
+  o3djs.BROWSER_ONLY;
+  myNamespace.didSomethingInBrowser = true;
+  return 7;
+};
+
+myNamespace.aRegExp = /Foo\n\r/gim;
+
+g_suite.testProvidedCodeRunsInV8 = function() {
+  g_test.assertTrue('client' in g_plugin.eval('myNamespace.getPlugin()'));
+};
+
+g_suite.testV8CanAccessUndefinedInAProvidedNamespace = function() {
+  myNamespace.anUndefinedConstant = 7;
+  g_test.assertEquals(undefined, g_plugin.eval(
+      'myNamespace.anUndefinedConstant'));
+};
+
+g_suite.testV8CanAccessNumbersInAProvidedNamespace = function() {
+  myNamespace.aNumberConstant = undefined;
+  g_test.assertEquals(7, g_plugin.eval('myNamespace.aNumberConstant'));
+};
+
+g_suite.testV8CanAccessBooleansInAProvidedNamespace = function() {
+  myNamespace.aBooleanConstant = undefined;
+  g_test.assertTrue(g_plugin.eval('myNamespace.aBooleanConstant'));
+};
+
+g_suite.testV8CanAccessEscapedStringsInAProvidedNamespace = function() {
+  myNamespace.anEscapedStringConstant = undefined;
+  g_test.assertEquals('foo\r\n\tbar', g_plugin.eval(
+      'myNamespace.anEscapedStringConstant'));
+};
+
+g_suite.testV8CanAccessUneapedStringsInAProvidedNamespace = function() {
+  myNamespace.anUnescapedStringConstant = undefined;
+  g_test.assertEquals('foo bar', g_plugin.eval(
+      'myNamespace.anUnescapedStringConstant'));
+};
+
+g_suite.testV8CanAccessNullInAProvidedNamespace = function() {
+  myNamespace.aNullConstant = undefined;
+  g_test.assertEquals(null, g_plugin.eval('myNamespace.aNullConstant'));
+};
+
+g_suite.testV8CanAccessObjectsInAProvidedNamespace = function() {
+  myNamespace.anObjectConstant = undefined;
+  g_test.assertEquals('foo', g_plugin.eval('myNamespace.anObjectConstant.a'));
+};
+
+g_suite.testV8CanAccessArraysInAProvidedNamespace = function() {
+  myNamespace.anArrayConstant = undefined;
+  g_test.assertArrayEquals([1, 2, 3], g_plugin.eval(
+      'myNamespace.anArrayConstant'));
+};
+
+g_suite.testV8CanInvokeFunctionsInAProvidedNamespace = function() {
+  myNamespace.doSomething = undefined;
+  g_test.assertEquals(7, g_plugin.eval('myNamespace.doSomething()'));
+};
+
+g_suite.testV8CanInvokeConstructorsAndPrototypeMethodsInAProvidedNamespace =
+    function() {
+  myNamespace.AConstructor = undefined;
+  g_test.assertEquals(7, g_plugin.eval(
+      'new myNamespace.AConstructor(7).getA()'));
+};
+
+g_suite.testV8CanInvokeFunctionsAnnotatedAsRunningInTheBrowser = function() {
+  g_test.assertEquals(7, g_plugin.eval('myNamespace.doSomethingInBrowser()'));
+  g_test.assertTrue(myNamespace.didSomethingInBrowser);
+};
+
+g_suite.textV8CanAccessRegExpInAProvidedNamespace = function() {
+  myNamespace.aRegExp = undefined;
+  g_test.assertEquals('Foo\n\r', g_plugin.eval('myNamespace.aRegExp.source'));
+  g_test.assertTrue(g_plugin.eval('myNamespace.aRegExp.global'));
+  g_test.assertTrue(g_plugin.eval('myNamespace.aRegExp.multiline'));
+  g_test.assertTrue(g_plugin.eval('myNamespace.aRegExp.ignoreCase'));
+}
+
+g_suite.testV8CanAccessBrowserO3djs = function() {
+  g_test.assertEquals(o3djs, g_plugin.eval('o3djs.browser'));
+};
+
+g_suite.testV8CanAccessGlobalsThroughO3djs = function() {
+  g_test.assertEquals(navigator.userAgent,
+      g_plugin.eval('o3djs.global.navigator.userAgent'));
+};
+
+g_suite.testV8CanAccessO3dNamespaceThroughO3djs = function() {
+  g_test.assertTrue(g_plugin.eval('g_plugin.o3d === o3djs.base.o3d'));
+};
+
+function initStep2(clientElements) {
+  g_test = o3djs.test;
+  g_plugin = clientElements[0];
+  g_testResult = g_test.runTests(g_suite);
+};
+
+window.onload = function() {
+  o3djs.util.makeClients(initStep2);
+};
+
+</script>
+</body>
+</html>

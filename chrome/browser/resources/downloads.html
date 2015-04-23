@@ -1,0 +1,708 @@
+<!DOCTYPE HTML>
+<html id="t" jsvalues="dir:textdirection;">
+<head>
+<meta charset="utf-8">
+<title jscontent="title"></title>
+<link rel="icon" href="../../app/theme/downloads_favicon.png">
+<style>
+body {
+  background-color:white;
+  color:black;
+  margin:10px;
+}
+.header {
+  overflow:auto;
+  clear:both;
+}
+.header .logo {
+  float:left;
+}
+.header .form {
+  float:left;
+  margin-top:22px;
+  margin-left:12px;
+}
+html[dir='rtl'] .logo {
+  float:right;
+}
+html[dir='rtl'] .form {
+  float:right;
+  margin-right:12px;
+}
+#downloads-summary {
+  margin-top:12px;
+  border-top:1px solid #9cc2ef;
+  background-color:#ebeff9;
+  padding:3px;
+  margin-bottom:6px;
+}
+#downloads-summary-text {
+  font-weight:bold;
+}
+#downloads-summary > a {
+  float:right;
+}
+html[dir='rtl'] #downloads-summary > a {
+  float:left;
+}
+#downloads-display {
+  max-width:740px;
+}
+.download {
+  position:relative;
+  margin-top:6px;
+  margin-left:96px;
+  padding-left:56px;
+  margin-bottom:15px;
+}
+html[dir='rtl'] .download {
+  padding-left:0px;
+  margin-left:0px;
+  margin-right:96px;
+  padding-right:56px;
+}
+.date-container {
+  position:absolute;
+  left:-92px;
+  width:92px;
+}
+html[dir='rtl'] .date-container {
+  left:auto;
+  right:-92px;
+}
+.date-container .since {
+  color:black;
+}
+.date-container .date {
+  color:#666;
+}
+.download .icon {
+  position:absolute;
+  top:2px;
+  left:9px;
+  width:32px;
+  height:32px;
+}
+html[dir='rtl'] .icon {
+  left:auto;
+  right:9px;
+}
+.progress {
+  position:absolute;
+  top:-6px;
+  left:0px;
+  width:48px;
+  height:48px;
+}
+html[dir='rtl'] .progress {
+  left:auto;
+  right:0px;
+}
+.progress.background {
+  background:url('../../app/theme/download_progress_background32.png');
+}
+.progress.foreground {
+  background:url('../../app/theme/download_progress_foreground32.png');
+}
+.name {
+  display:none;
+  padding-right:16px;
+  max-width:450px;
+  word-break: break-all;
+}
+html[dir='rtl'] .name {
+  padding-right:0px;
+  padding-left:16px;
+}
+.download .status {
+  display:inline;
+  color:#999;
+  white-space:nowrap;
+}
+.download .url {
+  color:#080;
+  max-width:500px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.controls a {
+  color:#777;
+  margin-right:16px;
+}
+#downloads-pagination {
+  padding-top:24px;
+  margin-left:18px;
+}
+.page-navigation {
+  padding:8px;
+  background-color:#ebeff9;
+  margin-right:4px;
+}
+.footer {
+  height:24px;
+}
+</style>
+<script src="local_strings.js"></script>
+<script>
+
+///////////////////////////////////////////////////////////////////////////////
+// Helper functions
+function $(o) {return document.getElementById(o);}
+
+function bind(fn, selfObj, var_args) {
+  var boundArgs = Array.prototype.slice.call(arguments, 2);
+  return function() {
+    var args = Array.prototype.slice.call(arguments);
+    args.unshift.apply(args, boundArgs);
+    return fn.apply(selfObj, args);
+  }
+}
+
+/**
+ * Sets the display style of a node.
+ */
+function showInline(node, isShow) {
+  node.style.display = isShow ? 'inline' : 'none';
+}
+
+function showInlineBlock(node, isShow) {
+  node.style.display = isShow ? 'inline-block' : 'none';
+}
+
+/**
+ * Creates an element of a specified type with a specified class name.
+ * @param {String} type The node type.
+ * @param {String} className The class name to use.
+ */
+function createElementWithClassName(type, className) {
+  var elm = document.createElement(type);
+  elm.className = className;
+  return elm;
+}
+
+/**
+ * Creates a link with a specified onclick handler and content
+ * @param {String} onclick The onclick handler
+ * @param {String} value The link text
+ */
+function createLink(onclick, value) {
+  var link = document.createElement("a");
+  link.onclick = onclick;
+  link.href = '#';
+  link.innerHTML = value;
+  return link;
+}
+
+/**
+ * Creates a button with a specified onclick handler and content
+ * @param {String} onclick The onclick handler
+ * @param {String} value The button text
+ */
+function createButton(onclick, value) {
+  var button = document.createElement("input");
+  button.type = 'button';
+  button.value = value;
+  button.onclick = onclick;
+  return button;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Downloads
+/**
+ * Class to hold all the information about the visible downloads.
+ */
+function Downloads() {
+  this.downloads_ = {};
+  this.node_ = $('downloads-display');
+  this.summary_ = $('downloads-summary-text');
+  this.searchText_ = "";
+
+  // Keep track of the dates of the newest and oldest downloads so that we
+  // know where to insert them.
+  this.newestTime_ = -1;
+}
+
+/**
+ * Called when a download has been updated or added.
+ * @param {Object} download A backend download object (see downloads_ui.cc)
+ */
+Downloads.prototype.updated = function(download) {
+  var id = download.id;
+  if (!!this.downloads_[id]) {
+    this.downloads_[id].update(download);
+  } else {
+    this.downloads_[id] = new Download(download);
+    // We get downloads in display order, so we don't have to worry about
+    // maintaining correct order - we can assume that any downloads not in
+    // display order are new ones and so we can add them to the top of the
+    // list.
+    if (download.started > this.newestTime_) {
+      this.node_.insertBefore(this.downloads_[id].node, this.node_.firstChild);
+      this.newestTime_ = download.started;
+    } else {
+      this.node_.appendChild(this.downloads_[id].node);
+    }
+    this.updateDateDisplay_();
+  }
+}
+
+/**
+ * Set our display search text.
+ * @param {String} searchText The string we're searching for.
+ */
+Downloads.prototype.setSearchText = function(searchText) {
+  this.searchText_ = searchText;
+}
+
+/**
+ * Update the summary block above the results
+ */
+Downloads.prototype.updateSummary = function() {
+  if (this.searchText_) {
+    this.summary_.innerHTML = localStrings.formatString(
+        'searchresultsfor', this.searchText_);
+  } else {
+    this.summary_.innerHTML = localStrings.getString('downloads');
+  }
+
+  var hasDownloads = false;
+  for (var i in this.downloads_) {
+    hasDownloads = true;
+    break;
+  }
+
+  if (!hasDownloads) {
+    this.node_.innerHTML = localStrings.getString('noresults');
+  }
+}
+
+/**
+ * Update the date visibility in our nodes so that no date is
+ * repeated.
+ */
+Downloads.prototype.updateDateDisplay_ = function() {
+  var dateContainers = document.getElementsByClassName('date-container');
+  var displayed = {};
+  for (var i = 0, container; container = dateContainers[i]; i++) {
+    var dateString = container.getElementsByClassName('date')[0].innerHTML;
+    if (!!displayed[dateString]) {
+      container.style.display = 'none';
+    } else {
+      displayed[dateString] = true;
+      container.style.display = 'block';
+    }
+  }
+}
+
+/**
+ * Remove a download.
+ * @param {Number} id The id of the download to remove.
+ */
+Downloads.prototype.remove = function(id) {
+  this.node_.removeChild(this.downloads_[id].node);
+  delete this.downloads_[id];
+  this.updateDateDisplay_();
+}
+
+/**
+ * Clear all downloads and reset us back to a null state.
+ */
+Downloads.prototype.clear = function() {
+  for (var id in this.downloads_) {
+    this.downloads_[id].clear();
+    this.remove(id);
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Download
+/**
+ * A download and the DOM representation for that download.
+ * @param {Object} download A backend download object (see downloads_ui.cc)
+ */
+function Download(download) {
+  // Create DOM
+  this.node = createElementWithClassName('div', 'download');
+
+  // Dates
+  this.dateContainer_ = createElementWithClassName('div', 'date-container');
+  this.node.appendChild(this.dateContainer_);
+
+  this.nodeSince_ = createElementWithClassName('div', 'since');
+  this.nodeDate_ = createElementWithClassName('div', 'date');
+  this.dateContainer_.appendChild(this.nodeSince_);
+  this.dateContainer_.appendChild(this.nodeDate_);
+
+  // Container for all 'safe download' UI.
+  this.safe_ = createElementWithClassName('div', 'safe');
+  this.safe_.ondragstart = bind(this.drag_, this);
+  this.node.appendChild(this.safe_);
+
+  if (download.state != Download.States.COMPLETE) {
+    this.nodeProgressBackground_ =
+        createElementWithClassName('div', 'progress background');
+    this.safe_.appendChild(this.nodeProgressBackground_);
+
+    this.canvasProgress_ =
+        document.getCSSCanvasContext('2d', 'canvas_' + download.id,
+            Download.Progress.width,
+            Download.Progress.height);
+
+    this.nodeProgressForeground_ =
+        createElementWithClassName('div', 'progress foreground');
+    this.nodeProgressForeground_.style.webkitMask =
+        '-webkit-canvas(canvas_'+download.id+')';
+    this.safe_.appendChild(this.nodeProgressForeground_);
+  }
+
+  this.nodeImg_ = createElementWithClassName('img', 'icon');
+  this.safe_.appendChild(this.nodeImg_);
+
+  // FileLink is used for completed downloads, otherwise we show FileName.
+  this.nodeTitleArea_ = createElementWithClassName('div', 'title-area');
+  this.safe_.appendChild(this.nodeTitleArea_);
+
+  this.nodeFileLink_ = createLink(bind(this.openFile_, this), '');
+  this.nodeFileLink_.className = 'name';
+  this.nodeFileLink_.style.display = 'none';
+  this.nodeTitleArea_.appendChild(this.nodeFileLink_);
+
+  this.nodeFileName_ = createElementWithClassName('span', 'name');
+  this.nodeFileName_.style.display = 'none';
+  this.nodeTitleArea_.appendChild(this.nodeFileName_);
+
+  this.nodeStatus_ = createElementWithClassName('span', 'status');
+  this.nodeTitleArea_.appendChild(this.nodeStatus_);
+
+  this.nodeURL_ = createElementWithClassName('div', 'url');
+  this.safe_.appendChild(this.nodeURL_);
+
+  // Controls.
+  this.nodeControls_ = createElementWithClassName('div', 'controls');
+  this.safe_.appendChild(this.nodeControls_);
+
+  this.controlShow_ = createLink(bind(this.show_, this),
+      localStrings.getString('control_showinfolder'));
+  this.nodeControls_.appendChild(this.controlShow_);
+
+  // Pause/Resume are a toggle.
+  this.controlPause_ = createLink(bind(this.togglePause_, this),
+      localStrings.getString('control_pause'));
+  this.nodeControls_.appendChild(this.controlPause_);
+
+  this.controlResume_ = createLink(bind(this.togglePause_, this),
+      localStrings.getString('control_resume'));
+  this.nodeControls_.appendChild(this.controlResume_);
+
+  this.controlCancel_ = createLink(bind(this.cancel_, this),
+      localStrings.getString('control_cancel'));
+  this.nodeControls_.appendChild(this.controlCancel_);
+
+  // Container for 'unsafe download' UI.
+  this.danger_ = createElementWithClassName('div', 'show-dangerous');
+  this.node.appendChild(this.danger_);
+
+  this.dangerDesc_ = document.createElement("div");
+  this.danger_.appendChild(this.dangerDesc_);
+
+  this.dangerSave_ = createButton(bind(this.saveDangerous_, this),
+      localStrings.getString("danger_save"));
+  this.danger_.appendChild(this.dangerSave_);
+
+  this.dangerDiscard_ = createButton(bind(this.discardDangerous_, this),
+      localStrings.getString("danger_discard"));
+  this.danger_.appendChild(this.dangerDiscard_);
+
+  // Update member vars.
+  this.update(download);
+}
+
+/**
+ * The states a download can be in. These correspond to states defined in
+ * DownloadsDOMHandler::CreateDownloadItemValue
+ */
+Download.States = {
+  IN_PROGRESS : "IN_PROGRESS",
+  CANCELLED : "CANCELLED",
+  COMPLETE : "COMPLETE",
+  PAUSED : "PAUSED",
+  DANGEROUS : "DANGEROUS",
+}
+
+/**
+ * Constants for the progress meter.
+ */
+Download.Progress = {
+  width : 48,
+  height : 48,
+  radius : 24,
+  centerX : 24,
+  centerY : 24,
+  base : -0.5 * Math.PI,
+  dir : false,
+}
+
+/**
+ * Updates the download to reflect new data.
+ * @param {Object} download A backend download object (see downloads_ui.cc)
+ */
+Download.prototype.update = function(download) {
+  this.id_ = download.id;
+  this.filePath_ = download.file_path;
+  this.fileName_ = download.file_name;
+  this.url_ = download.url;
+  this.state_ = download.state;
+
+  this.since_ = download.since_string;
+  this.date_ = download.date_string;
+
+  // See DownloadItem::PercentComplete
+  this.percent_ = Math.max(download.percent, 0);
+  this.progressStatusText_ = download.progress_status_text;
+  this.received_ = download.received;
+
+  if (this.state_ == Download.States.DANGEROUS) {
+    this.dangerDesc_.innerHTML = localStrings.formatString('danger_desc',
+                                                           this.fileName_);
+    this.danger_.style.display = 'block';
+    this.safe_.style.display = 'none';
+  } else {
+    this.nodeImg_.src = 'chrome://fileicon/' + this.filePath_;
+
+    if (this.state_ == Download.States.COMPLETE) {
+      this.nodeFileLink_.innerHTML = this.fileName_;
+      this.nodeFileLink_.href = this.filePath_;
+    } else {
+      this.nodeFileName_.innerHTML = this.fileName_;
+    }
+
+    showInline(this.nodeFileLink_, this.state_ == Download.States.COMPLETE);
+    // nodeFileName_ has to be inline-block to avoid the 'interaction' with
+    // nodeStatus_. If both are inline, it appears that their text contents
+    // are merged before the bidi algorithm is applied leading to an
+    // undesirable reordering. http://crbug.com/13216
+    showInlineBlock(this.nodeFileName_, this.state_ != Download.States.COMPLETE);
+
+    if (this.state_ == Download.States.IN_PROGRESS) {
+      this.nodeProgressForeground_.style.display = 'block';
+      this.nodeProgressBackground_.style.display = 'block';
+
+      // Draw a pie-slice for the progress.
+      this.canvasProgress_.clearRect(0, 0,
+                                     Download.Progress.width,
+                                     Download.Progress.height);
+      this.canvasProgress_.beginPath();
+      this.canvasProgress_.moveTo(Download.Progress.centerX,
+                                  Download.Progress.centerY);
+
+      // Draw an arc CW for both RTL and LTR. http://crbug.com/13215
+      this.canvasProgress_.arc(Download.Progress.centerX,
+                               Download.Progress.centerY,
+                               Download.Progress.radius,
+                               Download.Progress.base,
+                               Download.Progress.base + Math.PI * 0.02 *
+                               Number(this.percent_),
+                               false);
+
+      this.canvasProgress_.lineTo(Download.Progress.centerX,
+                                  Download.Progress.centerY);
+      this.canvasProgress_.fill();
+      this.canvasProgress_.closePath();
+    } else if (this.nodeProgressBackground_) {
+      this.nodeProgressForeground_.style.display = 'none';
+      this.nodeProgressBackground_.style.display = 'none';
+    }
+
+    showInline(this.controlShow_, this.state_ == Download.States.COMPLETE);
+    showInline(this.controlPause_, this.state_ == Download.States.IN_PROGRESS);
+    showInline(this.controlResume_, this.state_ == Download.States.PAUSED);
+    showInline(this.controlCancel_, this.state_ == Download.States.IN_PROGRESS ||
+                                    this.state_ == Download.States.PAUSED);
+
+    this.nodeSince_.innerHTML = this.since_;
+    this.nodeDate_.innerHTML = this.date_;
+    this.nodeURL_.innerHTML = this.url_;
+    this.nodeStatus_.innerHTML = this.getStatusText_();
+
+    this.danger_.style.display = 'none';
+    this.safe_.style.display = 'block';
+  }
+}
+
+/**
+ * Removes applicable bits from the DOM in preparation for deletion.
+ */
+Download.prototype.clear = function() {
+  this.safe_.ondragstart = null;
+  this.nodeFileLink_.onclick = null;
+  this.controlShow_.onclick = null;
+  this.controlCancel_.onclick = null;
+  this.controlPause_.onclick = null;
+  this.controlResume_.onclick = null;
+  this.dangerDiscard_.onclick = null;
+
+  this.node.innerHTML = '';
+}
+
+/**
+ * @return {String} User-visible status update text.
+ */
+Download.prototype.getStatusText_ = function() {
+  switch (this.state_) {
+    case Download.States.IN_PROGRESS:
+      return this.progressStatusText_;
+    case Download.States.CANCELLED:
+      return localStrings.getString('status_cancelled');
+    case Download.States.PAUSED:
+      return localStrings.getString('status_paused');
+    case Download.States.DANGEROUS:
+      return localStrings.getString('danger_desc');
+    case Download.States.COMPLETE:
+      return "";
+  }
+}
+
+/**
+ * Tells the backend to initiate a drag, allowing users to drag
+ * files from the download page and have them appear as native file
+ * drags.
+ */
+Download.prototype.drag_ = function() {
+  chrome.send("drag", [this.id_.toString()]);
+  return false;
+}
+
+/**
+ * Tells the backend to open this file.
+ */
+Download.prototype.openFile_ = function() {
+  chrome.send("openFile", [this.id_.toString()]);
+  return false;
+}
+
+/**
+ * Tells the backend that the user chose to save a dangerous file.
+ */
+Download.prototype.saveDangerous_ = function() {
+  chrome.send("saveDangerous", [this.id_.toString()]);
+  return false;
+}
+
+/**
+ * Tells the backend that the user chose to discard a dangerous file.
+ */
+Download.prototype.discardDangerous_ = function() {
+  chrome.send("discardDangerous", [this.id_.toString()]);
+  downloads.remove(this.id_);
+  return false;
+}
+
+/**
+ * Tells the backend to show the file in explorer.
+ */
+Download.prototype.show_ = function() {
+  chrome.send("show", [this.id_.toString()]);
+  return false;
+}
+
+/**
+ * Tells the backend to pause this download.
+ */
+Download.prototype.togglePause_ = function() {
+  chrome.send("togglepause", [this.id_.toString()]);
+  return false;
+}
+
+/**
+ * Tells the backend to cancel this download.
+ */
+Download.prototype.cancel_ = function() {
+  chrome.send("cancel", [this.id_.toString()]);
+  return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Page:
+var downloads, localStrings, resultsTimeout;
+
+function load() {
+  localStrings = new LocalStrings();
+  downloads = new Downloads();
+  $('term').focus();
+  setSearch("");
+}
+
+function setSearch(searchText) {
+  downloads.clear();
+  downloads.setSearchText(searchText);
+  chrome.send("getDownloads", [searchText.toString()]);
+}
+
+function clearAll() {
+  downloads.clear();
+  downloads.setSearchText('');
+  chrome.send('clearAll', []);
+  return false;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Chrome callbacks:
+/**
+ * Our history system calls this function with results from searches or when
+ * downloads are added or removed.
+ */
+function downloadsList(results) {
+  if (resultsTimeout)
+    clearTimeout(resultsTimeout);
+  window.console.log('results');
+  downloads.clear();
+  downloadUpdated(results);
+  downloads.updateSummary();
+}
+
+/**
+ * When a download is updated (progress, state change), this is called.
+ */
+function downloadUpdated(results) {
+  // Sometimes this can get called too early.
+  if (!downloads)
+    return;
+
+  var start = Date.now();
+  for (var i = 0; i < results.length; i++) {
+    downloads.updated(results[i]);
+    // Do as much as we can in 50ms.
+    if (Date.now() - start > 50) {
+      clearTimeout(resultsTimeout);
+      resultsTimeout = setTimeout(downloadUpdated, 5, results.slice(i + 1));
+      break;
+    }
+  }
+}
+
+</script>
+</head>
+<body onload="load();" jsvalues=".style.fontFamily:fontfamily;.style.fontSize:fontsize">
+<div class="header">
+  <a href="" onclick="setSearch(''); return false;">
+    <img src="../../app/theme/downloads_section.png"
+         width="67" height="67" class="logo" border="0" /></a>
+  <form method="post" action=""
+      onsubmit="setSearch(this.term.value); return false;"
+      class="form">
+    <input type="text" name="term" id="term" />
+    <input type="submit" name="submit" jsvalues="value:searchbutton" />
+  </form>
+</div>
+<div class="main">
+  <div id="downloads-summary">
+    <span id="downloads-summary-text" jscontent="downloads">Downloads</span>
+    <a id="clear-all" href="" onclick="clearAll();" jscontent="clear_all">Clear All</a>
+  </div>
+  <div id="downloads-display"></div>
+</div>
+<div class="footer">
+</div>
+</body>
+</html>

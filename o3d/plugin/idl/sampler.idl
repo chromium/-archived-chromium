@@ -1,0 +1,135 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+%[
+ Sampler is the base of all texture samplers.  Texture samplers encapsulate
+ a texture reference with a set of states that define how the texture
+ gets applied to a surface.  Sampler states are set either via Params defined
+ on the Sampler object or directly via one the convenience methods defined
+ on the Sampler.  The following states are supported (default values are in
+ parenthesis):
+  \li 'addressModeU' (WRAP)
+  \li 'addressModeV' (WRAP)
+  \li 'addressModeW' (WRAP)
+  \li 'magFilter' (LINEAR)
+  \li 'minFilter' (LINEAR)
+  \li 'mipFilter' (POINT)
+  \li 'borderColor' ([0,0,0,0])
+  \li 'maxAnisotropy' (1)
+%]
+
+[nocpp, include="core/cross/sampler.h"]
+class Sampler : ParamObject {
+  %[
+    \var AddressMode,
+      Controls what happens with texture coordinates outside the [0..1] range.
+    \li WRAP
+    \li MIRROR
+    \li CLAMP
+    \li BORDER
+  %]
+  enum AddressMode {
+    WRAP,
+    MIRROR,
+    CLAMP,
+    BORDER
+  };
+
+  %[
+    \var FilterType,
+      Texture filtering types.
+    \li NONE
+    \li POINT
+    \li LINEAR
+    \li ANISOTROPIC
+  %]
+  enum FilterType {
+    NONE,
+    POINT,
+    LINEAR,
+    ANISOTROPIC
+  };
+
+  %[
+    The texture address mode for the u coordinate.
+  %]
+  [getter, setter] AddressMode address_mode_u_;
+
+  %[
+    The texture address mode for the v coordinate.
+  %]
+  [getter, setter] AddressMode address_mode_v_;
+
+  %[
+    The texture address mode for the w coordinate.
+  %]
+  [getter, setter] AddressMode address_mode_w_;
+
+  %[
+    The magnification filter.  Valid values for the mag filter are: POINT and
+    LINEAR.
+  %]
+  [getter, setter] FilterType mag_filter_;
+
+  %[
+    The minification filter. Valid values for the min filter are: POINT, LINEAR
+    and ANISOTROPIC.
+  %]
+  [getter, setter] FilterType min_filter_;
+
+  %[
+    The mipmap filter used during minification.  Valid values for the mip filter
+    are: NONE, POINT and LINEAR.
+  %]
+  [getter, setter] FilterType mip_filter_;
+
+  %[
+    Color returned for texture coordinates outside the [0,1] range when the
+    address mode is set to BORDER.
+  %]
+  [getter, setter] Float4 border_color;
+
+  %[
+    Degree of anisotropy used when the ANISOTROPIC filter type is used.
+  %]
+  [getter, setter] int max_anisotropy_;
+
+  %[
+    The Texture object used by this Sampler.
+  %]
+  [getter, setter] Texture? texture_;
+};  // Sampler
+
+
+}  // namespace o3d
+

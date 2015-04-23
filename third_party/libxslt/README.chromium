@@ -1,0 +1,22 @@
+This directory contains a partial snapshot of the libxslt library from
+http://xmlsoft.org/XSLT, with the following modification:
+* Modified win32/configure.js to be able to clobber a read-only Makefile
+* Modified libxslt/security.c to use GetFileAttributesA instead of GetFileAttributes. 
+* Modified configure to not generate Makefiles.
+
+Current version: 1.1.24
+
+To import a new snapshot of libxslt:
+
+- Visit http://xmlsoft.org/XSLT/downloads.html and download the latest source
+  distribution.
+- Copy the files into this directory, omitting files which have been omitted
+  here.
+- Run build/generate-win32-headers.bat to re-generate the configuration
+  headers.
+- On Linux, 'cd linux && sh ../configure --with-libxml-src=../../libxml/linux/'
+  to re-generate configuration headers.
+- On Mac, 'cd mac && sh ../configure --with-libxml-src=../../libxml/mac/'
+  to re-generate configuration headers.
+- Perform the modification above.
+- Update this README to reflect the new version number.

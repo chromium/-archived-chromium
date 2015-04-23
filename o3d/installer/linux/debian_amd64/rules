@@ -1,0 +1,7 @@
+#!/usr/bin/make -f
+
+# Needed for dpkg-shlibdeps to be able to find the libraries we ship with so as
+# to properly calculate our shared library dependencies.
+export LD_LIBRARY_PATH=$(shell echo $$LD_LIBRARY_PATH:$$PWD)
+
+include /usr/share/cdbs/1/rules/debhelper.mk

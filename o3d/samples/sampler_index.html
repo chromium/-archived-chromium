@@ -1,0 +1,187 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+  <script src="interactive_sampler_assets/utils.js" type="text/javascript" charset="utf-8"></script>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="third_party/lightbox/lightbox.css"
+      media="screen,projection" type="text/css" />
+
+  <!--[if !IE]><!-->
+    <link rel="stylesheet" href="interactive_sampler_assets/styles.css" media="screen,projection" type="text/css" />
+  <!-- <![endif]-->
+  <!--[if IE]>
+    <link rel="stylesheet" href="interactive_sampler_assets/styles_ie.css" media="screen,projection" type="text/css" />
+  <![endif]-->
+
+  <!-- JavaScript -->
+
+  <title>O3D Interactive Sampler</title>
+
+  <script type="text/javascript"
+      src="third_party/lightbox/prototype.js"></script>
+  <script type="text/javascript"
+      src="third_party/lightbox/lightbox-iframe.js"></script>
+  <script src="third_party/codemirror/js/codemirror.js" type="text/javascript"
+      charset="utf-8"></script>
+  <link rel="stylesheet" type="text/css"
+      href="third_party/codemirror/css/docs.css"/>
+
+  <script type="text/javascript" charset="utf-8">
+
+  var is;
+
+  function init() {
+
+    is = new InteractiveSample();
+    is.init(document.getElementById('editor'));
+  }
+
+  function showInline() {
+    _gel('outputContainer').style.display = 'table-cell';
+    var codeContainer = _gel('codeContainer');
+    var codeIframe = codeContainer.getElementsByTagName('iframe')[0];
+    codeIframe.style.width = "100%";
+  }
+
+
+  addEvent(window, 'load', init);
+  </script>
+</head>
+<body>
+  <div id="container">
+    <div class="bluediv">
+      <table style="width:100%;">
+        <tr>
+          <td>
+            <h1 id="header">Client 3D Interactive Samples</h1>
+          </td>
+          <td id="googleLogoTD">
+            <img src="interactive_sampler_assets/images/google-small.png" />
+          </td>
+        </tr>
+      </table>
+
+    </div>
+
+    <div id="content">
+      <table class="contentTable">
+        <tr>
+
+          <td id="selectContainer">
+            <h2>Pick</h2>
+            <div id="selectCode">
+            </div>
+
+          </td>
+
+        <td id="codeContainer">
+          <h2>Edit</h2>
+
+          <div id="tab_bar">
+          </div>
+
+          <div id="button_bar">
+            &nbsp;
+            <!-- <input type="button" value="<- | ->" onclick="is.increaseWidth();" /> -->
+            <!-- <input type="button" value="-" onclick="is.decreaseCodeBoxHeight();" />
+            <input type="button" value="+" onclick="is.increaseCodeBoxHeight();"/> -->
+          </div>
+
+          <!-- todo check styles on here -->
+          <div id="editor" style="border: 1px solid black; margin-top: 2px"></div>
+        </td>
+        <script type="text/javascript" charset="utf-8">
+          var htmlEditor = new CodeMirror(document.getElementById('editor'), {
+            parserfile : 'parsexml.js',
+            stylesheet : 'third_party/codemirror/css/xmlcolors.css',
+            path : 'third_party/codemirror/js/',
+            height : '550px',
+            content: ''
+          });
+
+          var jsEditor = new CodeMirror(document.getElementById('editor'), {
+            parserfile : ["tokenizejavascript.js", "parsejavascript.js"],
+            stylesheet : 'third_party/codemirror/css/jscolors.css',
+            autoMatchParens : true,
+            path : 'third_party/codemirror/js/',
+            height : '550px',
+            content: ''
+          });
+
+          jsEditor.frame.style.display = 'none';
+
+        </script>
+        <td id="outputContainer">
+          <h2>Run</h2>
+          <div style="width: 300px;margin-top:18px;">
+            <a href="iframeit.html" style="text-decoration: none"
+              class="lbOn"><input type="button" value="Run In New Window" onclick="is.prepareAllCodeRun();" /></a>
+            <input type="button" id="runHere" value="Run Here" onclick="is.runJS();" />
+            <div id="o3d" style="width: 300px; height: 300px; background: gray;"></div></div>
+        </td>
+
+
+      </tr>
+
+
+
+      <tr>
+        <td class="footer">
+          <div style="background-image: url(interactive_sampler_assets/images/sprites.gif);background-position: -28px -28px;height:53px;margin:12px 0pt;width:143px;"></div>
+        </td>
+        <td class="footer" style="vertical-align: middle; font-size:80%; text-align: center">
+          ©2008 Google -
+          <a href="http://code.google.com/">Code Home</a> - <a href="http://www.google.com/accounts/TOS">Site Terms of Service</a> -
+          <a href="http://www.google.com/privacy.html">Privacy Policy</a> -
+          <a href="http://code.google.com/more/">Site Directory</a>
+        </td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<div id="HTMLforInlineJavascript" style="display:none;"></div>
+
+
+<!-- Scripts at bottom means better loading time ! -->
+<!-- <script src="codepress/codepress.js" type="text/javascript"></script> -->
+<script src="interactive_samples.js" type="text/javascript" charset="utf-8"></script>
+<script src="interactive_logic.js" type="text/javascript" charset="utf-8"></script>
+</body>
+</html>

@@ -1,0 +1,867 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+ "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Math Test
+</title>
+</head>
+<body>
+<h1>Math Test</h1>
+This tests the math utility library.
+<br/>
+<script type="text/javascript"
+  src="../../../samples/o3djs/base.js"></script>
+<script type="text/javascript">
+
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.test');
+
+var isChrome = navigator.userAgent.indexOf('Chrome') != -1;
+var isSafari = !isChrome && navigator.userAgent.indexOf('Safari') != -1;
+var isFirefox = navigator.userAgent.indexOf('Firefox') != -1;
+var isInternetExplorer = navigator.userAgent.indexOf('Internet Explorer' != -1);
+
+var g_suite = {};
+
+g_suite.testDegToRad = function() {
+  g_test.assertEquals(Math.PI, g_math.degToRad(180));
+};
+
+g_suite.testRadToDeg = function() {
+  g_test.assertEquals(180, g_math.radToDeg(Math.PI));
+};
+
+g_suite.testScalarLerp = function() {
+  g_test.assertEquals(3, g_math.lerpScalar(2, 6, .25));
+};
+
+g_suite.testModClamp = function() {
+  g_test.assertEquals(0.5, g_math.modClamp(2.5, 2.0));
+  g_test.assertEquals(0.5, g_math.modClamp(6.5, 2.0));
+  g_test.assertEquals(3.0, g_math.modClamp(3.0, 2.0, 2.5));
+  g_test.assertEquals(1.5, g_math.modClamp(-0.5, 2.0));
+  g_test.assertEquals(0.5, g_math.modClamp(-3.5, 2.0));
+}
+
+g_suite.testLerpCircular = function() {
+  g_test.assertEquals(30, g_math.lerpCircular(0, 100, 0.3, 300));
+  g_test.assertEquals(270, g_math.lerpCircular(0, 200, 0.3, 300));
+  g_test.assertEquals(0, g_math.lerpCircular(0, 300, 1, 300));
+}
+
+g_suite.testLerpRadian = function() {
+  g_test.assertEquals(0.3, g_math.lerpRadian(0, 1, 0.3));
+  g_test.assertEquals(Math.PI * 2 - 0.3,
+                      g_math.lerpRadian(0, Math.PI * 2 - 1, 0.3));
+  g_test.assertEquals(0, g_math.lerpRadian(0, Math.PI * 2, 1));
+}
+
+g_suite.testVectorNegative = function() {
+  g_test.assertArrayEquals([0, 6, 7], g_math.negativeVector([0, -6, -7]));
+};
+
+g_suite.testVectorCopy = function() {
+  var v = [0, 6, 7];
+  var u = g_math.copyVector(v);
+  g_test.assertArrayEquals(u, v);
+  g_test.assertFalse(u == v);
+};
+
+g_suite.testVectorAdd = function() {
+  g_test.assertArrayEquals([0, 6, 7], g_math.addVector([1, 2, 3], [-1, 4, 4]));
+  g_test.assertArrayEquals([1, -1, -1], g_math.addVector([0, 0, 0],
+                                                         [1, -1, -1]));
+};
+
+g_suite.testVectorSub = function() {
+  g_test.assertArrayEquals([2, -2, -1, 4],
+                           g_math.subVector([1, 2, 3, 4], [-1, 4, 4, 0]));
+};
+
+g_suite.testVectorLerp = function() {
+  g_test.assertArrayEquals([0.5, 2.5, 3.25, 3],
+      g_math.lerpVector([1, 2, 3, 4], [-1, 4, 4, 0], 0.25));
+}
+
+g_suite.testVectorMul = function() {
+  g_test.assertArrayEquals([2, 4, 6], g_math.mulScalarVector(2, [1, 2, 3]));
+  g_test.assertArrayEquals([2, 4, 6], g_math.mulVectorScalar([1, 2, 3], 2));
+}
+
+g_suite.testVectorDiv = function() {
+  g_test.assertArrayEquals([0.5, 1, 1.5, 2],
+                           g_math.divVectorScalar([1, 2, 3, 4], 2));
+};
+
+g_suite.testDotProduct = function() {
+  g_test.assertEquals(19, g_math.dot([-1, 4, 4], [1, 2, 3]));
+};
+
+g_suite.testLength = function() {
+  g_test.assertEquals(13, g_math.length([5, 12]));
+};
+
+g_suite.testLengthSquared = function() {
+  g_test.assertEquals(169, g_math.lengthSquared([5, 12]));
+};
+
+g_suite.testDistance = function() {
+  g_test.assertEquals(13, g_math.distance([1, 1], [6, 13]));
+};
+
+g_suite.testDistanceSquared = function() {
+  g_test.assertEquals(169, g_math.distanceSquared([1, 1], [6, 13]));
+};
+
+g_suite.testNormalize = function() {
+  g_test.assertEquals(1, g_math.length(g_math.normalize([1, 2, 3])));
+  g_test.assertEquals(0,
+      g_math.length(g_math.cross(g_math.normalize([1, 2, 3]), [1, 2, 3])));
+};
+
+g_suite.testCrossProduct = function() {
+  var u = [-1, 4, 4];
+  var v = [1, 2, 3];
+  g_test.assertArrayEquals([4, 7, -6], g_math.cross(u, v));
+  g_test.assertEquals(0, g_math.dot(g_math.cross(u, v), u));
+  g_test.assertEquals(0, g_math.dot(g_math.cross(u, v), v));
+};
+
+
+var A = [[1, 2, 3], [2, -5, 1], [-1, 5, 3], [1, 4, 2]];
+var B = [[0, 1, -1], [1, -1, 3], [2, 1, 2], [0, -1, 4]];
+
+g_suite.testMatrixNegative = function() {
+  g_test.assertArrayEquals(
+      [[-1, -2, -3], [-2, 5, -1], [1, -5, -3], [-1, -4, -2]],
+      g_math.negativeMatrix(A));
+};
+
+g_suite.testMatrixCopy = function() {
+  var M = g_math.copyMatrix(A);
+  g_test.assertArrayEquals(A, M);
+  g_test.assertFalse(A == M);
+};
+
+g_suite.testMatrixAdd = function() {
+  g_test.assertArrayEquals([[1, 3, 2], [3, -6, 4], [1, 6, 5], [1, 3, 6]],
+      g_math.addMatrix(A, B));
+};
+
+g_suite.testMatrixSub = function() {
+  g_test.assertArrayEquals([[1, 1, 4], [1, -4, -2], [-3, 4, 1], [1, 5, -2]],
+      g_math.subMatrix(A, B));
+};
+
+g_suite.testMatrixLerp = function() {
+  g_test.assertArrayEquals(
+      [[0.75, 1.75, 2],
+       [1.75, -4, 1.5],
+       [-0.25, 4, 2.75],
+       [0.75, 2.75, 2.5]], g_math.lerpMatrix(A, B, .25));
+};
+
+g_suite.testMulScalarMatrix = function() {
+  g_test.assertArrayEquals([[2, 4, 6], [4, -10, 2], [-2, 10, 6], [2, 8, 4]],
+      g_math.mulMatrixScalar(A, 2));
+  g_test.assertArrayEquals([[2, 4, 6], [4, -10, 2], [-2, 10, 6], [2, 8, 4]],
+      g_math.mulScalarMatrix(2, A));
+};
+
+g_suite.testMatrixDiv = function() {
+  g_test.assertArrayEquals(
+      [[0.5, 1, 1.5], [1, -2.5, 0.5], [-0.5, 2.5, 1.5], [0.5, 2, 1]],
+      g_math.divMatrixScalar(A, 2));
+};
+
+// The square root of the sum of squares of the entries of a matrix.
+function frobeniusNorm(a) {
+  return Math.sqrt(g_math.trace(g_math.mulMatrixMatrix(
+      g_math.transpose(a), a)));
+};
+
+// The sum of squares of entries of the difference between two matrices.
+function matrixDiff(a,b) {
+  return frobeniusNorm(g_math.subMatrix(a,b));
+};
+
+// Multiplies a matrix by its inverse and checks that it is not
+// too different from the identity.  (With floating-point error, exact
+// equality is too much to ask).
+function inverseTest(a) {
+  g_test.assertTrue(matrixDiff(g_math.mulMatrixMatrix(a, g_math.inverse(a)),
+      g_math.identity(a.length)) < 0.001);
+  g_test.assertTrue(matrixDiff(g_math.mulMatrixMatrix(g_math.inverse(a), a),
+      g_math.identity(a.length)) < 0.001);
+};
+
+g_suite.testTranspose = function() {
+  g_test.assertArrayEquals([[1, 2, -1, 1], [2, -5, 5, 4], [3, 1, 3, 2]],
+      g_math.transpose([[1, 2, 3], [2, -5, 1], [-1, 5, 3], [1, 4, 2]]));
+};
+
+g_suite.testTrace = function() {
+  g_test.assertEquals(6, g_math.trace([
+      [1, 2, 3, 4],
+      [1, -2, 1, 1],
+      [1, 1, 0, -1],
+      [1,2,-1,7]]));
+};
+
+g_suite.testIdentity = function() {
+  g_test.assertArrayEquals([[1, 0], [0, 1]], g_math.identity(2));
+  g_test.assertArrayEquals([[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+                           g_math.identity(3));
+};
+
+g_suite.testDeterminant2 = function() {
+  g_test.assertEquals(-2, g_math.det([[1, 2], [3, 4]]));
+};
+
+g_suite.testDeterminant3 = function() {
+  g_test.assertEquals(10, g_math.det([[1, 2, 3], [1, -2, 1], [1, 1, 0]]));
+};
+
+g_suite.testDeterminant4 = function() {
+  g_test.assertEquals(28, g_math.det([
+      [1, 2, 3, 4],
+      [1, -2, 1, 1],
+      [1, 1, 0, -1],
+      [1, 2, -1, 0]]));
+};
+
+g_suite.testDeterminant5 = function() {
+  g_test.assertEquals(-120.00,
+      g_math.det([
+          [2, 5,-1, 2, 1],
+          [1, 2,-1, 3, 2],
+          [1, 3, 4, 7, -3],
+          [1, -1, 1, 2, -4],
+          [0, 1, 0, 1, 0]]));
+};
+
+g_suite.testMatrixInversion2 = function() {
+  inverseTest([[1, 2], [3, 4]]);
+};
+
+g_suite.testMatrixInversion3 = function() {
+  inverseTest([[1, 2, 3], [1, -2, 1], [1, 1, 0]]);
+};
+
+g_suite.testMatrixInversion4 = function() {
+  inverseTest([[1, 2, 3, 4], [1, -2, 1, 1],
+              [1, 1, 0, -1], [1, 2, -1, 0]]);
+};
+
+g_suite.testMatrixInversion5 = function() {
+  inverseTest([
+      [2, 5, -1, 2, 1],
+      [1, 2, -1, 3, 2],
+      [1, 3, 4, 7, -3],
+      [1, -1, 1, 2, -4],
+      [0, 1, 0, 1, 0]]);
+};
+
+var S = [[1, 2, 3, 0], [2, -5, 1, 1]];
+var T = [[1, 2, 3], [2, -5, 1], [-1, 5, 3], [1, 4, 2]];
+var U = [[2, 5, -1, 2], [1, 2, -1, 3], [1, 3, 4, 7]];
+
+g_suite.testRowMajorMulMatrixMatrix = function() {
+  g_test.assertArrayEquals(
+      [[7, 18, 9, 29], [0, 3, 7, -4], [6, 14, 8, 34], [8, 19, 3, 28]],
+      g_math.rowMajor.mulMatrixMatrix(T, U));
+  g_test.assertArrayEquals([[2, 7, 14], [-8, 38, 6]],
+      g_math.rowMajor.mulMatrixMatrix(S, T));
+};
+
+g_suite.testColumnMajorMulMatrixMatrix = function() {
+  g_test.assertArrayEquals([[7, 18, 9, 29],
+                            [0, 3, 7, -4],
+                            [6, 14, 8, 34],
+                            [8, 19, 3, 28]],
+                            g_math.columnMajor.mulMatrixMatrix(U, T));
+  g_test.assertArrayEquals([[2, 7, 14], [-8, 38, 6]],
+      g_math.columnMajor.mulMatrixMatrix(T, S));
+};
+
+g_suite.testRowMajorMulMatrixMatrix2 = function() {
+  g_test.assertArrayEquals([[5, -2], [9, -2]],
+      g_math.rowMajor.mulMatrixMatrix2([[1, 2], [3, 4]], [[-1, 2], [3,-2]]));
+};
+
+g_suite.testColumnMajorMulMatrixMatrix2 = function() {
+  g_test.assertArrayEquals([[5, 6], [-3, -2]],
+      g_math.columnMajor.mulMatrixMatrix2([[1, 2], [3, 4]], [[-1, 2], [3,-2]]));
+};
+
+g_suite.testRowMajorMulMatrixMatrix3 = function() {
+  g_test.assertArrayEquals([[6, 0, 10], [14, 8, 42], [-4, 12, 20]],
+      g_math.rowMajor.mulMatrixMatrix3(
+          [[1, 2, 1], [3, 4, 5], [-1, -3, 4]],
+          [[-1, 2, 4], [3, -2, 0], [1, 2, 6]]));
+};
+
+g_suite.testColumnMajorMulMatrixMatrix3 = function() {
+  g_test.assertArrayEquals([[1, -6, 25], [-3, -2, -7], [1, -8, 35]],
+      g_math.columnMajor.mulMatrixMatrix3(
+          [[1, 2, 1], [3, 4, 5], [-1, -3, 4]],
+          [[-1, 2, 4], [3, -2, 0], [1, 2, 6]]));
+};
+
+g_suite.testRowMajorMatrixMatrix4 = function() {
+  g_test.assertArrayEquals([
+          [8, 5, 9, 7],
+          [12, 3, 43, 33],
+          [0, 22, 18, 1],
+          [14, 10, 14, 9]],
+      g_math.rowMajor.mulMatrixMatrix4(
+          [[1, 2, 1, 1], [3, 4, 5, -1], [-1, -3, 4, 2], [1, 3, 2, 2]],
+          [[-1, 2, 4, 4], [3, -2, 0, 1], [1, 2, 6, 3], [2, 5, -1, -2]]));
+};
+
+g_suite.testColumnMajorMatrixMatrix4 = function() {
+  g_test.assertArrayEquals([
+          [5, 6, 33, 13],
+          [-2, 1, -5, 7],
+          [4, 1, 41, 17],
+          [16, 21, 19, -9]],
+      g_math.columnMajor.mulMatrixMatrix4(
+          [[1, 2, 1, 1], [3, 4, 5, -1], [-1, -3, 4, 2], [1, 3, 2, 2]],
+          [[-1, 2, 4, 4], [3, -2, 0, 1], [1, 2, 6, 3], [2, 5, -1, -2]]));
+};
+
+g_suite.testRowMajorMulMatrixVector = function() {
+  g_test.assertArrayEquals([5, 9, 0, 1],
+      g_math.rowMajor.mulMatrixVector(T, [1, -1, 2]));
+};
+
+g_suite.testColumnMajorMulMatrixVector = function() {
+  g_test.assertArrayEquals([-2, 21, 10],
+      g_math.columnMajor.mulMatrixVector(T, [1, -1, 2, 1]));
+};
+
+g_suite.testRowMajorMulVectorMatrix = function() {
+  g_test.assertArrayEquals([-2, 21, 10],
+      g_math.rowMajor.mulVectorMatrix([1, -1, 2, 1], T));
+};
+
+g_suite.testColumnMajorMulVectorMatrix = function() {
+  g_test.assertArrayEquals([5, 9, 0, 1],
+      g_math.columnMajor.mulVectorMatrix([1, -1, 2], T));
+};
+
+g_suite.testMulVectorVector = function() {
+  g_test.assertArrayEquals([-1, 0, 6, -8],
+                           g_math.mulVectorVector([1, 2, 3, 4],
+                                                  [-1, 0, 2, -2]));
+};
+
+g_suite.testDivVectorVector = function() {
+  g_test.assertArrayEquals([-0.5, 0, 2, -2],
+                           g_math.divVectorVector([-1, 0, 8, -10],
+                                                  [2, 3, 4, 5]));
+};
+
+g_suite.testOrthonormalize = function() {
+  var W = g_math.orthonormalize([[1, 2, -1], [1, -2, 0], [2, 4, 1]]);
+  g_test.assertTrue(matrixDiff(g_math.mulMatrixMatrix(W, g_math.transpose(W)),
+      g_math.identity(3)) < 0.001);
+  g_test.assertTrue(matrixDiff(g_math.mulMatrixMatrix(g_math.transpose(W), W),
+      g_math.identity(3)) < 0.001);
+  g_test.assertTrue(matrixDiff(
+      g_math.orthonormalize([[1.01, -.01, 0], [0, 1.01, .01], [0, -0.1, 1.01]]),
+      g_math.identity(3)) < 0.1);
+};
+
+function dehomogenize(v) {
+  return [v[0] / v[3], v[1] / v[3], v[2] / v[3]];
+};
+
+function homogenize(v) {
+  return [v[0], v[1], v[2], 1];
+};
+
+function push0(v) {
+  return [v[0], v[1], v[2], 0];
+};
+
+function pop0(v) {
+  return [v[0], v[1], v[2]];
+};
+
+g_suite.testPerspective = function() {
+  var angle = 1;
+  var aspect = 16 / 9;
+  var zNear = 3;
+  var zFar = 10;
+
+  var P = g_math.matrix4.perspective(angle, aspect, zNear, zFar);
+
+  // Points on the near clipping plane should get sent to points on the plane
+  // z = 0, and points on the far clipping plane should get sent to points on
+  // the plane z = 1.
+  sendTest(P, [0, 0, -zNear], [0, 0, 0]);
+  sendTest(P, [0, 0, -zFar], [0, 0, 1]);
+
+  // The right edge of the near rectangular face of the frustum should get sent
+  // to the point [1, 0, 0]
+  sendTest(P, [zNear * aspect * Math.tan(angle / 2), 0, -zNear], [1, 0, 0]);
+
+  // The top edge of the near rectangular face of the frustum should get sent
+  // to the point [0, 1, 0]
+  sendTest(P, [0, zNear * Math.tan(angle / 2), -zNear], [0, 1, 0]);
+};
+
+g_suite.testOrthographic = function() {
+  var left = 3;
+  var right = 5;
+  var bottom = 4;
+  var top = 6;
+  var near = 2;
+  var far = 100;
+
+  var P = g_math.matrix4.orthographic(left, right, bottom, top, near, far);
+
+  // Points on the near face of the viewing box should get sent to the plane
+  // z = 0.
+  sendTest(P, [left, bottom, -near], [-1, -1, 0]);
+  sendTest(P, [right, bottom, -near], [1, -1, 0]);
+  sendTest(P, [left, top, -near], [-1, 1, 0]);
+
+  // Points on the far face of the viewing box should get sent to the plane
+  // z = 1.
+  sendTest(P, [left, bottom, -far], [-1, -1, 1]);
+};
+
+g_suite.testLookAt = function() {
+  var eye = [1, 2, 4];
+  var target = [1, -1, 3];
+  var up = [0, 1, 1];
+  var v = [];
+
+  var M = g_math.matrix4.lookAt(eye, target, up);
+
+  var U = g_math.matrix4.getUpper3x3(M);
+  g_test.assertTrue(
+    Math.abs(g_math.det(g_math.matrix4.getUpper3x3(M)) - 1) < 0.0001);
+
+  // M rotation component should be orthogonal.
+  g_test.assertTrue(matrixDiff(g_math.mulMatrixMatrix(U, g_math.transpose(U)),
+      g_math.identity(3)) < 0.001);
+
+  // M should send the eye to the origin.
+  sendTest(M, eye, [0, 0, 0]);
+
+  // M should send (target-eye) to point in the -z direction.
+  v = g_math.mulVectorMatrix(push0(g_math.subVector(target, eye)), M);
+  g_test.assertTrue(Math.abs(v[0]) < 0.0001);
+  g_test.assertTrue(Math.abs(v[1]) < 0.0001);
+  g_test.assertTrue(v[2] < 0);
+
+  // M should send up into the zy plane with positive y.
+  v = g_math.mulMatrixVector(M, push0(up));
+  g_test.assertTrue(Math.abs(v[0]) < 0.0001);
+  g_test.assertTrue(v[1] > 0);
+
+  // Arguments with four entries should be accepted, so all the following should
+  // be equal.
+  var lookats = [
+    g_math.matrix4.lookAt(homogenize(eye), homogenize(target), push0(up)),
+    g_math.matrix4.lookAt(eye, homogenize(target), push0(up)),
+    g_math.matrix4.lookAt(homogenize(eye), target, push0(up)),
+    g_math.matrix4.lookAt(eye, target, push0(up)),
+    g_math.matrix4.lookAt(homogenize(eye), homogenize(target), up),
+    g_math.matrix4.lookAt(eye, homogenize(target), up),
+    g_math.matrix4.lookAt(homogenize(eye), target, up),
+    g_math.matrix4.lookAt(eye, target, up)
+  ];
+
+  for (var i = 0; i < 7; ++i)
+    g_test.assertArrayEquals(lookats[i], lookats[i + 1]);
+};
+
+g_suite.testGetAndSetUpper3x3 = function() {
+  var a = [[1, 2, 1, 1], [3, 4, 5, -1], [-1, -3, 4, 2], [1, 3, 2, 2]];
+  var b = [[10, 11, 12], [13, 14, 15], [16, 17, 18]];
+  var r = g_math.matrix4.setUpper3x3(a, b);
+
+  g_test.assertTrue(r == a);
+  g_test.assertArrayEquals([[10, 11, 12, 1],
+                            [13, 14, 15, -1],
+                            [16, 17, 18, 2],
+                            [1, 3, 2, 2]], a);
+
+  g_test.assertArrayEquals(g_math.matrix4.getUpper3x3(a), b);
+};
+
+g_suite.testGetAndSetTranslation = function() {
+  var a = [[1, 2, 1, 1], [3, 4, 5, -1], [-1, -3, 4, 2], [1, 3, 2, 2]];
+  var t = [-4, -5, -6];
+  var r = g_math.matrix4.setTranslation(a, t);
+
+  g_test.assertTrue(r == a);
+  g_test.assertArrayEquals([[1, 2, 1, 1],
+                            [3, 4, 5, -1],
+                            [-1, -3, 4, 2],
+                            [-4, -5, -6, 1]], a);
+  g_test.assertArrayEquals(g_math.matrix4.getTranslation(a), t);
+};
+
+g_suite.testTransformPoint = function() {
+  var m = [[1, 2, 1, 1], [3, 4, 5, -1], [-1, -3, 4, 2], [1, 3, 2, 2]];
+  var v3 = [1, 2, 3];
+
+  sendTest(m, v3, g_math.matrix4.transformPoint(m, v3));
+};
+
+g_suite.testTransformVector4 = function() {
+  var m = [[1, 2, 1, 1], [3, 4, 5, -1], [-1, -3, 4, 2], [1, 3, 2, 2]];
+  var v4 = [1, 2, 3, 4];
+  var v3 = dehomogenize(v4);
+
+  sendTest(m, v3, dehomogenize(g_math.matrix4.transformVector4(m, v4)));
+};
+
+g_suite.testTransformDirection = function() {
+  // It is important that the last coordinate of the first three vectors of m be
+  // 0, so that m is parallel-preserving.
+  var m = [[1, 2, 1, 0], [3, 4, 5, 0], [-1, -3, 4, 0], [1, 3, 2, 2]];
+  var v3 = [1, 2, 3];
+
+  directionSendTest(m, v3, g_math.matrix4.transformDirection(m, v3));
+};
+
+g_suite.testTransformNormal = function() {
+  // It is important that the last coordinate of the first three vectors of m be
+  // 0, so that m is parallel-preserving.
+  var m = [[1, 2, 1, 0], [3, 4, 5, 0], [-1, -3, 4, 0], [1, 3, 2, 2]];
+  var v3 = [1, 2, 3];
+
+  // Transform the direction by the inverse transpose and make sure we get the
+  // same answer.
+  var a = g_math.matrix4.transformDirection(
+    g_math.inverse(g_math.transpose(m)), v3);
+  var b = g_math.matrix4.transformNormal(m, v3);
+
+  g_test.assertTrue(g_math.distance(a, b) < 0.001);
+};
+
+g_suite.testMatrix4Identity = function() {
+  g_test.assertArrayEquals([[1, 0, 0, 0],
+                            [0, 1, 0, 0],
+                            [0, 0, 1, 0],
+                            [0, 0, 0, 1]], g_math.matrix4.identity());
+};
+
+g_suite.testRowAndColumn = function() {
+  var a = [[1, 2, 1, 1], [3, 4, 5, -1], [-1, -3, 4, 2]];
+
+  g_test.assertArrayEquals([-1, -3, 4, 2], g_math.rowMajor.row(a, 2));
+  g_test.assertArrayEquals([2, 4, -3], g_math.rowMajor.column(a, 1));
+
+  g_test.assertArrayEquals([2, 4, -3], g_math.columnMajor.row(a, 1));
+  g_test.assertArrayEquals([-1, -3, 4, 2], g_math.columnMajor.column(a, 2));
+};
+
+g_suite.testComposition = function() {
+  var b = [[1, 2, 1, 1], [3, 4, 5, -1], [-1, -3, 4, 2], [1, 3, 2, 2]];
+  var a = g_math.matrix4.identity();
+  var u = [1, 2, 3];
+  var v = g_math.matrix4.transformPoint(a, g_math.matrix4.transformPoint(b, u));
+
+  var r = g_math.matrix4.compose(a, b);
+
+  g_test.assertTrue(r == a);
+  sendTest(a, u, v);
+};
+
+g_suite.testCompose = function() {
+  var m = [[5, 2, -4, 1], [1, 0, 0, -2], [5, 6, 3, 2], [-1, -1, 2, 3]];
+  var b = [[1, 2, 1, 1], [3, 4, 5, -1], [-1, -3, 4, 2], [1, 3, 2, 2]];
+  var a = g_math.matrix4.composition(b, m);
+  var c = g_math.copyMatrix(b);
+  g_math.matrix4.compose(c, m);
+
+  g_test.assertTrue(matrixDiff(a, c) < 0.001);
+};
+
+g_suite.testTranslation = function() {
+  var v = [1, 2, 3];
+  var a = g_math.matrix4.identity();
+  var r = g_math.matrix4.translate(a, v);
+
+  g_test.assertTrue(r == a);
+  g_test.assertArrayEquals(a, g_math.matrix4.translation(v));
+  g_test.assertArrayEquals(g_math.identity(3), g_math.matrix4.getUpper3x3(a));
+
+  sendTest(a, [0, 0, 0], v);
+};
+
+g_suite.testTranslate = function() {
+  var v = [1, 2, 3];
+  var b = [[1, 2, 1, 1], [3, 4, 5, -1], [-1, -3, 4, 2], [1, 3, 2, 2]];
+  var a = g_math.matrix4.translation(v);
+  var c = g_math.copyMatrix(b);
+  g_math.matrix4.translate(c, v);
+
+  composeTest(a, b, c);
+};
+
+g_suite.testScaling = function() {
+  var v = [2, 3, 4];
+  var a = g_math.matrix4.identity();
+  var r = g_math.matrix4.scale(a, v);
+
+  g_test.assertTrue(r == a);
+  g_test.assertTrue(matrixDiff(a, g_math.matrix4.scaling(v)) < 0.001);
+
+  sendTest(a, [1, 0, 0], [v[0], 0, 0]);
+  sendTest(a, [0, 1, 0], [0, v[1], 0]);
+  sendTest(a, [0, 0, 1], [0, 0, v[2]]);
+};
+
+g_suite.testScale = function() {
+  var v = [2, 3, 4];
+  var b = [[1, 2, 1, 1], [3, 4, 5, -1], [-1, -3, 4, 2], [1, 3, 2, 2]];
+  var a = g_math.matrix4.scaling(v);
+  var c = g_math.copyMatrix(b);
+  g_math.matrix4.scale(c, v);
+
+  composeTest(a, b, c);
+};
+
+g_suite.testRotationX = function() {
+  var a = g_math.matrix4.identity();
+  var r = g_math.matrix4.rotateX(a, Math.PI / 2);
+
+  g_test.assertTrue(r == a);
+  g_test.assertTrue(
+      matrixDiff(a, g_math.matrix4.rotationX(Math.PI / 2)) < 0.001);
+
+  sendTest(a, [1, 0, 0], [1, 0, 0]);
+  sendTest(a, [0, 1, 0], [0, 0, 1]);
+  sendTest(a, [0, 0, 1], [0, -1, 0]);
+};
+
+g_suite.testRotateX = function() {
+  var angle = 1;
+  var b = [[1, 2, 1, 1], [3, 4, 5, -1], [-1, -3, 4, 2], [1, 3, 2, 2]];
+  var a = g_math.matrix4.rotationX(angle);
+  var c = g_math.copyMatrix(b);
+  g_math.matrix4.rotateX(c, angle);
+
+  composeTest(a, b, c);
+};
+
+g_suite.testRotationY = function() {
+  var a = g_math.matrix4.identity();
+  var r = g_math.matrix4.rotateY(a, Math.PI / 2);
+
+  g_test.assertTrue(r == a);
+  g_test.assertTrue(
+      matrixDiff(a, g_math.matrix4.rotationY(Math.PI / 2)) < 0.001);
+
+  sendTest(a, [1, 0, 0], [0, 0, -1]);
+  sendTest(a, [0, 1, 0], [0, 1, 0]);
+  sendTest(a, [0, 0, 1], [1, 0, 0]);
+};
+
+g_suite.testRotateY = function() {
+  var angle = 1;
+  var b = [[1, 2, 1, 1], [3, 4, 5, -1], [-1, -3, 4, 2], [1, 3, 2, 2]];
+  var a = g_math.matrix4.rotationY(angle);
+  var c = g_math.copyMatrix(b);
+  g_math.matrix4.rotateY(c, angle);
+
+  composeTest(a, b, c);
+};
+
+g_suite.testRotationZ = function() {
+  var a = g_math.matrix4.identity();
+  var r = g_math.matrix4.rotateZ(a, Math.PI / 2);
+
+  g_test.assertTrue(r == a);
+  g_test.assertTrue(
+      matrixDiff(a, g_math.matrix4.rotationZ(Math.PI / 2)) < 0.001);
+
+  sendTest(a, [1, 0, 0], [0, 1, 0]);
+  sendTest(a, [0, 1, 0], [-1, 0, 0]);
+  sendTest(a, [0, 0, 1], [0, 0, 1]);
+};
+
+g_suite.testRotateZ = function() {
+  var angle = 1;
+  var b = [[1, 2, 1, 1], [3, 4, 5, -1], [-1, -3, 4, 2], [1, 3, 2, 2]];
+  var a = g_math.matrix4.rotationZ(angle);
+  var c = g_math.copyMatrix(b);
+  g_math.matrix4.rotateZ(c, angle);
+
+  composeTest(a, b, c);
+};
+
+g_suite.testRotationZYX = function() {
+  var v = [1, 2, 3];
+  var a = g_math.matrix4.identity();
+  var r = g_math.matrix4.rotateZYX(a, v);
+
+  g_test.assertTrue(r == a);
+  g_test.assertTrue(matrixDiff(a, g_math.matrix4.rotationZYX(v)) < 0.001);
+
+  var b = g_math.matrix4.identity();
+  g_math.matrix4.rotateZ(b, v[2]);
+  g_math.matrix4.rotateY(b, v[1]);
+  g_math.matrix4.rotateX(b, v[0]);
+
+  g_test.assertTrue(matrixDiff(a, b) < 0.001);
+};
+
+g_suite.testRotateZYX = function() {
+  var v = [1, 2, 3];
+  var b = [[1, 2, 1, 1], [3, 4, 5, -1], [-1, -3, 4, 2], [1, 3, 2, 2]];
+  var a = g_math.matrix4.rotationZYX(v);
+  var c = g_math.copyMatrix(b);
+  g_math.matrix4.rotateZYX(c, v);
+
+  composeTest(a, b, c);
+};
+
+g_suite.testAxisRotation = function() {
+  var angle = 1;
+
+  g_test.assertTrue(matrixDiff(g_math.matrix4.axisRotation([1, 0, 0], angle),
+      g_math.matrix4.rotationX(angle)) < 0.001);
+  g_test.assertTrue(matrixDiff(g_math.matrix4.axisRotation([0, 1, 0], angle),
+      g_math.matrix4.rotationY(angle)) < 0.001);
+  g_test.assertTrue(matrixDiff(g_math.matrix4.axisRotation([0, 0, 1], angle),
+      g_math.matrix4.rotationZ(angle)) < 0.001);
+};
+
+g_suite.testAxisRotation111 = function() {
+  var v = [1, 1, 1];
+  var a = g_math.matrix4.identity();
+  var r = g_math.matrix4.axisRotate(a, v, 2 * Math.PI / 3);
+
+  g_test.assertTrue(r == a);
+  g_test.assertTrue(
+      matrixDiff(a, g_math.matrix4.axisRotation(v, 2 * Math.PI / 3)) < 0.001);
+
+  sendTest(a, [1, 0, 0], [0, 1, 0]);
+  sendTest(a, [0, 1, 0], [0, 0, 1]);
+  sendTest(a, [0, 0, 1], [1, 0, 0]);
+};
+
+g_suite.testAxisRotate = function() {
+  var v = [1, 2, 3];
+  var angle = 1;
+  var b = [[1, 2, 1, 1], [3, 4, 5, -1], [-1, -3, 4, 2], [1, 3, 2, 2]];
+  var a = g_math.matrix4.axisRotation(v, angle);
+  var c = g_math.copyMatrix(b);
+  g_math.matrix4.axisRotate(c, v, angle);
+
+  composeTest(a, b, c);
+};
+
+// Tests that the 4-by-4 homogenous matrix M sends the 3-vector v to the
+// 3-vector vM.
+function sendTestVM(M, v, vM) {
+  g_test.assertTrue(matrixDiff([dehomogenize(
+      g_math.mulVectorMatrix(homogenize(v), M))],
+                               [vM]) < 0.001);
+}
+
+// Tests that the 4-by-4 homogenous matrix M sends the 3-vector v to the
+// 3-vector Mv.
+function sendTestMV(M, v, Mv) {
+  g_test.assertTrue(matrixDiff([dehomogenize(
+      g_math.mulMatrixVector(M, homogenize(v)))], [Mv]) < 0.001);
+}
+
+// Tests that the 4-by-4 homogenous matrix M sends the 3-vector v to the
+// 3-vector Mv when v is interpreted as a direction.
+function directionSendTestVM(M, v, vM) {
+  g_test.assertTrue(matrixDiff([pop0(
+      g_math.mulVectorMatrix(push0(v), M))], [vM]) < 0.001);
+}
+
+// Tests that the 4-by-4 homogenous matrix M sends the 3-vector v to the
+// 3-vector Mv when v is interpreted as a direction.
+function directionSendTestMV(M, v, Mv) {
+  g_test.assertTrue(matrixDiff([pop0(
+      g_math.mulMatrixVector(M, push0(v)))], [Mv]) < 0.001);
+}
+
+// Tests whether if a is pre-composed with b, the result is c; assumes A * B
+// precomposes a with b, as in row major.
+function composeTestAB(a, b, c) {
+  g_test.assertTrue(matrixDiff(g_math.mulMatrixMatrix(a, b), c) < 0.001);
+}
+
+// Tests whether if a is pre-composed with b, the result is c; assumes B * A
+// precomposes a with b, as in column major.
+function composeTestBA(a, b, c) {
+  g_test.assertTrue(matrixDiff(g_math.mulMatrixMatrix(b, a), c) < 0.001);
+}
+
+window.onload = function() {
+  window.g_test = o3djs.test;
+  window.g_math = o3djs.math;
+
+  // Whether or not a matrix transforms a vector by multiplying on
+  // the right or on the left depends on the choice of row major or column
+  // major.  Tests which ask whether a matrix sends a point (or direction) to a
+  // particular other point (or direction) do so by appealing to the function
+  // sendTest (or directionSendTest).  In row major mode, sendTest gets aliased
+  // to sendTestVM, in column major mode, sendTest gets aliased to sendTestMV,
+  // so in either mode, all the same tests should pass.
+
+  window.sendTest = sendTestMV;
+  window.directionSendTest = directionSendTestMV;
+  window.composeTest = composeTestBA;
+  o3djs.math.installColumnMajorFunctions();
+  var columnMajorTestResult = g_test.runTests(g_suite);
+
+  window.sendTest = sendTestVM;
+  window.directionSendTest = directionSendTestVM;
+  window.composeTest = composeTestAB;
+  o3djs.math.installRowMajorFunctions();
+  var rowMajorTestResult = g_test.runTests(g_suite);
+
+  window.g_testResult = columnMajorTestResult && rowMajorTestResult;
+};
+
+</script>
+</body>
+</html>

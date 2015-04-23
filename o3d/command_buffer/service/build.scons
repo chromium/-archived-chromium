@@ -1,0 +1,114 @@
+# Copyright 2009, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+Import('env')
+
+INPUTS = [
+  'cross/buffer_rpc.cc',
+  'cross/cmd_parser.cc',
+  'cross/cmd_buffer_engine.cc',
+  'cross/effect_utils.cc',
+  'cross/gapi_decoder.cc',
+  'cross/resource.cc',
+  'cross/texture_utils.cc',
+]
+
+# Build the big tests
+BIG_TEST_SERVER = [
+    'cross/big_test.cc',
+]
+
+# Add some flags and libraries to the build environment for the unit tests
+env.Append(
+    LIBPATH = [
+      '$NACL_LIB_DIR',
+    ],
+    LIBS = [
+      'o3dCmdBuf_service',
+      'o3dCmdBuf_common',
+      'o3d_base',
+    ] + env['NACL_HTP_LIBS'] + env['ICU_LIBS'],
+)
+
+if env['TARGET_PLATFORM'] == 'WINDOWS':
+  env.Append(CCFLAGS = [],
+             LIBS = [# System libs.
+                     'd3d9',
+                     # TODO: remove link-time dependency on d3dx9, using
+                     # dynamic loading instead.
+                     'd3dx9',
+                     'dxerr',
+                     'shell32'],
+             LINKFLAGS=['/SUBSYSTEM:CONSOLE'])
+  INPUTS += ['win/d3d9/effect_d3d9.cc',
+             'win/d3d9/gapi_d3d9.cc',
+             'win/d3d9/geometry_d3d9.cc',
+             'win/d3d9/sampler_d3d9.cc',
+             'win/d3d9/states_d3d9.cc',
+             'win/d3d9/texture_d3d9.cc']
+  BIG_TEST_SERVER += ['win/big_test_main.cc']
+elif env['TARGET_PLATFORM'] == 'LINUX':
+  env.Append(LIBS = ['GL', 'GLEW', 'Cg', 'CgGL'],
+             CPPPATH = ['$CG_DIR/include'])
+  INPUTS += ['cross/gl/effect_gl.cc',
+             'cross/gl/gapi_gl.cc',
+             'cross/gl/geometry_gl.cc',
+             'cross/gl/sampler_gl.cc',
+             'cross/gl/states_gl.cc',
+             'cross/gl/texture_gl.cc',
+             'linux/x_utils.cc']
+  BIG_TEST_SERVER += ['linux/big_test_main.cc']
+
+# Create a target library from the sources called 'o3dCmdBuf'
+o3dcmdbuf_lib = env.ComponentLibrary('o3dCmdBuf_service', INPUTS)
+
+# TODO: why can't these be ComponentTestProgram?
+
+# Create a target executable program called 'o3dCmdBuf_bigtest_server' from the list
+# of big test server files.
+big_test_server = env.Program('o3dCmdBuf_bigtest_server', BIG_TEST_SERVER)
+
+# Copy the resulting executable to the Artifacts directory.
+env.Replicate('$ARTIFACTS_DIR', big_test_server)
+
+plugin_env = env.Clone();
+plugin_env.Append(CPPPATH = ['$NPAPI_DIR/include'])
+
+PLUGIN_INPUTS = [
+  'cross/plugin.cc',
+  plugin_env.SharedObject(
+    'npn_api',
+    '$NIXYSA_DIR/static_glue/npapi/npn_api.cc'),
+]
+if env['TARGET_PLATFORM'] == 'WINDOWS':
+  PLUGIN_INPUTS += ['win/plugin.def',
+                    env.RES('win/plugin.rc')]
+plugin = plugin_env.SharedLibrary('npo3d_cb_plugin', PLUGIN_INPUTS)
+plugin_env.Replicate('$ARTIFACTS_DIR', plugin)

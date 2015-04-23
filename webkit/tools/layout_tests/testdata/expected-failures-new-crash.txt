@@ -1,0 +1,4 @@
+fast/bar/betz/crash3.html
+fast/bar/betz/fail3.html
+fast/bar/fail2.html
+fast/foo/fail1.html

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="setup"
+	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="$(OutDir);$(IntDir)"
+		EnableIntrinsicFunctions="true"
+		BasicRuntimeChecks="0"
+		BufferSecurityCheck="false"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		GenerateMapFile="true"
+		SubSystem="2"
+		OptimizeForWindows98="1"
+	/>
+	<Tool
+		Name="VCResourceCompilerTool"
+		AdditionalIncludeDirectories="$(OutDir);$(IntDir)"
+	/>
+	<Tool
+		Name="VCManifestTool"
+		AdditionalManifestFiles="$(SolutionDir)installer\setup\setup.exe.manifest"
+	/>
+</VisualStudioPropertySheet>

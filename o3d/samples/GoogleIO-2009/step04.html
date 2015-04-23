@@ -1,0 +1,264 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+<!--
+Google I/O O3D Sample.
+
+This sample shows the steps to make a simple frame rate independent game.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Google I/O O3D Sample
+</title>
+<style type="text/css">
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+    font-family: Arial, sans-serif;
+  }
+</style>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="../o3djs/base.js"></script>
+
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.material');
+
+// Events
+// init() once the page has finished loading.
+// unload() when the page is unloaded.
+window.onload = init;
+window.onunload= unload;
+
+// constants
+var MOVE_VELOCITY = 25;  // in units per second.
+
+// global variables
+var g_o3dElement;
+var g_o3d;
+var g_math;
+var g_client;
+var g_viewInfo;
+var g_pack;
+var g_globalParams;
+var g_o3dWidth;
+var g_o3dHeight;
+var g_o3dElement;
+var g_keyDown = [];  // which keys are down by key code.
+var g_playerTransform;
+var g_playerXPosition = 0;
+var g_playerZPosition = 0;
+var g_eye = [15, 25, 50];
+var g_target = [0, 10, 0];
+var g_up = [0, 1, 0];
+var g_viewMatrix;
+
+/**
+ * Updates the projection matrix.
+ */
+function updateProjection() {
+  g_viewInfo.drawContext.projection = g_math.matrix4.perspective(
+    g_math.degToRad(45),       // field of view.
+    g_o3dWidth / g_o3dHeight,  // aspect ratio
+    0.1,                       // Near plane.
+    5000);                     // Far plane.
+}
+
+/*
+ * Updates the camera.
+ */
+function updateCamera() {
+  g_viewMatrix = g_math.matrix4.lookAt(g_eye, g_target, g_up);
+  g_viewInfo.drawContext.view = g_viewMatrix;
+};
+
+/**
+ * Updates global variables of the client's size if they have changed.
+ */
+function updateClientSize() {
+  var newWidth = g_client.width;
+  var newHeight = g_client.height;
+  if (g_o3dWidth != newWidth || g_o3dHeight != newHeight) {
+    g_o3dWidth = newWidth;
+    g_o3dHeight = newHeight;
+    updateProjection();
+  }
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D and creates one shape.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initializes global variables and libraries.
+  g_o3dElement = clientElements[0];
+  g_o3d = g_o3dElement.o3d;
+  g_math = o3djs.math;
+  g_client = g_o3dElement.client;
+
+  // Creates a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  g_root = g_pack.createObject('Transform');
+
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_root,
+      g_client.renderGraphRoot);
+
+  updateCamera();
+
+  var redMaterial = o3djs.material.createBasicMaterial(
+      g_pack,
+      g_viewInfo,
+      [0.2, 1, 0.2, 1]);  // green
+
+  var checkerMaterial = o3djs.material.createMaterialFromFile(
+      g_pack, 'shaders/checker.shader', g_viewInfo.performanceDrawList);
+
+  g_globalParams = o3djs.material.createAndBindStandardParams(g_pack);
+  g_globalParams.lightWorldPos.value = [30, 60, 40];
+  g_globalParams.lightColor.value = [1, 1, 1, 1];
+
+  // Create a ground plane.
+  var shape = o3djs.primitives.createPlane(
+      g_pack, checkerMaterial, 100, 100, 10, 10);
+  var transform = g_pack.createObject('Transform');
+  transform.parent = g_root;
+  transform.addShape(shape);
+
+  // Create a cylinder.
+  var shape = o3djs.primitives.createCylinder(
+      g_pack, redMaterial, 2.5, 5, 20, 1,
+      g_math.matrix4.translation([0, 2.5, 0]));
+  var transform = g_pack.createObject('Transform');
+  transform.parent = g_root;
+  transform.addShape(shape);
+
+  g_playerTransform = transform;
+
+  // Setup a render callback for per frame processing.
+  g_client.setRenderCallback(onRender);
+
+  o3djs.event.addEventListener(g_o3dElement, 'keydown', onKeyDown);
+  o3djs.event.addEventListener(g_o3dElement, 'keyup', onKeyUp);
+
+  window.g_finished = true;  // for selenium testing.
+}
+
+/**
+ * Tracks key down events.
+ * @param {Event} e keyboard event.
+ */
+function onKeyDown(e) {
+  g_keyDown[e.keyCode] = true;
+}
+
+/**
+ * Tracks key up events.
+ * @param {Event} e keyboard event.
+ */
+function onKeyUp(e) {
+  g_keyDown[e.keyCode] = false;
+}
+
+/**
+ * Look at keys.
+ */
+function handleMoveKeys(elapsedTime) {
+  var directionX = 0;
+  var directionZ = 0;
+
+  if (g_keyDown[37] || g_keyDown[65]) { directionX = -1; }
+  if (g_keyDown[39] || g_keyDown[68]) { directionX = 1; }
+  if (g_keyDown[38] || g_keyDown[87]) { directionZ = -1; }
+  if (g_keyDown[40] || g_keyDown[83]) { directionZ = 1; }
+
+  g_playerXPosition += MOVE_VELOCITY * directionX * elapsedTime;
+  g_playerZPosition += MOVE_VELOCITY * directionZ * elapsedTime;
+
+  g_playerTransform.identity();
+  g_playerTransform.translate(g_playerXPosition, 0, g_playerZPosition);
+}
+
+/**
+ * Called every frame.
+ * @param {!o3d.RenderEvent} renderEvent Rendering Information.
+ */
+function onRender(renderEvent) {
+  var elapsedTime = renderEvent.elapsedTime;
+
+  updateClientSize();
+  handleMoveKeys(elapsedTime);
+};
+
+/**
+ * Remove any callbacks so they don't get called after the page has unloaded.
+ */
+function unload() {
+  if (g_client) {
+    g_client.cleanup();
+  }
+}
+</script>
+</head>
+<body>
+<table style="width: 100%; height:100%;">
+  <tr style="height: 50px;"><td>
+  <div style="width: 100%; height: 50px; font-size: large;">
+    <img src="assets/colorbar.png" width="100%" height="10px"/><br/>
+    Google I/O 2009 O3D Sample
+  </div>
+  </td></tr>
+  <tr style="height: 100%;"><td>
+  <div style="width: 100%; height: 100%;">
+    <div id="o3d" style="width: 100%; height: 100%;"></div>
+  </div>
+  </td></tr>
+</table>
+</body>
+</html>

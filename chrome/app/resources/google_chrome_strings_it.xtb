@@ -1,0 +1,71 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="it">
+<translation id="6676384891291319759">Accedi a Internet</translation>
+<translation id="8579274574697852281">Google Chrome richiede Windows Vista o Windows XP con SP1 o versioni successive.</translation>
+<translation id="698670068493841342">Google Chrome è già installato per questo utente. Se il software non funziona, disinstalla Google Chrome e scaricalo nuovamente.</translation>
+<translation id="7400722733683201933">Informazioni su Google Chrome</translation>
+<translation id="7101265395643981223">Avvia Google Chrome</translation>
+<translation id="1549918799472947005">Chrome utilizza il tuo motore di ricerca predefinito, che al momento è impostato su <ph name="PAGE_TITLE"/>. Vuoi mantenere il tuo motore di ricerca predefinito?</translation>
+<translation id="2370289711218562573">Google Chrome sta importando i Preferiti/Segnalibri.</translation>
+<translation id="8970027151245482499">Google Chrome non è stato installato oppure non è stata rilevata la directory di installazione. Scarica nuovamente Google Chrome.</translation>
+<translation id="7958215378280655655">Ripristinando le opzioni di Google Chrome tutte le modifiche apportate verranno ignorate e verranno ripristinate le impostazioni predefinite. Ripristinare le opzioni di Chrome?</translation>
+<translation id="4281844954008187215">Termini di servizio</translation>
+<translation id="2197898401230534722">Elimina tutti i dati del profilo</translation>
+<translation id="1137776625614346046">La sezione &quot;Più visitati&quot; mostra i siti web che hai visitato più spesso. Dopo aver utilizzato Chrome per un po' di tempo, vedrai i siti più visitati ogni volta che apri una nuova scheda. Per ulteriori informazioni su questa e altre funzioni, consulta la <ph name="BEGIN_LINK"/>pagina Come iniziare<ph name="END_LINK"/>.</translation>
+<translation id="4728575227883772061">Installazione non riuscita a causa di un errore non specificato. Se Google Chrome è attivo, chiudilo e riprova.</translation>
+<translation id="4149882025268051530">Il programma di installazione non è riuscito a decomprimere il file. Scarica nuovamente Google Chrome.</translation>
+<translation id="4343226815564935778">Sembra che sia in uso la directory di installazione di Google Chrome. Riavvia il computer e riprova.</translation>
+<translation id="4506896920521131223">Copyright © 2006-2009 Google Inc. Tutti i diritti riservati.</translation>
+<translation id="6817660909204164466">Aiutaci a migliorare Google Chrome inviando automaticamente a Google le statistiche sull'utilizzo e segnalazioni sugli arresti anomali</translation>
+<translation id="8227755444512189073">Google Chrome deve avviare un'applicazione esterna per gestire i link <ph name="SCHEME"/>. Il link richiesto è <ph name="PROTOLINK"/>.</translation>
+<translation id="1281036569101707544"><ph name="TERMS_OF_SERVICE_LINK"/> Google Chrome</translation>
+<translation id="8815061062167142136">Accidenti! Google Chrome è andato in crash. Vuoi riavviare?</translation>
+<translation id="5016204670686360703">Se annulli l'operazione, non tutti gli elementi verranno importati. Potrai importarli in seguito dal menu Chrome.</translation>
+<translation id="7241541963706135274">Google Chrome eseguirà le seguenti azioni:</translation>
+<translation id="8446794773162156990">Google Chrome funziona in modo anomalo</translation>
+<translation id="3889417619312448367">Disinstalla Google Chrome</translation>
+<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
+<translation id="8810218179782551669">Lingua di Google Chrome:</translation>
+<translation id="3940866277504106378">Google Chrome potrebbe utilizzare servizi web per migliorare la navigazione. Se lo desideri, puoi disattivarli.</translation>
+<translation id="7001386529596391893">Crea scorciatoie di Google Chrome nei seguenti percorsi:</translation>
+<translation id="6134282421960734039">Vuoi che Chrome salvi la tua password?</translation>
+<translation id="1195935957447623558">La sessione di Google Chrome è stata terminata in modo non corretto. Per riaprire le pagine che stavi visualizzando, fai clic su Ripristina.</translation>
+<translation id="2499193704281978000">Google Chrome non risponde. Riavviare?</translation>
+<translation id="7747138024166251722">Il programma di installazione non ha creato una directory temporanea. Verifica di disporre di spazio libero sul disco e dell'autorizzazione per l'installazione del software.</translation>
+<translation id="6009537148180854585">Hai tentato di accedere a strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ma il certificato presentato dal server contiene degli errori. Google Chrome non può utilizzare un certificato in cui sono presenti errori e non è in grado di convalidare l'identità del sito a cui hai tentato di accedere. La connessione non è protetta, ti consigliamo di non procedere.</translation>
+<translation id="3324235665723428530">Non è possibile utilizzare il tuo profilo, poiché è associato a una versione di Google Chrome più recente.\n\Alcune funzioni potrebbero non essere disponibili. Specifica una directory di profilo diversa o utilizza una versione di Chrome più recente.</translation>
+<translation id="1759842336958782510">Chrome</translation>
+<translation id="2044287590254833138">Barra degli strumenti di Google Chrome</translation>
+<translation id="6481075104394517441">Hai tentato di accedere a &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ma il certificato presentato dal server non è valido. Non sono disponibili informazioni che stabiliscano se il certificato è affidabile. Google Chrome non è in grado di garantire che tu stia comunicando con &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; e non con un hacker. Assicurati che l'orologio e il fuso orario siano impostati correttamente sul tuo computer. Qualora non lo fossero, prova a correggere le impostazioni e aggiorna la pagina. Se le impostazioni sono corrette, non procedere oltre.</translation>
+<translation id="8862326446509486874">Non disponi di diritti sufficienti per l'installazione a livello di sistema. Prova a eseguire nuovamente il programma di installazione come Amministratore.</translation>
+<translation id="2874156562296220396">Google Chrome è reso possibile dal progetto open source <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> e da altri <ph name="BEGIN_LINK_OSS"/>software open source<ph name="END_LINK_OSS"/>.</translation>
+<translation id="6921913858457830952">Google Chrome è pronto a completare l'installazione.</translation>
+<translation id="7100330187273168372">Chrome non è in grado di leggere e scrivere nella directory dei dati:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">Sei sicuro di voler disinstallare Google Chrome?</translation>
+<translation id="5941830788786076944">Imposta Google Chrome come browser predefinito</translation>
+<translation id="4127951844153999091">In questo caso l'indirizzo indicato nel certificato non corrisponde all'indirizzo del sito web al quale il tuo browser ha tentato di accedere. Questa mancata corrispondenza può essere dovuta al tentativo da parte di un hacker di presentare un certificato relativo a un altro sito web. È anche possibile che il server sia impostato in modo da restituire lo stesso certificato per più siti web, incluso quello che stai cercando di visitare, malgrado tale certificato non sia valido per tutti i siti. Siamo in grado di garantire che stai comunicando con &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, ma non è possibile verificare che questo sito corrisponda a &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;. Se decidi di procedere, Google Chrome non verificherà eventuali altre mancate corrispondenze. In generale, tuttavia, ti consigliamo di non procedere oltre questo punto.</translation>
+<translation id="2712549016134575851">È stato rilevato un conflitto con un'altra applicazione installata.</translation>
+<translation id="7161904924553537242">Benvenuto in Google Chrome</translation>
+<translation id="8236873504073475138">Windows 2000 non è supportato da Google Chrome. Alcune funzioni potrebbero non essere disponibili.</translation>
+<translation id="5046764976540625289">Esci da Chrome</translation>
+<translation id="8865765905101981392">Browser Internet</translation>
+<translation id="582763753075639530">Chiudi tutte le finestre di Chrome e riavvia il programma per rendere effettiva la modifica.</translation>
+<translation id="8776515774046280928">Google Chrome è già installato ed è disponibile per tutti gli utenti di questo computer. Se desideri installare Google Chrome a livello di utente, innanzitutto devi disinstallare la versione a livello di sistema installata da un amministratore.</translation>
+<translation id="3335672657969596251"><ph name="OS_NAME"/> non è supportato da Google Chrome.</translation>
+<translation id="3636771339108070045">In questo computer è già installata una versione più recente di Google Chrome. Se il software non funziona, disinstalla Google Chrome e scaricalo nuovamente.</translation>
+<translation id="3396666154568987767">Google Chrome per <ph name="PROFILE_NAME"/></translation>
+<translation id="1964682833763362793">Chiudi tutte le finestre di Chrome e riprova.</translation>
+<translation id="1001534784610492198">Il file del programma di installazione è danneggiato oppure non è valido. Scarica nuovamente Google Chrome.</translation>
+<translation id="6626317981028933585">Le impostazioni di Mozilla Firefox non sono disponibili finché il browser è in esecuzione. Per importare queste impostazioni in Google Chrome, salva i tuoi file e chiudi tutte le finestre di Firefox, quindi fai clic su Continua.</translation>
+<translation id="8540666473246803645">Google Chrome</translation>
+<translation id="6049075767726609708">Un amministratore ha installato su questo sistema Google Chrome per tutti gli utenti. L'installazione di Google Chrome a livello di sistema sostituirà l'installazione a livello di utente.</translation>
+<translation id="3870154837782082782">Google Inc.</translation>
+<translation id="1446473746922165495">Cambia la lingua utilizzata in menu, finestre di dialogo e descrizioni dei comandi.</translation>
+<translation id="9189723490960700326">Hai tentato di accedere a &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ma il server ha presentato un certificato scaduto. Non vi sono informazioni che indichino una violazione del certificato dopo la scadenza. Google Chrome non è in grado di garantire che tu stia comunicando effettivamente con &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; e non con un hacker. Non procedere oltre.</translation>
+<translation id="7106741999175697885">Task Manager - Google Chrome</translation>
+<translation id="8449380764213232436">Google Chrome sta importando i seguenti elementi da <ph name="BROWSER_COMPONENT"/>:</translation>
+<translation id="3396977131400919238">Durante l'installazione si è verificato un errore del sistema operativo. Scarica nuovamente Google Chrome.</translation>
+<translation id="2618799103663374905">Aggiungerà le scorciatoie di Google Chrome al desktop, alla barra Avvio veloce e al menu di avvio</translation>
+<translation id="1144950271450340860">Hai tentato di accedere a &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ma il server ha presentato un certificato ritenuto non affidabile dal sistema operativo del tuo computer. Ciò significa che il server ha generato le proprie credenziali di sicurezza, che Google Chrome non ritiene affidabili ai fini del riconoscimento dell'identità, o che un hacker sta cercando di intercettare le tue comunicazioni. Non procedere oltre, &lt;strong&gt;soprattutto&lt;/strong&gt; se questo avviso non è mai stato visualizzato per questo sito.</translation>
+</translationbundle>

@@ -1,0 +1,1414 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+ "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Deserialization Test
+</title>
+</head>
+<body>
+<h1>Deserialization Test</h1>
+This tests deserialization of packs from JSON.
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 32px; height: 32px;"></div>
+<!-- End of O3D plugin -->
+
+<script type="text/javascript"
+  src="../../../samples/o3djs/base.js"></script>
+<script type="text/javascript">
+
+o3djs.require('o3djs.io');
+o3djs.require('o3djs.serialization');
+o3djs.require('o3djs.test');
+o3djs.require('o3djs.util');
+
+var g_suite = {};
+
+g_suite.testDeserializesEmptyPack = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+    }
+  };
+
+  var pack = g_client.createPack();
+  o3djs.serialization.deserialize(pack, json);
+  g_test.assertEquals(0, pack.objects.length);
+};
+
+g_suite.testExceptionIfVersionIsMissing = function() {
+  var json = {
+    objects: {
+    }
+  };
+
+  var pack = g_client.createPack();
+  var exception = null;
+  try {
+    o3djs.serialization.deserialize(pack, json);
+  } catch(e) {
+    exception = e;
+  }
+
+  g_test.assertEquals('Version in JSON file was missing.', exception);
+  g_test.assertEquals(0, pack.objects.length);
+};
+
+g_suite.testExceptionIfVersionIsUnsupported = function() {
+  var json = {
+    version: 0,
+    objects: {
+    }
+  };
+
+  var pack = g_client.createPack();
+  var exception = null;
+  try {
+    o3djs.serialization.deserialize(pack, json);
+  } catch(e) {
+    exception = e;
+  }
+
+  g_test.assertEquals(
+      'Version in JSON file was 0 but expected at least version ' +
+      o3djs.serialization.supportedVersion + '.', exception);
+  g_test.assertEquals(0, pack.objects.length);
+};
+
+g_suite.testExceptionIfObjectsArrayIsMissing = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion
+  };
+
+  var pack = g_client.createPack();
+  var exception = null;
+  try {
+    o3djs.serialization.deserialize(pack, json);
+  } catch(e) {
+    exception = e;
+  }
+
+  g_test.assertEquals('Objects array in JSON file was missing.', exception);
+  g_test.assertEquals(0, pack.objects.length);
+};
+
+g_suite.testDeserializesObject = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Transform': [
+        {
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  o3djs.serialization.deserialize(pack, json);
+
+  g_test.assertEquals(1, pack.objects.length);
+  g_test.assertEquals('o3d.Transform', pack.objects[0].className);
+};
+
+g_suite.testDeserializesIntoExistingObjectIfItIsAlreadyAdded = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Transform': [
+        {
+          id: 7,
+          properties: {
+            name: 'Foo'
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var transform = pack.createObject('o3d.Transform');
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+  deserializer.addObject(7, transform);
+  deserializer.run();
+
+  g_test.assertEquals(1, pack.objects.length);
+  g_test.assertEquals('o3d.Transform', pack.objects[0].className);
+  g_test.assertEquals(transform.clientId, pack.objects[0].clientId);
+  g_test.assertEquals('Foo', pack.objects[0].name);
+};
+
+g_suite.testCreatesSpecialClassByInvokingCallback = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Transform': [
+        {
+          id: 7
+        }
+      ],
+      'myname.SpecialClass': [
+        {
+          parent: 7
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+
+  deserializer.createCallbacks['myname.SpecialClass'] = function(
+      deserializer, json) {
+    var transform = deserializer.pack.createObject('o3d.Transform');
+    transform.parent = deserializer.getObjectById(json.parent);
+    return transform;
+  };
+
+  deserializer.run();
+
+  g_test.assertEquals(2, pack.objects.length);
+  g_test.assertEquals(pack.objects[0].children[0].clientId,
+      pack.objects[1].clientId);
+};
+
+g_suite.testDeserializesBoolProperty = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Transform': [
+        {
+          properties: {
+            cull: true
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  o3djs.serialization.deserialize(pack, json);
+
+  g_test.assertEquals(1, pack.objects.length);
+  g_test.assertEquals(true, pack.objects[0].cull);
+};
+
+g_suite.testDeserializesMatrixProperty = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Transform': [
+        {
+          properties: {
+            localMatrix: [[1,2,3,4],[5,6,7,8],[8,7,6,5],[4,3,2,1]]
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  o3djs.serialization.deserialize(pack, json);
+
+  g_test.assertEquals(1, pack.objects.length);
+  g_test.assertEquals(4, pack.objects[0].localMatrix[3][0]);
+};
+
+g_suite.testDeserializesStringProperty = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Transform': [
+        {
+          properties: {
+            name: 'myTransform'
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  o3djs.serialization.deserialize(pack, json);
+
+  g_test.assertEquals(1, pack.objects.length);
+  g_test.assertEquals('myTransform', pack.objects[0].name);
+};
+
+g_suite.testShouldDeserializeNullKeywordToNullValue = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.FunctionEval': [
+        {
+          properties: {
+            'functionObject': null
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  o3djs.serialization.deserialize(pack, json);
+
+  g_test.assertEquals(1, pack.objects.length);
+  g_test.assertNull(pack.objects[0].functionObject);
+};
+
+g_suite.testDeserializesReferenceProperty = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Curve': [
+        {
+          id: 7
+        }
+      ],
+      'o3d.FunctionEval': [
+        {
+          properties: {
+            'functionObject': { ref: 7 }
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  o3djs.serialization.deserialize(pack, json);
+
+  g_test.assertEquals(2, pack.objects.length);
+  g_test.assertEquals(pack.objects[0].clientId, pack.objects[1].functionObject.clientId);
+};
+
+g_suite.testDeserializesAndFixesUpReferenceProperty = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.FunctionEval': [
+        {
+          properties: {
+            'functionObject': { ref: 7 }
+          }
+        }
+      ],
+      'o3d.Curve': [
+        {
+          id: 7
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  o3djs.serialization.deserialize(pack, json);
+
+  g_test.assertEquals(2, pack.objects.length);
+  g_test.assertEquals(pack.objects[1].clientId, pack.objects[0].functionObject.clientId);
+};
+
+g_suite.testExceptionIfReferenceCannotBeResolved = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.FunctionEval': [
+        {
+          properties: {
+            'functionObject': { ref: 7 }
+          }
+        }
+      ]
+    }
+  };
+
+  var exception = null;
+  var pack = g_client.createPack();
+  try {
+    o3djs.serialization.deserialize(pack, json);
+  } catch (e) {
+    exception = e;
+  }
+
+  g_test.assertEquals('Could not find object with id 7.', exception);
+};
+
+g_suite.testDeserializesArrayOfReferenceProperty = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Primitive': [
+        {
+          id: 7
+        }
+      ],
+      'o3d.Shape': [
+        {
+          properties: {
+            'elements': [{ ref: 7 }]
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  o3djs.serialization.deserialize(pack, json);
+
+  g_test.assertEquals(2, pack.objects.length);
+  g_test.assertEquals(1, pack.objects[1]['elements'].length);
+  g_test.assertEquals(pack.objects[0].clientId, pack.objects[1]['elements'][0].clientId);
+};
+
+g_suite.testIgnoresMissingProperty = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Transform': [
+        {
+          properties: {
+            missing: true
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  o3djs.serialization.deserialize(pack, json);
+
+  g_test.assertEquals(1, pack.objects.length);
+  g_test.assertFalse('missing' in pack.objects[0]);
+};
+
+g_suite.testShouldCallInitializationCallbackIfPresent = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'myname.SpecialClass': [
+        {
+          indexBuffer: {ref: 7}
+        }
+      ],
+      'o3d.IndexBuffer': [
+        {
+          id: 7
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+
+  deserializer.createCallbacks['myname.SpecialClass'] = function(
+      deserializer, json) {
+    return deserializer.pack.createObject('o3d.Primitive');
+  };
+
+  deserializer.initCallbacks['myname.SpecialClass'] = function(
+      deserializer, object, json) {
+    object.indexBuffer = deserializer.deserializeValue(json.indexBuffer);
+  };
+
+  deserializer.run();
+
+  g_test.assertEquals(2, pack.objects.length);
+  g_test.assertEquals(pack.objects[1].clientId, pack.objects[0].indexBuffer.clientId);
+};
+
+g_suite.testShouldIgnoreCallIfMethodIsMissing = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Primitive': [
+        {
+          calls: [
+            ['missingMethod', 1, 2, 3]
+          ]
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  o3djs.serialization.deserialize(pack, json);
+
+  g_test.assertEquals(1, pack.objects.length);
+};
+
+g_suite.testDeserializesExistingParam = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Transform': [
+        {
+          params: {
+            localMatrix: {value: [[1,2,3,4],[5,6,7,8],[8,7,6,5],[4,3,2,1]]}
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  o3djs.serialization.deserialize(pack, json);
+
+  g_test.assertEquals(1, pack.objects.length);
+  g_test.assertEquals(4, pack.objects[0].localMatrix[3][0]);
+};
+
+g_suite.testDeserializesAddedParam = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Transform': [
+        {
+          params: {
+            newParam: {'class': 'o3d.ParamFloat', value: 7}
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  o3djs.serialization.deserialize(pack, json);
+
+  g_test.assertEquals(1, pack.objects.length);
+  g_test.assertEquals(7, pack.objects[0].getParam('newParam').value);
+};
+
+g_suite.testBindsParam = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Matrix4Translation': [
+        {
+          params: {
+            'o3d.outputMatrix': {id: 2}
+          }
+        },
+        {
+          params: {
+            'o3d.inputMatrix': {bind: 2}
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  o3djs.serialization.deserialize(pack, json);
+
+  g_test.assertEquals(2, pack.objects.length);
+  g_test.assertEquals(pack.objects[0].getParam('o3d.outputMatrix').clientId,
+      pack.objects[1].getParam('o3d.inputMatrix').inputConnection.clientId);
+};
+
+g_suite.testIgnoresMissingOutputs = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Matrix4Translation': [
+        {
+          params: {
+            missingParam: {id: 2}
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  o3djs.serialization.deserialize(pack, json);
+
+  g_test.assertEquals(1, pack.objects.length);
+  g_test.assertNull(pack.objects[0].getParam('misingParam'));
+};
+
+g_suite.testExceptionIfCannotBindParam = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Matrix4Translation': [
+        {
+          params: {
+            'o3d.inputMatrix': {bind: 2}
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var exception = null;
+  try {
+    o3djs.serialization.deserialize(pack, json);
+  } catch(e) {
+    exception = e;
+  }
+
+  g_test.assertEquals('Could not find output param with id 2.', exception);
+};
+
+g_suite.testCannotBindToMissingOutput = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Matrix4Translation': [
+        {
+          params: {
+            missingOutput: {id: 2}
+          }
+        },
+        {
+          params: {
+            'o3d.inputMatrix': {bind: 2}
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var exception = null;
+  try {
+    o3djs.serialization.deserialize(pack, json);
+  } catch(e) {
+    exception = e;
+  }
+
+  g_test.assertEquals('Could not find output param with id 2.', exception);
+};
+
+g_suite.testDeserializesParamArray = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.ParamArray': [
+        {
+          params: [
+            {'class': 'o3d.ParamFloat', value: 7},
+            {'class': 'o3d.ParamBoolean', value: true}
+          ]
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  o3djs.serialization.deserialize(pack, json);
+
+  g_test.assertEquals(1, pack.objects.length);
+  var array = pack.objects[0];
+  g_test.assertEquals(2, array.length);
+  g_test.assertEquals(7, array.getParam(0).value);
+  g_test.assertEquals(true, array.getParam(1).value);
+};
+
+g_suite.testDeserializesParamArrayWithBindings = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.ParamArray': [
+        {
+          params: [
+            {'class': 'o3d.ParamFloat', id: 1, value: 7},
+            {'class': 'o3d.ParamBoolean', id: 2, value: true},
+            {'class': 'o3d.ParamFloat', id: 3, bind: 1}
+          ]
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  o3djs.serialization.deserialize(pack, json);
+
+  g_test.assertEquals(1, pack.objects.length);
+  var array = pack.objects[0];
+  g_test.assertEquals(3, array.length);
+  g_test.assertEquals(array.getParam(0).clientId,
+                      array.getParam(2).inputConnection.clientId);
+};
+
+g_suite.testDeserializerObjectShouldDeserializeIncrementallyWhenRunRepeatedly = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    o3d_rootObject_root: {ref: 7},
+    objects: {
+      'o3d.Transform': [
+        {
+          id: 7,
+          properties: {
+            name: 'transform1'
+          }
+        },
+        {
+          properties: {
+            name: 'transform2'
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+  g_test.assertEquals(0, pack.objects.length);
+  var running;
+  running = deserializer.run(1);
+  g_test.assertEquals(true, running);
+  g_test.assertEquals(1, pack.objects.length);
+  running = deserializer.run(1);
+  g_test.assertEquals(true, running);
+  g_test.assertEquals(2, pack.objects.length);
+  running = deserializer.run(1);
+  g_test.assertEquals(true, running);
+  g_test.assertEquals(2, pack.objects.length);
+  running = deserializer.run(1);
+  g_test.assertEquals(false, running);
+  g_test.assertEquals(2, pack.objects.length);
+
+  g_test.assertEquals('o3d.Transform', pack.objects[0].className);
+  g_test.assertEquals('transform1', pack.objects[0].name);
+  g_test.assertEquals('o3d.Transform', pack.objects[1].className);
+  g_test.assertEquals('transform2', pack.objects[1].name);
+
+  running = deserializer.run(1);
+  g_test.assertEquals(false, running);
+  g_test.assertEquals(2, pack.objects.length);
+};
+
+g_suite.testDeserializesTexture2DByCallingSpecialCreateFunction = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Texture2D': [
+        {
+          params: {
+            myParam: {'class':'o3d.ParamFloat', value: 7}
+          },
+          custom: {
+            width: 256,
+            height: 256,
+            format: 1,
+            levels: 2,
+            renderSurfacesEnabled: true
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  o3djs.serialization.deserialize(pack, json);
+
+  g_test.assertEquals(1, pack.objects.length);
+  g_test.assertEquals('o3d.Texture2D', pack.objects[0].className);
+  g_test.assertEquals(256, pack.objects[0].width);
+  g_test.assertEquals(256, pack.objects[0].height);
+  g_test.assertEquals(1, pack.objects[0].format);
+
+  var myParam = pack.objects[0].getParam("myParam");
+  g_test.assertEquals(7, myParam.value);
+};
+
+g_suite.testFindsTextureFromArchive = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Texture2D': [
+        {
+          params: {
+            'o3d.uri': {
+              'class': 'o3d.ParamString',
+              value: 'dir/image1.png'
+            }
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+  deserializer.archiveInfo = g_archiveInfo;
+  deserializer.run();
+
+  g_test.assertEquals(1, pack.objects.length);
+  g_test.assertEquals('o3d.Texture2D', pack.objects[0].className);
+  g_test.assertEquals(16, pack.objects[0].width);
+  g_test.assertEquals(16, pack.objects[0].height);
+  g_test.assertEquals(5, pack.objects[0].levels);
+};
+
+g_suite.testExceptionIfCannotFindTexture = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Texture2D': [
+        {
+          params: {
+            'o3d.uri': {
+              'class': 'o3d.ParamString',
+              value: 'dir/missing.png'
+            }
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+  deserializer.archiveInfo = g_archiveInfo;
+  var error = '';
+  try {
+    deserializer.run();
+  } catch (e) {
+    error = e;
+  }
+
+  g_test.assertEquals('Could not find texture dir/missing.png in the archive',
+                      error);
+};
+
+g_suite.testDeserializesTextureCUBEByCallingSpecialCreateFunction = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.TextureCUBE': [
+        {
+          params: {
+            myParam: {'class':'o3d.ParamFloat', value: 7}
+          },
+          custom: {
+            edgeLength: 256,
+            format: 1,
+            levels: 2,
+            renderSurfacesEnabled: true
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  o3djs.serialization.deserialize(pack, json);
+
+  g_test.assertEquals(1, pack.objects.length);
+  g_test.assertEquals('o3d.TextureCUBE', pack.objects[0].className);
+  g_test.assertEquals(256, pack.objects[0].edgeLength);
+  g_test.assertEquals(1, pack.objects[0].format);
+
+  var myParam = pack.objects[0].getParam("myParam");
+  g_test.assertEquals(7, myParam.value);
+};
+
+
+g_suite.testFindsCUBETextureFromArchive = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.TextureCUBE': [
+        {
+          params: {
+            'o3d.uri': {
+              'class': 'o3d.ParamString',
+              value: 'dir/image1.png'
+            }
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+  deserializer.archiveInfo = g_archiveInfo;
+  deserializer.run();
+
+  g_test.assertEquals(1, pack.objects.length);
+  g_test.assertEquals('o3d.Texture2D', pack.objects[0].className);
+  g_test.assertEquals(16, pack.objects[0].width);
+  g_test.assertEquals(16, pack.objects[0].height);
+  g_test.assertEquals(5, pack.objects[0].levels);
+};
+
+g_suite.testExceptionIfCannotFindCUBETexture = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.TextureCUBE': [
+        {
+          params: {
+            'o3d.uri': {
+              'class': 'o3d.ParamString',
+              value: 'dir/missing.png'
+            }
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+  deserializer.archiveInfo = g_archiveInfo;
+  var error = '';
+  try {
+    deserializer.run();
+  } catch (e) {
+    error = e;
+  }
+
+  g_test.assertEquals('Could not find texture dir/missing.png in the archive',
+                      error);
+};
+
+g_suite.testShouldSetVertexBufferData = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.VertexBuffer': [
+        {
+          custom: {
+            fields: [7,8,9],
+            binaryRange: [5310,10620]
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+  deserializer.archiveInfo = g_archiveInfo;
+  deserializer.run();
+
+  g_test.assertEquals(1, pack.objects.length);
+  var buffer = pack.objects[0];
+  g_test.assertEquals(1, buffer.fields.length);
+  var field = buffer.fields[0];
+  g_test.assertEquals('o3d.FloatField', field.className);
+  g_test.assertEquals(3, field.numComponents);
+  g_test.assertEquals(12, field.size);
+};
+
+g_suite.testShouldSetDestinationBufferData = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3djs.DestinationBuffer': [
+        {
+          'custom':{
+            'numElements':1398,
+            'fields':[
+                     {
+                       'id':197809,
+                       'type':'o3d.FloatField',
+                       'numComponents':3},
+                     {
+                       'id':197813,
+                       'type':'o3d.FloatField',
+                       'numComponents':3}]
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+  deserializer.archiveInfo = g_archiveInfo;
+  deserializer.run();
+
+  g_test.assertEquals(1, pack.objects.length);
+  var buffer = pack.objects[0];
+  g_test.assertEquals(1398, buffer.numElements);
+  g_test.assertEquals(2, buffer.fields.length);
+  var field = buffer.fields[0];
+  g_test.assertEquals('o3d.FloatField', field.className);
+  g_test.assertEquals(3, field.numComponents);
+  g_test.assertEquals(12, field.size);
+};
+
+g_suite.testShouldSetSourceBufferData = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.SourceBuffer': [
+        {
+          custom: {
+            fields: [7,8,9],
+            binaryRange: [5310,10620]
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+  deserializer.archiveInfo = g_archiveInfo;
+  deserializer.run();
+
+  g_test.assertEquals(1, pack.objects.length);
+  var buffer = pack.objects[0];
+  g_test.assertEquals(1, buffer.fields.length);
+  var field = buffer.fields[0];
+  g_test.assertEquals('o3d.FloatField', field.className);
+  g_test.assertEquals(3, field.numComponents);
+  g_test.assertEquals(12, field.size);
+};
+
+g_suite.testShouldSetIndexBufferData = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.IndexBuffer': [
+        {
+          custom: {
+            fields:[7],
+            binaryRange:[9618,10092]
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+  deserializer.archiveInfo = g_archiveInfo;
+  deserializer.run();
+
+  g_test.assertEquals(1, pack.objects.length);
+  var buffer = pack.objects[0];
+  g_test.assertEquals(1, buffer.fields.length);
+  var field = buffer.fields[0];
+  g_test.assertEquals('o3d.UInt32Field', field.className);
+  g_test.assertEquals(1, field.numComponents);
+  g_test.assertEquals(4, field.size);
+  g_test.assertArrayEquals([0, 1, 2, 0, 2], field.getAt(0, 5));
+};
+
+g_suite.testShouldSetCurveWithKeys = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Curve': [
+        {
+          custom: {
+            binaryRange: [358,716]
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+  deserializer.archiveInfo = g_archiveInfo;
+  deserializer.run();
+
+  g_test.assertEquals(1, pack.objects.length);
+  var keys = pack.objects[0].keys;
+  g_test.assertEquals(14, keys.length);
+};
+
+g_suite.testShouldSetSkinEvalStreams = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.SkinEval': [
+        {
+          custom: {
+            vertexStreams: [
+              {
+                stream: {
+                  field: 8,
+                  startIndex: 4,
+                  semantic: 1,
+                  semanticIndex: 2
+                }
+              }
+            ]
+          }
+        }
+      ],
+      'o3d.SourceBuffer': [
+        {
+          id: 7,
+          custom: {
+            fields: [8,9,10],
+            binaryRange: [5310,10620]
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+  deserializer.archiveInfo = g_archiveInfo;
+  deserializer.run();
+
+  g_test.assertEquals(2, pack.objects.length);
+  var stream = pack.objects[0].vertexStreams[0];
+  var field = pack.objects[1].fields[0];
+  g_test.assertEquals(field.clientId, stream.field.clientId);
+  g_test.assertEquals(4, stream.startIndex);
+  g_test.assertEquals(1, stream.semantic);
+  g_test.assertEquals(2, stream.semanticIndex);
+};
+
+g_suite.testShouldSetStreamBankStreams = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.StreamBank': [
+        {
+          custom: {
+            vertexStreams: [
+              {
+                stream: {
+                  field: 8,
+                  startIndex: 4,
+                  semantic: 1,
+                  semanticIndex: 2
+                }
+              }
+            ]
+          }
+        }
+      ],
+      'o3d.VertexBuffer': [
+        {
+          id: 7,
+          custom: {
+            fields: [8],
+            binaryRange: [5310,10620]
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+  deserializer.archiveInfo = g_archiveInfo;
+  deserializer.run();
+
+  g_test.assertEquals(2, pack.objects.length);
+  var stream = pack.objects[0].vertexStreams[0];
+  var field = pack.objects[1].fields[0];
+  g_test.assertEquals(field.clientId, stream.field.clientId);
+  g_test.assertEquals(4, stream.startIndex);
+  g_test.assertEquals(1, stream.semantic);
+  g_test.assertEquals(2, stream.semanticIndex);
+};
+
+g_suite.testShouldSetAndBindStreamBankStreams = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.SkinEval': [
+        {
+          id: 7,
+          custom: {
+            vertexStreams: [
+              {
+                stream: {
+                  field: 9,
+                  startIndex: 4,
+                  semantic: 1,
+                  semanticIndex: 2
+                }
+              }
+            ]
+          }
+        }
+      ],
+      'o3d.SourceBuffer': [
+        {
+          id: 8,
+          custom: {
+            fields: [9],
+            binaryRange: [5310,10620]
+          }
+        }
+      ],
+      'o3d.StreamBank': [
+        {
+          custom: {
+            vertexStreams: [
+              {
+                stream: {
+                  field: 11,
+                  startIndex: 4,
+                  semantic: 1,
+                  semanticIndex: 2
+                },
+                bind: 7
+              }
+            ]
+          }
+        }
+      ],
+      'o3d.VertexBuffer': [
+        {
+          id: 10,
+          custom: {
+            fields: [11],
+            binaryRange: [5310,10620]
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+  deserializer.archiveInfo = g_archiveInfo;
+  deserializer.run();
+
+  g_test.assertEquals(4, pack.objects.length);
+  g_test.assertTrue(pack.objects[2].unbindStream(1, 2));
+};
+
+g_suite.testShouldSetAndBindSkinEvalStreams = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.SkinEval': [
+        {
+          id: 7,
+          custom: {
+            vertexStreams: [
+              {
+                stream: {
+                  field: 9,
+                  startIndex: 4,
+                  semantic: 1,
+                  semanticIndex: 2
+                }
+              }
+            ]
+          }
+        },
+        {
+          id: 14,
+          custom: {
+            vertexStreams: [
+              {
+                stream: {
+                  field: 11,
+                  startIndex: 4,
+                  semantic: 1,
+                  semanticIndex: 2
+                },
+                bind: 7
+              }
+            ]
+          }
+        }
+      ],
+      'o3d.SourceBuffer': [
+        {
+          id: 8,
+          custom: {
+            fields: [9],
+            binaryRange: [5310,10620]
+          }
+        },
+        {
+          id: 10,
+          custom: {
+            fields: [11],
+            binaryRange: [5310,10620]
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+  deserializer.archiveInfo = g_archiveInfo;
+  deserializer.run();
+
+  g_test.assertEquals(4, pack.objects.length);
+  g_test.assertTrue(pack.objects[1].unbindStream(1, 2));
+};
+
+g_suite.testShouldLoadEffectShaderFromArchive = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Effect': [
+        {
+          params: {
+            'o3d.uri': {
+              'class': 'o3d.ParamString',
+              value: 'dir/solid-color.shader'
+            }
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+  deserializer.archiveInfo = g_archiveInfo;
+  deserializer.run();
+
+  g_test.assertEquals(1, pack.objects.length);
+  var effect = pack.objects[0];
+  g_test.assertEquals('o3d.Effect', effect.className);
+  g_test.assertEquals('//', effect.source.substring(0, 2));
+};
+
+g_suite.testExceptionIfCannotLoadShaderFromArchive = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Effect': [
+        {
+          params: {
+            'o3d.uri': {
+              'class': 'o3d.ParamString',
+              value: 'dir/image1.png'
+            }
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+  deserializer.archiveInfo = g_archiveInfo;
+  var error = '';
+  try {
+    deserializer.run();
+  } catch (e) {
+    error = e;
+  }
+
+  g_test.assertEquals('Cannot load shader dir/image1.png in archive.', error);
+};
+
+g_suite.testShouldSetSkinData = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Skin': [
+        {
+          custom: {
+            binaryRange: [32724,34584]
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+  deserializer.archiveInfo = g_archiveInfo;
+  deserializer.run();
+
+  g_test.assertEquals(1, pack.objects.length);
+  var skin = pack.objects[0];
+  g_test.assertEquals(79, skin.influences.length);
+  g_test.assertEquals(2, skin.influences[0].length);
+  g_test.assertArrayEquals([2, 1], skin.influences[0]);
+};
+
+g_suite.testExceptionIfEffectShaderCannotBeFound = function() {
+  var json = {
+    version: o3djs.serialization.supportedVersion,
+    objects: {
+      'o3d.Effect': [
+        {
+          params: {
+            'o3d.uri': {
+              'class': 'o3d.ParamString',
+              value: 'dir/missing.shader'
+            }
+          }
+        }
+      ]
+    }
+  };
+
+  var pack = g_client.createPack();
+  var deserializer = o3djs.serialization.createDeserializer(pack, json);
+  deserializer.archiveInfo = g_archiveInfo;
+  var error = '';
+  try {
+    deserializer.run();
+  } catch (e) {
+    error = e;
+  }
+
+  g_test.assertEquals(
+      'Cannot find shader dir/missing.shader in archive.',
+      error);
+};
+
+function initStep3(archiveInfo, exception) {
+  window.g_archiveInfo = archiveInfo;
+  window.g_testResult = g_test.runTests(g_suite);
+}
+
+function initStep2(clientElements) {
+  window.g_test = o3djs.test;
+  window.g_plugin = clientElements[0];
+  window.g_client = clientElements[0].client;
+  window.g_pack = g_client.createPack();
+  window.g_client.clearErrorCallback();
+  o3djs.io.loadArchive(g_pack, 'assets/archive.o3dtgz', initStep3);
+};
+
+window.onload = function() {
+  o3djs.util.makeClients(initStep2);
+};
+
+</script>
+</body>
+</html>

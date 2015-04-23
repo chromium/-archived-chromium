@@ -1,0 +1,19 @@
+# Copyright (c) 2009 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+#
+# Functions from avcodec used in chromium code.
+
+AVCodec *avcodec_find_decoder(enum CodecID id);
+AVFrame *avcodec_alloc_frame(void);
+int av_get_bits_per_sample_format(enum SampleFormat sample_fmt);
+int av_new_packet(AVPacket *pkt, int size);
+int avcodec_decode_audio3(AVCodecContext *avctx, int16_t *samples, int *frame_size_ptr, AVPacket *avpkt);
+int avcodec_decode_video2(AVCodecContext *avctx, AVFrame *picture, int *got_picture_ptr, AVPacket *avpkt);
+int avcodec_open(AVCodecContext *avctx, AVCodec *codec);
+int avcodec_close(AVCodecContext *avctx);
+int avcodec_thread_init(AVCodecContext *s, int thread_count);
+void av_free_packet(AVPacket *pkt);
+void av_init_packet(AVPacket *pkt);
+void avcodec_flush_buffers(AVCodecContext *avctx);
+void avcodec_init(void);

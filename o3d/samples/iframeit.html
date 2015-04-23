@@ -1,0 +1,133 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<style type="text/css" media="screen">
+  body {
+    background: #FDFCE9;
+  }
+</style>
+
+<script type="text/javascript" charset="utf-8">
+var errors = [];
+window.onerror = onError;
+addEvent(window, 'load', load);
+
+// Set focus to this iframe
+this.focus();
+code = parent.codeToRun;
+
+try {
+  document.write(code);
+} catch(e) {
+  alert(e.message);
+}
+
+
+function addEvent(a,b,c,d) {
+  if (a.addEventListener) {
+    a.addEventListener(b,c,d?true:false);
+  } else if(a.attachEvent) {
+    a.attachEvent('on'+b,c);
+  } else{
+    a['on'+b]=c;
+  }
+}
+
+function changeOverlayZIndex() {
+  // This is a little hack to fix the overlay covering up <object> tags.
+  // TODO: clean this up.  Did this because it was fast hack
+  var lastZ = parent.iframeZindex;
+  var newZ;
+  if (typeof lastZ != 'undefined') {
+    newZ = parseInt(lastZ) - 1;
+    
+  } else {
+    newZ = 4999;
+  }
+  
+  parent.iframeZindex = newZ;
+  
+  var overlay = parent.document.getElementById('overlay');
+  overlay.style.zIndex = newZ;
+}
+
+function load() {
+  var first = document.getElementsByTagName('body')[0].childNodes[0];
+  for (var i=0; i < errors.length; i++) {
+    document.body.insertBefore(errors[i], first);
+  }
+
+  changeOverlayZIndex();
+}
+
+function Stack() { try { throw Error() } catch(ex) { return ex.stack } }
+
+function onError(msg, href, lineNo) {
+  var errorDiv = document.createElement('div');
+  errorDiv.style.textAlign = 'center';
+  errorDiv.style.fontWeight = 'bold';
+  errorDiv.style.fontSize = '92%';
+  errorDiv.style.width = '100%';
+  errorDiv.style.padding = '0.5em 0';
+  var html = [];
+
+  var lastSlash = href.lastIndexOf("/");
+  var fileName = lastSlash == -1 ? href : href.substr(lastSlash+1);
+
+  html.push(
+    '<span style="display: inline-block;background: #ffd363 url(interactive_sampler_assets/images/tl.gif) top left no-repeat;">',
+    '<span style="background: url(interactive_sampler_assets/images/bl.gif) bottom left no-repeat;">',
+    '<span style="background: url(interactive_sampler_assets/images/tr.gif) top right no-repeat;">',
+    '<span style="background: url(interactive_sampler_assets/images/br.gif) bottom right no-repeat;">',
+    '<span style="background: transparent;padding: 0.2em 2em;color: #ce0c0c">',
+    'Error: ' + msg,
+    '</span>',
+    '</span>',
+    '</span>',
+    '</span>',
+    '</span>'
+  );
+  errorDiv.innerHTML = html.join('\n');
+
+  // In some firefox's, the body tag isn't loaded so we can't print the error.
+  // We have to wait until the body tag loads, then we print.
+  // In other firefox's, the body loads before errors are fired, so we can add
+  // immediately
+  var first = document.getElementsByTagName('body')[0];
+  if (first && first.childNodes) {
+    first = first.childNodes[0];
+    document.body.insertBefore(errorDiv, first);
+  } else {
+    errors.push(errorDiv);
+  }
+};
+
+</script>

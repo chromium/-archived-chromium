@@ -1,0 +1,22 @@
+{
+  "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDuUZGKCDbff6IRaxa4Pue7PPkxwPaNhGT3JEqppEsNWFjM80imEdqMbf3lrWqEfaHgaNku7nlpwPO1mu3/4Hr+XdNa5MhfnOnuPee4hyTLwOs3Vzz81wpbdzUxZSi2OmqMyI5oTaBYICfNHLwcuc65N5dbt6WKGeKgTpp4v7j7zwIDAQAB",
+  "version": "1.0.0.0",
+  "name": "My extension 1",
+  "description": "The first extension that I made.",
+  "toolstrips": [
+    "toolstrip1.html",
+    "toolstrip2.html"
+  ],
+  "permissions": ["http://*.google.com/*", "https://*.google.com/*"],
+  "content_scripts": [
+    {
+      "matches": ["file://*", "http://*.google.com/*", "https://*.google.com/*"],
+      "js": ["script1.js", "script2.js"],
+      "css": ["style1.css", "style2.css", "style2.css"]
+    },
+    {
+      "matches": ["http://*.news.com/*"],
+      "js": ["js_files/script3.js"]
+    }
+  ]
+}

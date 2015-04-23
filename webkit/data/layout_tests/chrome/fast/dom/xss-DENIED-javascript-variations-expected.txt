@@ -1,0 +1,31 @@
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,<p>Inner text should not be replaced.<p> from frame with URL xss-DENIED-javascript-variations.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,<p>Inner text should not be replaced.<p> from frame with URL xss-DENIED-javascript-variations.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,<p>Inner text should not be replaced.<p> from frame with URL xss-DENIED-javascript-variations.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,<p>Inner text should not be replaced.<p> from frame with URL xss-DENIED-javascript-variations.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,<p>Inner text should not be replaced.<p> from frame with URL xss-DENIED-javascript-variations.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,<p>Inner text should not be replaced.<p> from frame with URL xss-DENIED-javascript-variations.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,<p>Inner text should not be replaced.<p> from frame with URL xss-DENIED-javascript-variations.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,<p>Inner text should not be replaced.<p> from frame with URL xss-DENIED-javascript-variations.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,<p>Inner text should not be replaced.<p> from frame with URL xss-DENIED-javascript-variations.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,<p>Inner text should not be replaced.<p> from frame with URL xss-DENIED-javascript-variations.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,<p>Inner text should not be replaced.<p> from frame with URL xss-DENIED-javascript-variations.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,<p>Inner text should not be replaced.<p> from frame with URL xss-DENIED-javascript-variations.html. Domains, protocols and ports must match.
+
+
+
+
+--------
+Frame: 'DUPA'
+--------
+Inner text should not be replaced.

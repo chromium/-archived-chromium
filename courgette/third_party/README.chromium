@@ -1,0 +1,23 @@
+This directory contains an extensively modified version of Colin Percival's
+bsdiff, available in its original form from:
+
+   http://www.daemonology.net/bsdiff/
+
+The basic principles of operation are best understood by reading Colin's
+unpublised paper:
+
+Colin Percival, Naive differences of executable code, http://www.daemonology.net/bsdiff/, 200
+
+The copy on this directory so extensively modified that the binary format is
+incompatible with the original and it cannot be compiled outside the Chromium
+source tree or the Courgette project.
+
+List of changes made to original code:
+  - wrapped functions in 'courgette' namespace
+  - renamed .c files to .cc
+  - added bsdiff.h header file
+  - changed the code to use streams.h from courgette
+  - changed the encoding of numbers to use the 'varint' encoding
+  - reformatted code to be closer to Google coding standards
+  - renamed variables
+  - added comments

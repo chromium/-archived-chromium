@@ -1,0 +1,72 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="da">
+<translation id="6676384891291319759">Få adgang til internettet</translation>
+<translation id="8579274574697852281">Google Chrome kræver Windows Vista eller Windows XP med SP1 eller nyere.</translation>
+<translation id="698670068493841342">Google Chrome er allerede installeret for denne bruger. Hvis programmet ikke fungerer, skal du afinstallere Google Chrome og downloade det igen.</translation>
+<translation id="7400722733683201933">Om Google Chrome</translation>
+<translation id="7101265395643981223">Start Google Chrome</translation>
+<translation id="1549918799472947005">Chrome bruger dit standardvalg af søgemaskine, som aktuelt er <ph name="PAGE_TITLE"/>. Ønsker du at beholde din standardsøgemaskine?</translation>
+<translation id="2370289711218562573">Google Chrome importerer nu Foretrukne/Bogmærker.</translation>
+<translation id="8970027151245482499">Google Chrome er ikke installeret, eller programmet kunne ikke finde en installationsmappe. Download Google Chrome igen.</translation>
+<translation id="7958215378280655655">Når du nulstiller valgmulighederne i Chrome, bliver alle ændringer, du har foretaget, erstattet med standardindstillingerne. Er du sikker på, at du vil nulstille valgmulighederne i Chrome?</translation>
+<translation id="4281844954008187215">Servicevilkår</translation>
+<translation id="2197898401230534722">Slet alle profildata</translation>
+<translation id="1137776625614346046">Området &quot;Mest besøgte&quot; viser de websteder, du oftest bruger. Når du har brugt Google Chrome i et stykke tid, vil du kunne se dine mest besøgte websteder, hver gang du åbner en ny fane. Du kan lære mere om det og om andre funktioner på siden <ph name="BEGIN_LINK"/>Sådan kommer du i gang<ph name="END_LINK"/>.</translation>
+<translation id="4728575227883772061">Installationen mislykkedes på grund af en ikke-specificeret fejl. Hvis Google Chrome kører, bedes du lukke programmet og prøve igen.</translation>
+<translation id="4149882025268051530">Installationsprogrammet kunne ikke pakke arkivet ud. Download Google Chrome igen.</translation>
+<translation id="4343226815564935778">Google Chromes installationsmappe ser ud til at være i brug. Genstart din computer, og prøv igen.</translation>
+<translation id="4506896920521131223">Copyright © 2006-2009 Google Inc. Alle rettigheder forbeholdes.</translation>
+<translation id="6817660909204164466">Hjælp med at gøre Google Chrome bedre ved automatisk at sende forbrugsstatistikker og rapporter om nedbrud til Google</translation>
+<translation id="8227755444512189073">Google Chrome er nødt til at starte en ekstern applikation for at håndtere links fra <ph name="SCHEME"/>. Det link, der anmodes om, er <ph name="PROTOLINK"/>.</translation>
+<translation id="1281036569101707544">Google Chrome <ph name="TERMS_OF_SERVICE_LINK"/></translation>
+<translation id="8815061062167142136">Hold da op! Google Chrome er gået ned. Vil du genstarte nu?</translation>
+<translation id="5016204670686360703">Hvis du annullerer nu, er der enheder, som ikke bliver importeret. Du kan senere genimportere dem fra Chrome-menuen.</translation>
+<translation id="7241541963706135274">Google Chrome vil udføre disse opgaver:</translation>
+<translation id="8446794773162156990">Google Chrome er uartig</translation>
+<translation id="3889417619312448367">Afinstaller Google Chrome</translation>
+<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> – Google Chrome</translation>
+<translation id="8810218179782551669">Google Chrome-sprog:</translation>
+<translation id="3940866277504106378">Google Chrome bruger webtjenester for at forbedre din browseroplevelse – du kan deaktivere disse tjenester.</translation>
+<translation id="7001386529596391893">Opret Google Chrome-genveje disse steder:</translation>
+<translation id="6134282421960734039">vil du have Chrome til at gemme din adgangskode?</translation>
+<translation id="1195935957447623558">Google Chrome blev ikke korrekt afsluttet. Hvis du vil genåbne de sider, du havde åbne, skal du klikke på Gendan.</translation>
+<translation id="2499193704281978000">Google Chrome svarer ikke. Vil du genstarte nu?</translation>
+<translation id="7747138024166251722">Installationsprogrammet kunne ikke oprette en midlertidig mappe. Kontroller, om der er tilstrækkelig diskplads, og om der er tilladelse til at installere software.</translation>
+<translation id="6009537148180854585">Du forsøgte at kontakte &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, men det certifikat, denne server viste, indeholder fejl. Google Chrome kan ikke bruge et certifikat med fejl og kan ikke bekræfte identiteten af det websted, du forsøger at skabe forbindelse til. Din forbindelse er ikke sikker, og du bør ikke fortsætte.</translation>
+<translation id="3324235665723428530">Din profil kan ikke bruges, da den stammer fra en nyere version af Google Chrome.\n\nNogle funktioner er måske utilgængelige. Angiv en anden profilmappe, eller anvend en nyere version af Chrome.</translation>
+<translation id="1759842336958782510">Chrome</translation>
+<translation id="2044287590254833138">Google Chrome-værktøjslinje</translation>
+<translation id="6481075104394517441">Du forsøgte at kontakte &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, men det certifikat, denne server viste, er ikke gyldigt. Der er ingen tilgængelige oplysninger, som indikerer, at certifikatet er troværdigt. Chrome har ikke mulighed for at garantere, at du kommunikerer med &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; og ikke med en ondsindet part. Kontroller, at klokkeslæt og tidszone på din computer er korrekt indstillet. Er det ikke tilfældet, skal du rette eventuelle problemer og opdatere denne side. Er de korrekt indstillet, bør du ikke fortsætte.</translation>
+<translation id="8862326446509486874">Du har ikke de nødvendige rettigheder til en installation på systemniveau. Prøv at køre installationsprogrammet igen som administrator.</translation>
+<translation id="2874156562296220396">Google Chrome er blevet en realitet på grund af <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> open source-projektet og anden <ph name="BEGIN_LINK_OSS"/>open source-software<ph name="END_LINK_OSS"/>.</translation>
+<translation id="6921913858457830952">Google Chrome er klar til at færdiggøre din installation.</translation>
+<translation id="7100330187273168372">Google Chrome kan ikke læse og skrive til dets datamappe:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">Er du sikker på, at du vil afinstallere Google Chrome?</translation>
+<translation id="5941830788786076944">Gør Google Chrome til din standardbrowser</translation>
+<translation id="4127951844153999091">I dette tilfælde passer adressen, som indgår i certifikatet, ikke med adressen for det websted, din browser forsøger at nå. En af de mulige årsager til dette er, at din kommunikation bliver opsnappet af en ondsindet part, som viser et certifikat for et andet websted, og det giver uoverensstemmelsen. En anden mulig årsag er, at serveren er indstillet til at returnere det samme certifikat for flere websteder inklusive det websted, du forsøger at besøge, på trods af, at certifikatet ikke er gyldigt for alle disse websteder. Chrome kan med sikkerhed bekræfte, at du er kommet til &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; men kan ikke bekræfte, at det er samme websted som &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, som du forsøgte at nå. Fortsætter du, vil Chrome ikke kontrollere for yderligere navneuoverensstemmelser. Almindeligvis anbefales det ikke at fortsætte herfra.</translation>
+<translation id="2712549016134575851">Der er opstået en konflikt med et andet installeret program.</translation>
+<translation id="7161904924553537242">Velkommen til Google Chrome</translation>
+<translation id="8236873504073475138">Google Chrome understøtter ikke Windows 2000. Nogle funktioner virker måske ikke.</translation>
+<translation id="5046764976540625289">Afslut Chrome</translation>
+<translation id="8865765905101981392">Internetbrowser</translation>
+<translation id="582763753075639530">Luk alle Chrome-vinduer og genstart Chrome, så denne ændring kan træde i kraft.</translation>
+<translation id="8776515774046280928">Google Chrome er allerede installeret og tilgængeligt for alle brugere af denne computer. Hvis du vil installere Google Chrome på brugerniveau, skal du først afinstallere den version på systemniveau, der er installeret af en administrator.</translation>
+<translation id="3335672657969596251">Google Chrome understøtter ikke <ph name="OS_NAME"/>.</translation>
+<translation id="3636771339108070045">Denne computer har allerede en nyere version af Google Chrome. Hvis programmet ikke virker, skal du afinstallere Google Chrome og downloade det igen.</translation>
+<translation id="3396666154568987767">Google Chrome til <ph name="PROFILE_NAME"/></translation>
+<translation id="1964682833763362793">Luk alle Chrome-vinduer, og prøv igen
+.</translation>
+<translation id="1001534784610492198">Installationsarkivet er beskadiget eller ugyldigt. Download Google Chrome igen.</translation>
+<translation id="6626317981028933585">Desværre er dine Mozilla Firefox-indstillinger ikke tilgængelige, mens browseren kører. Gem dit arbejde og luk alle Firefox-vinduer for at importere disse indstillinger til Google Chrome. Klik derefter på Fortsæt.</translation>
+<translation id="8540666473246803645">Google Chrome</translation>
+<translation id="6049075767726609708">En administrator har allerede installeret Google Chrome på dette system, og det er tilgængeligt for alle brugere. Google Chrome-programmet på systemniveau vil nu erstatte din installation på brugerniveau.</translation>
+<translation id="3870154837782082782">Google Inc.</translation>
+<translation id="1446473746922165495">Skift det sprog, der anvendes til menuer, dialogbokse og værktøjstip i Google Chrome.</translation>
+<translation id="9189723490960700326">Du forsøgte at kontakte &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, men serveren viste et certifikat, der er udløbet. Der er ingen tilgængelige oplysninger, som kan indikere, om certifikatet er lækket til uautoriserede brugere efter dets udløb. Dette betyder, at Google Chrome ikke kan garantere, at du kommunikerer med &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; og ikke med en ondsindet part. Du bør ikke fortsætte herfra.</translation>
+<translation id="7106741999175697885">Jobliste – Google Chrome</translation>
+<translation id="8449380764213232436">Google Chrome importerer nu de følgende elementer fra <ph name="BROWSER_COMPONENT"/>:</translation>
+<translation id="3396977131400919238">Der opstod en fejl ved operativsystemet under installation. Download Google Chrome igen.</translation>
+<translation id="2618799103663374905">Tilføjelse af Google Chrome-genveje til Hurtig start, start-menuen og dit skrivebord.</translation>
+<translation id="1144950271450340860">Du forsøgte at kontakte &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, men serveren viste et certifikat, der er udstedt af en enhed, som din computers operativsystem ikke stoler på. Det kan betyde, at serveren har genereret sine egne sikkerhedsoplysninger, og at Chrome kan ikke stole på disse identitetsoplysninger, eller at en ondsindet part prøver at opsnappe din kommunikation. Du bør ikke fortsætte, &lt;strong&gt;især ikke&lt;/strong&gt; hvis du ikke tidligere har oplevet denne advarsel for dette websted.</translation>
+</translationbundle>

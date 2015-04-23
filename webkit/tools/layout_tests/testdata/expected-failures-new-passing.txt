@@ -1,0 +1,2 @@
+fast/bar/betz/fail3.html
+fast/foo/fail1.html

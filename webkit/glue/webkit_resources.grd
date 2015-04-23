@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grit latest_public_release="0" current_release="1">
+  <outputs>
+    <output filename="grit/webkit_resources.h" type="rc_header">
+      <emit emit_type='prepend'></emit>
+    </output>
+    <output filename="webkit_resources.rc" type="rc_all" />
+    <output filename="webkit_resources.pak" type="data_package" />
+  </outputs>
+  <release seq="1">
+    <includes>
+      <include name="IDR_BROKENIMAGE" file="resources\broken-image.gif" type="BINDATA" />
+      <include name="IDR_TICKMARK_DASH" file="resources\dash.png" type="BINDATA" />
+      <include name="IDR_FEED_PREVIEW" file="resources\feed.html" type="BINDATA" />
+      <include name="IDR_PAN_SCROLL_ICON" file="resources\pan_icon.png" type="BINDATA" />
+      <include name="IDR_SEARCH_CANCEL" file="resources\search_cancel.png" type="BINDATA" />
+      <include name="IDR_SEARCH_CANCEL_PRESSED" file="resources\search_cancel_pressed.png" type="BINDATA" />
+      <include name="IDR_SEARCH_MAGNIFIER" file="resources\search_magnifier.png" type="BINDATA" />
+      <include name="IDR_SEARCH_MAGNIFIER_RESULTS" file="resources\search_magnifier_results.png" type="BINDATA" />
+      <include name="IDR_TEXTAREA_RESIZER" file="resources\textarea_resize_corner.png" type="BINDATA" />
+      <include name="IDR_DEVTOOLS_BASE_JS" file="devtools\js\base.js" type="BINDATA" />
+      <include name="IDR_DEVTOOLS_INJECT_DISPATCH_JS" file="devtools\js\inject_dispatch.js" type="BINDATA" />
+      <include name="IDR_DEVTOOLS_INJECT_JS" file="devtools\js\inject.js" type="BINDATA" /> 
+      <include name="IDR_MEDIA_PLAY_BUTTON" file="resources\media_play.png" type="BINDATA" />
+      <include name="IDR_MEDIA_PAUSE_BUTTON" file="resources\media_pause.png" type="BINDATA" />
+      <include name="IDR_MEDIA_SOUND_FULL_BUTTON" file="resources\media_sound_full.png" type="BINDATA" />
+      <include name="IDR_MEDIA_SOUND_NONE_BUTTON" file="resources\media_sound_none.png" type="BINDATA" />
+
+      <if expr="os == 'linux2'">
+        <include name="IDR_LINUX_CHECKBOX_OFF" file="resources\linux-checkbox-off.png" type="BINDATA" />
+        <include name="IDR_LINUX_CHECKBOX_ON" file="resources\linux-checkbox-on.png" type="BINDATA" />
+        <include name="IDR_LINUX_CHECKBOX_DISABLED_OFF" file="resources\linux-checkbox-disabled-off.png" type="BINDATA" />
+        <include name="IDR_LINUX_CHECKBOX_DISABLED_ON" file="resources\linux-checkbox-disabled-on.png" type="BINDATA" />
+        <include name="IDR_LINUX_RADIO_OFF" file="resources\linux-radio-off.png" type="BINDATA" />
+        <include name="IDR_LINUX_RADIO_ON" file="resources\linux-radio-on.png" type="BINDATA" />
+        <include name="IDR_LINUX_RADIO_DISABLED_OFF" file="resources\linux-radio-disabled-off.png" type="BINDATA" />
+        <include name="IDR_LINUX_RADIO_DISABLED_ON" file="resources\linux-radio-disabled-on.png" type="BINDATA" />
+      </if>
+
+      <include name="IDC_ALIAS" file="resources\aliasb.cur" type="CURSOR" />
+      <include name="IDC_CELL" file="resources\cell.cur" type="CURSOR" />
+      <include name="IDC_COLRESIZE" file="resources\col_resize.cur" type="CURSOR" />
+      <include name="IDC_COPYCUR" file="resources\copy.cur" type="CURSOR" />
+      <include name="IDC_ROWRESIZE" file="resources\row_resize.cur" type="CURSOR" />
+      <include name="IDC_VERTICALTEXT" file="resources\vertical_text.cur" type="CURSOR" />
+      <include name="IDC_ZOOMIN" file="resources\zoom_in.cur" type="CURSOR" />
+      <include name="IDC_ZOOMOUT" file="resources\zoom_out.cur" type="CURSOR" />
+      <include name="IDC_PAN_MIDDLE" file="resources\pan_middle.cur" type="CURSOR" />
+      <include name="IDC_PAN_NORTH" file="resources\pan_north.cur" type="CURSOR" />
+      <include name="IDC_PAN_NORTH_EAST" file="resources\pan_north_east.cur" type="CURSOR" />
+      <include name="IDC_PAN_EAST" file="resources\pan_east.cur" type="CURSOR" />
+      <include name="IDC_PAN_SOUTH_EAST" file="resources\pan_south_east.cur" type="CURSOR" />
+      <include name="IDC_PAN_SOUTH" file="resources\pan_south.cur" type="CURSOR" />
+      <include name="IDC_PAN_SOUTH_WEST" file="resources\pan_south_west.cur" type="CURSOR" />
+      <include name="IDC_PAN_WEST" file="resources\pan_west.cur" type="CURSOR" />
+      <include name="IDC_PAN_NORTH_WEST" file="resources\pan_north_west.cur" type="CURSOR" />
+    </includes>
+  </release>
+</grit>

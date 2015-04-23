@@ -1,0 +1,99 @@
+<html>
+<head>
+<title>Sorting in action</title>
+
+<link rel=stylesheet href="sort.css" type="text/css">
+
+<script src="sort.js"></script>
+<script src="sort-bubble.js"></script>
+<script src="sort-insertion.js"></script>
+<script src="sort-quick.js"></script>
+<script src="sort-heap.js"></script>
+
+<script>
+var sorts = new Array();
+sorts.push(new Sort("Bubble", sort_bubble));
+sorts.push(new Sort("Insertion", sort_insertion));
+sorts.push(new Sort("Quick", sort_quick));
+sorts.push(new Sort("Heap", sort_heap));
+
+
+function init() {
+  function starter(sort) {
+    return function(){sort.start();};
+  }
+  for (var i = 0; i < sorts.length; i++) {
+    var sort = sorts[i];
+    sort.init();
+    var graph = document.getElementById(sort.name);
+    graph.onclick = starter(sort);
+  }
+  var inner_loop = document.getElementById("inner_loop");
+  inner_loop.checked = inner_loop_enabled != 0;
+}
+
+function start_all() {
+  for (var i = 0; i < sorts.length; i++) {
+    sorts[i].start();
+  }
+}
+
+function reset_all() {
+  for (var i = 0; i < sorts.length; i++) {
+    sorts[i].reset();
+  }
+}
+
+function change_size(val) {
+  size = val;
+  reset_all();
+}
+
+function enable_inner_loop(enabled) {
+  if (enabled) {
+    inner_loop_enabled = 1;
+  } else {
+    inner_loop_enabled = 0;
+  }
+}
+
+</script>
+</head>
+<body onload="init();">
+
+
+<div id="sort_container" style="border: 0px solid black; margin: 0px">
+<div>
+<div class="button" onclick="start_all();">Start All</div>
+<div class="button" onclick="reset_all();">Reset All</div>
+...or click on each algorithm to start separately
+<div style="float:right">
+<b>Size</b><input onchange="change_size(this.value);" id="size" value=300 size=3>
+<b>Inner Loop</b><input id="inner_loop" type="checkbox" onchange="enable_inner_loop(this.checked);" id="inner loop">
+</div>
+</div>
+
+<div>
+<ul id="Heap" class="bar">
+</ul>
+</div>
+
+<div>
+<ul id="Quick" class="bar">
+</ul>
+</div>
+
+<div>
+<ul id="Bubble" class="bar">
+</ul>
+</div>
+
+<div>
+<ul id="Insertion" class="bar">
+</ul>
+</div>
+
+</div>
+
+</body>
+</html>

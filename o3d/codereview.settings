@@ -1,0 +1,6 @@
+# This file is used by gcl to get repository specific information.
+CODE_REVIEW_SERVER: codereview.chromium.org
+CC_LIST: o3d-review@googlegroups.com
+VIEW_VC: http://src.chromium.org/viewvc/chrome?view=rev&revision=
+STATUS: http://o3d-status.appspot.com/status
+TRY_ON_UPLOAD: False

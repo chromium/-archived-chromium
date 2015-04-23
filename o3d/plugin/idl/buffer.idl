@@ -1,0 +1,481 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+%[
+ The Buffer object is a low level container for a flat list of
+ floating point or integer values. These are currently used to define
+ geometry.
+%]
+[nocpp, include="core/cross/buffer.h"]
+class Buffer : NamedObject {
+  %[
+    Allocates memory for the data to be stored in the buffer based on
+    the types of fields set on the buffer.
+
+    \param num_elements Number of elements to allocate..
+    \return True if operation was successful.
+  %]
+  [userglue] bool AllocateElements(unsigned int num_elements);
+
+  %[
+    Defines a field on this buffer.
+
+    Note: Creating a field after having allocated the buffer is an expensive
+    operation as the data currently in the buffer has to be shuffled around
+    to make room for the new field.
+
+    \param field_type type of data in the field. Valid types are "FloatField",
+        "UInt32Field", "UByteNField".
+    \param num_components number of components in the field.
+    \return The created field.
+  %]
+  [userglue, noreturndocs]
+  Field? CreateField(String field_type, unsigned int num_components);
+
+  %[
+    Removes a field from this buffer.
+
+    Note: Removing a field after having allocated the buffer is an expensive
+    operation as the data currently in the buffer has to be shuffled around
+    to remove the old field.
+
+    \param field field to remove.
+  %]
+  void RemoveField(Field field);
+
+  %[
+    Sets the values in the buffer given a RawData object.
+
+    \param raw_data contains data to assign to the Buffer data itself.
+  %]
+  bool Set(RawData raw_data);
+
+  %[
+    Sets the values in the buffer given a RawData object.
+
+    \param raw_data contains data to assign to the Buffer data itself.
+    \param offset is a byte offset from the start of raw_data
+    \param length is the byte length of the data to set
+    \return True if operation was successful.
+  %]
+  bool Set(RawData raw_data,
+           size_t offset,
+           size_t length);
+
+  %[
+    Number of elements in the buffer.
+  %]
+  [getter] unsigned int num_elements;
+
+  %[
+    The total components in all fields in this buffer.
+  %]
+  [getter] unsigned int total_components;
+
+  %[
+    The fields currently set on the buffer.
+  %]
+  [userglue_getter, getter] FieldArray fields;
+
+  [verbatim=cpp_glue] %{
+    o3d::Field* userglue_method_CreateField(
+        o3d::Buffer* buffer,
+        const o3d::String& field_type,
+        unsigned int num_components) {
+      return buffer->CreateFieldByClassName(field_type, num_components);
+    }
+    o3d::FieldArray userglue_getter_fields(o3d::Buffer* buffer) {
+      const o3d::FieldRefArray buffer_fields = buffer->fields();
+      o3d::FieldArray fields(buffer_fields.size());
+      for (size_t ii = 0; ii < buffer_fields.size(); ++ii) {
+        fields[ii] = buffer_fields[ii].Get();
+      }
+      return fields;
+    }
+    bool userglue_method_AllocateElements(o3d::Buffer* buffer,
+                                          unsigned int num_elements) {
+      bool result = buffer->AllocateElements(num_elements);
+      if (result) {
+        // Clear the buffer so at least from Javascript we can't get garbage.
+        o3d::BufferLockHelper locker(buffer);
+        void* data = locker.GetData(o3d::Buffer::WRITE_ONLY);
+        if (!data) {
+          O3D_ERROR(buffer->service_locator())
+              << "could not lock buffer";
+        } else {
+          memset(data, 0, buffer->GetSizeInBytes());
+        }
+      }
+      return result;
+    }
+  %}
+};
+
+%[
+  VertexBufferBase is a the base class for both VertexBuffer and SourceBuffer
+
+  \sa VertexBuffer
+  \sa SourceBuffer
+%]
+[nocpp, include="core/cross/buffer.h"]
+class VertexBufferBase : Buffer {
+  %[
+    Gets a copy of the values of the data stored in the buffer.
+    Modifying this copy has no effect on the buffer.
+
+    \return An array of values.
+  %]
+  [nocpp, userglue] float[] Get();
+
+  %[
+    Gets a copy of a sub range of the values in the data stored in the buffer.
+    Modifying this copy has no effect on the buffer.
+
+    \param start_index index of the element value to get.
+    \param num_elements the number of elements to get.
+    \return An array of values.
+  %]
+  [nocpp, userglue]
+  float[] GetAt(unsigned int start_index, unsigned int num_elements);
+
+  %[
+    Sets the values of the data stored in the buffer.
+    The number of values passed in must be a multiple of the number of
+    components needed for the fields defined on this buffer.
+
+    \param values Values to be stored in the buffer.
+    \return True if operation was successful.
+  %]
+  [nocpp, userglue] bool Set(float[] values);
+
+  %[
+    Sets the values of the data stored in the buffer. The buffer must have
+    already been created either through buffer.set or buffer.allocateElements
+
+    The number of values passed in must be a multiple of the number of
+    components needed for the fields defined on this buffer.
+
+    \param start_index index of first value to set.
+    \param values Values to be stored in the buffer starting at index.
+  %]
+  [nocpp, userglue] void SetAt(unsigned int start_index, float[] values);
+
+  [verbatim=cpp_glue] %{
+    std::vector<float> userglue_method_Get(o3d::VertexBufferBase *buffer) {
+      std::vector<float> retval;
+      o3d::BufferLockHelper helper(buffer);
+      float* buffer_data = helper.GetDataAs<float>(
+          o3d::Buffer::READ_ONLY);
+      if (!buffer_data) {
+        O3D_ERROR(buffer->service_locator())
+            << "could not lock buffer";
+      } else {
+        retval.resize(buffer->total_components() * buffer->num_elements());
+        unsigned element_offset = 0;
+        // for each field, copy the stuff into the array.
+        const o3d::FieldRefArray& fields = buffer->fields();
+        for (unsigned ff = 0; ff < fields.size(); ++ff) {
+          o3d::Field* field = fields[ff];
+          field->GetAsFloats(0,
+                             &retval[0] + element_offset,
+                             field->num_components(),
+                             buffer->num_elements());
+          element_offset += field->num_components();
+        }
+      }
+      return retval;
+    }
+    std::vector<float> userglue_method_GetAt(o3d::VertexBufferBase *buffer,
+                                             unsigned int start_index,
+                                             unsigned int length) {
+      std::vector<float> retval;
+      if (start_index + length > buffer->num_elements() ||
+          start_index + length < start_index) {
+        O3D_ERROR(buffer->service_locator())
+            << "number of requested values would run past end of buffer";
+      } else {
+        o3d::BufferLockHelper helper(buffer);
+        float* buffer_data = helper.GetDataAs<float>(
+            o3d::Buffer::READ_ONLY);
+        if (!buffer_data) {
+          O3D_ERROR(buffer->service_locator())
+              << "could not lock buffer";
+        } else {
+          retval.resize(length * buffer->total_components());
+          unsigned element_offset = 0;
+          // for each field, copy the stuff into the array.
+          const o3d::FieldRefArray& fields = buffer->fields();
+          for (unsigned ff = 0; ff < fields.size(); ++ff) {
+            o3d::Field* field = fields[ff];
+            field->GetAsFloats(start_index,
+                               &retval[0] + element_offset,
+                               field->num_components(),
+                               length);
+            element_offset += field->num_components();
+          }
+        }
+      }
+      return retval;
+    }
+    bool userglue_method_Set(o3d::VertexBufferBase *buffer,
+                             const std::vector<float> &values) {
+      unsigned int total_components = buffer->total_components();
+      size_t size = values.size();
+      if (total_components == 0) {
+        O3D_ERROR(buffer->service_locator())
+            << "no fields are defined on the buffer";
+        return false;
+      }
+      if (size % total_components != 0) {
+        O3D_ERROR(buffer->service_locator())
+            << "the number of values passed in is not a multiple of the number"
+            << " of components in the fields on the buffer.";
+        return false;
+      }
+
+      unsigned num_elements = size / total_components;
+
+      if (!buffer->AllocateElements(num_elements)) {
+        return false;
+      }
+
+      o3d::BufferLockHelper helper(buffer);
+      void* buffer_data = helper.GetData(o3d::Buffer::WRITE_ONLY);
+      if (!buffer_data) {
+        O3D_ERROR(buffer->service_locator())
+            << "could not lock buffer";
+        return false;
+      }
+
+      unsigned element_offset = 0;
+      // for each field, copy the stuff out of the array.
+      const o3d::FieldRefArray& fields = buffer->fields();
+      for (unsigned ff = 0; ff < fields.size(); ++ff) {
+        o3d::Field* field = fields[ff];
+        field->SetFromFloats(&values[element_offset],
+                             total_components,
+                             0,
+                             num_elements);
+        element_offset += field->num_components();
+      }
+      return true;
+    }
+    void userglue_method_SetAt(o3d::VertexBufferBase *buffer,
+                               unsigned int start_index,
+                               const std::vector<float> &values) {
+      unsigned int total_components = buffer->total_components();
+      size_t size = values.size();
+      if (total_components == 0) {
+        O3D_ERROR(buffer->service_locator())
+            << "no fields are defined on the buffer";
+        return;
+      }
+      if (size % total_components != 0) {
+        O3D_ERROR(buffer->service_locator())
+            << "the number of values passed in is not a multiple of the number"
+            << " of components in the fields on the buffer.";
+        return;
+      }
+
+      unsigned num_elements_to_set = size / total_components;
+      unsigned last_element = start_index + num_elements_to_set;
+      if (last_element > buffer->num_elements() ||
+          last_element < start_index) {
+        O3D_ERROR(buffer->service_locator())
+           << "Attempt to set elements outside of Buffer";
+        return;
+      }
+
+      o3d::BufferLockHelper helper(buffer);
+      void* buffer_data = helper.GetData(o3d::Buffer::WRITE_ONLY);
+      if (!buffer_data) {
+        O3D_ERROR(buffer->service_locator())
+            << "could not lock buffer";
+        return;
+      }
+
+      unsigned element_offset = 0;
+      // for each field, copy the stuff out of the array.
+      const o3d::FieldRefArray& fields = buffer->fields();
+      for (unsigned ff = 0; ff < fields.size(); ++ff) {
+        o3d::Field* field = fields[ff];
+        field->SetFromFloats(&values[element_offset],
+                             total_components,
+                             start_index,
+                             num_elements_to_set);
+        element_offset += field->num_components();
+      }
+    }
+  %}
+};
+
+%[
+  VertexBuffer is a Buffer object used for storing vertex data for geometry.
+  (e.g. vertex positions, normals, colors, etc).
+  A VertexBuffer can be rendered directly by the GPU.
+
+  \sa SourceBuffer
+%]
+[nocpp, include="core/cross/buffer.h"]
+class VertexBuffer : VertexBufferBase {
+};
+
+%[
+  SourceBuffer is a Buffer object used for storing vertex data for
+  geometry. (e.g. vertex positions, normals, colors, etc).
+
+  A SourceBuffer is the source for operations like skinning and morph
+  targets. It can not be directly rendered by the GPU.
+
+  \sa VertexBuffer
+%]
+[nocpp, include="core/cross/buffer.h"]
+class SourceBuffer : VertexBufferBase {
+};
+
+%[
+  IndexBuffer is a buffer object used for storing geometry index data (e.g.
+  triangle indices).
+%]
+[nocpp, include="core/cross/buffer.h"] class IndexBuffer : Buffer {
+  %[
+    Sets the values of the data stored in the buffer.
+
+    \param values Values to be stored in the buffer.
+    \return True if operation was successful.
+  %]
+  [nocpp, userglue] bool Set(unsigned int[] values);
+
+  %[
+    Sets the values of the data stored in the buffer. The buffer must have
+    already been created either through buffer.set or buffer.allocateElements.
+
+    \param start_index index of first value to set.
+    \param values Values to be stored in the buffer starting at index.
+  %]
+  [nocpp, userglue] void SetAt(unsigned int start_index, unsigned int[] values);
+
+  [verbatim=cpp_glue] %{
+    bool userglue_method_Set(o3d::IndexBuffer *buffer,
+                             const std::vector<unsigned int> &values) {
+      unsigned int total_components = buffer->total_components();
+      size_t size = values.size();
+      if (total_components == 0) {
+        O3D_ERROR(buffer->service_locator())
+            << "no fields are defined on the buffer";
+        return false;
+      }
+      if (size % total_components != 0) {
+        O3D_ERROR(buffer->service_locator())
+            << "the number of values passed in is not a multiple of the number"
+            << " of components in the fields on the buffer.";
+        return false;
+      }
+
+      unsigned num_elements = size / total_components;
+
+      if (!buffer->AllocateElements(num_elements)) {
+        return false;
+      }
+
+      o3d::BufferLockHelper helper(buffer);
+      void* buffer_data = helper.GetData(o3d::Buffer::WRITE_ONLY);
+      if (!buffer_data) {
+        O3D_ERROR(buffer->service_locator())
+            << "could not lock buffer";
+        return false;
+      }
+
+      unsigned element_offset = 0;
+      // for each field, copy the stuff out of the array.
+      const o3d::FieldRefArray& fields = buffer->fields();
+      for (unsigned ff = 0; ff < fields.size(); ++ff) {
+        o3d::Field* field = fields[ff];
+        field->SetFromUInt32s(&values[element_offset],
+                              total_components,
+                              0,
+                              num_elements);
+        element_offset += field->num_components();
+      }
+      return true;
+    }
+    void userglue_method_SetAt(o3d::IndexBuffer *buffer,
+                               unsigned int start_index,
+                               const std::vector<unsigned int> &values) {
+      unsigned int total_components = buffer->total_components();
+      size_t size = values.size();
+      if (total_components == 0) {
+        O3D_ERROR(buffer->service_locator())
+            << "no fields are defined on the buffer";
+        return;
+      }
+      if (size % total_components != 0) {
+        O3D_ERROR(buffer->service_locator())
+            << "the number of values passed in is not a multiple of the number"
+            << " of components in the fields on the buffer.";
+        return;
+      }
+
+      unsigned num_elements_to_set = size / total_components;
+      unsigned last_element = start_index + num_elements_to_set;
+      if (last_element > buffer->num_elements() ||
+          last_element < start_index) {
+        O3D_ERROR(buffer->service_locator())
+           << "Attempt to set elements outside of Buffer";
+        return;
+      }
+
+      o3d::BufferLockHelper helper(buffer);
+      void* buffer_data = helper.GetData(o3d::Buffer::WRITE_ONLY);
+      if (!buffer_data) {
+        O3D_ERROR(buffer->service_locator())
+            << "could not lock buffer";
+        return;
+      }
+
+      unsigned element_offset = 0;
+      // for each field, copy the stuff out of the array.
+      const o3d::FieldRefArray& fields = buffer->fields();
+      for (unsigned ff = 0; ff < fields.size(); ++ff) {
+        o3d::Field* field = fields[ff];
+        field->SetFromUInt32s(&values[element_offset],
+                              total_components,
+                              start_index,
+                              num_elements_to_set);
+        element_offset += field->num_components();
+      }
+    }
+  %}
+};
+
+}  // namespace o3d

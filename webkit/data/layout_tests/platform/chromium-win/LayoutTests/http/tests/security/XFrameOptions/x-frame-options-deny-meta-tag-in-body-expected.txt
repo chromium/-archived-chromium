@@ -1,0 +1,12 @@
+http://127.0.0.1:8000/security/XFrameOptions/resources/x-frame-options-deny-meta-tag-subframe-in-body.html - willSendRequest <WebRequest URL "http://127.0.0.1:8000/security/XFrameOptions/resources/x-frame-options-deny-meta-tag-subframe-in-body.html">
+<unknown> - didFinishLoading
+http://127.0.0.1:8000/security/XFrameOptions/resources/x-frame-options-deny-meta-tag-subframe-in-body.html - didFailLoadingWithError <WebError code -3, failing URL "http://127.0.0.1:8000/security/XFrameOptions/resources/x-frame-options-deny-meta-tag-subframe-in-body.html">
+about:blank - willSendRequest <WebRequest URL "about:blank">
+There should be no content in the iframe below
+
+
+
+--------
+Frame: '<!--framePath //<!--frame0-->-->'
+--------
+

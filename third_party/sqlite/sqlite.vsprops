@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="sqlite"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		PreprocessorDefinitions="SQLITE_ENABLE_FTS2;SQLITE_ENABLE_BROKEN_FTS2;SQLITE_ENABLE_ICU;SQLITE_SECURE_DELETE;THREADSAFE;_CRT_NONSTDC_NO_DEPRECATE"
+		DisableSpecificWarnings="4018;4090;4244"
+	/>
+</VisualStudioPropertySheet>

@@ -1,0 +1,360 @@
+<?xml version='1.0' encoding='windows-1252'?>
+
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+Wix script for building o3d installer.
+-->
+
+<Wix xmlns='http://schemas.microsoft.com/wix/2003/01/wi'>
+
+  <Product Name='O3D Plugin' Id='$(var.NppProductGuid)'
+           Language='1033' Codepage='1252' Version='$(var.NppVersion)'
+           Manufacturer='Google' UpgradeCode='$(var.NppUpgradeCode)'>
+
+    <Package Id='$(var.NppPackageGuid)' Keywords='Installer'
+             Description='O3D Plugin Installer' Manufacturer='Google'
+             InstallerVersion='101' InstallPrivileges='limited'
+             Languages='1033' Compressed='yes' SummaryCodepage='1252' />
+
+    <Media Id='1' Cabinet='o3dplugin.cab' EmbedCab='yes'
+           CompressionLevel='high'/>
+
+    <!-- Checks if the custom action for detecting directx has failed
+         and displays an error message if that is the case. -->
+    <Condition
+        Message='O3D needs an installation of DirectX 9.0c or higher. Please download the latest version of DirectX from http://www.microsoft.com/download.'>
+      DIRECTX_9_0_C_INSTALLED
+    </Condition>
+
+    <!-- Prevent silent updates from installing if O3D is running.
+         If UILevel is less than or equal to 2, the update is silent.
+         If UILevel is greater than 2, the update is not silent.
+         The message should never be seen since this condition will attempt
+         to display the message only when the install is silent. -->
+    <Condition
+        Message='Please first close any running instances of O3D.'>
+      UILevel > 2 OR NOT (SOFTWARE_RUNNING) OR REMOVE ~= "ALL"
+    </Condition>
+
+    <!-- Copy the plugin to the mozilla plugin folder under
+         'Documents and Settings' -->
+    <Directory Id='TARGETDIR' Name='SourceDir'>
+      <Directory Id='AppDataFolder' Name='QFiles'>
+        <Directory Id='pu.MozillaDir' Name='Mozilla'>
+          <Directory Id='pu.FirefoxPluginsDir' Name='plugins'>
+            <Component Id='pu.Npdll' Guid='$(var.NppComponentGuid)'>
+              <File Id='pu.GoogleNpapiDll.dll' Name='npo3d.dll'
+                    LongName='npo3dautoplugin.dll' DiskId='1'
+                    Source='$(var.NPPluginPath)' Vital='yes' />
+              <Condition>NOT (ALLUSERS)</Condition>
+            </Component>
+            <?if $(var.IncludeSoftwareRenderer) = True ?>
+              <Directory Id='O3DPrivateDllDir' Name='O3D'
+                  LongName='O3DExtras'>
+                <Component Id='SoftwareRenderer'
+                    Guid='$(var.SoftwareRendererGuid)'>
+                    <File Id='renderer' LongName="swiftshader_d3d9.dll"
+                        Vital='yes' DiskId='1' Name="ss_d3d9.dll"
+                        src='$(var.SoftwareRendererPath)' />
+                  <Condition>NOT (ALLUSERS)</Condition>
+                </Component>
+              </Directory>
+            <?endif ?>
+          </Directory>
+        </Directory>
+        <Directory Id='Google' Name='Google'>
+          <Directory Id='O3D' Name='O3D'>
+            <Component Id='InstallReporter' Guid='$(var.RepGuid)'>
+              <File
+                  Id='Reporter'
+                  Name='reporter.exe'
+                  DiskId='1'
+                  Source='$(var.RepPath)'
+                  Vital='yes'/>
+              <Condition>NOT (ALLUSERS)</Condition>
+            </Component>
+            <Component Id='InstallDriverBlacklist' Guid='$(var.DBLGuid)'>
+              <!-- Note: the "Name" here is required, but is overridden by
+                   the "LongName". -->
+              <File
+                  Id='DriverBlacklist'
+                  Name='BadDrvrs.txt'
+                  LongName='driver_blacklist.txt'
+                  DiskId='1'
+                  Source='$(var.DBLPath)'
+                  Vital='yes'/>
+              <Condition>NOT (ALLUSERS)</Condition>
+            </Component>
+            <Component Id='pu.IEdll'
+                       Guid='$(var.IepComponentGuid)'>
+              <File Id='pu.GoogleActiveXDll.dll' Name='o3d_host.dll'
+                    DiskId='1' Source='$(var.IEPluginPath)' Vital='yes'/>
+              <!-- We add all of these registry values here, instead
+                   of running regsvr32 on the dll because otherwise we
+                   leave cruft behind if the dll is manually removed
+                   or corrupted.
+
+                   If COM interfaces are added to the DLL, you can
+                   recreate this list by running the RegCap.exe tool
+                   (part of Visual Studio) to extract the list of
+                   registry entries from o3d_host.dll, and then use
+                   tallow.exe (part of WiX) to convert that .reg file
+                   to WiX XML form. -->
+              <Registry Root="HKCU" Key="Software\Classes\o3d_host.NPObjectProxy.1"
+                        Value="NPObjectProxy Class" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\o3d_host.NPObjectProxy.1\CLSID"
+                        Value="{1D68424D-7A71-4b61-AE5C-56DBCD8B0E53}" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\o3d_host.NPObjectProxy.1\Insertable" />
+              <Registry Root="HKCU" Key="Software\Classes\o3d_host.NPObjectProxy"
+                        Value="NPObjectProxy Class" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\o3d_host.NPObjectProxy\CLSID"
+                        Value="{1D68424D-7A71-4b61-AE5C-56DBCD8B0E53}" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\o3d_host.NPObjectProxy\CurVer"
+                        Value="o3d_host.NPObjectProxy.1" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{1D68424D-7A71-4b61-AE5C-56DBCD8B0E53}"
+                        Value="NPObjectProxy Class" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{1D68424D-7A71-4b61-AE5C-56DBCD8B0E53}\ProgID"
+                        Value="o3d_host.NPObjectProxy.1" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{1D68424D-7A71-4b61-AE5C-56DBCD8B0E53}\VersionIndependentProgID"
+                        Value="o3d_host.NPObjectProxy" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{1D68424D-7A71-4b61-AE5C-56DBCD8B0E53}\Programmable" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{1D68424D-7A71-4b61-AE5C-56DBCD8B0E53}\InprocServer32"
+                        Value="[#pu.GoogleActiveXDll.dll]" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{1D68424D-7A71-4b61-AE5C-56DBCD8B0E53}\InprocServer32"
+                        Name="ThreadingModel" Value="Apartment" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{1D68424D-7A71-4b61-AE5C-56DBCD8B0E53}\Control" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{1D68424D-7A71-4b61-AE5C-56DBCD8B0E53}\Insertable" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{1D68424D-7A71-4b61-AE5C-56DBCD8B0E53}\TypeLib"
+                        Value="{D4F6E31C-E952-48FE-9833-6AE308BD79C6}" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{1D68424D-7A71-4b61-AE5C-56DBCD8B0E53}\Version"
+                        Value="1.0" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{9666A772-407E-4F90-BC37-982E8160EB2D}"
+                        Value="O3DHostControl Class" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{9666A772-407E-4F90-BC37-982E8160EB2D}\ProgID"
+                        Value="o3d_host.O3DHostControl.1" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{9666A772-407E-4F90-BC37-982E8160EB2D}\VersionIndependentProgID"
+                        Value="o3d_host.O3DHostControl" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{9666A772-407E-4F90-BC37-982E8160EB2D}\Programmable" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{9666A772-407E-4F90-BC37-982E8160EB2D}\InprocServer32"
+                        Value="[#pu.GoogleActiveXDll.dll]" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{9666A772-407E-4F90-BC37-982E8160EB2D}\InprocServer32"
+                        Name="ThreadingModel" Value="Apartment" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{9666A772-407E-4F90-BC37-982E8160EB2D}\Control" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{9666A772-407E-4F90-BC37-982E8160EB2D}\Insertable" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{9666A772-407E-4F90-BC37-982E8160EB2D}\ToolboxBitmap32"
+                        Value="[#pu.GoogleActiveXDll.dll], 102" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{9666A772-407E-4F90-BC37-982E8160EB2D}\MiscStatus"
+                        Value="0" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{9666A772-407E-4F90-BC37-982E8160EB2D}\MiscStatus\1"
+                        Value="131473" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{9666A772-407E-4F90-BC37-982E8160EB2D}\TypeLib"
+                        Value="{D4F6E31C-E952-48FE-9833-6AE308BD79C6}" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{9666A772-407E-4F90-BC37-982E8160EB2D}\Version"
+                        Value="1.0" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{9666A772-407E-4F90-BC37-982E8160EB2D}\Implemented Categories" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{9666A772-407E-4F90-BC37-982E8160EB2D}\Implemented Categories\{7DD95801-9882-11CF-9FA9-00AA006C42C4}" />
+              <Registry Root="HKCU" Key="Software\Classes\CLSID\{9666A772-407E-4F90-BC37-982E8160EB2D}\Implemented Categories\{7DD95802-9882-11CF-9FA9-00AA006C42C4}" />
+              <Registry Root="HKCU" Key="Software\Classes\o3d_host.O3DHostControl.1"
+                        Value="O3DHostControl Class" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\o3d_host.O3DHostControl.1\CLSID"
+                        Value="{9666A772-407E-4F90-BC37-982E8160EB2D}" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\o3d_host.O3DHostControl.1\Insertable" />
+              <Registry Root="HKCU" Key="Software\Classes\o3d_host.O3DHostControl"
+                        Value="O3DHostControl Class" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\o3d_host.O3DHostControl\CLSID"
+                        Value="{9666A772-407E-4F90-BC37-982E8160EB2D}" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\o3d_host.O3DHostControl\CurVer"
+                        Value="o3d_host.O3DHostControl.1" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\TypeLib" />
+              <Registry Root="HKCU" Key="Software\Classes\TypeLib\{D4F6E31C-E952-48FE-9833-6AE308BD79C6}" />
+              <Registry Root="HKCU" Key="Software\Classes\TypeLib\{D4F6E31C-E952-48FE-9833-6AE308BD79C6}\1.0"
+                        Value="npapi_host2 1.0 Type Library" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\TypeLib\{D4F6E31C-E952-48FE-9833-6AE308BD79C6}\1.0\FLAGS"
+                        Value="0" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\TypeLib\{D4F6E31C-E952-48FE-9833-6AE308BD79C6}\1.0\0" />
+              <Registry Root="HKCU" Key="Software\Classes\TypeLib\{D4F6E31C-E952-48FE-9833-6AE308BD79C6}\1.0\0\win32"
+                        Value="[#pu.GoogleActiveXDll.dll]" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\Interface" />
+              <Registry Root="HKCU" Key="Software\Classes\Interface\{56D79537-181C-4A38-ADF5-E12EC24D7FC7}"
+                        Value="IHostControl" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\Interface\{56D79537-181C-4A38-ADF5-E12EC24D7FC7}\ProxyStubClsid"
+                        Value="{00020424-0000-0000-C000-000000000046}" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\Interface\{56D79537-181C-4A38-ADF5-E12EC24D7FC7}\ProxyStubClsid32"
+                        Value="{00020424-0000-0000-C000-000000000046}" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\Interface\{56D79537-181C-4A38-ADF5-E12EC24D7FC7}\TypeLib"
+                        Value="{D4F6E31C-E952-48FE-9833-6AE308BD79C6}" Type="string" />
+              <Registry Root="HKCU" Key="Software\Classes\Interface\{56D79537-181C-4A38-ADF5-E12EC24D7FC7}\TypeLib"
+                        Name="Version" Value="1.0" Type="string" />
+              <Condition>NOT (ALLUSERS)</Condition>
+            </Component>
+          </Directory>
+        </Directory>
+      </Directory>
+      <Directory Id='TempFolder' Name='TmpFiles'>
+        <!-- This continues to run after we exit, so we don't clean it up.
+        It's in the temp dir, so that's not so bad.  It *must* be placed where
+        performondemand.cc is expecting it to be!
+        TODO: Figure out how to get it removed as of the next reboot.
+        TODO: We also don't remove the extras on uninstall.  We don't
+        want to on upgrade, just on a full uninstall; can we tell the
+        difference? -->
+        <Directory Id='ExtrasTempDir' Name='Extras'>
+          <Component Id='GetExtras'
+            Guid='$(var.GetExtrasGuid)'>
+            <File Id='getextras' Name="getxtras" LongName='getextras.exe'
+              DiskId='1' src='$(var.GetExtrasPath)' />
+          </Component>
+        </Directory>
+      </Directory>
+
+      <!-- Write the current version of the plugin to the Google Update
+           registry key for auto update. -->
+      <Component Id='pu.UpdaterReg' Guid='$(var.NppGoogleUpdateRegGuid)'>
+        <Registry Id='pu.UpdaterRegistryKeys' Root='HKCU'
+                  Key='$(var.NppGoogleUpdateRegKey)'
+                  Name='pv' Value='$(var.NppVersion)' Action='write'
+                  Type='string' />
+        <Registry Id='pu.UpdaterRegistryKeys2' Root='HKCU'
+                  Key='$(var.NppGoogleUpdateRegKey)'
+                  Name='name' Value='o3d' Action='write'
+                  Type='string' />
+        <Registry Id='pu.UpdaterRegistryKeys3' Root='HKCU'
+                  Key='$(var.NppGoogleUpdateRegKey)'
+                  Name='lang' Value='en' Action='write'
+                  Type='string' />
+        <Registry Id='pu.TrackReg' Root='HKCU'
+                  Key='$(var.NppGoogleUpdateStateRegKey)'
+                  Name='dr' Value='0' Action='write'
+                  Type='string' />
+        <Condition>NOT (ALLUSERS)</Condition>
+      </Component>
+    </Directory>
+
+    <!-- List of actions to be performed. -->
+    <Feature Id='G3DPlugin' Title='O3D Plugin' Level='1'>
+      <ComponentRef Id='GetExtras' />
+      <ComponentRef Id='pu.Npdll' />
+      <ComponentRef Id='pu.IEdll'/>
+      <ComponentRef Id='pu.UpdaterReg' />
+      <ComponentRef Id='InstallReporter'/>
+      <ComponentRef Id='InstallDriverBlacklist'/>
+      <?if $(var.IncludeSoftwareRenderer) = True ?>
+        <ComponentRef Id='SoftwareRenderer'/>
+      <?endif ?>
+    </Feature>
+
+    <!-- Identify previous versions to remove before installing.  The deprecated
+         one dates to when we accidentally used the same upgrade code for the
+         SDK and the plugin, so they'll both try to uninstall it, just in case.
+         At worst, the user will have one or the other disappear mysteriously,
+         but only once.
+    -->
+    <Upgrade Id='$(var.DeprecatedUpgradeCode)'>
+      <UpgradeVersion OnlyDetect='no' Property='UPGRADING_DEPR'/>
+    </Upgrade>
+    <Upgrade Id='$(var.NppUpgradeCode)'>
+      <UpgradeVersion
+          Minimum='0.0.0.0' IncludeMinimum='yes'
+          Maximum='$(var.NppVersion)' IncludeMaximum='yes'
+          OnlyDetect='no' Property='UPGRADING'/>
+    </Upgrade>
+
+    <!-- Custom action to tell CheckDirectX where to report errors. -->
+    <CustomAction
+        Id='SetupGoogleUpdateRegistryKey'
+        Property='GoogleUpdateResultKey'
+        Value='$(var.NppGoogleUpdateStateRegKey)' />
+    <!-- Custom action for detecting DirectX 9.0c or higher. -->
+    <CustomAction
+        Id='CheckDirectX'
+        BinaryKey='CustomActions'
+        DllEntry='CheckDirectX' />
+
+    <!-- Custom action for checking that we're not already running. -->
+    <CustomAction
+        Id='IsSoftwareRunning'
+        BinaryKey='CustomActions'
+        DllEntry='IsSoftwareRunning' />
+
+    <Binary
+        Id='CustomActions'
+        SourceFile='cactions.dll' />
+
+    <!-- Custom action for telling Google Update to install d3dx if necessary. -->
+    <CustomAction
+        Id='InstallD3DXIfNeeded'
+        BinaryKey='CustomActions'
+        DllEntry='InstallD3DXIfNeeded'
+        Execute='deferred' />
+
+    <!-- Custom action needs to be in the InstallUISequence to make
+         sure it has been executed before the Condition check. -->
+    <InstallUISequence>
+      <Custom
+          Action='SetupGoogleUpdateRegistryKey'
+          Before='CheckDirectX' />
+      <Custom
+          Action='IsSoftwareRunning'
+          Before='CheckDirectX' />
+      <Custom
+          Action='CheckDirectX'
+          Before='LaunchConditions' />
+    </InstallUISequence>
+
+    <InstallExecuteSequence>
+      <Custom
+          Action='SetupGoogleUpdateRegistryKey'
+          Before='CheckDirectX' />
+      <Custom
+          Action='IsSoftwareRunning'
+          Before='CheckDirectX' />
+      <Custom
+          Action='CheckDirectX'
+          Before='LaunchConditions' />
+      <Custom
+          Action='InstallD3DXIfNeeded'
+          After='InstallFiles'>
+        NOT Installed
+      </Custom>
+      <UnregisterClassInfo>
+        (REMOVE="ALL") OR UPGRADING OR UPGRADING_DEPR
+      </UnregisterClassInfo>
+      <RemoveExistingProducts After='InstallInitialize'>
+        UPGRADING OR UPGRADING_DEPR
+      </RemoveExistingProducts>
+      <RegisterClassInfo/>
+    </InstallExecuteSequence>
+
+  </Product>
+</Wix>

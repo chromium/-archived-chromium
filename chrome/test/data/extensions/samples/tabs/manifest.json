@@ -1,0 +1,5 @@
+{
+  "name": "TabsAPI",
+  "description": "Utility for working with the extension tabs api",
+  "version": "0.1"
+}

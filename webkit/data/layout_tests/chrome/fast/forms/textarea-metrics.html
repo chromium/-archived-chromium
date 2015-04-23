@@ -1,0 +1,136 @@
+<!Doctype html>
+<html>
+<head>
+<title>Test for metrics of textareas. Should match IE.</title>
+<link rel="stylesheet" href="../js/resources/js-test-style.css">
+<script src="../js/resources/js-test-pre.js"></script>
+<script src="../js/resources/js-test-post-function.js"></script>
+<script>
+if (window.layoutTestController) {
+    layoutTestController.waitUntilDone();
+    layoutTestController.dumpAsText();
+}
+
+function test()
+{
+    description("This test checks that textareas have the right metrics.");
+
+    /*
+      TODO(ojan): These numbers match IE. We match IE in non-layout-test-mode. 
+      So, I want to keep the numbers. Unfortunately, that means that our
+      baseline will include the word fail until we get rid of our font-fallback and 
+      scrollbar metric hacks. The test is still valid though.
+     */
+     
+    shouldBe("document.getElementById('empty-textarea').clientWidth", "94");
+    shouldBe("document.getElementById('empty-textarea').clientHeight", "94");
+    shouldBe("document.getElementById('empty-textarea').offsetWidth", "96");
+    shouldBe("document.getElementById('empty-textarea').offsetHeight", "96");
+    shouldBe("document.getElementById('empty-textarea').scrollWidth", "94");
+    shouldBe("document.getElementById('empty-textarea').scrollHeight", "20");
+    
+    shouldBe("document.getElementById('empty-textarea-disabled').clientWidth", "94");
+    shouldBe("document.getElementById('empty-textarea-disabled').clientHeight", "94");
+    shouldBe("document.getElementById('empty-textarea-disabled').offsetWidth", "96");
+    shouldBe("document.getElementById('empty-textarea-disabled').offsetHeight", "96");
+    shouldBe("document.getElementById('empty-textarea-disabled').scrollWidth", "94");
+    shouldBe("document.getElementById('empty-textarea-disabled').scrollHeight", "20");
+    
+    shouldBe("document.getElementById('textarea-no-scroll').clientWidth", "94");
+    shouldBe("document.getElementById('textarea-no-scroll').clientHeight", "94");
+    shouldBe("document.getElementById('textarea-no-scroll').offsetWidth", "96");
+    shouldBe("document.getElementById('textarea-no-scroll').offsetHeight", "96");
+    shouldBe("document.getElementById('textarea-no-scroll').scrollWidth", "94");
+    shouldBe("document.getElementById('textarea-no-scroll').scrollHeight", "20");
+
+    shouldBe("document.getElementById('textarea-with-scroll').clientWidth", "77");
+    shouldBe("document.getElementById('textarea-with-scroll').clientHeight", "94");
+    shouldBe("document.getElementById('textarea-with-scroll').offsetWidth", "96");
+    shouldBe("document.getElementById('textarea-with-scroll').offsetHeight", "96");
+    shouldBe("document.getElementById('textarea-with-scroll').scrollWidth", "77");
+    shouldBe("document.getElementById('textarea-with-scroll').scrollHeight", "132");
+
+    shouldBe("document.getElementById('textarea-no-scroll-with-padding').clientWidth", "106");
+    shouldBe("document.getElementById('textarea-no-scroll-with-padding').clientHeight", "106");
+    shouldBe("document.getElementById('textarea-no-scroll-with-padding').offsetWidth", "108");
+    shouldBe("document.getElementById('textarea-no-scroll-with-padding').offsetHeight", "108");
+    shouldBe("document.getElementById('textarea-no-scroll-with-padding').scrollWidth", "106");
+    shouldBe("document.getElementById('textarea-no-scroll-with-padding').scrollHeight", "32");
+
+    shouldBe("document.getElementById('textarea-with-scroll-with-padding').clientWidth", "89");
+    shouldBe("document.getElementById('textarea-with-scroll-with-padding').clientHeight", "106");
+    shouldBe("document.getElementById('textarea-with-scroll-with-padding').offsetWidth", "108");
+    shouldBe("document.getElementById('textarea-with-scroll-with-padding').offsetHeight", "108");
+    shouldBe("document.getElementById('textarea-with-scroll-with-padding').scrollWidth", "89");
+    shouldBe("document.getElementById('textarea-with-scroll-with-padding').scrollHeight", "144");
+
+    shouldBe("document.getElementById('textarea-no-scroll-fixed-height').clientWidth", "94");
+    shouldBe("document.getElementById('textarea-no-scroll-fixed-height').clientHeight", "54");
+    shouldBe("document.getElementById('textarea-no-scroll-fixed-height').offsetWidth", "96");
+    shouldBe("document.getElementById('textarea-no-scroll-fixed-height').offsetHeight", "56");
+    shouldBe("document.getElementById('textarea-no-scroll-fixed-height').scrollWidth", "94");
+    shouldBe("document.getElementById('textarea-no-scroll-fixed-height').scrollHeight", "20");
+
+    shouldBe("document.getElementById('textarea-with-scroll-fixed-height').clientWidth", "77");
+    shouldBe("document.getElementById('textarea-with-scroll-fixed-height').clientHeight", "54");
+    shouldBe("document.getElementById('textarea-with-scroll-fixed-height').offsetWidth", "96");
+    shouldBe("document.getElementById('textarea-with-scroll-fixed-height').offsetHeight", "56");
+    shouldBe("document.getElementById('textarea-with-scroll-fixed-height').scrollWidth", "77");
+    shouldBe("document.getElementById('textarea-with-scroll-fixed-height').scrollHeight", "132");
+
+    shouldBe("document.getElementById('textarea-no-scroll-fixed-height-many-rows').clientWidth", "94");
+    shouldBe("document.getElementById('textarea-no-scroll-fixed-height-many-rows').clientHeight", "54");
+    shouldBe("document.getElementById('textarea-no-scroll-fixed-height-many-rows').offsetWidth", "96");
+    shouldBe("document.getElementById('textarea-no-scroll-fixed-height-many-rows').offsetHeight", "56");
+    shouldBe("document.getElementById('textarea-no-scroll-fixed-height-many-rows').scrollWidth", "94");
+    shouldBe("document.getElementById('textarea-no-scroll-fixed-height-many-rows').scrollHeight", "20");
+
+    shouldBe("document.getElementById('textarea-with-scroll-fixed-height-many-rows').clientWidth", "77");
+    shouldBe("document.getElementById('textarea-with-scroll-fixed-height-many-rows').clientHeight", "54");
+    shouldBe("document.getElementById('textarea-with-scroll-fixed-height-many-rows').offsetWidth", "96");
+    shouldBe("document.getElementById('textarea-with-scroll-fixed-height-many-rows').offsetHeight", "56");
+    shouldBe("document.getElementById('textarea-with-scroll-fixed-height-many-rows').scrollWidth", "77");
+    shouldBe("document.getElementById('textarea-with-scroll-fixed-height-many-rows').scrollHeight", "132");
+
+    shouldBe("document.getElementById('textarea-no-scroll-disabled').clientWidth", "94");
+    shouldBe("document.getElementById('textarea-no-scroll-disabled').clientHeight", "94");
+    shouldBe("document.getElementById('textarea-no-scroll-disabled').offsetWidth", "96");
+    shouldBe("document.getElementById('textarea-no-scroll-disabled').offsetHeight", "96");
+    shouldBe("document.getElementById('textarea-no-scroll-disabled').scrollWidth", "94");
+    shouldBe("document.getElementById('textarea-no-scroll-disabled').scrollHeight", "20");
+
+    shouldBe("document.getElementById('textarea-with-scroll-disabled').clientWidth", "77");
+    shouldBe("document.getElementById('textarea-with-scroll-disabled').clientHeight", "94");
+    shouldBe("document.getElementById('textarea-with-scroll-disabled').offsetWidth", "96");
+    shouldBe("document.getElementById('textarea-with-scroll-disabled').offsetHeight", "96");
+    shouldBe("document.getElementById('textarea-with-scroll-disabled').scrollWidth", "77");
+    shouldBe("document.getElementById('textarea-with-scroll-disabled').scrollHeight", "132");
+
+    if (window.layoutTestController) { 
+        layoutTestController.notifyDone();
+    }
+}
+
+var successfullyParsed = true;
+</script>
+<style>
+textarea { overflow-y:auto; font-family:courier new; font-size:13px; width:90px; height:90px; }
+</style>
+</head>
+<body onload="test()">
+<textarea id="empty-textarea"></textarea>
+<textarea id="empty-textarea-disabled" disabled></textarea>
+<textarea id="textarea-no-scroll">Foo</textarea>
+<textarea id="textarea-with-scroll">Foo Bar Baz Foo Bar Baz Foo Bar Baz Foo Bar Baz Foo Bar Baz</textarea>
+<textarea id="textarea-no-scroll-with-padding" style="padding:8px">Foo</textarea>
+<textarea id="textarea-with-scroll-with-padding" style="padding:8px">Foo Bar Baz Foo Bar Baz Foo Bar Baz Foo Bar Baz Foo Bar Baz</textarea>
+<textarea id="textarea-no-scroll-fixed-height" style="height:50px">Foo</textarea>
+<textarea id="textarea-with-scroll-fixed-height" style="height:50px">Foo Bar Baz Foo Bar Baz Foo Bar Baz Foo Bar Baz Foo Bar Baz</textarea>
+<textarea id="textarea-no-scroll-fixed-height-many-rows" rows=50 style="height:50px">Foo</textarea>
+<textarea id="textarea-with-scroll-fixed-height-many-rows" rows=50 style="height:50px">Foo Bar Baz Foo Bar Baz Foo Bar Baz Foo Bar Baz Foo Bar Baz</textarea>
+<textarea id="textarea-no-scroll-disabled" disabled>Foo</textarea>
+<textarea id="textarea-with-scroll-disabled" disabled>Foo Bar Baz Foo Bar Baz Foo Bar Baz Foo Bar Baz Foo Bar Baz</textarea>
+<p id="description"></p>
+<div id="console"></div>
+</body>
+</html>

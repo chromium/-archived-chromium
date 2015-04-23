@@ -1,0 +1,32 @@
+/***#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-#***\
+\ W |    PRE-COMPILED PACKS FOR WLMP PROJECT    | W /
+/ L | - - - - - - - - - - - - - - - - - - - - - | L \
+\ M |         Copyright (C) 2006 - 2008.        | M /
+/ P |  WLMP Project - http://wlmp-project.net/  | P \
+\***#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-#***/
+
+// -- PACKAGE: LightTPD-1.4.19-1-Win32-SSL -- //
+
+===================
+PACKAGE INFORMATION
+===================
+
+Package Name:               LightTPD (Win32) - SSL
+Package Type:               Binary
+Package Version:            1.4.19-1
+Revision:                   2126
+Release Date:               2008-03-12
+
+Status:                     Stable Release
+Language:                   English
+Compilation Platform:       i686-pc-cygwin (GCC)
+
+Author:                     Jan Kneschke, http://www.lighttpd.net/
+License:                    Revised BSD License
+
+Operating System:           Microsoft Windows 2000 / XP / 2003 / Vista
+
+Additions:                  OpenSSL 0.9.8g
+Supported features:         ZLib, BZip2, Crypt, SSL, PCRE, LDAP, LUA
+
+Comment:                    This version is built for WLMP Webserver Package.

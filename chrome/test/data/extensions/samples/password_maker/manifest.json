@@ -1,0 +1,14 @@
+{
+  "format_version": 1,
+  "id": "B0123456789ABCDEF0123456789ABCDEF0123456",
+  "version": "0.1.0.0",
+  "name": "PasswordMaker",
+  "description": "One Password to Rule Them All",
+  "toolstrips": ["toolstrip.html"],
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["form-filler.js"]
+    }
+  ]
+}

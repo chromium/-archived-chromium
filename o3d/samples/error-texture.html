@@ -1,0 +1,263 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+This sample attempts to show what the error texture is, how to set it and
+how turning it off will generate helpful error information.
+-->
+<html>
+<head>
+<title>Error Texture</title>
+<script type="text/javascript" src="o3djs/base.js"></script>
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.effect');
+
+// Events
+// Run the init() once the page has finished loading.
+//     and unload() when the page is unloaded.
+window.onload = init;
+window.onunload = unload;
+
+// global variables
+var g_o3d;
+var g_math;
+var g_client;
+var g_pack;
+var g_viewInfo;
+var g_texture;
+var g_errorMsgElement;
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D, loads the effect, and sets up some quads.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initialize global variables and libraries.
+  var o3dElement = clientElements[0];
+  g_o3d = o3dElement.o3d;
+  g_math = o3djs.math;
+  g_client = o3dElement.client;
+
+  g_errorMsgElement =
+      document.getElementById('errorMsg');
+
+  // Turn of the error callback that o3djs.base.init setup.
+  g_client.clearErrorCallback();
+
+  // Let us render on demand.
+  g_client.renderMode = g_o3d.Client.RENDERMODE_ON_DEMAND;
+
+  // Create a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  // Create the render graph for a view.
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  var clientWidth = g_client.width;
+  var clientHeight = g_client.height;
+  g_viewInfo.drawContext.projection = g_math.matrix4.orthographic(
+      -clientWidth * 0.5,
+      clientWidth * 0.5,
+      -clientHeight * 0.5,
+      clientHeight * 0.5,
+      0.001,
+      1000);
+
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      [0, 500, 0], // eye
+      [0, 0, 0],   // target
+      [0, 0, -1]); // up
+
+  // Create and load the effect.
+  var effect = g_pack.createObject('Effect');
+  o3djs.effect.loadEffect(effect, 'shaders/texture-only.shader');
+
+  // Create a Material for the effect.
+  var myMaterial = g_pack.createObject('Material');
+
+  // Set the material's drawList
+  myMaterial.drawList = g_viewInfo.zOrderedDrawList;
+
+  // Apply our effect to this material.
+  myMaterial.effect = effect;
+
+  // Creates a quad using the effect.
+  var shape = o3djs.primitives.createPlane(g_pack,
+                                           myMaterial,
+                                           1,
+                                           1,
+                                           1,
+                                           1);
+
+  var pixels = [];
+  for (var y = 0; y < 32; ++y) {
+    for (var x = 0; x < 32; ++x) {
+      var offset = (y * 32 + x) * 3;  // rgb
+      var u = x / 32 * Math.PI * 0.5;
+      var v = y / 32 * Math.PI * 0.5;
+      pixels[offset + 0] = 0;  // red
+      pixels[offset + 1] = Math.floor(y / 8) % 2;  // green
+      pixels[offset + 2] = Math.floor(x / 8) % 2;  // blue
+    }
+  }
+  var texture = g_pack.createTexture2D(32, 32, g_o3d.Texture.XRGB8, 1, false);
+  texture.set(0, pixels);
+
+  // display the quad 4 times with situations
+  // by overriding the sampler on each instance.
+  for (var s = 0; s < 4; ++s) {
+    // create a transform for an instance
+    var transform = g_pack.createObject('Transform');
+    transform.translate((s - 1.5) * 140, 0, 0);
+    transform.scale(128, 1, 128),
+    transform.parent = g_client.root;
+    transform.addShape(shape);
+
+    // case 0: Correct Texture.
+    // case 1: ParamSampler and Sampler but no Texture
+    // case 2: ParamSampler but no Sampler,
+    // case 3: No ParamSampler.
+    if (s <= 2) {
+      // Create a ParamSampler on the transform with the same name as in
+      // the effect so this param will be used instead of the one on the
+      // material.
+      var samplerParam = transform.createParam('texSampler0', 'ParamSampler');
+
+      if (s <= 1) {
+        var sampler = g_pack.createObject('Sampler');
+        sampler.name = "s2d";
+        samplerParam.value = sampler;
+        sampler.addressModeU = g_o3d.Sampler.CLAMP;
+        sampler.addressModeV = g_o3d.Sampler.CLAMP;
+        if (s == 0) {
+          sampler.texture = texture;
+        }
+      }
+    }
+  }
+
+  g_client.setPostRenderCallback(onRender);
+
+  // Render once now that things are setup.
+  render();
+}
+
+function setToUserTexture() {
+  var pixels = [];
+  for (var y = 0; y < 32; ++y) {
+    for (var x = 0; x < 32; ++x) {
+      var offset = (y * 32 + x) * 3;  // rgb
+      var u = x / 32 * Math.PI * 0.5;
+      var v = y / 32 * Math.PI * 0.5;
+      pixels[offset + 0] = Math.cos(u);  // red
+      pixels[offset + 1] = Math.sin(v);  // green
+      pixels[offset + 2] = Math.sin(u);  // blue
+    }
+  }
+  var texture = g_pack.createTexture2D(32, 32, g_o3d.Texture.XRGB8, 1, false);
+  texture.set(0, pixels);
+
+  g_client.setErrorTexture(texture);
+  // Render once now that things are setup.
+  render();
+}
+
+function setToNoTexture() {
+  g_client.setErrorTexture(null);
+  render();
+
+}
+
+function hide0() {
+  var child = g_client.root.children[1];
+  child.visible = !child.visible;
+  render();
+}
+
+function hide1() {
+  var child = g_client.root.children[2];
+  child.visible = !child.visible;
+  render();
+}
+
+function reportError(msg) {
+  g_errorMsgElement.innerHTML = g_client.lastError;
+  g_client.clearLastError();
+  g_client.clearErrorCallback();
+}
+
+function render() {
+  // Render once now that things are setup.
+  g_client.setErrorCallback(reportError);
+  g_client.render();
+}
+
+function onRender() {
+}
+
+/**
+ * Removes any callbacks so they don't get called after the page has unloaded.
+ */
+function unload() {
+  g_client.cleanup();
+}
+</script>
+</head>
+<body>
+<h1>Error Texture.</h1>
+<br/>
+Demonstrates how missing textures are handled.
+<div>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 800px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+</div>
+<br/>
+<input type="button" value="User Texture" onClick="setToUserTexture()"/>
+<input type="button" value="No Texture" onClick="setToNoTexture()"/>
+<input type="button" value="hide 0" onClick="hide0()"/>
+<input type="button" value="hide 1" onClick="hide1()"/>
+<table><tr><td>Error: </td><td id="errorMsg">-</td></tr></table>
+</html>

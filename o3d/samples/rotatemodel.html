@@ -1,0 +1,247 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+O3D Tutorial A2
+
+In this tutorial, we show how to perform transformations on a scene that
+we have loaded.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Tutorial A2: Transformations
+</title>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="o3djs/base.js"></script>
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.camera');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.pack');
+o3djs.require('o3djs.scene');
+
+// Events
+// Run the init() function once the page has finished loading.
+window.onload = init;
+
+// global variables
+var g_o3d;
+var g_math;
+var g_client;
+var g_viewInfo;
+var g_pack;
+var g_keyPressDelta = 0.05;
+var g_finished = false;  // for selenium testing
+
+// root node of scene
+var g_sceneRoot;
+
+/**
+ * Loads a scene into the transform graph.
+ * @param {!o3d.Pack} pack Pack to load scene into.
+ * @param {string} fileName filename of the scene.
+ * @param {!o3d.Transform} parent parent node in the transform graph to
+ *      which to load the scene into.
+ */
+function loadScene(pack, fileName, parent) {
+  // Get our full path to the scene
+  var scenePath = o3djs.util.getCurrentURI() + fileName;
+
+  // Load the file given the full path, and call the callback function
+  // when its done loading.
+  o3djs.scene.loadScene(g_client, pack, parent, scenePath, callback);
+
+  /**
+   * Our callback is called once the scene has been loaded into memory
+   * from the web or locally.
+   * @param {!o3d.Pack} pack The pack that was passed in above.
+   * @param {!o3d.Transform} parent The parent that was passed in above.
+   * @param {*} exception null if loading succeeded.
+   */
+  function callback(pack, parent, exception) {
+    if (exception) {
+      alert('Could not load: ' + fileName + '\n' + exception);
+      return;
+    }
+    // Get a CameraInfo (an object with a view and projection matrix)
+    // using our javascript library function
+    var cameraInfo = o3djs.camera.getViewAndProjectionFromCameras(
+        parent,
+        g_client.width,
+        g_client.height);
+
+    // Copy the view and projection to the draw context.
+    g_viewInfo.drawContext.view = cameraInfo.view;
+    g_viewInfo.drawContext.projection = cameraInfo.projection;
+
+    // Generate draw elements and setup material draw lists.
+    o3djs.pack.preparePack(pack, g_viewInfo);
+
+    g_finished = true;  // for selenium testing
+  }
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D and loads the scene into the transform graph.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initializes global variables and libraries.
+  var o3dElement = clientElements[0];
+  g_o3d = o3dElement.o3d;
+  g_math = o3djs.math;
+  g_client = o3dElement.client;
+
+  // Create a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  // Create the render graph for a view.
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Create a transform node to act as the 'root' of the scene
+  g_sceneRoot = g_pack.createObject('Transform');
+  // Attach it to the root of the transform graph.
+  g_sceneRoot.parent = g_client.root;
+
+  // Load the scene into the transform graph as a child of the g_sceneRoot.
+  loadScene(g_pack, 'assets/teapot.o3dtgz', g_sceneRoot);
+
+  // Execute keyPressedCallback(..) when we detect a keypress on the document.
+  window.document.onkeypress = keyPressedCallback;
+}
+
+/**
+ * Function performing the rotate action in response to a key-press.
+ * Rotates the scene based on key pressed. (w ,s, a, d). Note that the x and
+ * y-axis referenced here are relative to the current view of the scene.
+ * @param {keyPressed} The letter pressed, in lower case.
+ * @param {delta} The angle by which the scene should be rotated.
+ * @return true if an action was taken.
+ */
+function keyPressedAction(keyPressed, delta) {
+  var actionTaken = false;
+  switch(keyPressed) {
+    case 'a':
+      g_sceneRoot.localMatrix =
+          g_math.matrix4.mul(g_sceneRoot.localMatrix,
+                             g_math.matrix4.rotationY(-delta));
+      actionTaken = true;
+      break;
+    case 'd':
+      g_sceneRoot.localMatrix =
+          g_math.matrix4.mul(g_sceneRoot.localMatrix,
+                             g_math.matrix4.rotationY(delta));
+      actionTaken = true;
+      break;
+    case 'w':
+      g_sceneRoot.localMatrix =
+          g_math.matrix4.mul(g_sceneRoot.localMatrix,
+                             g_math.matrix4.rotationX(-delta));
+      actionTaken = true;
+      break;
+    case 's':
+      g_sceneRoot.localMatrix =
+          g_math.matrix4.mul(g_sceneRoot.localMatrix,
+                             g_math.matrix4.rotationX(delta));
+      actionTaken = true;
+      break;
+  }
+  return actionTaken;
+}
+
+/**
+ * Callback for the keypress event.
+ * Invokes the action to be performed for the key pressed.
+ * @param {event} keyPress event passed to us by javascript.
+ */
+function keyPressedCallback(event) {
+  event = event || window.event;
+
+  // Ignore accelerator key messages.
+  if (event.metaKey)
+    return;
+
+  var keyChar = String.fromCharCode(o3djs.event.getEventKeyChar(event));
+  // Just in case they have capslock on.
+  keyChar = keyChar.toLowerCase();
+
+  if (keyPressedAction(keyChar, g_keyPressDelta)) {
+    o3djs.event.cancel(event);
+  }
+}
+
+/**
+ * Resets the view of the scene by resetting its local matrix to the identity
+ * matrix.
+ */
+function resetView() {
+  g_sceneRoot.identity();
+}
+
+</script>
+</head>
+<body>
+<h1>Transformations</h1>
+This tutorial shows how to perform transformations on a scene that
+has been loaded.
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 600px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+<p>Use W, S, A, D to rotate.</p>
+<form name="default_form" action="#" method="get">
+<input type="button" value="Reset view" onclick="resetView()" />
+<input type="button" value="W" id="W"
+    onclick="keyPressedAction('w', g_keyPressDelta);" />
+<input type="button" value="S" id="S"
+    onclick="keyPressedAction('s', g_keyPressDelta);" />
+<input type="button" value="A" id="A"
+    onclick="keyPressedAction('a', g_keyPressDelta);" />
+<input type="button" value="D" id="D"
+    onclick="keyPressedAction('d', g_keyPressDelta);" />
+</form>
+</body>
+</html>

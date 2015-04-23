@@ -1,0 +1,154 @@
+<!DOCTYPE HTML>
+<title>Bookmark View</title>
+<style>
+
+.bookmark {
+  margin-left: 5px;
+  padding: 2px;
+}
+
+.bookmark_title {
+  display: inline;
+  border: 1px solid white;
+  padding: 0px 3px;
+}
+
+.bookmark_title:hover {
+  background-color: silver;
+  border: 1px solid black;
+}
+
+.event-log {
+  font-family: monospace;
+}
+
+ul {
+  padding-left: 10px;
+}
+
+</style>
+<script>
+// XXX Hack: When you call window.open('chrome-extension://...'), the window is
+// first navigated to about:blank, and then to the final URL. This confuses the
+// code that sets up our v8 extensions, and we don't end up with them running.
+//
+// If we noticed this happened, reload ourselves, which should fix it.
+if (!chrome.bookmarks)
+  location.reload();
+
+var logEvent = function(name, id, data) {
+  var log = document.getElementById("event-log");
+  log.innerHTML = name + ": " + id + ", " + JSON.stringify(data) + "<br>" +
+                  log.innerHTML;
+  console.log("got event: " + name);
+}
+
+chrome.bookmarks.onAdded.addListener(function(id, data) {
+  logEvent("onBookmarkAdded", id, data);
+});
+
+chrome.bookmarks.onRemoved.addListener(function(id, data) {
+  logEvent("onBookmarkRemoved", id, data);
+});
+
+chrome.bookmarks.onChanged.addListener(function(id, data) {
+  logEvent("onBookmarkChanged", id, data);
+});
+
+chrome.bookmarks.onMoved.addListener(function(id, data) {
+  logEvent("onBookmarkMoved", id, data);
+});
+
+chrome.bookmarks.onChildrenReordered.addListener(function(id, data) {
+  logEvent("onBookmarkChildrenReordered", id, data);
+});
+
+var prefix = "bookmark_";
+
+var toggleBookmark = function(event) {
+  event.stopPropagation();
+  var node = event.currentTarget;
+  var id_str = node.id;
+  if (id_str < prefix.length)
+    return;
+  var id = parseInt(id_str.substring(prefix.length));
+  if (id == NaN)
+    return;
+  console.log("toggle: " + id);
+  //console.dir(event);
+  if (node.childNodes.length > 1) {
+    var i = 0;
+    while (node.childNodes.length > i) {
+      var child = node.childNodes.item(i);
+      if (child.tagName == "UL")
+        node.removeChild(child);
+      else
+        i++;
+    }
+  } else {
+    chrome.bookmarks.getChildren(id, function(children) {
+      console.dir(children);
+      addBookmarks(children, node);
+    });
+  }
+};
+
+var addBookmark = function(bookmark, parent) {
+  var child = document.createElement('li');
+  child.className = 'bookmark';
+  child.id = prefix + bookmark.id;
+  child.addEventListener('click', toggleBookmark, false);
+  var text = bookmark.title;
+  if (bookmark.dateAdded)
+    text += " (" + new Date(bookmark.dateAdded) + ")";
+  if (bookmark.url && bookmark.url.length) {
+    var link = document.createElement('a');
+    link.href = bookmark.url;
+    link.innerHTML = text;
+    link.className = 'bookmark_title';
+    child.appendChild(link);
+  } else {
+    var title = document.createElement('div');
+    title.innerHTML = text;
+    title.className = 'bookmark_title';
+    child.appendChild(title);
+  }
+  parent.appendChild(child);
+};
+
+var addBookmarks = function(bookmarks, parent) {
+  console.log("addBookmarks " + parent.id);
+  var list = document.createElement("ul");
+  parent.appendChild(list);
+  bookmarks.forEach(function(bookmark) { addBookmark(bookmark, list); });
+};
+
+var testGetTree = function(results) {
+  console.log("testGetTree:");
+  console.dir(results);
+  function get_children(node) {
+    console.log(node.title);
+    node.children.forEach(get_children);
+  };
+  results.forEach(get_children);
+};
+
+var loadBookmarks = function() {
+  var container = document.getElementById('container');
+  var rootElement = document.createElement("div");
+  var rootId = 0;
+  rootElement.id = prefix + rootId;
+  // root element is empty / invisible, just an id to be looked up
+  container.appendChild(rootElement);
+  chrome.bookmarks.getChildren(rootId, function(children) {
+    addBookmarks(children, rootElement);
+  });
+  chrome.bookmarks.getTree(testGetTree);
+};
+
+</script>
+<body onload="loadBookmarks()">
+<div id="container">
+</div>
+<div id="event-log"></div>
+</body>

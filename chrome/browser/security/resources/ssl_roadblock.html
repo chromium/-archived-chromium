@@ -1,0 +1,138 @@
+<html id="template_root" jsvalues="dir:textdirection">
+<head>
+<title jscontent="title"></title>
+<style type="text/css">
+body {
+  background-color:#500;
+  font-family:arial;
+  margin:0px;
+}
+.background {
+  position:absolute;
+  width:100%;
+  height:100%;
+}
+.cell {
+  padding:40px;
+}
+.box {
+  width:80%;
+  background-color:white;
+  color:black;
+  font-size:10pt;
+  line-height:16pt;
+  text-align:left;
+  padding:20px;
+  position:relative;
+  -webkit-box-shadow:3px 3px 8px #200;
+  -webkit-border-radius:5px;
+}
+html[dir='rtl'] .box {
+  text-align:right;
+}
+
+.icon {
+  position:absolute;
+}
+.title {
+  margin: 0px 77px 0px;
+  font-size:18pt;
+  line-height: 140%;
+  margin-bottom:6pt;
+  font-weight:bold;
+  color:#660000;
+}
+.main {
+  margin:0px 80px 0px;
+}
+
+.submission {
+  margin:15px 5px 15px 0px;
+  padding:0px;
+}
+input {
+  margin:0px;
+}
+.proceedbutton {
+}
+.helpbutton {
+  float:right;
+}
+.example {
+  margin:30px 80px 0px;
+  border-top:1px solid #ccc;
+  padding-top:6px;
+}
+.moreinfotitle {
+  margin-left:5px;
+  margin-right:5px;
+}
+</style>
+
+<script>
+  function $(o) {return document.getElementById(o);}
+
+  function sendCommand(cmd) {
+    window.domAutomationController.setAutomationId(1);
+    window.domAutomationController.send(cmd);
+  }
+
+  function toggleMoreInfo(collapse) {
+    if (collapse) {
+      $("more_info_long").style.display = "none";
+      $("more_info_short").style.display = "block";
+    } else {
+      $("more_info_long").style.display = "block";
+      $("more_info_short").style.display = "none";
+    }
+  }
+  function setDirectionSensitiveImages() {
+    if ($("template_root").dir == 'rtl') {
+      $("twisty_closed_rtl").style.display = "inline";
+    } else {
+      $("twisty_closed").style.display = "inline";
+    }
+  }
+</script>
+</head>
+<body oncontextmenu="return false;">
+<script>
+document.addEventListener('DOMContentLoaded', setDirectionSensitiveImages);
+</script>
+<div class="background"><img src="ssl_roadblock_background.png" width="100%" height="100%" alt="background" onmousedown="return false;"/></div>
+<table width="100%" cellspacing="0" cellpadding="0">
+  <td class="cell" valign="middle" align="center">
+    <div class="box">
+      <div class="icon"><img src="ssl_roadblock_icon.png" alt="SSL Error Icon" onmousedown="return false;"/></div>
+      <div class="title" jscontent="headLine"></div>
+      <div class="main" jseval="this.innerHTML = $this.description;"></div>
+      <div class="main">
+        <form class="submission">
+          <input type="button" jsvalues="value:proceed" name="proceed" class="proceedbutton" onClick="sendCommand(1);" />
+          <input type="button" jsvalues="value:exit" name="exit" onClick="sendCommand(0);" />
+        </form>
+      </div>
+      <div class="example" id="more_info_short">
+      <!--
+       // The img madness here is due to the inlining of the html file
+       // resources. The script that does this looks for subresources like
+       // images and inlines them, so we need to have references to both the
+       // ltr and rtl versions statically. Just doing
+       // jsvalues="src:path_to_correct_image_set_by_c++" won't work, since
+       // the inlined version will just end up with that path string rather
+       // than the inlined image.
+      -->
+        <a href="#" onclick="toggleMoreInfo(false); return false;" onmousedown="return false;"><img id="twisty_closed" src="twisty_closed.png" border="0" style="display:none"/><img id="twisty_closed_rtl" src="twisty_closed_rtl.png" border="0" style="display:none"/><span jscontent="moreInfoTitle" class="moreinfotitle"></span></a>
+      </div>
+      <div class="example" id="more_info_long" style="display:none;">
+        <a href="#" onclick="toggleMoreInfo(true); return false;" onmousedown="return false;"><img src="twisty_open.png" border="0" /><span jscontent="moreInfoTitle" class="moreinfotitle"></span></a>
+        <p jseval="this.innerHTML = $this.moreInfo1;"></p>
+        <p jseval="this.innerHTML = $this.moreInfo2;"></p>
+        <p jseval="this.innerHTML = $this.moreInfo3;"></p>
+        <p jseval="this.innerHTML = $this.moreInfo4;"></p>
+        <p jseval="this.innerHTML = $this.moreInfo5;"></p>
+      </div>
+  </td>
+</table>
+</body>
+</html>

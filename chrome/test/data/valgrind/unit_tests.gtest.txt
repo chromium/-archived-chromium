@@ -1,0 +1,2 @@
+# Takes 65 seconds to run.
+IPCSyncChannelTest.ChattyServer

@@ -1,0 +1,439 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+O3D Stencil Example
+
+In this example I load 9 scene files. One file contains 3 rings and 3 circles.
+I find the circles and draw them into the stencil buffer with different Ids.
+The rings and the circles are drawn with an orthographic camera. The circles
+are manually added to a separate DrawList used by a separate DrawPass so that
+they get drawn last. Then I load 4 scenes, the teapot, torus, pyramid and pipe
+and for each one a skydome. I set a state on each of those so they will get
+masked by the stencils and for each pair I give them a different
+drawContext(viewand projection matrix)
+
+The result is 4 separate 3d scenes on the same screen with irregular shaped
+"windows" into them.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD
+HTML 4.01 Transitional//EN""http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Stencil Example
+</title>
+<!-- Include sample javascript library functions -->
+<script type="text/javascript" src="o3djs/base.js"></script>
+
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.pack');
+o3djs.require('o3djs.camera');
+o3djs.require('o3djs.material');
+o3djs.require('o3djs.scene');
+
+// Events
+// init() once the page has finished loading.
+// unload() when the page is unloaded.
+window.onload = init;
+window.onunload = unload;
+
+// global variables
+var g_o3d;
+var g_math;
+var g_client;
+var g_viewInfo;
+var g_stencilPack;
+var g_stencilRoot;
+var g_treeTraversal;
+var g_scenePack = new Array();
+var g_o3dWidth;  // width of our client area
+var g_o3dHeight;  // height of our client area
+var g_sceneStates = new Array();  // States of stuff inside the stencils
+var G_NUM_SCENES = 4;
+var g_clock = 0;
+var g_timeMult = 1
+var g_finished = false;  // for selenium testing
+
+var g_locators = new Array();  // the locator for each shape
+
+/**
+ * Loads a scene into the transform graph.
+ * @param {!o3d.Pack} pack Pack to load scene into.
+ * @param {string} fileName filename of the scene.
+ * @param {!o3d.Transform} parent parent node in the transform graph to
+ *      which to load the scene into.
+ * @param {function(!o3d.Pack, !o3d.Transform, boolean): void} callback Function
+ *        to call when scene loads.
+ */
+function loadScene(pack, fileName, parent, callback) {
+  // Get our full path to the scene
+  var scenePath = o3djs.util.getCurrentURI() + fileName;
+
+  // Load the scene given the full path, and call the callback function
+  // when its done loading.
+  o3djs.scene.loadScene(g_client, pack, parent, scenePath, callback);
+}
+
+function onrender(renderEvent) {
+  var elapsedTime = renderEvent.elapsedTime;
+
+  g_clock += elapsedTime * g_timeMult;
+
+  for (var ii = 0; ii < g_locators.length; ii++) {
+    var locator = g_locators[ii];
+    var rotation =
+        g_math.matrix4.rotationX(Math.sin(g_clock * (ii + 1)) * 0.5);
+    var translation = g_math.matrix4.getTranslation(locator.localMatrix);
+
+    locator.localMatrix =
+        g_math.matrix4.setTranslation(rotation, translation);
+  }
+
+  var rotation = g_math.matrix4.rotationZ(g_clock);
+  var translation = g_stencilRoot.localMatrix[3];
+
+  g_stencilRoot.localMatrix =
+      g_math.matrix4.setTranslation(rotation, translation);
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D and loads the scenes.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initialize global variables and libraries.
+  var o3dElement = clientElements[0];
+  g_o3d = o3dElement.o3d;
+  g_math = o3djs.math;
+  g_client = o3dElement.client;
+
+  // Creates packs to manage our resources/assets
+  g_stencilPack = g_client.createPack();
+
+  // Create the render graph for a view.
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_stencilPack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Get the tree traversal so we can register more DrawLists.
+  g_treeTraversal = g_viewInfo.treeTraversal;
+
+  // Get the width and height of our client area. We will need this to create
+  // a projection matrix.
+  g_o3dWidth  = g_client.width;
+  g_o3dHeight = g_client.height;
+
+  // Set clear color to blue
+  g_viewInfo.clearBuffer.clearColor = [0.1, 0.1, 1.0, 1.0];
+
+  // Creates transforms to put our data on.
+  g_stencilRoot = g_stencilPack.createObject('Transform');
+  // Connects our roots to the client's root.
+  g_stencilRoot.parent = g_client.root;
+
+  var mySceneRoot = new Array();
+  var myLocalDrawPass = new Array();
+  for (var mm = 0; mm < G_NUM_SCENES; mm++) {
+    g_scenePack[mm] = g_client.createPack();
+    mySceneRoot[mm] = g_scenePack[mm].createObject('Transform');
+    mySceneRoot[mm].parent = g_client.root;
+    var localDrawList = g_scenePack[mm].createObject('DrawList');
+    var localDrawPass = g_stencilPack.createObject('DrawPass');
+    var localStateSet = g_stencilPack.createObject('StateSet');
+    var localState = g_stencilPack.createObject('State');
+    localStateSet.priority = 4;
+    localStateSet.state = localState;
+    // make a state that passes only for a particular stencil value
+    localState.getStateParam('StencilEnable').value = true;
+    localState.getStateParam('StencilReference').value = mm;
+    localState.getStateParam('StencilComparisonFunction').value =
+        g_o3d.State.CMP_EQUAL;
+    localStateSet.parent = g_viewInfo.viewport;
+    localDrawPass.drawList = localDrawList;
+    localDrawPass.parent = localStateSet;
+    myLocalDrawPass[mm] = localDrawPass;
+  }
+
+  // Load the scene into the transform graph as a child my_data_root
+  loadScene(g_stencilPack, 'assets/stencil_frame.o3dtgz', g_stencilRoot,
+            setupStencilsAndOverlay);
+
+  /**
+   * Our callback is called once the scene has been loaded into memory
+   * from the web or locally.
+   */
+  function setupStencilsAndOverlay() {
+    // Get a cameraInfo (a view and projection matrix)
+    // using our javascript library function
+    var cameraInfo = o3djs.camera.getViewAndProjectionFromCameras(
+        g_stencilRoot,
+        g_o3dWidth,
+        g_o3dHeight);
+
+    var backDrawContext = g_stencilPack.createObject('DrawContext');
+    backDrawContext.view = cameraInfo.view;
+    backDrawContext.projection = cameraInfo.projection;
+
+    // create 2 DrawPasses that uses this context to draw things as in the
+    // stencil_frame.o3dtgz file which I already setup with an orthographic
+    // projection matrix. Each one needs a draw list as well.  Also create a
+    // StateSet to set the stencil render states for everything drawn
+    // by the back DrawPass.
+
+    // first one to draw the 3 circles into the stencil.
+    var backDrawList = g_stencilPack.createObject('DrawList');
+    var backDrawPass = g_stencilPack.createObject('DrawPass');
+    var backStateSet = g_stencilPack.createObject('StateSet');
+    var backState = g_stencilPack.createObject('State');
+    backDrawPass.parent = backStateSet;
+    backDrawPass.drawList = backDrawList;
+    // after tree_traversal, before opaque
+    backStateSet.priority = g_viewInfo.treeTraversal.priority + 0.5;
+    backStateSet.parent = g_viewInfo.viewport;
+    backStateSet.state = backState;
+    g_treeTraversal.registerDrawList(backDrawList, backDrawContext, true);
+    backState.getStateParam('StencilEnable').value = true;
+    backState.getStateParam('StencilPassOperation').value =
+        g_o3d.State.STENCIL_REPLACE;
+    backState.getStateParam('StencilComparisonFunction').value =
+        g_o3d.State.CMP_ALWAYS;
+    backState.getStateParam('ZEnable').value = false;
+    backState.getStateParam('ZWriteEnable').value = false;
+    backState.getStateParam('ColorWriteEnable').value = 0;
+
+    // Next one to draw the 3 rings in front of everything
+    var frontDrawList = g_stencilPack.createObject('DrawList');
+    var frontDrawPass = g_stencilPack.createObject('DrawPass');
+    frontDrawPass.drawList = frontDrawList;
+    frontDrawPass.priority = 9001;  // after our special clear.
+    frontDrawPass.parent = g_viewInfo.viewport;
+    g_treeTraversal.registerDrawList(frontDrawList, backDrawContext, true);
+
+    // find all the pCylinder1 Transforms (the stencil discs)
+    var stencils = g_stencilRoot.getTransformsByNameInTree('pCylinder1');
+
+    // put each stencils at the beginning of the render graph
+    for (var ss = 0; ss < stencils.length; ss++) {
+      // there should be only one shape under each pCylinder1
+      var shape = stencils[ss].shapes[0];
+
+      // make a new material.
+      var material = g_stencilPack.createObject('Material');
+
+      // copy the old material's params.
+      material.copyParams(shape.elements[0].material);
+
+      // tell things drawn with this material to get drawn in the back draw
+      // list.
+      material.drawList = backDrawList;
+
+      // create DrawElements using this material.
+      shape.createDrawElements(g_stencilPack, material);
+
+      o3djs.material.attachStandardEffect(g_stencilPack,
+                                          material,
+                                          g_viewInfo,
+                                          'phong');
+
+      // make state that renders into the stencil only
+      var state = g_stencilPack.createObject('State');
+      material.state = state;
+      state.getStateParam('StencilReference').value = ss + 1;
+    }
+
+    // clear the zbuffer before drawing the circles
+    var clearBuffer = g_stencilPack.createObject('ClearBuffer');
+    clearBuffer.clearColorFlag = false;
+    clearBuffer.clearStencilFlag = false;
+    clearBuffer.priority = 9000;
+    clearBuffer.parent = g_viewInfo.viewport;
+
+    // put each circle at the end of the render graph
+
+    // find all the pPipe? Transforms
+    var circles = o3djs.util.getTransformsInTreeByPrefix(g_stencilRoot,
+                                                         'pPipe');
+    for (var cc = 0; cc < circles.length; cc++) {
+      var transform = circles[cc];
+      // there should be only one shape under each pPipe
+      var shape = transform.shapes[0];
+      // there should be only one element in each shape.
+      var primitive = shape.elements[0];
+      // set it's material to draw in the front draw list.
+      primitive.material.drawList = frontDrawList;
+      o3djs.material.attachStandardEffect(g_stencilPack,
+                                          primitive.material,
+                                          g_viewInfo,
+                                          'phong');
+
+      // generate draw elements for it.
+      shape.createDrawElements(g_stencilPack,
+                               null);
+    }
+
+    loadScene(g_scenePack[0], 'assets/teapot.o3dtgz', mySceneRoot[0],
+              setupScene0);
+  }
+
+  function setupScene0() {
+    loadScene(g_scenePack[0], 'assets/dome1.o3dtgz', mySceneRoot[0],
+              setupDome0);
+  }
+
+  function setupDome0() {
+    // Stencil 0 is the center.
+    setupScene(g_scenePack[0], mySceneRoot[0], 0);
+    loadScene(g_scenePack[1], 'assets/part1.o3dtgz', mySceneRoot[1],
+              setupScene1);
+  }
+
+  function setupScene1() {
+    loadScene(g_scenePack[1], 'assets/dome2.o3dtgz', mySceneRoot[1],
+              setupDome1);
+  }
+
+  function setupDome1() {
+    // stencil 3 is the top left.
+    setupScene(g_scenePack[1], mySceneRoot[1], 3);
+    loadScene(g_scenePack[2], 'assets/part2.o3dtgz', mySceneRoot[2],
+              setupScene2);
+  }
+
+  function setupScene2() {
+    loadScene(g_scenePack[2], 'assets/dome3.o3dtgz', mySceneRoot[2],
+              setupDome2);
+  }
+
+  function setupDome2() {
+    // stencil 2 is the top right.
+    setupScene(g_scenePack[2], mySceneRoot[2], 2);
+    loadScene(g_scenePack[3], 'assets/part3.o3dtgz', mySceneRoot[3],
+              setupScene3);
+  }
+
+  function setupScene3() {
+    loadScene(g_scenePack[3], 'assets/dome4.o3dtgz', mySceneRoot[3],
+              setupDome3);
+  }
+
+  function setupDome3() {
+    // stencil 1 is the bottom.
+    setupScene(g_scenePack[3], mySceneRoot[3], 1);
+
+    g_client.setRenderCallback(onrender);
+    g_finished = true;  // for selenium testing.
+  }
+
+  function setupScene(pack, root, stencil_id) {
+    // Get a cameraInfo (a Transform with a view and projection matrix)
+    // using our javascript library function
+    var cameraInfo = o3djs.camera.getViewAndProjectionFromCameras(
+        root,
+        g_o3dWidth,
+        g_o3dHeight);
+
+    // Create a new draw context and set it to use the camera from the scene
+    // we just loaded.
+    var sceneContext = pack.createObject('DrawContext');
+    sceneContext.view = cameraInfo.view;
+    sceneContext.projection = cameraInfo.projection;
+
+    g_treeTraversal.registerDrawList(myLocalDrawPass[stencil_id].drawList,
+                                     sceneContext,
+                                     true);
+
+    // save off the locators. Our shapes are parented to the so we can rotate
+    // them for animation
+    var locators = o3djs.util.getTransformsInTreeByPrefix(root,
+                                                          'locator');
+    g_locators[g_locators.length] = root;
+
+    // get all the shapes in the pack we just loaded.
+    var shapes = pack.getObjectsByClassName('o3d.Shape');
+    for (var ss = 0; ss < shapes.length; ss++) {
+      var shape = shapes[ss];
+      var elements = shape.elements;
+      for (var ee = 0; ee < elements.length; ++ee) {
+        var element = elements[ee];
+        element.material.drawList = myLocalDrawPass[stencil_id].drawList;
+        o3djs.material.attachStandardEffect(g_stencilPack,
+                                            element.material,
+                                            g_viewInfo,
+                                            'phong');
+      }
+    }
+
+    root.createDrawElements(pack, null);
+  }
+}
+
+/**
+ * Removes any callbacks so they don't get called after the page has unloaded.
+ */
+function unload() {
+  if (g_client) {
+    g_client.cleanup();
+  }
+}
+</script>
+</head>
+<body>
+<h1>Stencil Example</h1>
+Shows 4 &quot;Views&quot; using 4 stencils, and 9 scene files.
+4 shapes, 4 skydomes, 1 frame drawn with an orthographic projection.
+<br/>
+<!-- Start of O3D plugin -->
+<!--
+NOTE: Because we are using cameras directly from the loaded scene and
+beacuse we are using an orthographic camera the dimensions of our client
+area must have the same aspect ratio as the original scene in Maya otherwise
+we will not get the same results.
+
+The original scene size was 1280x720
+-->
+<div id="o3d" style="width: 800px; height: 450px"></div>
+<!-- End of O3D plugin -->
+</body>
+</html>

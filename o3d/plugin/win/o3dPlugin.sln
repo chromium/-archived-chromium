@@ -1,0 +1,92 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "o3dPlugin", "o3dPlugin.vcproj", "{F431F75C-5EA2-4E96-BA23-B44A951A9276}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{B57C4010-AE66-47A2-8B1F-F839B6E6A67B} = {B57C4010-AE66-47A2-8B1F-F839B6E6A67B}
+		{7D7B36BE-B994-4BE2-A60C-753C19E5A9EA} = {7D7B36BE-B994-4BE2-A60C-753C19E5A9EA}
+		{6028E8C8-F1DC-4248-9961-B0CADFEA244C} = {6028E8C8-F1DC-4248-9961-B0CADFEA244C}
+		{E1978291-230F-4F95-A227-84A13F22833C} = {E1978291-230F-4F95-A227-84A13F22833C}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "o3dImport", "..\..\..\..\o3d\import\win\import.vcproj", "{6028E8C8-F1DC-4248-9961-B0CADFEA244C}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "o3dCore", "..\..\..\..\o3d\core\win\core_win.vcproj", "{B57C4010-AE66-47A2-8B1F-F839B6E6A67B}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "o3d_base", "..\..\..\..\o3d\base\win\o3d_base.vcproj", "{E1978291-230F-4F95-A227-84A13F22833C}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "google_nacl_imc", "..\..\..\..\native_client\intermodule_comm\google_nacl_imc\google_nacl_imc.vcproj", "{7D7B36BE-B994-4BE2-A60C-753C19E5A9EA}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		DebugD3D9|Win32 = DebugD3D9|Win32
+		DebugGL|Win32 = DebugGL|Win32
+		ReleaseD3D9|Win32 = ReleaseD3D9|Win32
+		ReleaseGL|Win32 = ReleaseGL|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F431F75C-5EA2-4E96-BA23-B44A951A9276}.DebugD3D9|Win32.ActiveCfg = DebugD3D9|Win32
+		{F431F75C-5EA2-4E96-BA23-B44A951A9276}.DebugD3D9|Win32.Build.0 = DebugD3D9|Win32
+		{F431F75C-5EA2-4E96-BA23-B44A951A9276}.DebugGL|Win32.ActiveCfg = DebugGL|Win32
+		{F431F75C-5EA2-4E96-BA23-B44A951A9276}.DebugGL|Win32.Build.0 = DebugGL|Win32
+		{F431F75C-5EA2-4E96-BA23-B44A951A9276}.ReleaseD3D9|Win32.ActiveCfg = ReleaseD3D9|Win32
+		{F431F75C-5EA2-4E96-BA23-B44A951A9276}.ReleaseD3D9|Win32.Build.0 = ReleaseD3D9|Win32
+		{F431F75C-5EA2-4E96-BA23-B44A951A9276}.ReleaseGL|Win32.ActiveCfg = ReleaseGL|Win32
+		{F431F75C-5EA2-4E96-BA23-B44A951A9276}.ReleaseGL|Win32.Build.0 = ReleaseGL|Win32
+		{6028E8C8-F1DC-4248-9961-B0CADFEA244C}.DebugD3D9|Win32.ActiveCfg = DebugD3D9|Win32
+		{6028E8C8-F1DC-4248-9961-B0CADFEA244C}.DebugD3D9|Win32.Build.0 = DebugD3D9|Win32
+		{6028E8C8-F1DC-4248-9961-B0CADFEA244C}.DebugGL|Win32.ActiveCfg = DebugGL|Win32
+		{6028E8C8-F1DC-4248-9961-B0CADFEA244C}.DebugGL|Win32.Build.0 = DebugGL|Win32
+		{6028E8C8-F1DC-4248-9961-B0CADFEA244C}.ReleaseD3D9|Win32.ActiveCfg = ReleaseD3D9|Win32
+		{6028E8C8-F1DC-4248-9961-B0CADFEA244C}.ReleaseD3D9|Win32.Build.0 = ReleaseD3D9|Win32
+		{6028E8C8-F1DC-4248-9961-B0CADFEA244C}.ReleaseGL|Win32.ActiveCfg = ReleaseGL|Win32
+		{6028E8C8-F1DC-4248-9961-B0CADFEA244C}.ReleaseGL|Win32.Build.0 = ReleaseGL|Win32
+		{B57C4010-AE66-47A2-8B1F-F839B6E6A67B}.DebugD3D9|Win32.ActiveCfg = DebugD3D9|Win32
+		{B57C4010-AE66-47A2-8B1F-F839B6E6A67B}.DebugD3D9|Win32.Build.0 = DebugD3D9|Win32
+		{B57C4010-AE66-47A2-8B1F-F839B6E6A67B}.DebugGL|Win32.ActiveCfg = DebugGL|Win32
+		{B57C4010-AE66-47A2-8B1F-F839B6E6A67B}.DebugGL|Win32.Build.0 = DebugGL|Win32
+		{B57C4010-AE66-47A2-8B1F-F839B6E6A67B}.ReleaseD3D9|Win32.ActiveCfg = ReleaseD3D9|Win32
+		{B57C4010-AE66-47A2-8B1F-F839B6E6A67B}.ReleaseD3D9|Win32.Build.0 = ReleaseD3D9|Win32
+		{B57C4010-AE66-47A2-8B1F-F839B6E6A67B}.ReleaseGL|Win32.ActiveCfg = ReleaseGL|Win32
+		{B57C4010-AE66-47A2-8B1F-F839B6E6A67B}.ReleaseGL|Win32.Build.0 = ReleaseGL|Win32
+		{E1978291-230F-4F95-A227-84A13F22833C}.DebugD3D9|Win32.ActiveCfg = Debug|Win32
+		{E1978291-230F-4F95-A227-84A13F22833C}.DebugD3D9|Win32.Build.0 = Debug|Win32
+		{E1978291-230F-4F95-A227-84A13F22833C}.DebugGL|Win32.ActiveCfg = Debug|Win32
+		{E1978291-230F-4F95-A227-84A13F22833C}.DebugGL|Win32.Build.0 = Debug|Win32
+		{E1978291-230F-4F95-A227-84A13F22833C}.ReleaseD3D9|Win32.ActiveCfg = Release|Win32
+		{E1978291-230F-4F95-A227-84A13F22833C}.ReleaseD3D9|Win32.Build.0 = Release|Win32
+		{E1978291-230F-4F95-A227-84A13F22833C}.ReleaseGL|Win32.ActiveCfg = Release|Win32
+		{E1978291-230F-4F95-A227-84A13F22833C}.ReleaseGL|Win32.Build.0 = Release|Win32
+		{7D7B36BE-B994-4BE2-A60C-753C19E5A9EA}.DebugD3D9|Win32.ActiveCfg = Debug|Win32
+		{7D7B36BE-B994-4BE2-A60C-753C19E5A9EA}.DebugD3D9|Win32.Build.0 = Debug|Win32
+		{7D7B36BE-B994-4BE2-A60C-753C19E5A9EA}.DebugGL|Win32.ActiveCfg = Debug|Win32
+		{7D7B36BE-B994-4BE2-A60C-753C19E5A9EA}.DebugGL|Win32.Build.0 = Debug|Win32
+		{7D7B36BE-B994-4BE2-A60C-753C19E5A9EA}.ReleaseD3D9|Win32.ActiveCfg = Release|Win32
+		{7D7B36BE-B994-4BE2-A60C-753C19E5A9EA}.ReleaseD3D9|Win32.Build.0 = Release|Win32
+		{7D7B36BE-B994-4BE2-A60C-753C19E5A9EA}.ReleaseGL|Win32.ActiveCfg = Release|Win32
+		{7D7B36BE-B994-4BE2-A60C-753C19E5A9EA}.ReleaseGL|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

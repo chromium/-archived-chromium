@@ -1,0 +1,71 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="ja">
+<translation id="6676384891291319759">インターネットにアクセス</translation>
+<translation id="8579274574697852281">Google Chrome のご利用には Windows Vista または Windows XP SP1 以降が必要です。</translation>
+<translation id="698670068493841342">Google Chrome は既にこのユーザー用にインストールされています。アプリケーションが動作しない場合は、アンインストールしてからダウンロードし直してください。</translation>
+<translation id="7400722733683201933">Google Chrome について</translation>
+<translation id="7101265395643981223">Google Chrome を起動</translation>
+<translation id="1549918799472947005">このパソコンの既定の検索エンジンは <ph name="PAGE_TITLE"/> になっています。現在の設定でよろしいですか？</translation>
+<translation id="2370289711218562573">Google Chrome にお気に入り/ブックマークをインポートしています。</translation>
+<translation id="8970027151245482499">Google Chrome がインストールされていないか、インストールされたディレクトリが見つかりません。Google Chrome をダウンロードし直してください。</translation>
+<translation id="7958215378280655655">Google Chrome オプションをリセットすると、これまでの変更がすべて消去され既定の設定に戻ります。Chrome オプションをリセットしてよろしいですか？</translation>
+<translation id="4281844954008187215">利用規約</translation>
+<translation id="2197898401230534722">すべてのプロフィール データを消去</translation>
+<translation id="1137776625614346046">ここには最もよく使うウェブサイトが表示されます。また、Google Chrome をある程度使い続けると、新しいタブを開いたときにもよく使うサイトが一覧表示されます。詳細については<ph name="BEGIN_LINK"/>スタートガイド<ph name="END_LINK"/>をご覧ください。</translation>
+<translation id="4728575227883772061">原因不明のエラーによりインストールが失敗しました。実行中の Google Chrome を終了してからやり直してください。</translation>
+<translation id="4149882025268051530">インストーラー アーカイブを解凍できませんでした。Google Chrome をダウンロードし直してください。</translation>
+<translation id="4343226815564935778">Google Chrome のインストール先ディレクトリが現在使用中です。パソコンを再起動して、もう一度やり直してください。</translation>
+<translation id="4506896920521131223">Copyright © 2006-2009 Google Inc. All Rights Reserved.</translation>
+<translation id="6817660909204164466">使用統計データや障害レポートを Google に自動送信して Google Chrome の機能向上に役立てる</translation>
+<translation id="8227755444512189073"><ph name="SCHEME"/> リンクを処理するには外部アプリケーションの起動が必要です。リクエストされたリンクは <ph name="PROTOLINK"/> です。</translation>
+<translation id="1281036569101707544">Google Chrome <ph name="TERMS_OF_SERVICE_LINK"/></translation>
+<translation id="8815061062167142136">Google Chrome がクラッシュしました。再起動しますか？</translation>
+<translation id="5016204670686360703">キャンセルすると、一部のアイテムはインポートされません。Chrome のメニューから後で再度インポートできます。</translation>
+<translation id="7241541963706135274">Google Chrome で次の処理が行われます:</translation>
+<translation id="8446794773162156990">Google Chrome の動作がおかしい</translation>
+<translation id="3889417619312448367">Google Chrome をアンインストール</translation>
+<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
+<translation id="8810218179782551669">Google Chrome の言語:</translation>
+<translation id="3940866277504106378">Google Chrome はより快適なブラウジング提供の目的でウェブサービスを使用することがあります。これらは無効にすることもできます。</translation>
+<translation id="7001386529596391893">Google Chrome のショートカットを作成する場所:</translation>
+<translation id="6134282421960734039">Chrome にパスワードを保存しますか？</translation>
+<translation id="1195935957447623558">前回のセッション中に Google Chrome は強制終了されました。開いていたページをすべて復元するには、[復元] をクリックしてください。</translation>
+<translation id="2499193704281978000">Google Chrome の応答がありません。再起動しますか？</translation>
+<translation id="7747138024166251722">インストーラーの一時ディレクトリを作成できませんでした。ディスクの空き領域とソフトウェアのインストール許可があることを確認してください。</translation>
+<translation id="6009537148180854585">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; にアクセスしようとしましたが、サーバーの証明書にエラーが含まれています。エラーのある証明書は Google Chrome で使用できないため、接続しようとしているサイトの身元を検証することができません。この接続は安全でないため、ここで操作を止めてください。</translation>
+<translation id="3324235665723428530">バージョンが新しい Google Chrome のプロフィールは使用できません。\n\n一部の機能が使用できない可能性があります。別の場所のプロフィールを指定するか、新しいバージョンの Chrome をご使用ください</translation>
+<translation id="1759842336958782510">Chrome</translation>
+<translation id="2044287590254833138">Google Chrome ツールバー</translation>
+<translation id="6481075104394517441">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; にアクセスしようとしましたが、サーバーの証明書が有効ではありません。この証明書の信頼性について有効な情報がないため、通信先が本当に <ph name="DOMAIN2"/> であるか Google Chrome で判断できず、なりすましの可能性を完全には否定できません。コンピュータの時刻とタイムゾーンが正しく設定されていることを確認してください。設定に問題がある場合は、設定を修正してからこのページを更新してください。正しく設定されているにも関わらずこの警告が表示される場合は、ここで操作を止めてください。</translation>
+<translation id="8862326446509486874">権限が不十分なためシステムレベルのインストールができません。管理者権限でインストールしてください。</translation>
+<translation id="2874156562296220396">Google Chrome はオープンソース プロジェクト <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> やその他の<ph name="BEGIN_LINK_OSS"/>オープンソース ソフトウェア<ph name="END_LINK_OSS"/>によって実現しました。</translation>
+<translation id="6921913858457830952">Google Chrome をインストールする準備ができました。</translation>
+<translation id="7100330187273168372">このディレクトリには Google Chrome はアクセスできません:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">Google Chrome をアンインストールしてもよろしいですか？</translation>
+<translation id="5941830788786076944">Google Chrome を既定のブラウザにする</translation>
+<translation id="4127951844153999091">証明書のアドレスと、実際にアクセスしようとしているウェブサイトのアドレスが一致していません。これには、悪意のあるユーザーによって通信が傍受されているか、または複数のサイトで同じ証明書を返すようサーバーで設定しているにも関わらず、証明書が有効になっていないサイトが含まれている可能性があります。Google Chrome で検出されたアクセスは &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; で、それが &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; と同じサイトであるかどうかは確認できません。名前の不一致を無視してこのまま続行することもできますが、通常はここで操作を止めることをおすすめします。</translation>
+<translation id="2712549016134575851">インストールされている別のアプリケーションとの競合が検出されました。</translation>
+<translation id="7161904924553537242">Google Chrome へようこそ</translation>
+<translation id="8236873504073475138">Google Chrome は Windows 2000 に対応していません。動作しない機能がある可能性があります。</translation>
+<translation id="5046764976540625289">Chrome を終了</translation>
+<translation id="8865765905101981392">インターネット ブラウザ</translation>
+<translation id="582763753075639530">この変更を反映するには、Google Chrome のウィンドウをすべて閉じてから再起動してください。</translation>
+<translation id="8776515774046280928">このコンピュータには既に Google Chrome がインストールされており、コンピュータのすべてのユーザーが使用できます。ユーザー レベルで Google Chrome をインストールする場合は、管理者がインストールしたシステム レベルの Google Chrome を最初にアンインストールする必要があります。</translation>
+<translation id="3335672657969596251">Google Chrome は <ph name="OS_NAME"/> に対応していません。</translation>
+<translation id="3636771339108070045">より新しいバージョンの Google Chrome が既にインストールされています。Google Chrome が動作しない場合は、それをアンインストールしてから新しくダウンロードし直してください。</translation>
+<translation id="3396666154568987767">Google Chrome - <ph name="PROFILE_NAME"/></translation>
+<translation id="1964682833763362793">すべての Chrome ウィンドウを終了してからやり直してください。</translation>
+<translation id="1001534784610492198">インストーラー アーカイブが壊れているか無効です。Google Chrome をダウンロードし直してください。</translation>
+<translation id="6626317981028933585">Mozilla Firefox の設定を Google Chrome にインポートするには、まず Firefox のウィンドウをすべて閉じてください。その後 [続行] をクリックしてください。</translation>
+<translation id="8540666473246803645">Google Chrome</translation>
+<translation id="6049075767726609708">このコンピュータには管理者権限のあるユーザーがインストールしたシステムレベル (コンピュータの全ユーザーが利用可) の Google Chromeがあります。ユーザー レベルの Google Chrome はシステム レベルの Google Chrome に置き換えられます。</translation>
+<translation id="3870154837782082782">Google Inc.</translation>
+<translation id="1446473746922165495">Google Chrome の画面メニューの言語を変更します。</translation>
+<translation id="9189723490960700326">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; にアクセスしようとしましたが、サーバーの証明書の有効期限が失効しています。証明書の失効後もセキュリティに問題がないことを確認する情報ありません。通信先が本当に <ph name="DOMAIN2"/> であるか Google Chrome で判断できないため、なりすましの可能性を完全には否定できません。ここで操作を止めてください。</translation>
+<translation id="7106741999175697885">タスク マネージャ - Google Chrome</translation>
+<translation id="8449380764213232436"><ph name="BROWSER_COMPONENT"/> から Google Chrome にインポートしています:</translation>
+<translation id="3396977131400919238">インストール中にオペレーティング システム エラーが発生しました。Google Chrome をダウンロード直してください。</translation>
+<translation id="2618799103663374905">Google Chrome のショートカットをデスクトップ、クイック起動バー、スタート メニューに追加</translation>
+<translation id="1144950271450340860">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; にアクセスしようとしましたが、この証明書の発行元は、ご使用のオペレーティング システムで信頼されていません。サーバーのセキュリティ認証が独特なため Google Chrome で身元を特定できないか、または侵入者によって通信が傍受されている可能性があります。前にもこのサイトにアクセスしたことがあるのに&lt;strong&gt;今回初めて警告が表示された場合は&lt;/strong&gt;特に疑わしいため、ここで操作を止めてください。</translation>
+</translationbundle>

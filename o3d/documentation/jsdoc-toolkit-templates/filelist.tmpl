@@ -1,0 +1,7 @@
+<ul>
+   {! var allFiles = data.filter(function($){return $.is('FILE')}).sort(makeSortby("alias")); !}
+   <for each="thisFile" in="allFiles">
+     <li><a href="[path_to_samples]{+getSourcePath(thisFile)+}">{+getSourcePath(thisFile)+}</a></li>
+   </for>
+</ul>
+

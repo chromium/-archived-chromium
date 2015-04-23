@@ -1,0 +1,9 @@
+# Copyright (c) 2009 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+#
+# Functions from avutil used in chromium code.
+
+int64_t av_rescale_q(int64_t a, AVRational bq, AVRational cq);
+void *av_malloc(unsigned int size);
+void av_free(void *ptr);

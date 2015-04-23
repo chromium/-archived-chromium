@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="v8bindings"
+	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\third_party\libjpeg\using_libjpeg.vsprops;$(SolutionDir)..\third_party\zlib\using_zlib.vsprops;$(SolutionDir)..\third_party\libpng\using_libpng.vsprops;$(SolutionDir)..\third_party\libxml\build\using_libxml.vsprops;$(SolutionDir)..\third_party\libxslt\build\using_libxslt.vsprops;..\webkit_common.vsprops"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		PreprocessorDefinitions="WIN32_LEAN_AND_MEAN"
+		DisableSpecificWarnings="4291,4099,4996,4521,4244"
+	/>
+</VisualStudioPropertySheet>

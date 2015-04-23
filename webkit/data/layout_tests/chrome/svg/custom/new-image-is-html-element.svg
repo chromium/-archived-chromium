@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg">
+  <text id="result" y="100"/>
+  <script>
+    if (window.layoutTestController)
+      layoutTestController.dumpAsText();
+
+    // Firefox, Opera, and Safari all treat "new Image()" as creating an
+    // HTML image element regardless of the current doctype. Ensure that
+    // Chrome's behavior is the same
+
+    var pass = "[object HTMLImageElement]" == new Image();
+    document.getElementById("result").appendChild(document.createTextNode(pass ? "PASS" : "FAIL"));
+  </script>
+</svg>

@@ -1,0 +1,39 @@
+This is a copy of SCons, a Python-based software build tool (that is,
+replacement for Make) that we use for cross-platform builds.
+
+Current version:  1.2.0.d20090113
+
+Originally obtained from:
+
+    http://www.scons.org/downloads.php
+
+SCons ships under an MIT license.  See the scons-LICENSE file in
+this directory for specifics.
+
+We check in the contents of the scons-local-* package(s) provided
+by the SCons Project.
+
+Before checking in, copy the contents of the version-specific
+"scons-local-{VERSION}" subdirectory to the "scons-local" subdirectory.
+We do this so we can use Subversion to diff and revert imported versions,
+and to make it easier to propagate any local modifications we might make
+to any new versions we check in.
+
+To import a new version of SCons:
+
+- Visit http://www.scons.org/downloads.php
+
+- Download the latest scons-local package.
+
+- Unpack in the current directory:
+
+    $ tar zxf scons-local-{VERSION}.tar.gz
+
+- Copy the contents of the version-specific directory to scons-local:
+
+    $ cp -rf scons-local-{VERSION}/* scons-local
+    $ rm -rf scons-local-{VERSION}
+
+- Update this README.chromium file to reflect the new version number.
+
+- Check in (after appropriate testing, of course).

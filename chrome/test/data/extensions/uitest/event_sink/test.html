@@ -1,0 +1,79 @@
+HOLA!!!
+
+<script type="text/javascript">
+  // This extension registers for all tab and window events, and whenever one
+  // is received, it calls postMessage to send it back to the test automation
+  // driver.
+
+  // Wait for the automation server to create a port so that we can communicate
+  // back to it.
+  var portToAutomation;
+  chrome.self.onConnect.addListener(function(port) {
+    portToAutomation = port;
+    portToAutomation.postMessage('ACK');
+  });
+
+  // Window events.
+  chrome.windows.onCreated.addListener(function(windowId) {
+    portToAutomation.postMessage(chrome.windows.onCreated.eventName_);
+  });
+  chrome.windows.onRemoved.addListener(function(windowId) {
+    portToAutomation.postMessage(chrome.windows.onRemoved.eventName_);
+  });
+  chrome.windows.onFocusChanged.addListener(function(windowId) {
+    portToAutomation.postMessage(chrome.windows.onFocusChanged.eventName_);
+  });
+
+  // Tab events.
+  chrome.tabs.onCreated.addListener(function(tab) {
+    portToAutomation.postMessage(chrome.tabs.onCreated.eventName_);
+  });
+  chrome.tabs.onUpdated.addListener(function(tabId, info) {
+    portToAutomation.postMessage(chrome.tabs.onUpdated.eventName_);
+  });
+  chrome.tabs.onMoved.addListener(function(tabId, info) {
+    portToAutomation.postMessage(chrome.tabs.onMoved.eventName_);
+  });
+  chrome.tabs.onSelectionChanged.addListener(function(tabId, info) {
+    portToAutomation.postMessage(chrome.tabs.onSelectionChanged.eventName_);
+  });
+  chrome.tabs.onAttached.addListener(function(tabId, info) {
+    portToAutomation.postMessage(chrome.tabs.onAttached.eventName_);
+  });
+  chrome.tabs.onDetached.addListener(function(tabId, info) {
+    portToAutomation.postMessage(chrome.tabs.onDetached.eventName_);
+  });
+  chrome.tabs.onRemoved.addListener(function(tabId) {
+    portToAutomation.postMessage(chrome.tabs.onRemoved.eventName_);
+  });
+
+  // Page action events.
+  chrome.pageActions.onExecute.addListener(function(info) {
+    portToAutomation.postMessage(chrome.pageActions.onExecute.eventName_);
+  });
+
+  // Bookmark events.
+  chrome.bookmarks.onAdded.addListener(function(info) {
+    portToAutomation.postMessage(chrome.bookmarks.onAdded.eventName_);
+  });
+  chrome.bookmarks.onRemoved.addListener(function(info) {
+    portToAutomation.postMessage(chrome.bookmarks.onRemoved.eventName_);
+  });
+  chrome.bookmarks.onChanged.addListener(function(bookmarkId, info) {
+    portToAutomation.postMessage(chrome.bookmarks.onChanged.eventName_);
+  });
+  chrome.bookmarks.onMoved.addListener(function(info) {
+    portToAutomation.postMessage(chrome.bookmarks.onMoved.eventName_);
+  });
+  chrome.bookmarks.onChildrenReordered.addListener(function(bookmarkId,
+      children) {
+    portToAutomation.postMessage(
+        chrome.bookmarks.onChildrenReordered.eventName_);
+  });
+
+  // Call chrome window api.  The result of this api is not important, as this
+  // is used only to let the automation test driver know that this page is
+  // loaded and ready to receive events.
+  chrome.windows.getCurrent(function() {});
+  document.write('DONE');
+</script>

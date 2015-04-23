@@ -1,0 +1,93 @@
+# Copyright (c) 2006-2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone()
+
+env.Replace(
+    GURL_DIR = '$THIRD_PARTY_DIR/googleurl',
+    ICU38_DIR = '$THIRD_PARTY_DIR/icu38',
+    CPPPATH = [
+        '$GURL_DIR',
+        '$GURL_DIR/..',
+        '$ICU38_DIR/public/common',
+        '$ICU38_DIR/public/i18n',
+        '$VC80_CPPPATH',
+    ],
+)
+
+env.Append(
+    CPPDEFINES = [
+#        'U_STATIC_IMPLEMENTATION',
+    ],
+)
+
+if env['OS'] == 'win32':
+  env.Append(
+      CCFLAGS = [
+#          '/TP',
+#          '/J',
+      ],
+  )
+elif env['OS'] == 'linux':
+  env.Append(CCFLAGS = '-Wno-char-subscripts') 
+
+input_files = [
+    '$GURL_DIR/src/gurl.cc',
+    '$GURL_DIR/src/url_canon_etc.cc',
+    '$GURL_DIR/src/url_canon_fileurl.cc',
+    '$GURL_DIR/src/url_canon_host.cc',
+#    '$GURL_DIR/src/url_canon_icu.cc',
+    '$GURL_DIR/src/url_canon_internal.cc',
+    '$GURL_DIR/src/url_canon_ip.cc',
+    '$GURL_DIR/src/url_canon_mailtourl.cc',
+    '$GURL_DIR/src/url_canon_path.cc',
+    '$GURL_DIR/src/url_canon_pathurl.cc',
+    '$GURL_DIR/src/url_canon_query.cc',
+    '$GURL_DIR/src/url_canon_relative.cc',
+    '$GURL_DIR/src/url_canon_stdurl.cc',
+    '$GURL_DIR/src/url_parse.cc',
+    '$GURL_DIR/src/url_parse_file.cc',
+    '$GURL_DIR/src/url_util.cc',
+]
+
+# ICU files needed for Gears.
+input_files += [
+    '$ICU38_DIR/source/common/utf_impl.cc',
+]
+
+env.GearsStaticLibrary('googleurl-gears', input_files)
+
+#env_tests = env.Clone()
+#
+#env_tests.Append(
+#    CPPPATH = [
+#        '$GTEST_DIR/include',
+#    ],
+#    CPPDEFINES = [
+#        'UNIT_TEST',
+#    ],
+#    LIBS = [
+#        'googleurl',
+#        'base',
+#        env_tests['ICU_LIBS'],  # TODO(sgk):  '$ICU_LIBS' when scons is fixed
+#        'gtest',
+#    ]
+#)
+#
+#test_files = [
+#   'src/gurl_unittest.cc',
+#   'src/url_canon_unittest.cc',
+#   'src/url_parse_unittest.cc',
+#   'src/url_util_unittest.cc',
+#
+#   # The version of gtest that googleurl uses provides a main() function; ours
+#   # doesn't so include our own main function.
+#   '$CHROME_SRC_DIR/base/run_all_unittests.cc'
+#]
+#
+#gurl_unittests = env_tests.ChromeTestProgram('googleurl_unittests', test_files)
+#
+#installed_gurl_unittests = env.Install('$TARGET_ROOT', gurl_unittests)

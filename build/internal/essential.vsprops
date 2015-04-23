@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="essential"
+	OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+	IntermediateDirectory="$(SolutionDir)$(ConfigurationName)\obj\$(ProjectName)"
+	CharacterSet="1"
+	InheritedPropertySheets=".\debug_info$(FAST_BUILD_TYPE).vsprops"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="$(SolutionDir)..;$(SDKIncludes)"
+		PreprocessorDefinitions="_WIN32_WINNT=0x0600;WINVER=0x0600;WIN32;_WINDOWS;_HAS_EXCEPTIONS=0;NOMINMAX;_CRT_RAND_S;CERT_CHAIN_PARA_HAS_EXTRA_FIELDS;WIN32_LEAN_AND_MEAN;_SECURE_ATL;_HAS_TR1=0"
+		MinimalRebuild="false"
+		ExceptionHandling="0"
+		BufferSecurityCheck="true"
+		EnableFunctionLevelLinking="true"
+		RuntimeTypeInfo="false"
+		WarningLevel="3"
+		WarnAsError="true"
+		DisableSpecificWarnings="4503; 4819"
+	/>
+	<Tool
+		Name="VCLibrarianTool"
+		AdditionalOptions="/ignore:4221"
+		OutputFile="$(OutDir)\lib\$(ProjectName).lib"
+		AdditionalLibraryDirectories="$(SDKLibs)"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		AdditionalOptions="/safeseh /dynamicbase /ignore:4199 /ignore:4221 /nxcompat"
+		AdditionalDependencies="wininet.lib version.lib msimg32.lib ws2_32.lib usp10.lib psapi.lib dbghelp.lib"
+		AdditionalLibraryDirectories="$(SDKLibs);$(OutDir)\lib"
+		DelayLoadDLLs="dbghelp.dll,dwmapi.dll,uxtheme.dll"
+		MapFileName="$(OutDir)\$(TargetName).map"
+		ImportLibrary="$(OutDir)\lib\$(TargetName).lib"
+		TargetMachine="1"
+		FixedBaseAddress="1"
+	/>
+	<Tool
+		Name="VCMIDLTool"
+		GenerateStublessProxies="true"
+		TypeLibraryName="$(InputName).tlb"
+		OutputDirectory="$(IntDir)"
+		HeaderFileName="$(InputName).h"
+		DLLDataFileName="dlldata.c"
+		InterfaceIdentifierFileName="$(InputName)_i.c"
+		ProxyFileName="$(InputName)_p.c"
+	/>
+	<Tool
+		Name="VCResourceCompilerTool"
+		Culture="1033"
+		AdditionalIncludeDirectories="$(SolutionDir).."
+	/>
+	<UserMacro
+		Name="SDK"
+		Value="$(SolutionDir)..\third_party\platformsdk_win2008_6_1\files"
+	/>
+	<UserMacro
+		Name="SDKIncludes"
+		Value="$(SDK)\Include;$(VSInstallDir)\VC\atlmfc\include"
+	/>
+	<UserMacro
+		Name="SDKLibs"
+		Value="$(SDK)\Lib"
+	/>
+	<UserMacro
+		Name="DefaultOutputDirectory"
+		Value="$(SolutionDir)$(ConfigurationName)"
+	/>
+	<UserMacro
+		Name="DefaultIntermediateDirectory"
+		Value="$(SolutionDir)$(ConfigurationName)\obj\$(ProjectName)"
+	/>
+</VisualStudioPropertySheet>

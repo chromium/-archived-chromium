@@ -1,0 +1,232 @@
+<html>
+<head>
+<title>Subscribe to feed</title>
+
+<script type="text/javascript">
+  // Grab the URL from the querystring, removing question mark at the front.
+  var feedUrl = document.location.search.substring(1);
+
+  // The XMLHttpRequest object that tries to load and parse the feed.
+  var req;
+
+  // What to show when we cannot parse the feed name.
+  var unknownName = "Unknown feed name";
+
+  // The maximum number of feed items to show in the preview.
+  var maxFeedItems = 10;
+
+  // The maximum number of characters to show in the feed item title.
+  var maxTitleCount = 64;
+
+  // The maximum number of characters to show for the feed item description.
+  var maxDescCount = 1024;
+
+  // Navigates to the reader of the user's choice (for subscribing to the feed).
+  function navigate() {
+    var select = document.getElementById('readers');
+    var url = select.options[select.selectedIndex].value + feedUrl;
+    document.location = url;
+  }
+
+  // Parses the feed specified. We will either end up in handleResponse or
+  // handleError from here.
+  function loadFeed() {
+    feedUrl = decodeURIComponent(feedUrl);
+    req = new XMLHttpRequest();
+    req.onload = handleResponse;
+    req.onerror = handleError;
+    req.open("GET", feedUrl, false);
+    req.send(null);
+  }
+
+  // Sets the title for the feed.
+  function setFeedTitle(title) {
+    var titleTag = document.getElementById('title');
+    titleTag.textContent = "Feed for '" + title + "'";
+  }
+
+  // Handles errors during the XMLHttpRequest.
+  function handleError() {
+    handleFeedParsingFailed("Error fetching feed");
+  }
+
+  // Handles feed parsing errors.
+  function handleFeedParsingFailed(error) {
+    setFeedTitle(unknownName);
+
+    // First part of the error message.
+    var spanErrorPrefix = document.createElement('span');
+    spanErrorPrefix.setAttribute('class', 'item_desc');
+    spanErrorPrefix.appendChild(
+        document.createTextNode("Unable to show feed preview ("));
+
+    // The actual error.
+    var spanError = document.createElement('span');
+    spanError.id = 'error';
+    spanError.setAttribute('class', 'item_desc');
+    spanError.appendChild(document.createTextNode(error));
+
+    // Closing braces, etc.
+    var spanErrorSuffix = document.createElement('span');
+    spanErrorSuffix.setAttribute('class', 'item_desc');
+    spanErrorSuffix.appendChild(
+        document.createTextNode(")."));
+
+    // Add the error message.
+    var itemsTag = document.getElementById('items');
+    itemsTag.appendChild(spanErrorPrefix);
+    itemsTag.appendChild(spanError);
+    itemsTag.appendChild(spanErrorSuffix);
+  }
+
+  // Handles parsing the feed data we got back from XMLHttpRequest.
+  function handleResponse() {
+    var itemsTag = document.getElementById('items');
+
+    // Uncomment these two lines to see what the feed data looks like.
+    // itemsTag.textContent = req.responseText;
+    // return;
+
+    var doc = req.responseXML;
+    if (!doc) {
+      handleFeedParsingFailed("Not a valid feed");
+      return;
+    }
+
+    // Figure out what the title of the whole feed is.
+    var title = doc.getElementsByTagName('title')[0];
+    if (title)
+      setFeedTitle(title.textContent);
+    else
+      setFeedTitle(unknownName);
+
+    // Now parse the rest. Some use <entry> for each feed item, others use
+    // <channel><item>.
+    var entries = doc.getElementsByTagName('entry');
+    if (entries.length == 0)
+      entries = doc.getElementsByTagName('item');
+
+    for (i = 0; i < entries.length && i < maxFeedItems; ++i) {
+      item = entries.item(i);
+
+      // Grab the title for the feed item.
+      var itemTitle = item.getElementsByTagName('title')[0];
+      if (itemTitle)
+        itemTitle = itemTitle.textContent;
+      else
+        itemTitle = "Unknown title";
+
+      // Ensure max length for title.
+      if (itemTitle.length > maxTitleCount)
+        itemTitle = itemTitle.substring(0, maxTitleCount) + "...";
+
+      // Grab the description.
+      var itemDesc = item.getElementsByTagName('description')[0];
+      if (!itemDesc)
+        itemDesc = item.getElementsByTagName('summary')[0];
+
+      if (itemDesc)
+        itemDesc = itemDesc.textContent;
+      else
+        itemDesc = "";
+
+      // Ensure max length for description.
+      if (itemDesc.length > maxDescCount)
+        itemDesc = itemDesc.substring(0, maxDescCount) + "...";
+
+      // Grab the link URL.
+      var itemLink = item.getElementsByTagName('link');
+      var link = itemLink[0].childNodes[0];
+      if (link)
+        link = itemLink[0].childNodes[0].nodeValue;
+      else
+        link = itemLink[0].getAttribute('href');
+
+      // Create an anchor node for showing the title.
+      var anchorTitle = document.createElement('a');
+      anchorTitle.id = 'anchor_' + String(i);
+      anchorTitle.setAttribute('class', 'item_title');
+      anchorTitle.setAttribute('href', link);
+      anchorTitle.setAttribute('target', '_blank');
+      anchorTitle.appendChild(document.createTextNode(itemTitle));
+
+      // Create a description node.
+      var spanDesc = document.createElement('span');
+      spanDesc.id = 'desc_' + String(i);
+      spanDesc.setAttribute('class', 'item_desc');
+      spanDesc.appendChild(document.createTextNode(itemDesc));
+
+      // Add this to the document.
+      itemsTag.appendChild(anchorTitle);
+      itemsTag.appendChild(document.createElement('br'));
+      itemsTag.appendChild(spanDesc);
+      itemsTag.appendChild(document.createElement('br'));
+      itemsTag.appendChild(document.createElement('br'));
+    }
+  }
+</script>
+
+<style>
+body {
+  font-family: arial, sans-serif;
+  font-size: 11px;
+}
+a {
+  color: #2244D2;
+  font-weight:bold;
+  text-decoration: none;
+}
+a:hover {
+  font-weight:bold;
+  text-decoration: underline;
+}
+
+.splitter {
+  padding: 2px 8px 2px 5px;
+  border-top: solid 1px #9CC2EF;
+  background: #EBEFF9;
+  font-size: 13px;
+  font-weight:bold;
+}
+.item_title {
+  font-size: 12px;
+}
+.item_desc {
+  font-size: 12px;
+}
+</style>
+</head>
+
+<body onload="loadFeed();">
+  <table>
+  <tr>
+    <td width="75">
+      <img src="feed-icon-64x64.png" alt="feed-icon" align="absmiddle" />
+    </td>
+    <td>
+      <b><span id="title"></span></b><br>
+      <span>Subscribe to this feed using:</span>
+      <select id="readers">
+        <option value="http://www.google.com/reader/view/feed/">
+          Google Reader
+        </option>
+        <option value="http://www.google.com/ig/adde?moduleurl=">
+          iGoogle
+        </option>
+        <option value="http://www.bloglines.com/login?r=/sub/">
+          Bloglines
+        </option>
+        <option value="http://add.my.yahoo.com/rss?url=">
+          My Yahoo
+        </option>
+      </select>
+      <button onclick="navigate();">Subscribe Now</button>
+    </td>
+  </tr>
+  </table>
+
+  <div>&nbsp;</div>
+  <div class="splitter"><b>Feed preview</b></div><br>
+  <div id="items"></div>
+</body>
+</html>

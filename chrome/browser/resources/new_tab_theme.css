@@ -1,0 +1,25 @@
+html {
+  background-image:url(chrome://theme/theme_ntp_background?$1);
+  background-color:$2;
+  background-position:$3;
+  background-repeat:no-repeat;
+  overflow:hidden;
+}
+html[bookmarkbarattached='true'] {
+  background-position:$4;
+}
+body {
+  color: $5;
+  height:100%;
+  overflow:auto;
+}
+a {
+  color: $6;
+}
+.sidebar.themed {
+  background-color: $7;
+  color: $8;
+}
+.sidebar.themed a {
+  color: $9;
+}

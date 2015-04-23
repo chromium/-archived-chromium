@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="using_libpng"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="&quot;$(SolutionDir)..\third_party\libpng&quot;"
+		PreprocessorDefinitions="PNG_USER_CONFIG;CHROME_PNG_WRITE_SUPPORT"
+	/>
+</VisualStudioPropertySheet>

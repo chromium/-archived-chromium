@@ -1,0 +1,3 @@
+/opt/google/o3d/libCgGL.so /usr/lib32/libCgGL.so
+/opt/google/o3d/libCg.so /usr/lib32/libCg.so
+/opt/google/o3d/libGLEW.so.1.5 /usr/lib32/libGLEW.so.1.5

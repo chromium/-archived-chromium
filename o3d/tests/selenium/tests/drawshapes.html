@@ -1,0 +1,395 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+O3D Shape Stress Test
+
+This test generates a number of shapes that display on an empty o3d canvas.
+We assign each shape a pixel shader that colors the shape via a parameter.
+The color is set randomly.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Drawshape stress test for O3D
+</title>
+<script type="text/javascript" src="../../../samples/o3djs/base.js"></script>
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+
+// Events
+// Run the init() function once the page has finished loading.
+//     and unload() when the page is unloaded.
+window.onload = init;
+window.onunload= unload;
+
+// global variables
+var g_o3d;
+var g_math;
+var g_client;
+var g_viewInfo;
+var g_packEffect;
+var g_packShapes;
+var g_material;
+var g_parentTransform;
+
+// Variables for computing FPS
+var FPS_FRAMES_FOR_SAMPLE = 10;  // number of frames to average for FPS.
+var g_totalTime = 0.0;  // total time spent for last N frames.
+var g_timeTable = [];  // elapsed time for last N frames.
+var g_timeTableCursor = 0;
+
+/**
+ * Returns a random double between -1 and 1.
+ */
+function getRandom() {
+  return (Math.random() - 0.5) * 2;
+}
+
+/**
+ * Creates a shape with the given effect
+ * @param {Material} material material which our shape will use.
+ * @param {Shape::PrimitiveType} primitiveType the shape's primitive type
+ */
+function createShape(material, primitiveType) {
+  // First, create a 'shape' and 'primitive' to store the our geometry.
+  var myShape = g_packShapes.createObject('Shape');
+  var myPrimitive = g_packShapes.createObject('Primitive');
+  var myBank = g_packShapes.createObject('StreamBank');
+  myPrimitive.owner = myShape;
+  myPrimitive.streamBank = myBank;
+
+  // Apply our material to this primitive.
+  myPrimitive.material = material;
+
+  myPrimitive.primitiveType = primitiveType;
+  myPrimitive.numberPrimitives = 1; // 1 primitive.
+
+  if (primitiveType == g_o3d.Primitive.TRIANGLELIST) {
+    // Triangle list
+    myPrimitive.numberVertices = 3;   // 3 vertices in total
+
+    // Create a javascript array that gives the coordinates of each of the
+    // 3 corners (vertices) of the triangle.
+
+    var vertsArray = [
+      // Triangle
+      getRandom(), getRandom(), 0,
+      getRandom(), getRandom(), 0,
+      getRandom(), getRandom(), 0
+    ];
+
+    // Check if vertices are oriented clockwise.
+    // If not, we re-orient them.
+    // This is done by checking the determinant.
+    var determinant =
+        vertsArray[0] * vertsArray[4] +
+        vertsArray[3] * vertsArray[7] +
+        vertsArray[6] * vertsArray[1] -
+        vertsArray[3] * vertsArray[1] -
+        vertsArray[6] * vertsArray[4] -
+        vertsArray[0] * vertsArray[7];
+
+    // vertices oriented wrongly.
+    if (determinant < 0) {
+      // swap vertices to reorient.
+      var tmpVertX = vertsArray[0];
+      var tmpVertY = vertsArray[1];
+      vertsArray[0] = vertsArray[3];
+      vertsArray[1] = vertsArray[4];
+      vertsArray[3] = tmpVertX;
+      vertsArray[4] = tmpVertY;
+    }
+
+    // The index array defines the order of the vertices we want to draw.
+    // Here we tell the renderer that
+    // Triangle 1 is created from vertices 0, 1 and 2.
+    // Triangle 2 is created from vertices 3, 4 and 5.
+    var indicesArray = [
+      0, 1, 2
+    ];
+  } else if (primitiveType == g_o3d.Primitive.LINELIST) {
+    // Line list
+    myPrimitive.numberVertices = 2;   // 2 vertices in total
+
+    var vertsArray = [
+      // Line
+      getRandom(), getRandom(), 0,
+      getRandom(), getRandom(), 0
+    ];
+
+    var indicesArray = [
+      0, 1
+    ];
+  }
+
+  // These next few lines take our javascript arrays and load them into some
+  // 'buffers' where the 3D hardware can find them. We have to do this because
+  // the 3D hardware can't 'see' javascript data until it is in a buffer.
+  var vertexBuffer = g_packShapes.createObject('VertexBuffer');
+  var field = vertexBuffer.createField('FloatField', 3);
+  vertexBuffer.set(vertsArray);
+
+  var indexBuffer = g_packShapes.createObject('IndexBuffer');
+  indexBuffer.set(indicesArray);
+
+  // Now we associate these 'buffers' of data with our primitive so that it can
+  // access the data.
+  myBank.setVertexStream(g_o3d.Stream.POSITION,
+                         0,
+                         field,
+                         0);
+  myPrimitive.indexBuffer = indexBuffer;
+
+  // Create a shapeColor parameter directly on the primitive so we don't have
+  // to create multiple materials.
+  var shapeColorParam = myPrimitive.createParam('shapeColor', 'ParamFloat4');
+  shapeColorParam.value = [Math.random(), Math.random(), Math.random(), 1];
+
+  // We now attach our shape to the transform.
+  g_parentTransform.addShape(myShape);
+
+  // Lastly we generate the draw elements.
+  g_parentTransform.createDrawElements(g_packShapes, null);
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D and loads the effect.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initialize global variables and libraries.
+  var o3d = clientElements[0];
+  g_o3d = o3d.o3d;
+  g_math = o3djs.math;
+  g_client = o3d.client;
+
+  var pack = g_client.createPack();
+
+  // Create the render graph for a view.
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Create packs to manage our resources/assets
+  g_packEffect = g_client.createPack();
+  g_packShapes = g_client.createPack();
+
+  // Load the effect for the shapes from the textarea and associate it
+  // with the pack.
+  var effect = g_packEffect.createObject('Effect');
+  var fxString = document.getElementById('fx').value;
+  effect.loadFromFXString(fxString);
+
+  // Create a material.
+  g_material = g_packEffect.createObject('Material');
+
+  // Set the material's drawList
+  g_material.drawList = g_viewInfo.performanceDrawList;
+
+  // Apply our effect to this material.
+  g_material.effect = effect;
+  effect.createUniformParameters(g_material);
+
+  // Create a parent transform
+  g_parentTransform =
+      g_packShapes.createObject('Transform');
+  g_parentTransform.parent = g_client.root;
+
+  // Initialize the FPS elapsed time history table.
+  for (var tt = 0; tt < FPS_FRAMES_FOR_SAMPLE; tt++ ) {
+    g_timeTable[tt] = 0.0;
+  }
+
+  // Set our render callback to display stats.
+  g_client.setRenderCallback(onrender);
+}
+
+/**
+ * Creates several shapes in the scene and renders them.
+ */
+function createShapes(numShapes, primitiveType) {
+  // Creates the shapes using the default effect.
+  for (var i = 0; i < numShapes; i++)
+    createShape(g_material, primitiveType);
+}
+
+/**
+ * Destroys all the shapes that we have created.
+ */
+function destroyShapes() {
+  // Remove references
+  g_parentTransform.parent = null;
+  g_packShapes.destroy();
+
+  // Re-create parent transform and pack
+  g_packShapes = g_client.createPack();
+  g_parentTransform =
+      g_packShapes.createObject('Transform');
+  g_parentTransform.parent = g_client.root;
+}
+
+/**
+ * Frees unreferenced objects by destroying the packs on page unload.
+ */
+function unload() {
+  g_packEffect.destroy();
+  g_packShapes.destroy();
+}
+
+// Updates statistics.
+// This function executes on each frame.
+function onrender(renderEvent) {
+  if (window.g_client) {
+    document.getElementById('clientObjectCount').innerHTML =
+        g_client.getObjectsByClassName('o3d.ObjectBase').length;
+    // Update FPS
+    // Get the number of seconds since the last render.
+    var elapsedTime = renderEvent.elapsedTime;
+
+    // Keep the total time for the last N frames.
+    g_totalTime += elapsedTime - g_timeTable[g_timeTableCursor];
+
+    // Save off the elapsed time for this frame so we can subtract it later.
+    g_timeTable[g_timeTableCursor] = elapsedTime;
+
+    // Wrap the place to store the next time sample.
+    g_timeTableCursor++;
+    if (g_timeTableCursor == FPS_FRAMES_FOR_SAMPLE) {
+      g_timeTableCursor = 0;
+    }
+
+    // Print the average frame rate for the last N frames as well as the
+    // instantaneous frame rate.
+    document.getElementById('fps').innerHTML = "" +
+        Math.floor((1.0 / (g_totalTime / FPS_FRAMES_FOR_SAMPLE)) + 0.5) +
+        " : " + Math.floor(1.0 / elapsedTime + 0.5);
+
+
+  }
+}
+
+</script>
+</head>
+<body>
+<h1>Draw shapes stress test</h1>
+This is a shape drawing stress test for o3d.
+<br/>
+Enter in the number of shapes to create and click the
+appropriate shape type button to render the shapes.
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 600px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+<br/>
+<form action="#" method="get" name="defaultForm">
+  Render <input type="text" name="numShapes" value="3">
+  <input type="button" name="btnTri" value="Triangles"
+    onClick="createShapes(
+        document.defaultForm.numShapes.value,
+        g_o3d.Primitive.TRIANGLELIST)">
+  <input type="button" name="btnLines" value="Lines"
+    onClick="createShapes(
+        document.defaultForm.numShapes.value,
+        g_o3d.Primitive.LINELIST)">
+  <br/>
+  <input type="button" name="btnClear" value="Clear"
+    onClick="destroyShapes()">
+</form>
+<table border="0" summary="O3D statistics">
+  <tr>
+    <td style="font-weight:bold">Client Object Count:</td>
+    <td id="clientObjectCount">0</td>
+  </tr>
+  <tr>
+    <td style="font-weight:bold; color:red">FPS:</td>
+    <td id="fps">0</td>
+  </tr>
+</table>
+<!-- Don't render the textarea -->
+<div style="display:none">
+<!-- Start of effect -->
+<textarea id="fx" name="fx" cols="80" rows="20">
+  // This is the color of the triangle.
+  // We bind this to a javascript variable shapeColorParam
+  // to modify its value dynamically
+  float4 shapeColor : FLOAT4;
+
+  // input parameters for our vertex shader
+  struct a2v {
+    float4 pos : POSITION;
+  };
+
+  // input parameters for our pixel shader
+  struct v2f {
+    float4 pos : POSITION;
+  };
+
+  /**
+   * Our vertex shader does nothing but returns the position of the vertex.
+   * (which is unused eventually)
+   */
+  v2f vsMain(a2v IN) {
+    v2f OUT;
+    OUT.pos = IN.pos;
+    return OUT;
+  }
+
+  /* Our pixel shader returns the color which is assigned dynamically.
+   */
+  float4 psMain(v2f IN): COLOR {
+    return shapeColor;
+  }
+
+  // Here we tell our effect file *which* functions are
+  // our vertex and pixel shaders.
+
+  // #o3d VertexShaderEntryPoint vsMain
+  // #o3d PixelShaderEntryPoint psMain
+  // #o3d MatrixLoadOrder RowMajor
+</textarea>
+<!-- End of effect -->
+</div>
+</body>
+</html>

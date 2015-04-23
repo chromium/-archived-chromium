@@ -1,0 +1,15 @@
+<html>
+  <head>
+    <script>
+      function fib(n) {
+        return n < 2 ? 1 : fib(n - 1) + fib(n - 2);
+      }
+
+      function eternal_fib() {
+        window.setTimeout("fib(20); eternal_fib();", 0);
+      }
+    </script>
+  </head>
+  <body onload="eternal_fib()">
+  </body>
+</html>

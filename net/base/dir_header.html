@@ -1,0 +1,69 @@
+<html id="t">
+<head>
+
+<script>
+function addRow(name, url, isdir, size, date_modified) {
+  if (name == ".")
+    return;
+
+  var table = document.getElementById("table");
+  var row = document.createElement("tr");
+  var file_cell = document.createElement("td");
+  var link = document.createElement("a");
+  if (name == "..") {
+    link.href = "..";
+    link.innerText = document.getElementById("parentDirText").innerText;
+    size = "";
+    date_modified = "";
+  } else {
+    if (isdir) {
+      name = name + "/";
+      url = url + "/";
+      size = "";
+    }
+    link.innerText = name;
+    link.href = "./" + url;
+  }
+  file_cell.appendChild(link);
+
+  row.appendChild(file_cell);
+  row.appendChild(createCell(size));
+  row.appendChild(createCell(date_modified));
+
+  table.appendChild(row);
+}
+
+function createCell(text) {
+  var cell = document.createElement("td");
+  cell.setAttribute("class", "sizeColumn");
+  cell.innerText = text;
+  return cell;
+}
+
+function start(location) {
+  var header = document.getElementById("header");
+  header.innerText = header.innerText.replace("LOCATION", location);
+
+  document.getElementById("title").innerText = header.innerText;
+}
+</script>
+
+<title id="title"></title>
+<style>
+  h1 { white-space: nowrap; }
+  td.sizeColumn { text-align: right; padding-left: 30px; }
+</style>
+</head>
+<body>
+<span id="parentDirText" style="display:none" jscontent="parentDirText"></span>
+<h1 id="header" jscontent="header"></h1>
+<hr/>
+<table id="table">
+<tr style="font-weight: bold">
+ <td jscontent="headerName"></td>
+ <td class="sizeColumn" jscontent="headerSize"></td>
+ <td class="sizeColumn" jscontent="headerDateModified"></td>
+</tr>
+</table>
+</body>
+</html>

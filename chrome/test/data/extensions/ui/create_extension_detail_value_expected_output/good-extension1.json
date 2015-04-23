@@ -1,0 +1,30 @@
+{
+  "id": "behllobkkfkfnphdnhnkndlbkcpglgmj",
+  "version": "1.0.0.0",
+  "name": "My extension 1",
+  "description": "The first extension that I made.",
+  "permissions": ["http://*.google.com/*", "https://*.google.com/*"],
+  "content_scripts": [
+    {
+      "matches": ["file://*", "http://*.google.com/*", "https://*.google.com/*"],
+      "js": ["script1.js", "script2.js"],
+      "css": ["style1.css", "style2.css", "style2.css"]
+    },
+    {
+      "matches": ["http://*.news.com/*"],
+      "js": ["js_files/script3.js"]
+    }
+  ],
+  "views": [
+    {
+      "path": "bar.html",
+      "render_proess_id": 42,
+      "render_view_id": 88
+    },
+    {
+      "path": "dog.html",
+      "render_proess_id": 0,
+      "render_view_id": 0
+    }
+  ]
+}

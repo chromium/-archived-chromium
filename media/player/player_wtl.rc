@@ -1,0 +1,559 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "../chrome/third_party/wtl/include/atlres.h"
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""../chrome/third_party/wtl/include/atlres.h\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MAINFRAME4 TOOLBAR  16, 15
+BEGIN
+    BUTTON      ID_PLAY_PLAY_PAUSE
+    SEPARATOR
+    BUTTON      ID_FILE_OPEN
+    BUTTON      ID_RECENT_BTN
+    SEPARATOR
+    BUTTON      ID_FILE_PRINT
+    BUTTON      ID_FILE_PRINT_PREVIEW
+    BUTTON      ID_FILE_PAGE_SETUP
+    SEPARATOR
+    BUTTON      ID_EDIT_COPY
+    BUTTON      ID_EDIT_PASTE
+    BUTTON      ID_EDIT_CLEAR
+    SEPARATOR
+    BUTTON      ID_VIEW_PROPERTIES
+    BUTTON      ID_APP_ABOUT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_MAINFRAME4          BITMAP                  "Toolbar.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM SEPARATOR
+        MENUITEM "&Print...\tCtrl+P",           ID_FILE_PRINT
+        MENUITEM "Print Pre&view",              ID_FILE_PRINT_PREVIEW
+        MENUITEM "Pa&ge Setup...",              ID_FILE_PAGE_SETUP
+        MENUITEM SEPARATOR
+        POPUP "Recent &Files"
+        BEGIN
+            MENUITEM "(empty)",                     ID_FILE_MRU_FILE1
+        END
+        MENUITEM "&Last...\tCtrl+L",            ID_FILE_LAST
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+        MENUITEM "Cl&ear\tCTRL+F4",             ID_EDIT_CLEAR
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Quarter Size\tCtrl+9",       ID_VIEW_QUARTERSIZE
+        MENUITEM "&Half Size\tCtrl+0",          ID_VIEW_HALFSIZE
+        MENUITEM "&Normal Size\tCtrl+1",        ID_VIEW_NORMALSIZE
+        MENUITEM "&Double Size\tCtrl+2",        ID_VIEW_DOUBLESIZE
+        MENUITEM "Triple Size\tCtrl+3",         ID_VIEW_TRIPLESIZE
+        MENUITEM "Quadruple Size\tCtrl+4",      ID_VIEW_QUADRUPLESIZE
+        MENUITEM "Fit to Screen",               ID_VIEW_FITTOSCREEN
+        MENUITEM "&Full Screen\tCtrl+F",        ID_VIEW_FULLSCREEN
+        MENUITEM SEPARATOR
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM SEPARATOR
+        MENUITEM "N&o Rotation",                ID_VIEW_ROTATE0
+        MENUITEM "Rotate &90",                  ID_VIEW_ROTATE90
+        MENUITEM "Rotate &180",                 ID_VIEW_ROTATE180
+        MENUITEM "Rotate &270",                 ID_VIEW_ROTATE270
+        MENUITEM "&Mirror Horizontally",        ID_VIEW_MIRROR_HORIZONTAL
+        MENUITEM "Mirror &Vertically",          ID_VIEW_MIRROR_VERTICAL
+        MENUITEM SEPARATOR
+        MENUITEM "&Properties",                 ID_VIEW_PROPERTIES
+    END
+    POPUP "&Play"
+    BEGIN
+        MENUITEM "&Play/Pause\tSpace",          ID_PLAY_PLAY_PAUSE
+        MENUITEM "Skip &Forward\tRight Arrow",  ID_PLAY_STEP_FORWARD
+        MENUITEM "Skip &Backward\tLeft Arrow",  ID_PLAY_STEP_BACKWARD
+        MENUITEM "G&oto Start\tHome",           ID_PLAY_GOTO_START
+        MENUITEM "Goto &End\tEnd",              ID_PLAY_GOTO_END
+        MENUITEM "&Goto Frame\tCtrl+G",         ID_PLAY_GOTO_FRAME
+        MENUITEM SEPARATOR
+        MENUITEM "&Half Speed\tAlt+0",          ID_PLAY_HALFSPEED
+        MENUITEM "&Normal Speed\tAlt+1",        ID_PLAY_NORMALSPEED
+        MENUITEM "&Double Speed\tAlt+2",        ID_PLAY_DOUBLESPEED
+        MENUITEM "&Triple Speed\tAlt+3",        ID_PLAY_TRIPLESPEED
+        MENUITEM "&Quadruple Speed\tAlt+4",     ID_PLAY_QUADRUPLESPEED
+        MENUITEM "&Eight Times Speed\tAlt+5",   ID_PLAY_EIGHTSPEED
+        MENUITEM "&Sixteen Times Speed\tAlt+6", ID_PLAY_SIXTEENSPEED
+    END
+    POPUP "&Options"
+    BEGIN
+        MENUITEM "&Exit at End of Movie",       ID_OPTIONS_EXIT
+        MENUITEM "Draw",                        ID_OPTIONS_DRAW
+        MENUITEM "Audio",                       ID_OPTIONS_AUDIO
+        MENUITEM "&OpenMP",                     ID_OPTIONS_OPENMP
+        MENUITEM "SWScaler",                    ID_OPTIONS_SWSCALER
+        MENUITEM "Dump YUV File",               ID_OPTIONS_DUMPYUVFILE
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About Media Player...",      ID_APP_ABOUT
+    END
+END
+
+IDR_CONTEXTMENU MENU 
+BEGIN
+    POPUP ""
+    BEGIN
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+        MENUITEM "Cl&ear",                      ID_EDIT_CLEAR
+        MENUITEM SEPARATOR
+        MENUITEM "&Properties",                 ID_VIEW_PROPERTIES
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME3          ICON                    "player_wtl.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 185, 126
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,121,97,50,14
+    CTEXT           "Media Player\n\nMay 14, 2009\n\nCopyright (c) 2009 The Chromium Authors.\nAll rights reserved.",IDC_STATIC,7,43,171,49
+    ICON            IDR_MAINFRAME3,IDC_STATIC,80,17,20,20
+    GROUPBOX        "",IDC_STATIC,7,7,171,112
+END
+
+IDD_PROP_PAGE1 DIALOGEX 0, 0, 212, 114
+STYLE DS_SETFONT | WS_CHILD | WS_CAPTION
+CAPTION "Movie"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Location:",IDC_STATIC,5,20,30,8
+    LTEXT           "Size:",IDC_STATIC,5,34,16,8
+    LTEXT           "Created:",IDC_STATIC,5,65,28,8
+    LTEXT           "Attributes:",IDC_STATIC,5,81,32,8
+    LTEXT           "Static",IDC_FILESIZE,40,34,170,8
+    LTEXT           "Static",IDC_FILEDATE,40,65,165,8
+    LTEXT           "Static",IDC_FILEATTRIB,40,81,170,8
+    LTEXT           "Static",IDC_FILELOCATION,40,20,170,8,SS_NOTIFY
+    LTEXT           "Duration:",IDC_STATIC,5,49,30,8
+    LTEXT           "Static",IDC_FILEDURATION,40,50,170,8
+END
+
+IDD_PROP_PAGE2 DIALOGEX 0, 0, 212, 114
+STYLE DS_SETFONT | WS_CHILD | WS_CAPTION
+CAPTION "Frame"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Type:",IDC_STATIC,15,10,80,8
+    LTEXT           "Static",IDC_TYPE,100,10,105,8
+    LTEXT           "Width:",IDC_STATIC,15,25,80,8
+    LTEXT           "Static",IDC_WIDTH,100,25,105,8
+    LTEXT           "Height:",IDC_STATIC,15,40,80,8
+    LTEXT           "Static",IDC_HEIGHT,100,40,105,8
+    LTEXT           "Horizontal Resolution:",IDC_STATIC,15,55,80,8
+    LTEXT           "Static",IDC_HORRES,100,55,105,8
+    LTEXT           "Vertical Resolution:",IDC_STATIC,15,70,80,8
+    LTEXT           "Static",IDC_VERTRES,100,70,105,8
+    LTEXT           "Bit Depth:",IDC_STATIC,15,85,80,8
+    LTEXT           "Static",IDC_BITDEPTH,100,85,105,8
+    LTEXT           "Compression:",IDC_STATIC,15,100,80,8
+    LTEXT           "Static",IDC_COMPRESSION,100,100,105,8
+END
+
+IDD_PROP_PAGE3 DIALOGEX 0, 0, 212, 114
+STYLE DS_SETFONT | WS_CHILD | WS_CAPTION
+CAPTION "Screen"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Width:",IDC_STATIC,15,25,80,8
+    LTEXT           "Static",IDC_WIDTH,100,25,105,8
+    LTEXT           "Height:",IDC_STATIC,15,40,80,8
+    LTEXT           "Static",IDC_HEIGHT,100,40,105,8
+    LTEXT           "Horizontal DPI:",IDC_STATIC,15,55,80,8
+    LTEXT           "Static",IDC_HORRES,100,55,105,8
+    LTEXT           "Vertical DPI:",IDC_STATIC,15,70,80,8
+    LTEXT           "Static",IDC_VERTRES,100,70,105,8
+    LTEXT           "Bit Depth:",IDC_STATIC,15,85,80,8
+    LTEXT           "Static",IDC_BITDEPTH,100,85,105,8
+END
+
+IDD_SEEK DIALOGEX 0, 0, 664, 55
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Seek"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_SEEKSLIDER,"msctls_trackbar32",TBS_BOTH | TBS_NOTICKS | WS_TABSTOP,7,27,650,21
+    LTEXT           "Location:",IDC_STATIC,15,14,30,8
+    LTEXT           "Static",IDC_SEEKLOCATION,50,15,170,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 178
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 119
+    END
+
+    IDD_PROP_PAGE1, DIALOG
+    BEGIN
+        LEFTMARGIN, 5
+        RIGHTMARGIN, 205
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 107
+    END
+
+    IDD_PROP_PAGE2, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 205
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 107
+    END
+
+    IDD_PROP_PAGE3, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 205
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 107
+    END
+
+    IDD_SEEK, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 657
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME2 ACCELERATORS 
+BEGIN
+    VK_F4,          ID_EDIT_CLEAR,          VIRTKEY, CONTROL, NOINVERT
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
+    "L",            ID_FILE_LAST,           VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
+    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
+    "2",            ID_PLAY_DOUBLESPEED,    VIRTKEY, ALT, NOINVERT
+    "5",            ID_PLAY_EIGHTSPEED,     VIRTKEY, ALT, NOINVERT
+    "G",            ID_PLAY_GOTO_FRAME,     VIRTKEY, CONTROL, NOINVERT
+    "0",            ID_PLAY_HALFSPEED,      VIRTKEY, ALT, NOINVERT
+    "1",            ID_PLAY_NORMALSPEED,    VIRTKEY, ALT, NOINVERT
+    " ",            ID_PLAY_PLAY_PAUSE,     ASCII,  NOINVERT
+    "4",            ID_PLAY_QUADRUPLESPEED, VIRTKEY, ALT, NOINVERT
+    "6",            ID_PLAY_SIXTEENSPEED,   VIRTKEY, ALT, NOINVERT
+    VK_LEFT,        ID_PLAY_STEP_BACKWARD,  VIRTKEY, NOINVERT
+    VK_RIGHT,       ID_PLAY_STEP_FORWARD,   VIRTKEY, NOINVERT
+    "3",            ID_PLAY_TRIPLESPEED,    VIRTKEY, ALT, NOINVERT
+    "2",            ID_VIEW_DOUBLESIZE,     VIRTKEY, CONTROL, NOINVERT
+    "F",            ID_VIEW_FULLSCREEN,     VIRTKEY, CONTROL, NOINVERT
+    "0",            ID_VIEW_HALFSIZE,       VIRTKEY, CONTROL, NOINVERT
+    "1",            ID_VIEW_NORMALSIZE,     VIRTKEY, CONTROL, NOINVERT
+    "4",            ID_VIEW_QUADRUPLESIZE,  VIRTKEY, CONTROL, NOINVERT
+    "9",            ID_VIEW_QUARTERSIZE,    VIRTKEY, CONTROL, NOINVERT
+    "3",            ID_VIEW_TRIPLESIZE,     VIRTKEY, CONTROL, NOINVERT
+    VK_HOME,        ID_PLAY_GOTO_START,     VIRTKEY, NOINVERT
+    VK_END,         ID_PLAY_GOTO_END,       VIRTKEY, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x2L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "Written by Frank Barchard"
+            VALUE "FileDescription", "media_player"
+            VALUE "FileVersion", "1, 0, 0, 1"
+            VALUE "InternalName", "media_player_wtl"
+            VALUE "LegalCopyright", "Copyright 2009"
+            VALUE "OriginalFilename", "media_player_wtl.exe"
+            VALUE "ProductName", "media_player"
+            VALUE "ProductVersion", "1, 0, 0, 1"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDR_MAINFRAME           "Media Player"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_FILE_NEW             "Create a new document\nNew"
+    ID_FILE_OPEN            "Open a movie\nOpen"
+    ID_FILE_CLOSE           "Close movie\nClose"
+    ID_FILE_SAVE            "Save the movie\nSave"
+    ID_FILE_SAVE_AS         "Save the movie with a new name\nSave As"
+    ID_FILE_PAGE_SETUP      "Change the printing options\nPage Setup"
+    ID_FILE_PRINT_SETUP     "Change the printer and printing options\nPrint Setup"
+    ID_FILE_PRINT           "Print the movie\nPrint"
+    ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_VIEW_HALFSIZE        "View movie at half normal size."
+    ID_VIEW_NORMALSIZE      "View movie at normal size."
+    ID_VIEW_DOUBLESIZE      "View movie at twice the normal size."
+    ID_VIEW_TRIPLESIZE      "View movie at triple the normal size."
+    ID_VIEW_QUADRUPLESIZE   "View movie at quadruple the normal size."
+    ID_VIEW_FITTOSCREEN     "Maximize window to desktop."
+    ID_VIEW_FULLSCREEN      "Full screen mode."
+    ID_PLAY_HALFSPEED       "Play movie at half normal speed."
+    ID_PLAY_NORMALSPEED     "Play movie at normal speed."
+    ID_PLAY_DOUBLESPEED     "Play movie at twice the normal speed."
+    ID_PLAY_TRIPLESPEED     "Play movie at triple the normal speed."
+    ID_PLAY_QUADRUPLESPEED  "Play movie at quadruple the normal speed."
+    ID_PLAY_EIGHTSPEED      "Play movie at eight times the normal speed."
+    ID_PLAY_SIXTEENSPEED    "Play movie at sixteen times the normal speed."
+    ID_PLAY_STEP_FORWARD    "Step forward one frame."
+    ID_PLAY_STEP_BACKWARD   "Step backward one frame."
+END
+
+STRINGTABLE 
+BEGIN
+    ID_FILE_LAST            "Replay last movie\nOpen"
+    ID_VIEW_ROTATE0         "Turn off rotation."
+    ID_VIEW_ROTATE90        "Rotate movie by 90 degrees clockwise."
+    ID_VIEW_ROTATE180       "Rotate movie by 180 degrees."
+    ID_VIEW_ROTATE270       "Rotate movie by 270 degrees clockwise."
+    ID_VIEW_MIRROR_HORIZONTAL "Mirror movie horizontally."
+    ID_VIEW_MIRROR_VERTICAL "Mirror movie vertically."
+    ID_VIEW_QUARTERSIZE     "View movie at quarter normal size."
+END
+
+STRINGTABLE 
+BEGIN
+    ID_RECENT_BTN           "\nRecent Files"
+    ID_VIEW_PROPERTIES      "Displays movie properties\nProperties"
+    ID_PLAY_PLAY_PAUSE      "Start or pause movie playback"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
+    ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
+    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_WINDOW_NEW           "Open another window for the movie\nNew Window"
+    ID_WINDOW_ARRANGE       "Arrange icons at the bottom of the window\nArrange Icons"
+    ID_WINDOW_CASCADE       "Arrange windows so they overlap\nCascade Windows"
+    ID_WINDOW_TILE_HORZ     "Arrange windows as non-overlapping tiles\nTile Windows"
+    ID_WINDOW_TILE_VERT     "Arrange windows as non-overlapping tiles\nTile Windows"
+    ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_EDIT_CLEAR           "Removes the movie\nClear"
+    ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
+    ID_EDIT_COPY            "Copy the movie and put it on the Clipboard\nCopy"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_FIND            "Find the specified text\nFind"
+    ID_EDIT_PASTE           "Insert movie from the Clipboard\nPaste"
+    ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
+    ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
+    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE 
+BEGIN
+    ATL_IDS_SCSIZE          "Change the window size"
+    ATL_IDS_SCMOVE          "Change the window position"
+    ATL_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    ATL_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    ATL_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    ATL_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    ATL_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE 
+BEGIN
+    ATL_IDS_SCRESTORE       "Restore the window to normal size"
+    ATL_IDS_SCTASKLIST      "Activate Task List"
+    ATL_IDS_MDICHILD        "Activate this window"
+END
+
+STRINGTABLE 
+BEGIN
+    ATL_IDS_IDLEMESSAGE     "Ready"
+END
+
+STRINGTABLE 
+BEGIN
+    ATL_IDS_MRU_FILE        "Open this document"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_PLAY_GOTO_FRAME      "Goto a specified frame in the movie."
+    ID_PLAY_GOTO_START      "Goto to start of movie."
+    ID_PLAY_GOTO_END        "Goto end of movie minus 30 seconds."
+    ID_OPTIONS_EXIT         "Exit player at end of movie."
+END
+
+STRINGTABLE 
+BEGIN
+    ID_OPTIONS_OPENMP       "Enable OpenMP for YUV"
+    ID_OPTIONS_SWSCALER     "Use SWScaler YUV conversion"
+    ID_OPTIONS_DRAW         "Enable/Disable Draws"
+    ID_OPTIONS_AUDIO        "Enable/Disable Audio"
+    ID_OPTIONS_DUMPYUVFILE  "Dump YUV frames to a file"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

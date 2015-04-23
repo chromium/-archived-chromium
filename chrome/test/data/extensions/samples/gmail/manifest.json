@@ -1,0 +1,12 @@
+{
+  "name": "Gmail Checker", 
+  "version": "0.1",
+  "description": "Displays number of unread Gmail messages", 
+  "permissions": [
+    "http://*.google.com/*", 
+    "https://*.google.com/*"
+  ], 
+  "toolstrips": [
+    "gmail_checker.html"
+  ]
+}

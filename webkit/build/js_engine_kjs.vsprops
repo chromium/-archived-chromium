@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="js_engine"
+	InheritedPropertySheets=".\KJSBindings\using_KJSBindings.vsprops"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="&quot;..\..\pending\kjs&quot;;&quot;$(IntDir)\..\KJSBindings\DerivedSources&quot;;&quot;..\..\..\third_party\WebKit\WebCore\bindings\js&quot;;&quot;..\..\build\JavaScriptCore&quot;;&quot;..\..\..\third_party\WebKit\JavaScriptCore\VM&quot;;..\..\..\third_party\WebKit\JavaScriptCore\runtime;..\..\..\third_party\WebKit\JavaScriptCore\debugger;..\..\..\third_party\WebKit\JavaScriptCore\parser"
+        />
+</VisualStudioPropertySheet>

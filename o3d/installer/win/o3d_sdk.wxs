@@ -1,0 +1,223 @@
+<?xml version='1.0' encoding='windows-1252'?>
+
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+  Wix script for building o3d installer.
+-->
+
+<Wix xmlns='http://schemas.microsoft.com/wix/2003/01/wi'>
+
+  <Product Name='O3D SDK' Id='$(var.SDKProductGuid)'
+      Language='1033' Codepage='1252' Version='$(var.SDKVersion)'
+      Manufacturer='Google' UpgradeCode='$(var.SDKUpgradeCode)'>
+    <Package Id='$(var.SDKPackageGuid)' Keywords='Installer'
+        Description='O3D SDK Installer' Manufacturer='Google'
+        InstallerVersion='101' InstallPrivileges='limited'
+        Languages='1033' Compressed='yes' SummaryCodepage='1252' />
+
+    <Media Id='1' Cabinet='o3dSDK.cab' EmbedCab='yes'
+      CompressionLevel='high'/>
+
+    <!-- Checks if the custom action for detecting directx has failed
+         and displays an error message if that is the case. -->
+    <Condition
+        Message='O3D needs an installation of DirectX 9.0c or higher. Please download the latest version of DirectX from http://www.microsoft.com/download.'>
+      DIRECTX_9_0_C_INSTALLED
+    </Condition>
+    
+    <Directory
+        Id='TARGETDIR'
+        Name='SourceDir'>
+      <Directory
+          Id='ProgramMenuFolder'
+          Name='PMenu'
+          LongName='Programs'>
+        <Directory
+            Id='ProgramMenuDir'
+            Name='O3D'
+            LongName='O3D' />
+      </Directory>
+      <!-- Start menu items. -->
+      <Directory
+          Id='AppDataFolder'
+          Name='QMenu'>
+        <Directory
+            Id='Google'
+            Name='Google'>
+          <Directory
+              Id='O3D'
+              Name='O3D'>
+            <Directory
+                Id='INSTALLDIR'
+                Name='O3D'
+                LongName='O3D' />
+            <?include docs.wxs ?>
+            <!-- Collada items. -->
+            <Component Id='InstallCollada' Guid='$(var.SDKColladaGuid)'>
+              <File
+                  Id='O3DSDKCollada'
+                  Name='o3dCond.exe'
+                  LongName='o3dConditioner.exe'
+                  DiskId='1'
+                  Source='$(var.SDKColladaPath)'>
+                <Shortcut
+                    Id="O3DSDKColladaShortcut"
+                    Directory="ProgramMenuDir"
+                    Name="o3dCond.exe"
+                    LongName="Collada Conditioner"/>
+              </File>
+              <File
+                  Id='CGLib1'
+                  Name='cg.dll'
+                  LongName='cg.dll'
+                  DiskId='1'
+                  Source='$(var.SDKCG1Path)'/>
+              <File
+                  Id='CGLib2'
+                  Name='cgGL.dll'
+                  LongName='cgGL.dll'
+                  DiskId='1'
+                  Source='$(var.SDKCG2Path)'/>
+              <File
+                  Id='CGC'
+                  Name='cgc.exe'
+                  LongName='cgc.exe'
+                  DiskId='1'
+                  Source='$(var.SDKCGCPath)'/>
+              <!-- We're just dropping this dll in here for now.  Later, if we
+              want to save space, we can do the same download-on-demand of the
+              extras package that the plugin does.  That will require the
+              conditioner/exporter to use LoadLibrary to load d3dx9_36.dll,
+              however.  -->
+              <File
+                  Id='D3DX9'
+                  Name='d3dx9_36.dll'
+                  LongName='d3dx9_36.dll'
+                  DiskId='1'
+                  Source='$(var.DxRedistPath)\d3dx9_36.dll'/>
+              <Condition>NOT (ALLUSERS)</Condition>
+            </Component>
+          </Directory>
+        </Directory>
+      </Directory>
+      <!-- Write the current version of the plugin to the Google Update
+      registry key for auto update. -->
+      <Component Id='UpdaterReg' Guid='$(var.SDKGoogleUpdateRegGuid)'>
+        <Registry Id='pu.UpdaterRegistryKeys' Root='HKCU'
+            Key='$(var.SDKGoogleUpdateRegKey)'
+            Name='pv' Value='$(var.SDKVersion)' Action='write'
+            Type='string' />
+        <Registry Id='pu.UpdaterRegistryKeys2' Root='HKCU'
+            Key='$(var.SDKGoogleUpdateRegKey)'
+            Name='name' Value='o3d_sdk' Action='write'
+            Type='string' />
+        <Registry Id='pu.UpdaterRegistryKeys3' Root='HKCU'
+            Key='$(var.SDKGoogleUpdateRegKey)'
+            Name='lang' Value='en' Action='write'
+            Type='string' />       
+        <Condition>NOT (ALLUSERS)</Condition>
+      </Component>
+    </Directory>
+
+    <?include docs_features.wxs ?>
+    <Feature
+        Id='SDKCollada'
+        Level='1'>
+      <ComponentRef
+          Id='InstallCollada'/>
+    </Feature>
+    <Feature
+        Id='UpdateRegistry'
+        Level='1'>
+      <ComponentRef
+          Id='UpdaterReg'/>
+    </Feature>
+
+    <!-- Identify previous versions to remove before installing.  The deprecated
+    one dates to when we accidentally used the same upgrade code for the SDK and
+    the plugin, so they'll both try to uninstall it, just in case.  At worst,
+    the user will have one or the other disappear mysteriously, but only once.
+      -->
+    <Upgrade Id='$(var.DeprecatedUpgradeCode)'>
+      <UpgradeVersion OnlyDetect='no' Property='UPGRADING_DEPR'/>
+    </Upgrade>
+    <Upgrade Id='$(var.SDKUpgradeCode)'>
+      <UpgradeVersion
+          Minimum='0.0.0.0' IncludeMinimum='yes'
+          Maximum='$(var.SDKVersion)' IncludeMaximum='yes'
+          OnlyDetect='no' Property='UPGRADING'/>
+    </Upgrade>
+
+    <!-- Custom action for detecting DirectX 9.0c or higher. -->
+    <CustomAction
+        Id='CheckDirectX'
+        BinaryKey='CustomActions'
+        DllEntry='CheckDirectX' />
+
+    <Binary
+        Id='CustomActions'
+        SourceFile='cactions.dll' />
+
+    <InstallExecuteSequence>
+      <!-- We have to FindRelatedProducts before the LaunchConditions checks,
+      so that we know if we're upgrading before we tell folks they need to be
+      administrators.  LaunchConditions happens at sequence number 100, and
+      CheckDirectX is 99. -->
+      <FindRelatedProducts Sequence='98' />
+      <Custom
+          Action='CheckDirectX'
+          Before='LaunchConditions' />
+      <UnregisterClassInfo>
+        (REMOVE="ALL") OR UPGRADING OR UPGRADING_DEPR
+      </UnregisterClassInfo>
+      <RemoveExistingProducts After='InstallInitialize'>
+        UPGRADING OR UPGRADING_DEPR
+      </RemoveExistingProducts>
+      <RegisterClassInfo/>
+    </InstallExecuteSequence>
+
+    <!-- Custom action needs to be in the InstallUISequence to make
+         sure it has been executed before the Condition check. -->
+    <InstallUISequence>
+      <FindRelatedProducts Sequence='98' />
+      <!-- We have to FindRelatedProducts before the LaunchConditions checks,
+      so that we know if we're upgrading before we tell folks they need to be
+      administrators.  LaunchConditions happens at sequence number 100, and
+      CheckDirectX is 99. -->
+      <Custom
+          Action='CheckDirectX'
+          Before='LaunchConditions' />
+   </InstallUISequence>
+
+ </Product>
+</Wix>

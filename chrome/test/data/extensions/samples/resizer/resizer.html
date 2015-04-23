@@ -1,0 +1,33 @@
+<html>
+  <head>
+    <style>
+.big {
+  width: 500px;
+  background-color: red;
+  -webkit-transition: all .5s ease-out;
+}
+
+.small {
+  width: 50px;
+  background-color: blue;
+  -webkit-transition: all .5s ease-out;
+}
+    </style>
+    <script>
+function toggle() {
+  var resizer = document.getElementById('resizer');
+  if (resizer.className == 'big') {
+    resizer.className = 'small';
+    resizer.innerHTML = '(small)';
+  } else {
+    resizer.className = 'big';
+    resizer.innerHTML = 'BIG!';
+  }
+}
+</script>
+  </head>
+  <body 
+    <div onclick="toggle();" id="resizer" class="big"> BIG! </div>
+  </body>
+</html>
+

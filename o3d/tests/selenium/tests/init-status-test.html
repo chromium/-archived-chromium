@@ -1,0 +1,117 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+Init Status Test
+
+Check we get the expected result if the plugin does not start.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Init Status Test.
+</title>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="../../../samples/o3djs/base.js"></script>
+
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.rendergraph');
+
+// Events
+// init() once the page has finished loading.
+window.onload = init;
+
+// global variables
+var g_client;
+var g_pack;
+var g_testResult;
+
+/**
+ * Creates the client areas.
+ */
+function init() {
+  setTimeout(failed, 2000);
+  o3djs.util.makeClients(initStep2, 'InitStatus=3');
+}
+
+/**
+ * Initializes O3D.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  g_testResult = false;
+}
+
+/**
+ * Called if makeClients failed.
+ */
+function failed () {
+  var tag = 'div';
+  var id = '^o3d';
+  var msg =
+      'We are terribly sorry but it appears your graphics card is not ' +
+      'able to run o3d. We are working on a solution.';
+  var elements = document.getElementsByTagName(tag);
+  for (var ee = 0; ee < elements.length; ++ee) {
+    var element = elements[ee];
+    if (element.id && element.id.match(id)) {
+      var innerHTML = element.innerHTML;
+      g_testResult = (innerHTML.indexOf(msg) >= 0);
+      document.getElementById('result').innerHTML = g_testResult ?
+          '<font color="green">success</font>' :
+          '<font color="red">failure</font>';
+      return;
+    }
+  }
+}
+
+</script>
+</head>
+<body>
+<h1>Init Status Test</h1>
+
+Check we get the expected result if the plugin does not start.
+<br/>
+<br/>
+<div>Result: <span id="result"></span></div>
+<br/>
+Note: You should see "We are terribly sorry..." below.
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 600px; height: 600px;"></div>
+<br/>
+<!-- End of O3D plugin -->
+</body>
+</html>

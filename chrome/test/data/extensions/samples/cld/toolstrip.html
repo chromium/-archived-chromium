@@ -1,0 +1,36 @@
+<!--
+Copyright (c) 2009 The Chromium Authors. All rights reserved. Use of this
+source code is governed by a BSD-style license that can be found in the
+LICENSE file.
+-->
+
+<html>
+  <head>
+    <script>
+
+var selectedId = -1;
+function refreshLanguage() {
+  console.log("refeshing...");
+  chrome.tabs.getLanguage(null, function(language) {
+    document.getElementById("languageDiv").innerHTML = language;
+  });
+}
+
+chrome.tabs.onUpdated.addListener(function(tabId, props) {
+  console.log("updated: " + tabId);
+  if (prop.status == "complete" && tabId == selectedId)
+    refreshLanguage();
+});
+
+chrome.tabs.onSelectionChanged.addListener(function(tabId, props) {
+  console.log("selection: " + tabId);
+  selectedId = tabId;
+  refreshLanguage();
+});
+    </script>
+  </head>
+  <body onload="refreshLanguage();">
+    <div id="languageDiv" class="toolstrip-button" onclick="refreshLanguage();">
+    </div>
+  </body>
+</html>

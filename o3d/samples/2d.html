@@ -1,0 +1,577 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+2D in O3D.
+
+2d is easy in o3d.
+
+Things to notice:
+
+*) Pixel perfect alignment with the screen.
+
+  The client area is 800x600 pixels. google-square.png is 200x200 pixels.
+  There is a 1 pixel border in the google-square.png texture. Notice they line
+  up exactly with each other and to the edge of the client area.
+
+*) Screen Top Left = 0,0 vs Center = 0,0
+
+  This demo is set so the client area's top left corner is 0,0.
+  If you want the center to be 0,0 just call setScreenOriginToCenter.
+  You will have to adjust the math below to match.
+
+*) Image Top left = 0,0 vs Center = 0,0
+
+  The g_googleSquares are all loaded with their origin set to the top left
+  so you can see they rotate around the top left and are positioned from
+  the top left
+
+  The g_squares and the g_things are loaded with their origin set to the center
+  so you can see they rotate and scale around their centers.
+
+*) 2d rotation, scale, fading, color changing
+
+  transform.rotateZ rotates in 2d.
+  transform.scale(x, y, 1) scales in 2d.
+  image.setColor(1, 1, 1, ?) fades out.
+  image.setColor(?, ?, ?, 1) sets the color multiplier
+
+*) Setting draw order by setting Z.  negative z is more behind.
+
+  the g_googleSquares have a Z of -2 so they are the furthest back.
+  the g_squares have Z of -1 so they are in the middle
+  the g_things have a Z of 0 so they are in the front.
+
+  The Z range is -0.998 to 999
+
+  That is because the camera is sitting at -1 Z and has the range set
+  in the projection matrix from 0.001 to 1000
+
+*) Things to be aware of.
+
+  Because we are doing 2d, draw order matters but you can only choose
+  the order by setting the Z value. If you don't set the Z values correctly
+  you will see issues. For example if 2 images are at the same Z and draw
+  so that they overlap there is no guarntee which one will get drawn first.
+
+  Note: Right now I think it is which ever one happens to be in the transform
+  graph first. Maybe we should enforce this and then you can use insertBefore,
+  insertAfter to change the order instead of setting Z.
+
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+2D in O3D.
+</title>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="o3djs/base.js"></script>
+
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.effect');
+o3djs.require('o3djs.loader');
+
+
+// global variables
+var g_coordWidth = 800;  // The number of units across our area
+var g_coordHeight = 600;  // The number of units down our area
+var g_tileWidth = 64;
+var g_tileHeight = 64;
+var g_pillarWidth = 128;
+var g_pillarHeight = 256;
+var g_playerWidth = 183;
+var g_playerHeight = 198;
+var g_tilesAcross = Math.floor((g_coordWidth + g_tileWidth - 1) /
+                               g_tileWidth) + 1;
+var g_tilesDown = Math.floor((g_coordHeight + g_tileHeight - 1) /
+                             g_tileHeight) + 1;
+var g_pixelsAcrossMap = g_tilesAcross * 64;
+var g_pixelsAcrossPillarMap = (Math.floor((g_coordWidth + g_pillarWidth - 1) /
+                                          g_pillarWidth) + 1) * g_pillarWidth;
+var g_o3d;
+var g_math;
+var g_client;
+var g_viewInfo;
+var g_pack;
+var g_planeShape;
+var g_textures = [];
+var g_textureUrls = [
+  'assets/purple-flower.png',  // 0
+  'assets/orange-flower.png',  // 1
+  'assets/egg.png',            // 2
+  'assets/google-square.png',  // 3
+  'assets/square.png',         // 4
+  'assets/texture_b3.jpg',     // 5
+  'assets/pillar.png',         // 6
+  'assets/block.png',          // 7
+  'assets/android.png'         // 8
+];
+var g_googleSquares = [];
+var g_squares = [];
+var g_things = [];
+var g_tiles = [];
+var g_pillars = [];
+var g_pillarScale = [];
+var g_player;
+var g_map = [
+  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [ 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0],
+  [ 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+  [ 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+  [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+  [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+];
+var g_randSeed = 0;
+
+/**
+ * Returns a deterministic pseudorandom number bewteen 0 and 1
+ * @return {number} a random number between 0 and 1
+ */
+function pseudoRandom() {
+  var range = Math.pow(2, 32);
+
+  return (g_randSeed = (134775813 * g_randSeed + 1) % range) / range;
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  // These are here so they are visible to both the browser (so selenium sees
+  // them) and V8.
+  window.g_clock = 0;
+  window.g_timeMult = 1;
+  window.g_finished = false;  // for selenium testing
+
+  // Comment out the line below to run the sample in the browser JavaScript
+  // engine. This may be helpful for debugging.
+  o3djs.util.setMainEngine(o3djs.util.Engine.V8);
+
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Sets the origin of the screen to the top left. Assumes the area is 800 pixels
+ * by 600 pixels.
+ *
+ * We have to pick some representation. If we have an image that's 800x600 and
+ * we want to display it pixel perfect in an 800x600 area then we set the values
+ * below to 800x600. If instead we were to set them to the width and height of
+ * the area and say our area was 400x300 it will still be pixel perfect (1 to 1
+ * pixels) which would meaning only the top left 400x300 pixels of our 800x600
+ * image would show up.
+ *
+ * Doing it this way, we get pixel perfect at 800x600 and if we change the size
+ * of the area, say to 400x300 to 640x480 or any other 4:3 ratio, our program
+ * will still work as expected. It won't be 1x1 pixels but it will put things
+ * where we want them within our scaled area. If our area is not 4:3 our image
+ * will get a little stretched into the new aspect ratio but generally that's
+ * still better than having some of our app not appear.
+ *
+ * The other option is to always set the values below to the width and height of
+ * our area and then make all the code that positions things calculate where to
+ * put things and how to scale them to fit which is a lot more work though may
+ * be appropriate depending on the application.
+ */
+function setScreenOriginToTopLeft() {
+  g_viewInfo.drawContext.projection = g_math.matrix4.orthographic(
+      0 + 0.5,
+      g_coordWidth + 0.5,
+      g_coordHeight + 0.5,
+      0 + 0.5,
+      0.001,
+      1000);
+
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      [0, 0, 1],  // eye
+      [0, 0, 0],  // target
+      [0, 1, 0]); // up
+}
+
+/**
+ * Sets the origin of the screen to the center. Assumes the area is 800 pixels
+ * by 600 pixels. See setScreenOriginToTopLeft.
+ */
+function setScreenOriginToCenter() {
+  g_viewInfo.drawContext.projection = g_math.matrix4.orthographic(
+      -g_coordWidth * 0.5 + 0.5,
+      g_coordWidth * 0.5 + 0.5,
+      g_coordHeight * 0.5 + 0.5,
+      -g_coordHeight * 0.5 + 0.5,
+      0.001,
+      1000);
+
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      [0, 0, 1],  // eye
+      [0, 0, 0],  // target
+      [0, 1, 0]); // up
+}
+
+/**
+ * Initializes O3D and creates one shape.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initializes global variables and libraries.
+  var o3dElement = clientElements[0];
+  g_o3d = o3dElement.o3d;
+  g_math = o3djs.math;
+
+  // Set window.g_client as well. Otherwise when the sample runs in V8, selenium
+  // won't be able to find this variable (it can only see the browser
+  // environment).
+  window.g_client = g_client = o3dElement.client;
+
+  // Creates a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Set the background color to blue.
+  g_viewInfo.clearBuffer.clearColor = [0.1, 0.1, 1, 1];
+
+  // Set culling to none so we can flip images using rotation or negative scale.
+  g_viewInfo.zOrderedState.getStateParam('CullMode').value =
+      g_o3d.State.CULL_NONE;
+  g_viewInfo.zOrderedState.getStateParam('ZWriteEnable').value = false;
+
+  // Create an orthographic matrix for 2d stuff.
+  setScreenOriginToTopLeft();
+  //setScreenOriginToCenter();
+
+  var effect = g_pack.createObject('Effect');
+  o3djs.effect.loadEffect(effect, 'shaders/texture-colormult.shader');
+
+  // Create a Material for the effect.
+  var material = g_pack.createObject('Material');
+
+  // Apply the effect to this material.
+  material.effect = effect;
+
+  // Set the material's drawList for translucent things.
+  material.drawList = g_viewInfo.zOrderedDrawList;
+
+  // Create the parameters the effect needs on the material.
+  effect.createUniformParameters(material);
+
+  // Set the material params which act as the default. We'll override these with
+  // params on transforms.
+  material.getParam('colorMult').value = [1, 1, 1, 1];
+
+  // Create a 2d plane. createPlane makes an XZ plane by default
+  // so we pass in matrix to rotate it to an XY plane. We could do
+  // all our manipluations in XZ but most people seem to like XY for 2D.
+  g_planeShape = o3djs.primitives.createPlane(
+      g_pack,
+      material,
+      1,
+      1,
+      1,
+      1,
+      [[1, 0, 0, 0],
+       [0, 0, 1, 0],
+       [0,-1, 0, 0],
+       [0, 0, 0, 1]]);
+
+  // Load all the textures.
+  var loader = o3djs.loader.createLoader(initStep3);
+  for (var ii = 0; ii < g_textureUrls.length; ++ii) {
+    loadTexture(loader, g_textureUrls[ii], ii);
+  }
+  loader.finish();
+}
+
+/**
+ * Loads a texture and saves it in the g_textures array.
+ * @param {!o3djs.loader.Loader} loader The loader to load with.
+ * @param {string} url of texture to load
+ * @param {number} index Index to put texture in g_textures
+ */
+function loadTexture(loader, url, index) {
+  loader.loadTexture(g_pack, url, function(texture, exception) {
+    if (exception) {
+      alert(exception);
+    } else {
+      g_textures[index] = texture;
+    }
+  });
+}
+
+/**
+ * Now that the textures are loaded continue.
+ */
+function initStep3() {
+  for (var ii = 0; ii < 12; ++ii) {
+    g_googleSquares[ii] = new Image(g_textures[3], true);
+    g_squares[ii] = new Image(g_textures[4], false);
+    g_things[ii] = new Image(g_textures[ii % 3], false);
+    g_pillars[ii] = new Image(g_textures[6], true);
+    g_pillarScale[ii] = pseudoRandom() * 1.5 + 0.5;
+  }
+
+  for (var yy = 0; yy < g_tilesDown; ++yy) {
+    g_tiles[yy] = [];
+    for (var xx = 0; xx < g_tilesAcross; ++xx) {
+      if (g_map[yy][xx]) {
+        g_tiles[yy][xx] = new Image(g_textures[7], true);
+      }
+    }
+  }
+
+  g_player = new Image(g_textures[8], true);
+
+  // Setup an onrender callback for animation.
+  g_client.setRenderCallback(onrender);
+
+  window.g_finished = true;  // for selenium testing.
+}
+
+/**
+ * Called every frame.
+ * @param {!o3d.RenderEvent} renderEvent Rendering Information.
+ */
+function onrender(renderEvent) {
+  var elapsedTime = renderEvent.elapsedTime;
+
+  // Update g_clock in the browser and cache a V8 copy that can be accesse
+  // efficiently. g_clock must be in the browser for selenium.
+  var clock = window.g_clock + elapsedTime * window.g_timeMult;
+  window.g_clock = clock;
+
+  var duration = 4;
+  var parts = 4;
+  var fadeTime = 1;
+  var partOffset = duration - fadeTime;
+  var cycle = duration * parts - parts;
+
+  var computeFade = function(fadeClock) {
+    var fade = 1;
+    if (fadeClock < fadeTime) {
+      fade = fadeClock / fadeTime;
+    } else if (fadeClock > duration - fadeTime) {
+      fade = Math.max(duration - fadeClock, 0) / fadeTime;
+    }
+    return fade;
+  };
+
+  // Position, fade and rotate the google squares and flowers, eggs.
+  for (var yy = 0; yy < 3; ++yy) {
+    for (var xx = 0; xx < 4; ++xx) {
+      var index = yy * 4 + xx;
+      var newIndex = (index + Math.floor(clock * 0.5)) % 12
+      var offset = (newIndex == 0) ? (clock * 0.5 % 1) : 0;
+
+      // compute the amount to fade the google squares.
+      var fade = computeFade((clock + partOffset * 0) % cycle);
+
+      // position and rotate the google squares.
+      var image = g_googleSquares[newIndex];
+      image.transform.identity();
+      image.transform.translate(xx * 200, yy * 200, -2);
+      image.transform.rotateZ(Math.PI * 2 * offset);
+      image.setColor(Math.sin(index + clock * 2.2) * 0.2 + 0.6,
+                     Math.sin(index + clock * 3.3) * 0.2 + 0.6,
+                     Math.sin(index + clock * 4.4) * 0.2 + 0.6,
+                     fade);
+
+      // compute the amount to fade the squares.
+      fade = computeFade((clock + partOffset * 1) % cycle);
+
+      // position and rotate the squares.
+      var image = g_squares[index];
+      image.setColor(1, 1, 1,
+                     fade * (Math.sin(index + clock) * 0.5 + 0.5));
+      image.transform.identity();
+      image.transform.translate(xx * 200 + 100, yy * 200 + 100, -1);
+      image.transform.rotateZ(Math.PI * 2 * offset);
+      image.transform.scale(1, Math.sin(clock * 2+ index), 1);
+
+      // compute the amount to fade the things.
+      fade = computeFade((clock + partOffset * 2) % cycle);
+
+      // position, rotate and scale the things.
+      var image = g_things[index];
+      var nx = newIndex % 4;
+      var ny = Math.floor(newIndex / 4);
+      offset = clock * 0.5 % 1;
+      image.transform.identity();
+      image.transform.translate(nx * 300 - 200 + offset * 300,
+                                ny * 200 + 100 +
+                                Math.sin(clock * 4 + index * 2) * 50,
+                                0);
+      image.transform.rotateZ((0.1 + index * 0.1) * clock);
+      var scale = Math.sin(index + clock) * 1.0 + 1.7;
+      image.transform.scale(scale, scale, 1);
+      image.setColor(1, 1, 1, fade);
+    }
+  }
+
+  // Position and fade the 2d tile based game.
+  {
+    // This is NOT the best way to a 2d platformer but it does at least show
+    // displaying the graphics of one.
+
+    // compute the amount to fade the tiles and pillars.
+    var fade = computeFade((clock + partOffset * 3) % cycle);
+
+    // position the pillars
+    for (var xx = 0; xx < 12; ++xx) {
+      var image = g_pillars[xx];
+      image.setColor(1, 1 , 1, fade);
+      image.transform.identity();
+      var xOffset =
+          (g_pixelsAcrossPillarMap - g_pillarWidth * 2) -
+          ((((xx + clock * 0.3) * 238) + g_pillarWidth) %
+          g_pixelsAcrossPillarMap - g_pillarWidth);
+      image.transform.translate(xOffset, 600 - 256 * g_pillarScale[xx],
+                                -6);
+      image.transform.scale(1, g_pillarScale[xx], 1);
+    }
+
+    // position the tiles.
+    for (var yy = 0; yy < g_tilesDown; ++yy) {
+      for (var xx = 0; xx < g_tilesAcross; ++xx) {
+        if (g_map[yy][xx]) {
+          var image = g_tiles[yy][xx];
+          image.setColor(1, 1, 1, fade);
+          image.transform.identity();
+          var xOffset =
+              (g_pixelsAcrossMap - g_tileWidth * 2) -
+              ((((xx + clock * 2) * g_tileWidth) + g_tileWidth) %
+              g_pixelsAcrossMap - g_tileWidth);
+          image.transform.translate(xOffset, yy * g_tileHeight, -5);
+        }
+      }
+    }
+
+    {
+      // position the player.
+      g_player.setColor(1, 1, 1, fade);
+      var xOffset =
+          (g_pixelsAcrossMap - g_tileWidth * 2) -
+          (((((4.0 + clock * 2) * g_tileWidth) + g_tileWidth) %
+          g_pixelsAcrossMap + g_tileWidth) - g_tileWidth);
+      g_player.transform.identity();
+      g_player.transform.translate(xOffset,
+                                   5 * g_tileHeight - g_playerHeight -
+                                   Math.abs(Math.sin(clock * 5)) * 100,
+                                   -4);
+    }
+  }
+}
+
+/**
+ * Creates an Image object which is a transform and a child scaleTransform
+ * scaled to match the texture
+ *
+ * @constructor
+ * @param {!o3d.Texture} texture The texture
+ * @param {boolean} opt_topLeft If true the origin of the image will be it's
+ *    topleft corner, the default is the center of the image.
+ */
+function Image(texture, opt_topLeft) {
+  // create a transform for positioning
+  this.transform = g_pack.createObject('Transform');
+  this.transform.parent = g_client.root;
+
+  // create a transform for scaling to the size of the image just so
+  // we don't have to manage that manually in the transform above.
+  this.scaleTransform = g_pack.createObject('Transform');
+  this.scaleTransform.parent = this.transform;
+
+  // setup the sampler for the texture
+  this.sampler = g_pack.createObject('Sampler');
+  this.sampler.addressModeU = g_o3d.Sampler.CLAMP;
+  this.sampler.addressModeV = g_o3d.Sampler.CLAMP;
+  this.paramSampler = this.scaleTransform.createParam('texSampler0',
+                                                      'ParamSampler');
+  this.paramSampler.value = this.sampler;
+
+  // Setup our UV offsets and color multiplier
+  this.paramColorMult = this.scaleTransform.createParam('colorMult',
+                                                        'ParamFloat4');
+
+  this.setColor(1, 1, 1, 1);
+
+  this.sampler.texture = texture;
+  this.scaleTransform.addShape(g_planeShape);
+  if (opt_topLeft) {
+    this.scaleTransform.translate(texture.width / 2, texture.height / 2, 0);
+  }
+  this.scaleTransform.scale(texture.width, -texture.height, 1);
+}
+
+/**
+ * Sets the color multiplier for the image.
+ * @param {number} r Red component.
+ * @param {number} g Green component.
+ * @param {number} b Blue component.
+ * @param {number} a Alpha component.
+ */
+Image.prototype.setColor = function(r, g, b, a) {
+  this.paramColorMult.set(r, g, b, a);
+};
+
+/**
+ * Remove any callbacks so they don't get called after the page has unloaded.
+ */
+function unload() {
+  if (g_client) {
+    g_client.cleanup();
+  }
+}
+</script>
+</head>
+<body onload="init()" onunload="unload()">
+<h1>2D In O3D</h1>
+Doing 2D in O3D.
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 800px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+</body>
+</html>

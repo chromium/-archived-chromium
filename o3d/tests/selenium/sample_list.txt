@@ -1,0 +1,129 @@
+#
+# Test Requirements:
+#
+#   Each sample is expected to have a global variable called g_finished
+#   that is set to true when the sample has finish initalizing and is ready
+#   for a screenshot.
+#
+# Line Format:
+#
+#   TestType test-name options
+#
+# Valid TestTypes are:
+#
+#   small
+#   medium
+#   large
+#
+# options are separated by spaces.
+#   screenshot : take a screenshot.  You can specify a time with
+#       screenshot(seconds) as in screenshot(4), take it at the 4 second mark.
+#       You can also specify more than 1 screenshot by specifying more than
+#       one screenshot option as in "screenshot(4), screenshot(6.5). If no time
+#       is specified 27.5 is used.
+#
+#       To take a screenshot the test must have a global variable "g_client"
+#       that is the client plugin object from which to take a screenshot.
+#
+#       If the sample is animated, it is expected to have a global variable
+#       called g_timeMult that can be set to 0 to stop the animation.  All of
+#       its animation must be based on a global variable called g_clock, such
+#       that setting g_clock to the same value will always produce the same
+#       image.
+#
+#   timeout(milliseconds) : Set the timeout to wait for readiness.
+#       Default 10000.
+#
+#   client(client_variable_name) : Name of client variable in javascript.
+#       Default = "g_client"
+#
+#   pdiff_threshold_mac(number_of_pixels_allowed)
+#   pdiff_threshold_win(number_of_pixels_allowed)
+#   pdiff_threshold_linux(number_of_pixels_allowed)
+#   pdiff_threshold(number_of_pixels_allowed) : Number of pixels
+#       allowed to be perceptually different before the test fails.
+#       "pdiff_threshold" specifies the threshold for all
+#       platforms.  Platform specific versions override the
+#       threshold for that platform.  The default threshold is 10 pixels.
+#
+#   except(*firefox, *iexplore, *googlechrome) : Name of the browser
+#       environment(s) where the test should be skipped.
+#       Default = ""
+#
+#   colorfactor(0 to 1) : Determines how important color is for comparison. A
+#       value of 1 means they must be exactly the same; a value of 0 means it
+#       won't factor in at all.
+#
+#   downsample(number_of_times_to_halve_resolution) : The resolution will be
+#       cut in half this number of times before comparing. It is useful for
+#       eliminating aliasing artifacts since such differences are less
+#       noticeable at the lower resolution. Be careful with using this parameter
+#       as it may mask other problems.
+#
+# NOTE! ----------------------------------------------------------------------
+#
+# Read the sample guidelines
+# http://wiki.corp.google.com/twiki/bin/view/Main/ClientThreeDSampleGuidelines
+#
+#
+medium  2d                                screenshot pdiff_threshold(41200)
+medium  animation
+large   animated-scene                    screenshot timeout(45000) pdiff_threshold(200)
+large   beachdemo/beachdemo               screenshot timeout(120000) pdiff_threshold(1900) pdiff_threshold_mac(2100) downsample(1) except(*iexplore, *googlechrome)
+medium  canvas                            screenshot pdiff_threshold(4700) pdiff_threshold_mac(14600)
+medium  canvas-fonts                      screenshot pdiff_threshold(1100) pdiff_threshold_mac(21900)
+medium  canvas-texturedraw
+medium  checkers                          screenshot pdiff_threshold(1100)
+medium  convolution                       screenshot pdiff_threshold(200)
+medium  culling                           screenshot pdiff_threshold(1000) downsample(1)
+medium  debugging                         screenshot pdiff_threshold(2000) pdiff_threshold_mac(3000)
+medium  displayfps
+small   generate-texture                  screenshot pdiff_threshold(30000) except(*iexplore)
+medium  hellocube                         screenshot pdiff_threshold(1000)
+medium  hellocube-colors                  screenshot pdiff_threshold(1000)
+medium  helloworld                        screenshot pdiff_threshold(900)
+medium  hud-2d-overlay                    screenshot pdiff_threshold(11300) pdiff_threshold_win(39800)
+medium  instance-override                 screenshot pdiff_threshold(10500)
+medium  instancing                        screenshot pdiff_threshold(14300)
+medium  juggler                           screenshot downsample(1)
+medium  julia                             screenshot
+small   multiple-views                    screenshot pdiff_threshold(1900)
+medium  particles                         screenshot pdiff_threshold(35500)
+medium  primitives                        screenshot pdiff_threshold(17200) pdiff_threshold_mac(20000) colorfactor(.7)
+medium  procedural-texture                screenshot pdiff_threshold(1300)
+medium  render-targets                    screenshot pdiff_threshold(1400)
+medium  scatter-chart                     screenshot pdiff_threshold(10100) pdiff_threshold_mac(10600)
+medium  simple                            screenshot client(g_simple.client)
+medium  simpletexture                     screenshot pdiff_threshold(5100)
+medium  skinning                          screenshot pdiff_threshold(500)
+medium  sobel                             screenshot pdiff_threshold(1400)
+medium  stencil_example                   screenshot(0) screenshot(100) screenshot(7777) pdiff_threshold(4800) pdiff_threshold_win(20800)
+small   texturesamplers                   screenshot pdiff_threshold(32200) pdiff_threshold_win(37100)
+medium  tutorial-primitive                screenshot pdiff_threshold(1200) pdiff_threshold_mac(10400)
+large   vertex-shader                     screenshot timeout(45000) pdiff_threshold(1400)  except(*iexplore)
+medium  vertex-shader-animation           screenshot pdiff_threshold(5100)
+medium  zsorting                          screenshot pdiff_threshold(39500)
+# box2d-3d works in browsers but for some reason times out on some configs
+#large   box2d-3d/box2d-3d                timeout(45000) except(*googlechrome)
+large   simpleviewer/simpleviewer         screenshot pdiff_threshold(100)
+large   trends/trends                     timeout(30000)
+medium  GoogleIO-2009/step09              screenshot pdiff_threshold(1900)
+large   GoogleIO-2009/step14              screenshot pdiff_threshold(4900)
+
+# -- tests below this line are tests for which there is a python
+#    function to custom run the test. As such, only the 'except' and
+#    pdiff_threshold options have any meaning
+
+small   TestSampleErrorTextureSmall       pdiff_threshold(2200)
+small   TestSampleHelloCube_TexturesSmall pdiff_threshold(5900)
+small   TestSampleRefreshPageLoad_Small
+medium  TestSampleCustomCamera            pdiff_threshold(900) pdiff_threshold_win(5700)
+medium  TestSamplePicking
+medium  TestSampleRenderMode
+medium  TestSampleRotateModel             pdiff_threshold(900)
+medium  TestSampleShader_Test             pdiff_threshold(5800) pdiff_threshold_win(26000)
+large   TestSampleMultipleClientsLarge
+large   TestSamplePingPongLarge
+# This test currently fails on IE as it considers localhost: to be a trusted
+# domain.
+small   TestLoadTextureFromFileSmall      except(*iexplore)

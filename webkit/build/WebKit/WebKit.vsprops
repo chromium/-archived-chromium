@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="WebKit"
+	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;..\webkit_common.vsprops"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+    AdditionalIncludeDirectories="$(SolutionDir)..\third_party\WebKit\WebKit\chromium\public;$(SolutionDir)..\third_party\WebKit\WebKit\chromium\public\win;$(SolutionDir)..\third_party\WebKit\WebKit\chromium\src"
+		PreprocessorDefinitions="WEBKIT_IMPLEMENTATION;_SCL_SECURE_NO_DEPRECATE;_HAS_EXCEPTIONS=1"
+		WarnAsError="true"
+	/>
+</VisualStudioPropertySheet>

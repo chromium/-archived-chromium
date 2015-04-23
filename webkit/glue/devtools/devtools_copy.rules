@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VisualStudioToolFile
+	Name="devtools file copy"
+	Version="8.00"
+	>
+	<Rules>
+		<CustomBuildRule
+			Name="devtools file copy"
+			CommandLine="xcopy /Y /D $(InputPath) $(OutDir)\Resources\Inspector\"
+			Outputs="$(OutDir)\Resources\Inspector\$(InputFileName)"
+			FileExtensions="*.html;*.js"
+			ExecutionDescription="Copying resource file..."
+			>
+			<Properties>
+			</Properties>
+		</CustomBuildRule>
+	</Rules>
+</VisualStudioToolFile>

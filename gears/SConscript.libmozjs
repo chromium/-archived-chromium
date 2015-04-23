@@ -1,0 +1,143 @@
+# Copyright (c) 2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone(
+)
+
+if env['OS'] == 'osx':
+  env.Append(
+        CPPDEFINES = [
+          'JS_THREADSAFE',
+          'XP_UNIX',
+          'DARWIN',
+          'HAVE_BSD_FLOCK',
+          'XP_MACOSX',
+          'HAVE_LCHOWN',
+          'HAVE_STRERROR',
+          'FORCE_PR_LOG',
+          '_PR_PTHREADS',
+          'UHAVE_CVAR_BUILT_ON_SEM',
+          '_NSPR_BUILD_',
+          'OSARCH=Darwin',
+          'STATIC_JS_API',
+          'JS_USE_SAFE_ARENA',
+          'TRIMMED',
+          'JS_HAS_EXPORT_IMPORT'
+        ],
+        CPPPATH = '$MOZJS_INCLUDE_PATHS',
+  )
+elif env['OS'] == 'android':
+  env.Append(
+        CPPDEFINES = [
+          'JS_THREADSAFE',
+          'XP_UNIX',
+          'HAVE_STRERROR',
+          'FORCE_PR_LOG',
+          '_PR_PTHREADS',
+          'UHAVE_CVAR_BUILT_ON_SEM',
+          '_NSPR_BUILD_',
+          'OSARCH=Android',
+          'STATIC_JS_API',
+          'JS_USE_SAFE_ARENA',
+          'TRIMMED',
+          'JS_HAS_EXPORT_IMPORT',
+        ],
+        CPPPATH = '$MOZJS_INCLUDE_PATHS',
+  )
+
+input_files = [
+    # Common Files
+    '$MOZJS_DIR/js/src/jsapi.c', 
+    '$MOZJS_DIR/js/src/jsarena.c', 
+    '$MOZJS_DIR/js/src/jsarray.c', 
+    '$MOZJS_DIR/js/src/jsatom.c', 
+    '$MOZJS_DIR/js/src/jsbool.c', 
+    '$MOZJS_DIR/js/src/jscntxt.c', 
+    '$MOZJS_DIR/js/src/jsdate.c', 
+    '$MOZJS_DIR/js/src/jsdbgapi.c', 
+    '$MOZJS_DIR/js/src/jsdhash.c', 
+    '$MOZJS_DIR/js/src/jsdtoa.c', 
+    '$MOZJS_DIR/js/src/jsemit.c', 
+    '$MOZJS_DIR/js/src/jsexn.c', 
+    '$MOZJS_DIR/js/src/jsfun.c', 
+    '$MOZJS_DIR/js/src/jsgc.c', 
+    '$MOZJS_DIR/js/src/jshash.c', 
+    '$MOZJS_DIR/js/src/jsinterp.c', 
+    '$MOZJS_DIR/js/src/jsinvoke.c', 
+    '$MOZJS_DIR/js/src/jsiter.c', 
+    '$MOZJS_DIR/js/src/jskwgen.c', 
+    '$MOZJS_DIR/js/src/jslock.c', 
+    '$MOZJS_DIR/js/src/jslog2.c', 
+    '$MOZJS_DIR/js/src/jslong.c', 
+    '$MOZJS_DIR/js/src/jsmath.c', 
+    '$MOZJS_DIR/js/src/jsnum.c', 
+    '$MOZJS_DIR/js/src/jsobj.c', 
+    '$MOZJS_DIR/js/src/jsopcode.c', 
+    '$MOZJS_DIR/js/src/jsparse.c', 
+    '$MOZJS_DIR/js/src/jsprf.c', 
+    '$MOZJS_DIR/js/src/jsregexp.c', 
+    '$MOZJS_DIR/js/src/jsscan.c', 
+    '$MOZJS_DIR/js/src/jsscope.c', 
+    '$MOZJS_DIR/js/src/jsscript.c', 
+    '$MOZJS_DIR/js/src/jsstr.c', 
+    '$MOZJS_DIR/js/src/jsutil.c', 
+    '$MOZJS_DIR/js/src/jsxdrapi.c', 
+    '$MOZJS_DIR/js/src/jsxml.c', 
+    '$MOZJS_DIR/xpcom/glue/pldhash.c', 
+    '$MOZJS_DIR/nspr/pr/src/misc/pratom.c', 
+    '$MOZJS_DIR/nspr/pr/src/threads/prcmon.c', 
+    '$MOZJS_DIR/nspr/pr/src/misc/prdtoa.c', 
+    '$MOZJS_DIR/nspr/pr/src/misc/prenv.c', 
+    '$MOZJS_DIR/nspr/pr/src/misc/prerr.c', 
+    '$MOZJS_DIR/nspr/pr/src/misc/prerror.c', 
+    '$MOZJS_DIR/nspr/pr/src/misc/prerrortable.c', 
+    '$MOZJS_DIR/nspr/pr/src/io/prfdcach.c', 
+    '$MOZJS_DIR/nspr/pr/src/misc/prinit.c', 
+    '$MOZJS_DIR/nspr/pr/src/misc/prinrval.c', 
+    '$MOZJS_DIR/nspr/pr/src/io/priometh.c', 
+    '$MOZJS_DIR/nspr/pr/src/io/pripv6.c', 
+    '$MOZJS_DIR/nspr/pr/src/io/prlayer.c', 
+    '$MOZJS_DIR/nspr/pr/src/linking/prlink.c', 
+    '$MOZJS_DIR/nspr/pr/src/io/prlog.c', 
+    '$MOZJS_DIR/nspr/pr/src/malloc/prmalloc.c', 
+    '$MOZJS_DIR/nspr/pr/src/io/prmapopt.c', 
+    '$MOZJS_DIR/nspr/pr/src/malloc/prmem.c', 
+    '$MOZJS_DIR/js/src/prmjtime.c', 
+    '$MOZJS_DIR/nspr/pr/src/io/prmmap.c', 
+    '$MOZJS_DIR/nspr/pr/src/io/prmwait.c', 
+    '$MOZJS_DIR/nspr/pr/src/misc/prnetdb.c', 
+    '$MOZJS_DIR/nspr/pr/src/md/prosdep.c', 
+    '$MOZJS_DIR/nspr/pr/src/io/prprf.c', 
+    '$MOZJS_DIR/nspr/pr/src/threads/prrwlock.c', 
+    '$MOZJS_DIR/nspr/pr/src/io/prscanf.c', 
+    '$MOZJS_DIR/nspr/pr/src/memory/prseg.c', 
+    '$MOZJS_DIR/nspr/pr/src/io/prstdio.c', 
+    '$MOZJS_DIR/nspr/pr/src/misc/prtime.c', 
+    '$MOZJS_DIR/nspr/pr/src/threads/prtpd.c', 
+    '$MOZJS_DIR/nspr/pr/src/pthreads/ptio.c', 
+    '$MOZJS_DIR/nspr/pr/src/pthreads/ptmisc.c', 
+    '$MOZJS_DIR/nspr/pr/src/pthreads/ptsynch.c', 
+    '$MOZJS_DIR/nspr/pr/src/pthreads/ptthread.c',
+    '$MOZJS_DIR/nspr/pr/src/md/unix/unix.c', 
+    '$MOZJS_DIR/nspr/pr/src/md/unix/unix_errors.c', 
+    '$MOZJS_DIR/nspr/pr/src/md/unix/uxproces.c',
+]
+
+if env['OS'] == 'osx':
+  # Safari-specific SpiderMonkey files.
+  input_files += [
+      '$MOZJS_DIR/nspr/pr/src/md/unix/darwin.c',
+      '$MOZJS_DIR/nspr/pr/src/md/unix/os_Darwin_ppc.s',
+      '$MOZJS_DIR/nspr/pr/src/md/unix/os_Darwin_x86.s',
+  ]
+elif env['OS'] == 'android':
+  # Files needed for Android builds.
+  input_files += [
+      '$MOZJS_DIR/nspr/pr/src/md/unix/linux.c',
+      '$MOZJS_DIR/nspr/pr/src/misc/prlog2.c',
+  ]
+
+env.GearsStaticLibrary('mozjs-gears', input_files)

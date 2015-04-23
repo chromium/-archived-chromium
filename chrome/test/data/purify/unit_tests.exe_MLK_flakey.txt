@@ -1,0 +1,38 @@
+sqlite3GenericRealloc [unit_tests.exe]
+Alloc Location
+   ...  
+   chrome/browser/history/history_unittest.cc  history::HistoryProfileTest_TypicalProfileVersion_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+sqlite3GenericRealloc [unit_tests.exe]
+Alloc Location
+   ...  
+   chrome/browser/history/history_unittest.cc  history::HistoryProfileTest_TypicalProfileVersion_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+sqlite3GenericRealloc [unit_tests.exe]
+Alloc Location
+   ...  
+   chrome/browser/history/history_unittest.cc  history::HistoryProfileTest_TypicalProfileVersion_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+sqlite3GenericMalloc [unit_tests.exe]
+Alloc Location
+   ...  
+   chrome/common/sqlite_utils.h  SQLStatement::prepare(sqlite3 *,char const*,int)
+   chrome/common/sqlite_utils.h  SQLStatement::prepare(sqlite3 *,char const*)
+   chrome/browser/history/history_unittest.cc  history::HistoryProfileTest_TypicalProfileVersion_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+sqlite3GenericMalloc [unit_tests.exe]
+Alloc Location
+   ...  
+   chrome/common/sqlite_utils.h  SQLStatement::step(void)
+   chrome/browser/history/history_unittest.cc  history::HistoryProfileTest_TypicalProfileVersion_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+

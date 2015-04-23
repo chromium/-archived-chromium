@@ -1,0 +1,14 @@
+include_rules = [
+  "+media",
+  "+skia/ext",
+  "+skia/include",
+  "+webkit/tools/test_shell",  # Needed for test shell tests.
+
+  # This is not actually a directory, but npruntime_util.cc includes a file
+  # from WebKit starting with this path in JSCore mode.
+  "+bindings/c",
+  
+  # FIXME - refactor code and remove these dependencies
+  "+chrome/browser",
+  "+chrome/common",
+]

@@ -1,0 +1,376 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+Full-Screen Mode Example
+
+In this tutorial, we load and display a scene in O3D.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Full-Screen Mode Example
+</title>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="o3djs/base.js"></script>
+
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.camera');
+o3djs.require('o3djs.pack');
+o3djs.require('o3djs.scene');
+o3djs.require('o3djs.primitives');
+
+// Events
+// init() once the page has finished loading.
+window.onload = init;
+window.onunload = uninit;
+
+// global variables
+var g_o3d;
+var g_math;
+var g_client;
+var g_viewInfo;
+var g_pack;
+var g_finished = false;  // for selenium testing
+var g_teapotRoot;
+var g_orthoRoot;
+var g_bannerTexture;
+var g_o3dElement;
+
+/**
+ * Creates the polygon and texture that will display the fullscreen banner, and
+ * makes a clickable region to match that will trigger the transition.
+ * @param {!number} clientHeight the height of the plugin region in pixels.
+ * @param {!o3djs.rendergraph.viewInfo} viewInfo the view corresponding to the
+ * orthographic projection on which we'll be displaying the banner.
+ */
+function createBannerSurfaceAndClickableRegion(clientHeight, viewInfo) {
+  var effect = g_pack.createObject('Effect');
+  o3djs.effect.loadEffect(effect, 'shaders/texture-only.shader');
+
+  // Create a Material for the effect.
+  var material = g_pack.createObject('Material');
+
+  // Apply our effect to this material.
+  material.effect = effect;
+
+  // Create the params the effect needs on the material.
+  effect.createUniformParameters(material);
+
+  // Set the drawlist for z-ordering.
+  material.drawList = viewInfo.zOrderedDrawList;
+
+  // Create a 2d plane for images. createPlane makes an XZ plane by default
+  // so we pass in matrix to rotate it to an XY plane. We could do
+  // all our manipulations in XZ but most people seem to like XY for 2D.
+  g_planeShape = o3djs.primitives.createPlane(
+      g_pack,
+      material,
+      1,
+      1,
+      1,
+      1,
+      [[1, 0, 0, 0],
+       [0, 0, 1, 0],
+       [0,-1, 0, 0],
+       [0, 0, 0, 1]]);
+   
+  // Load our banner.
+  var url = o3djs.util.getCurrentURI() + 'assets/fullscreen.png';
+  o3djs.io.loadTexture(g_pack, url, function(texture, exception) {
+    if (exception) {
+      alert(exception);
+    } else {
+      var sampler = g_pack.createObject('Sampler');
+      sampler.addressModeU = g_o3d.Sampler.CLAMP;
+      sampler.addressModeV = g_o3d.Sampler.CLAMP;
+      var paramSampler = g_orthoRoot.createParam('texSampler0', 'ParamSampler');
+      paramSampler.value = sampler;
+
+      g_bannerTexture = sampler.texture = texture;
+      g_orthoRoot.addShape(g_planeShape);
+
+      // Convert to a top-left-corner-based coordinate system from the
+      // center-based default.
+      g_orthoRoot.translate(texture.width / 2, texture.height / 2, 0);
+
+      // Place the banner 10 pixels in from the bottom-left corner.
+      g_orthoRoot.translate(10, clientHeight - texture.height - 10, 0);
+
+      // Adjust the scale such that the above adjustment is in pixels; we could
+      // alternatively make the order work out by doing the scaling and
+      // transformation in separate transforms, with the translation in the
+      // parent and the scaling in the child.
+      g_orthoRoot.scale(texture.width, -texture.height, 1);
+
+      o3djs.event.addEventListener(g_o3dElement, 'resize', handleResizeEvent);
+      updateBanner();
+    }
+    g_finished = true;  // for selenium testing.
+  });
+}
+
+/**
+ * Creates an orthographic projection view that will overlay the main display,
+ * and places on it the fullscreen banner.  Also creates the corresponding
+ * clickable region that triggers the fullscreen transition.
+ * @param {!number} width the width of the plugin region.
+ * @param {!number} height the height of the plugin region.
+ * @param {!o3djs.rendergraph.viewInfo} viewInfo the view corresponding to the
+ * orthographic projection on which we'll be displaying the banner.
+ */
+function setupBanner(width, height, viewInfo) {
+  g_orthoRoot = g_pack.createObject('Transform');
+
+  // Create a view for the orthographic display of the fullscreen banner.
+  var orthoViewInfo = o3djs.rendergraph.createBasicView(
+        g_pack,
+        g_orthoRoot,
+        g_client.renderGraphRoot);
+
+  // Make sure the orthographic view gets drawn after the 3d stuff
+  orthoViewInfo.root.priority = g_viewInfo.root.priority + 1;
+
+  // Turn off clearing the color for the orthographic view, since that would
+  // erase the 3d parts.  Leave clearing the depth and stencil, so it's
+  // unaffected by anything done by the 3d parts.
+  orthoViewInfo.clearBuffer.clearColorFlag = false;
+
+  // Set culling to none so we can flip images using rotation or negative scale.
+  orthoViewInfo.zOrderedState.getStateParam('CullMode').value =
+      g_o3d.State.CULL_NONE;
+  orthoViewInfo.zOrderedState.getStateParam('ZWriteEnable').value = false;
+
+  // Create an orthographic matrix for the banner.
+  // The area we're using for display is width by height pixels.
+  // If we change the size of the client area after setup, everything will get
+  // scaled to match, but we don't have to change any of our code.
+  orthoViewInfo.drawContext.projection = g_math.matrix4.orthographic(
+      0 + 0.5,
+      width + 0.5,
+      height + 0.5,
+      0 + 0.5,
+      0.001,
+      1000);
+
+  orthoViewInfo.drawContext.view = g_math.matrix4.lookAt(
+      [0, 0, 1],   // eye
+      [0, 0, 0],   // target
+      [0, 1, 0]);  // up
+
+  createBannerSurfaceAndClickableRegion(g_client.height, orthoViewInfo);
+}
+
+/**
+ * Sets up the view and protection matrices, given a transform holding camera
+ * parameters.
+ * @param {!o3d.Transform} camera Transform with camera information on it.
+ */
+function setupCamera(camera) {
+  // Get a CameraInfo (an object with a view and projection matrix)
+  // using our javascript library function
+  var cameraInfo = o3djs.camera.getViewAndProjectionFromCameras(
+      camera,
+      g_client.width,
+      g_client.height);
+
+  // Copy the view and projection to the draw context.
+  g_viewInfo.drawContext.view = cameraInfo.view;
+  g_viewInfo.drawContext.projection = cameraInfo.projection;
+}
+
+/**
+ * Loads a scene into the transform graph.
+ * @param {!o3d.Pack} pack Pack to load scene into.
+ * @param {string} fileName filename of the scene.
+ * @param {!o3d.Transform} parent parent node in the transform graph to
+ *      which to load the scene into.
+ */
+function loadScene(pack, fileName, parent) {
+  // Get our full path to the scene
+  var scenePath = o3djs.util.getCurrentURI() + fileName;
+
+  // Load the file given the full path, and call the callback function
+  // when its done loading.
+  o3djs.scene.loadScene(g_client, pack, parent, scenePath, callback);
+
+  /**
+   * Our callback is called once the scene has been loaded into memory
+   * from the web or locally.
+   * @param {!o3d.Pack} pack The pack that was passed in above.
+   * @param {!o3d.Transform} parent The parent that was passed in above.
+   * @param {*} exception null if loading succeeded.
+   */
+  function callback(pack, parent, exception) {
+    if (exception) {
+      alert('Could not load: ' + fileName + '\n' + exception);
+      return;
+    }
+
+    setupCamera(parent);
+
+    // Generate draw elements and setup material draw lists.
+    o3djs.pack.preparePack(pack, g_viewInfo);
+
+    setupBanner(g_client.width, g_client.height, g_viewInfo);
+  }
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D and loads the scene into the transform graph.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initializes global variables and libraries.
+  g_o3dElement = clientElements[0];
+  g_o3d = g_o3dElement.o3d;
+  g_math = o3djs.math;
+  g_client = g_o3dElement.client;
+
+  // Creates a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  // Create the render graph for a view.
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Creates a transform to put our data on.
+  g_teapotRoot = g_pack.createObject('Transform');
+
+  // Connects our root to the client root.
+  g_teapotRoot.parent = g_client.root;
+
+  // Load the scene into the transform graph as a child g_teapotRoot
+  loadScene(g_pack, 'assets/teapot.o3dtgz', g_teapotRoot);
+}
+
+/**
+ * Finds a good, large display mode that the current screen supports.
+ */
+function getFullscreenModeId() {
+  var displayModes = g_client.getDisplayModes();
+  var bestMode;
+  for (var index in displayModes) {
+    var mode = displayModes[index];
+    if (!bestMode ||
+        (mode.width > bestMode.width && mode.height > bestMode.height)) {
+      bestMode = mode;
+    }
+  }
+  if (bestMode) {
+    return bestMode.id;
+  } else {  // getDisplayModes isn't implemented on all platforms yet.
+    return g_o3d.Renderer.DISPLAY_MODE_DEFAULT;
+  }
+}
+
+var timeoutId;
+function handleResizeEvent(event) {
+  // Only show the fullscreen banner if we're in plugin mode.
+  g_orthoRoot.visible = !event.fullscreen &&
+    document.getElementById("show_banner").checked;
+
+  setupCamera(g_teapotRoot);
+
+  // Set a timer to pop us back out of full-screen mode, just to show how easy
+  // it is to cancel.  You need a user action [a mouse click] to get into
+  // full-screen mode, but you can revert back to a plugin without asking.
+  if (event.fullscreen &&
+      document.getElementById("cancel_fullscreen").checked) {
+    timeoutId = setTimeout(
+        function () {
+          g_client.cancelFullscreenDisplay()
+        },
+        5000);
+  } else {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+  }
+}
+
+function updateBanner() {
+  if (document.getElementById("show_banner").checked) {
+    g_client.setFullscreenClickRegion(10,
+        g_client.height - g_bannerTexture.height - 10, g_bannerTexture.width,
+        g_bannerTexture.height, getFullscreenModeId());
+    g_orthoRoot.visible = true;
+  } else {
+    g_client.clearFullscreenClickRegion();
+    g_orthoRoot.visible = false;
+  }
+}
+
+function uninit() {
+  if (timeoutId) {
+    clearTimeout(timeoutId);
+    timeoutId = null;
+  }
+}
+
+</script>
+</head>
+<body>
+<h1>Full-screen mode.</h1>
+This tutorial shows how to toggle between plugin and full-screen display.
+<p>It's built on top of helloworld.html; diff the two to see what changes were
+necessary.
+<p>Shortly after transitioning to full-screen mode, the teapot will
+automatically revert back to plugin mode, to demonstrate how programs can cancel
+full-screen mode on demand.
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 600px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+<input type="checkbox" id="show_banner" checked onclick=updateBanner()>
+Show full-screen banner when not full-screen.</input>
+<br>
+<input type="checkbox" id="cancel_fullscreen" checked>
+Revert back to plugin mode automatically after a few seconds of full-screen mode.</input>
+</body>
+</html>

@@ -1,0 +1,68 @@
+/* Copyright 2008 Google Inc. All Rights Reserved. */
+/* Author: ojan@google.com (Ojan Vafai) */
+
+/* These styles override the default styling for HTML elements as defined in
+   WebCore/css/html4.css. So far we have used this file exclusively for
+   making our form elements match Firefoxes. If we find other needs for this
+   file we should seriously consider if this is the right place of them. */
+
+input:not([type]), 
+input[type="text"],
+input[type="password"],
+input[type="search"] {
+    margin:0;
+    padding:1px 0;
+}
+
+input[type="checkbox"] {
+    margin:3px 3px 3px 4px;
+}
+
+input[type="radio"] {
+    margin:3px 3px 0 5px;
+}
+
+/* Not sure this is the right color. #EBEBE4 is what Firefox uses.
+   TODO(ojan): Figure out how to support legacy input rendering. 
+   TODO(ojan): Add input[type="file"] once we figure out our file inputs.
+   TODO(ojan): Add input[type="image"] once we figure out our image inputs.
+   TODO(ojan): We probably do the wrong thing if you put an invalid input type.
+               do we care?
+*/
+textarea:disabled,
+input:not([type]):disabled, 
+input[type="text"]:disabled,
+input[type="password"]:disabled,
+input[type="search"]:disabled {
+    background-color: #EBEBE4; 
+}
+
+/* Chrome should render input[type="search"] the same as input with no type.
+   This search thing is an Apple-ism to get mac style search inputs. */
+input[type="search"] {
+    -webkit-appearance: textfield;
+    -webkit-box-sizing: content-box;
+}
+
+input[type="button"], input[type="submit"], input[type="reset"], input[type="file"]::-webkit-file-upload-button, button {
+    /* Matches Firefox */
+    padding: 0 6px;
+    margin: 0;
+}
+
+/* Chrome selects are not rounded. Custom borders for them shouldn't be either. */
+keygen, 
+select, 
+select[size="0"],
+select[size="1"] {
+    -webkit-border-radius: 0;
+    margin: 0;
+}
+
+textarea {
+  font-family: monospace;
+  margin: 1px 0;
+
+  /* Matches IE */
+  padding: 2px;
+}

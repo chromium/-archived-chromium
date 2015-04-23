@@ -1,0 +1,27 @@
+# Copyright (c) 2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+env = env.Clone(
+)
+
+env.Append(
+)
+
+input_files = [
+  '$THIRD_PARTY_DIR/breakpad_osx/src/client/mac/handler/dynamic_images.cc',
+  '$THIRD_PARTY_DIR/breakpad_osx/src/client/mac/handler/exception_handler.cc',
+  '$THIRD_PARTY_DIR/breakpad_osx/src/common/mac/file_id.cc',
+  '$THIRD_PARTY_DIR/breakpad_osx/src/common/mac/macho_id.cc',
+  '$THIRD_PARTY_DIR/breakpad_osx/src/common/mac/macho_utilities.cc',
+  '$THIRD_PARTY_DIR/breakpad_osx/src/common/mac/macho_walker.cc',
+  '$THIRD_PARTY_DIR/breakpad_osx/src/client/minidump_file_writer.cc',
+  '$THIRD_PARTY_DIR/breakpad_osx/src/client/mac/handler/minidump_generator.cc',
+  '$THIRD_PARTY_DIR/breakpad_osx/src/client/mac/handler/protected_memory_allocator.cc',
+  '$THIRD_PARTY_DIR/breakpad_osx/src/common/string_conversion.cc',
+  '$THIRD_PARTY_DIR/breakpad_osx/src/common/mac/string_utilities.cc',
+]
+
+env.GearsStaticLibrary('breakpad_osx-gears', input_files)

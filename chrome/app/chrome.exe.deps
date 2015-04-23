@@ -1,0 +1,26 @@
+# List of chrome.exe's dependencies.
+
+dependents = [
+  'KERNEL32.dll',
+  'USER32.dll',
+  'ADVAPI32.dll',
+  'SHELL32.dll',
+  'VERSION.dll',  # Used by breakpad
+  'winmm.dll',
+]
+
+dependents_google_chrome = [
+  'KERNEL32.dll',
+  'USER32.dll',
+  'ADVAPI32.dll',
+  'SHELL32.dll',
+  'VERSION.dll',
+  'winmm.dll',
+  'ole32.dll',
+  'oleaut32.dll',
+]
+
+delay_loaded = [
+  'OLE32.dll',
+  'OLEAUT32.dll',
+]

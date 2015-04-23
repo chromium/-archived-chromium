@@ -1,0 +1,230 @@
+
+window.Attr IS function Attr() { [native code] }
+window.CDATASection IS function CDATASection() { [native code] }
+window.CSSCharsetRule IS function CSSCharsetRule() { [native code] }
+window.CSSFontFaceRule IS function CSSFontFaceRule() { [native code] }
+window.CSSImportRule IS function CSSImportRule() { [native code] }
+window.CSSMediaRule IS function CSSMediaRule() { [native code] }
+window.CSSPageRule IS function CSSPageRule() { [native code] }
+window.CSSPrimitiveValue IS function CSSPrimitiveValue() { [native code] }
+window.CSSRule IS function CSSRule() { [native code] }
+window.CSSRuleList IS function CSSRuleList() { [native code] }
+window.CSSStyleDeclaration IS function CSSStyleDeclaration() { [native code] }
+window.CSSStyleRule IS function CSSStyleRule() { [native code] }
+window.CSSStyleSheet IS function CSSStyleSheet() { [native code] }
+window.CSSValue IS function CSSValue() { [native code] }
+window.CSSValueList IS function CSSValueList() { [native code] }
+window.CharacterData IS function CharacterData() { [native code] }
+window.Comment IS function Comment() { [native code] }
+window.Counter IS function Counter() { [native code] }
+window.DOMException IS function DOMCoreException() { [native code] }
+window.DOMImplementation IS function DOMImplementation() { [native code] }
+window.DOMParser IS function DOMParser() { [native code] }
+window.Document IS function Document() { [native code] }
+window.DocumentFragment IS function DocumentFragment() { [native code] }
+window.DocumentType IS function DocumentType() { [native code] }
+window.Element IS function Element() { [native code] }
+window.Entity IS function Entity() { [native code] }
+window.EntityReference IS function EntityReference() { [native code] }
+window.Event IS function Event() { [native code] }
+window.EventException IS function EventException() { [native code] }
+window.HTMLAnchorElement IS function HTMLAnchorElement() { [native code] }
+window.HTMLAppletElement IS function HTMLAppletElement() { [native code] }
+window.HTMLAreaElement IS function HTMLAreaElement() { [native code] }
+window.HTMLBRElement IS function HTMLBRElement() { [native code] }
+window.HTMLBaseElement IS function HTMLBaseElement() { [native code] }
+window.HTMLBaseFontElement IS function HTMLBaseFontElement() { [native code] }
+window.HTMLBlockquoteElement IS function HTMLBlockquoteElement() { [native code] }
+window.HTMLBodyElement IS function HTMLBodyElement() { [native code] }
+window.HTMLButtonElement IS function HTMLButtonElement() { [native code] }
+window.HTMLCanvasElement IS function HTMLCanvasElement() { [native code] }
+window.HTMLDListElement IS function HTMLDListElement() { [native code] }
+window.HTMLDirectoryElement IS function HTMLDirectoryElement() { [native code] }
+window.HTMLDivElement IS function HTMLDivElement() { [native code] }
+window.HTMLDocument IS function HTMLDocument() { [native code] }
+window.HTMLElement IS function HTMLElement() { [native code] }
+window.HTMLEmbedElement IS function HTMLEmbedElement() { [native code] }
+window.HTMLFieldSetElement IS function HTMLFieldSetElement() { [native code] }
+window.HTMLFontElement IS function HTMLFontElement() { [native code] }
+window.HTMLFormElement IS function HTMLFormElement() { [native code] }
+window.HTMLFrameElement IS function HTMLFrameElement() { [native code] }
+window.HTMLFrameSetElement IS function HTMLFrameSetElement() { [native code] }
+window.HTMLHRElement IS function HTMLHRElement() { [native code] }
+window.HTMLHeadElement IS function HTMLHeadElement() { [native code] }
+window.HTMLHeadingElement IS function HTMLHeadingElement() { [native code] }
+window.HTMLHtmlElement IS function HTMLHtmlElement() { [native code] }
+window.HTMLIFrameElement IS function HTMLIFrameElement() { [native code] }
+window.HTMLImageElement IS function HTMLImageElement() { [native code] }
+window.HTMLInputElement IS function HTMLInputElement() { [native code] }
+window.HTMLIsIndexElement IS function HTMLIsIndexElement() { [native code] }
+window.HTMLLIElement IS function HTMLLIElement() { [native code] }
+window.HTMLLabelElement IS function HTMLLabelElement() { [native code] }
+window.HTMLLegendElement IS function HTMLLegendElement() { [native code] }
+window.HTMLLinkElement IS function HTMLLinkElement() { [native code] }
+window.HTMLMapElement IS function HTMLMapElement() { [native code] }
+window.HTMLMarqueeElement IS function HTMLMarqueeElement() { [native code] }
+window.HTMLMenuElement IS function HTMLMenuElement() { [native code] }
+window.HTMLMetaElement IS function HTMLMetaElement() { [native code] }
+window.HTMLModElement IS function HTMLModElement() { [native code] }
+window.HTMLOListElement IS function HTMLOListElement() { [native code] }
+window.HTMLObjectElement IS function HTMLObjectElement() { [native code] }
+window.HTMLOptGroupElement IS function HTMLOptGroupElement() { [native code] }
+window.HTMLOptionElement IS function HTMLOptionElement() { [native code] }
+window.HTMLParagraphElement IS function HTMLParagraphElement() { [native code] }
+window.HTMLParamElement IS function HTMLParamElement() { [native code] }
+window.HTMLPreElement IS function HTMLPreElement() { [native code] }
+window.HTMLQuoteElement IS function HTMLQuoteElement() { [native code] }
+window.HTMLScriptElement IS function HTMLScriptElement() { [native code] }
+window.HTMLSelectElement IS function HTMLSelectElement() { [native code] }
+window.HTMLStyleElement IS function HTMLStyleElement() { [native code] }
+window.HTMLTableCaptionElement IS function HTMLTableCaptionElement() { [native code] }
+window.HTMLTableCellElement IS function HTMLTableCellElement() { [native code] }
+window.HTMLTableColElement IS function HTMLTableColElement() { [native code] }
+window.HTMLTableElement IS function HTMLTableElement() { [native code] }
+window.HTMLTableRowElement IS function HTMLTableRowElement() { [native code] }
+window.HTMLTableSectionElement IS function HTMLTableSectionElement() { [native code] }
+window.HTMLTextAreaElement IS function HTMLTextAreaElement() { [native code] }
+window.HTMLTitleElement IS function HTMLTitleElement() { [native code] }
+window.HTMLUListElement IS function HTMLUListElement() { [native code] }
+window.KeyboardEvent IS function KeyboardEvent() { [native code] }
+window.MediaList IS function MediaList() { [native code] }
+window.MessageEvent IS function MessageEvent() { [native code] }
+window.MouseEvent IS function MouseEvent() { [native code] }
+window.MutationEvent IS function MutationEvent() { [native code] }
+window.NamedNodeMap IS function NamedNodeMap() { [native code] }
+window.Node IS function Node() { [native code] }
+window.NodeFilter IS function NodeFilter() { [native code] }
+window.NodeList IS function NodeList() { [native code] }
+window.Notation IS function Notation() { [native code] }
+window.OverflowEvent IS function OverflowEvent() { [native code] }
+window.ProcessingInstruction IS function ProcessingInstruction() { [native code] }
+window.ProgressEvent IS function ProgressEvent() { [native code] }
+window.Range IS function Range() { [native code] }
+window.RangeException IS function RangeException() { [native code] }
+window.Rect IS function Rect() { [native code] }
+window.SVGAngle IS function SVGAngle() { [native code] }
+window.SVGColor IS function SVGColor() { [native code] }
+window.SVGException IS function SVGException() { [native code] }
+window.SVGGradientElement IS function SVGGradientElement() { [native code] }
+window.SVGLength IS function SVGLength() { [native code] }
+window.SVGMarkerElement IS function SVGMarkerElement() { [native code] }
+window.SVGPaint IS function SVGPaint() { [native code] }
+window.SVGPathSeg IS function SVGPathSeg() { [native code] }
+window.SVGPreserveAspectRatio IS function SVGPreserveAspectRatio() { [native code] }
+window.SVGRenderingIntent IS function SVGRenderingIntent() { [native code] }
+window.SVGTextContentElement IS function SVGTextContentElement() { [native code] }
+window.SVGTextPathElement IS function SVGTextPathElement() { [native code] }
+window.SVGTransform IS function SVGTransform() { [native code] }
+window.SVGUnitTypes IS function SVGUnitTypes() { [native code] }
+window.StyleSheet IS function StyleSheet() { [native code] }
+window.StyleSheetList IS function StyleSheetList() { [native code] }
+window.Text IS function Text() { [native code] }
+window.TextEvent IS function TextEvent() { [native code] }
+window.UIEvent IS function UIEvent() { [native code] }
+window.WheelEvent IS function WheelEvent() { [native code] }
+window.XMLDocument IS function Document() { [native code] }
+window.XMLHttpRequest IS function XMLHttpRequest() { [native code] }
+window.XMLHttpRequestException IS function XMLHttpRequestException() { [native code] }
+window.XMLSerializer IS function XMLSerializer() { [native code] }
+window.XPathEvaluator IS function XPathEvaluator() { [native code] }
+window.XPathException IS function XPathException() { [native code] }
+window.XPathResult IS function XPathResult() { [native code] }
+window.XSLTProcessor IS function XSLTProcessor() { [native code] }
+window.alert IS [object global]
+window.atob IS [object global]
+window.blur IS [object global]
+window.btoa IS [object global]
+window.captureEvents IS [object global]
+window.clearInterval IS [object global]
+window.clearTimeout IS [object global]
+window.clientInformation IS [object Navigator]
+window.close IS [object global]
+window.closed IS false
+window.confirm IS [object global]
+window.console IS [object Console]
+window.defaultStatus IS 
+window.defaultstatus IS 
+window.devicePixelRatio IS Number
+window.document IS [object HTMLDocument]
+window.find IS [object global]
+window.focus IS [object global]
+window.frameElement IS undefined
+window.frames IS [object global]
+window.getComputedStyle IS [object global]
+window.getMatchedCSSRules IS [object global]
+window.getSelection IS [object global]
+window.history IS [object History]
+window.innerHeight IS Number
+window.innerWidth IS Number
+window.length IS Number
+window.location IS Location
+window.locationbar IS [object BarInfo]
+window.menubar IS [object BarInfo]
+window.moveBy IS [object global]
+window.moveTo IS [object global]
+window.name IS 
+window.navigator IS [object Navigator]
+window.offscreenBuffering IS true
+window.onabort IS null
+window.onbeforeunload IS null
+window.onblur IS null
+window.onchange IS null
+window.onclick IS null
+window.ondblclick IS null
+window.ondragdrop IS null
+window.onerror IS null
+window.onfocus IS null
+window.onkeydown IS null
+window.onkeypress IS null
+window.onkeyup IS null
+window.onload IS function onload(evt) { with (this.ownerDocument ? this.ownerDocument : {}) { with (this.form ? this.form : {}) { with (this) { return (function(evt){ runTest() }).call(this, evt); } } } }
+window.onmousedown IS null
+window.onmousemove IS null
+window.onmouseout IS null
+window.onmouseover IS null
+window.onmouseup IS null
+window.onmousewheel IS null
+window.onmove IS null
+window.onreset IS null
+window.onresize IS null
+window.onscroll IS null
+window.onsearch IS null
+window.onselect IS null
+window.onsubmit IS null
+window.onunload IS null
+window.open IS [object global]
+window.opener IS null
+window.outerHeight IS Number
+window.outerWidth IS Number
+window.pageXOffset IS Number
+window.pageYOffset IS Number
+window.parent IS [object global]
+window.personalbar IS [object BarInfo]
+window.print IS [object global]
+window.prompt IS [object global]
+window.releaseEvents IS [object global]
+window.resizeBy IS [object global]
+window.resizeTo IS [object global]
+window.screen IS [object Screen]
+window.screenLeft IS Number
+window.screenTop IS Number
+window.screenX IS Number
+window.screenY IS Number
+window.scroll IS [object global]
+window.scrollBy IS [object global]
+window.scrollTo IS [object global]
+window.scrollX IS Number
+window.scrollY IS Number
+window.scrollbars IS [object BarInfo]
+window.self IS [object global]
+window.setInterval IS [object global]
+window.setTimeout IS [object global]
+window.showModalDialog IS [object global]
+window.status IS 
+window.statusbar IS [object BarInfo]
+window.stop IS [object global]
+window.toString IS [object global]
+window.toolbar IS [object BarInfo]
+window.top IS [object global]
+window.window IS [object global]
+

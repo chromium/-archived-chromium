@@ -1,0 +1,56 @@
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x600
+  RenderBlock {HTML} at (0,0) size 800x600
+    RenderBody {BODY} at (12,12) size 776x543
+      RenderBlock {P} at (0,0) size 776x28
+        RenderText {#text} at (0,0) size 275x27
+          text run at (0,0) width 275: "Zoomed video with controls."
+layer at (57,85) size 240x180
+  RenderVideo {VIDEO} at (45,73) size 240x180
+layer at (57,85) size 240x180
+  RenderBlock (relative positioned) {DIV} at (0,0) size 240x180
+layer at (57,85) size 240x180
+  RenderBlock (positioned) {DIV} at (0,0) size 240x180
+    RenderButton {INPUT} at (0,0) size 240x28
+layer at (246,217) size 51x48
+  RenderButton {INPUT} at (189,132) size 51x48 [bgcolor=#7B000099]
+layer at (57,217) size 45x48
+  RenderButton {INPUT} at (0,132) size 45x48 [bgcolor=#00DD0099]
+layer at (102,217) size 144x48
+  RenderBlock (positioned) {DIV} at (45,132) size 144x48 [bgcolor=#00000099]
+layer at (174,226) size 72x30
+  RenderBlock (positioned) {DIV} at (72,9) size 72x30 [color=#FFFFFF]
+    RenderText {#text} at (6,1) size 59x29
+      text run at (6,1) width 59: "00:00"
+layer at (102,233) size 69x20
+  RenderSlider {INPUT} at (0,16) size 69x19
+    RenderBlock {DIV} at (3,-1) size 11x21
+layer at (248,241) size 25x24
+  RenderButton {INPUT} at (191,156) size 25x24
+layer at (272,241) size 25x24
+  RenderButton {INPUT} at (215,156) size 25x24
+layer at (57,310) size 240x180
+  RenderVideo {VIDEO} at (45,298) size 240x180
+layer at (57,310) size 240x180
+  RenderBlock (relative positioned) {DIV} at (0,0) size 240x180
+layer at (57,310) size 240x180
+  RenderBlock (positioned) {DIV} at (0,0) size 240x180
+    RenderButton {INPUT} at (0,0) size 240x28
+layer at (246,442) size 51x48
+  RenderButton {INPUT} at (189,132) size 51x48 [bgcolor=#7B000099]
+layer at (57,442) size 45x48
+  RenderButton {INPUT} at (0,132) size 45x48 [bgcolor=#00DD0099]
+layer at (102,442) size 144x48
+  RenderBlock (positioned) {DIV} at (45,132) size 144x48 [bgcolor=#00000099]
+layer at (174,451) size 72x30
+  RenderBlock (positioned) {DIV} at (72,9) size 72x30 [color=#FFFFFF]
+    RenderText {#text} at (6,1) size 59x29
+      text run at (6,1) width 59: "00:00"
+layer at (102,458) size 69x20
+  RenderSlider {INPUT} at (0,16) size 69x19
+    RenderBlock {DIV} at (3,-1) size 11x21
+layer at (248,466) size 25x24
+  RenderButton {INPUT} at (191,156) size 25x24
+layer at (272,466) size 25x24
+  RenderButton {INPUT} at (215,156) size 25x24

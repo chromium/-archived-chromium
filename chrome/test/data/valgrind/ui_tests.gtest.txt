@@ -1,0 +1,4 @@
+# Takes too long to valgrind, causes timeouts
+BrowserTest.ThirtyFourTabs
+# FIXME: these tests hang frequently in valgrind
+SessionRestoreUITest.*

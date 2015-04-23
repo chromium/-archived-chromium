@@ -1,0 +1,245 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+%[
+  A Field is a base class that manages a set of components in a
+  Buffer of a specific type. Fields are managed by Buffers and can not be
+  directly created. When a Buffer is destroyed or if a Field is removed from a
+  Buffer the Field's buffer property will be set to null.
+%]
+[nocpp, include="core/cross/buffer.h"]
+class Field : NamedObject {
+  %[
+    The number of components in this field.
+  %]
+  [getter] unsigned int num_components;
+
+  %[
+    The Buffer the field belongs to.
+  %]
+  [getter] Buffer? buffer;
+
+  %[
+    The offset of this field in the Buffer in bytes.
+  %]
+  [getter] unsigned int offset;
+
+  %[
+    The size of one element of this field.
+  %]
+  [getter] unsigned int size;
+};
+
+%[
+  A field that contains floating point numbers.
+%]
+[nocpp, include="core/cross/buffer.h"]
+class FloatField : Field {
+  %[
+    Sets the values of the data stored in the field.
+
+    The buffer for the field  must have already been created either through
+    buffer.set or through buffer.allocateElements.
+
+    The number of values passed in must be a multiple of the number of
+    components needed for the field.
+
+    \param start_index index of first value to set.
+    \param values Values to be stored in the buffer starting at index.
+  %]
+  [userglue] void SetAt(unsigned int start_index, float[] values);
+
+  %[
+    Gets the values stored in the field.
+
+    \param start_index index of the first value to get.
+    \param num_elements number of elements to read from field.
+    \return The values of the field.
+  %]
+  [userglue] float[] GetAt(unsigned int start_index, unsigned int num_elements);
+
+  [verbatim=cpp_glue] %{
+    void userglue_method_SetAt(o3d::FloatField* field,
+                               unsigned int start_index,
+                               const std::vector<float>& values) {
+      if (values.size() % field->num_components() != 0) {
+        O3D_ERROR(field->service_locator())
+            << "the number of values passed in is not a multiple of the number"
+            << " of components in the field.";
+        return;
+      }
+      if (!values.empty()) {
+        field->SetFromFloats(&values[0], field->num_components(), start_index,
+                             values.size() / field->num_components());
+      }
+    }
+    std::vector<float> userglue_method_GetAt(
+        o3d::FloatField* field,
+        unsigned int start_index,
+        unsigned int num_elements) {
+      std::vector<float> retval;
+      if (field->RangeValid(start_index, num_elements)) {
+        retval.resize(num_elements * field->num_components());
+        field->GetAsFloats(start_index, &retval[0], field->num_components(),
+                           num_elements);
+      }
+      return retval;
+    }
+  %}
+};
+
+%[
+  A field that contains unsigned integers.
+%]
+[nocpp, include="core/cross/buffer.h"]
+class UInt32Field : Field {
+  %[
+    Sets the values of the data stored in the field.
+
+    The buffer for the field  must have already been created either through
+    buffer.set or through buffer.allocateElements.
+
+    The number of values passed in must be a multiple of the number of
+    components needed for the field.
+
+    \param start_index index of first value to set.
+    \param values Values to be stored in the buffer starting at index.
+  %]
+  [userglue] void SetAt(unsigned int start_index, unsigned int[] values);
+
+  %[
+    Gets the values stored in the field.
+
+    \param start_index index of the first value to get.
+    \param num_elements number of elements to read from field.
+    \return The values of the field.
+  %]
+  [userglue] unsigned int[] GetAt(unsigned int start_index,
+                                  unsigned int num_elements);
+
+  [verbatim=cpp_glue] %{
+    void userglue_method_SetAt(o3d::UInt32Field* field,
+                               unsigned int start_index,
+                               const std::vector<unsigned int>& values) {
+      if (values.size() % field->num_components() != 0) {
+        O3D_ERROR(field->service_locator())
+            << "the number of values passed in is not a multiple of the number"
+            << " of components in the field.";
+        return;
+      }
+      if (!values.empty()) {
+        field->SetFromUInt32s(&values[0], field->num_components(), start_index,
+                              values.size() / field->num_components());
+      }
+    }
+    std::vector<uint32> userglue_method_GetAt(
+        o3d::UInt32Field* field,
+        unsigned int start_index,
+        unsigned int num_elements) {
+      std::vector<uint32> retval;
+      if (field->RangeValid(start_index, num_elements)) {
+        retval.resize(num_elements * field->num_components());
+        field->GetAsUInt32s(start_index, &retval[0], field->num_components(),
+                            num_elements);
+      }
+      return retval;
+    }
+  %}
+};
+
+%[
+  A field that contains unsigned bytes that each represent a 0 to 1 value.
+  A typical use is for vertex colors since 4 bytes per vertex color are much
+  smaller than 4 floats per vertex color.
+%]
+[nocpp, include="core/cross/buffer.h"]
+class UByteNField : Field {
+  %[
+    Sets the values of the data stored in the field.
+
+    The buffer for the field  must have already been created either through
+    buffer.set or through buffer.allocateElements.
+
+    The number of values passed in must be a multiple of the number of
+    components needed for the field.
+
+    \param start_index index of first value to set.
+    \param values Values to be stored in the buffer starting at index.
+  %]
+  [userglue] void SetAt(unsigned int start_index, float[] values);
+
+  %[
+    Gets the values stored in the field.
+
+    \param start_index index of the first value to get.
+    \param num_elements number of elements to read from field.
+    \return The values of the field.
+  %]
+  [userglue] float[] GetAt(unsigned int start_index, unsigned int num_elements);
+
+  [verbatim=cpp_glue] %{
+    void userglue_method_SetAt(o3d::UByteNField* field,
+                               unsigned int start_index,
+                               const std::vector<float>& values) {
+      if (values.size() % field->num_components() != 0) {
+        O3D_ERROR(field->service_locator())
+            << "the number of values passed in is not a multiple of the number"
+            << " of components in the field.";
+        return;
+      }
+      if (!values.empty()) {
+        field->SetFromFloats(&values[0], field->num_components(), start_index,
+                             values.size() / field->num_components());
+      }
+    }
+    std::vector<float> userglue_method_GetAt(
+        o3d::UByteNField* field,
+        unsigned int start_index,
+        unsigned int num_elements) {
+      std::vector<float> retval;
+      if (field->RangeValid(start_index, num_elements)) {
+        retval.resize(num_elements * field->num_components());
+        field->GetAsFloats(start_index, &retval[0], field->num_components(),
+                           num_elements);
+      }
+      return retval;
+    }
+  %}
+};
+
+%[
+  An array of fields.
+%]
+typedef Field[] FieldArray;
+
+}  // namespace o3d

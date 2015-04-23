@@ -1,0 +1,7 @@
+This file documents why these tests have been rebaselined.
+
+inner-html-display-none
+-----------------------
+
+The only difference is whitespace differences in the 
+way functions are printed.

@@ -1,0 +1,93 @@
+#
+# Test Requirements:
+#
+#   Each sample is expected to have a global variable called g_testResult
+#   That starts undefined and is set to true or false when the test is finished.
+#
+# Line Format:
+#
+#   TestType test-name options
+#
+# Valid TestTypes are:
+#
+#   small
+#   medium
+#   large
+#
+# options are separated by spaces.
+#   screenshot : take a screenshot.  You can specify a time with
+#       screenshot(seconds) as in screenshot(4), take it at the 4 second mark.
+#       You have also specify more than 1 screenshot by specifying more than
+#       one screenshot option as in "screenshot(4), screenshot(6.5).
+#
+#       To take a screenshot the test must have a global variable "g_client"
+#       that is the client plugin object from which to take a screenshot.
+#
+#       If the sample is animated, it is expected to have a global variable
+#       called g_timeMult that can be set to 0 to stop the animation.  All of
+#       its animation must be based on a global variable called g_clock, such
+#       that setting g_clock to the same value will always produce the same
+#       image.
+#
+#       Screenshots will not be taking unless g_testResult is true.
+#
+#   timeout(milliseconds) : Set the timeout to wait for readiness. Default 5000.
+#
+#   client(client_variable_name) : Name of client variable in javascript.
+#       Default = "g_client"
+#
+#   pdiff_threshold_mac(number_of_pixels_allowed)
+#   pdiff_threshold_win(number_of_pixels_allowed)
+#   pdiff_threshold_linux(number_of_pixels_allowed)
+#   pdiff_threshold(number_of_pixels_allowed) : Number of pixels
+#       allowed to be perceptually different before the test fails.
+#       "pdiff_threshold" specifies the threshold for all
+#       platforms.  Platform specific versions override the
+#       threshold for that platform.  The default threshold is 10 pixels.
+#
+#   except(*firefox, *iexplore, *googlechrome) : Name of the browser
+#       environment(s) where the test should be skipped.
+#       Default = ""
+#
+# NOTE! ----------------------------------------------------------------------
+#
+# Read the sample guidelines
+# http://wiki.corp.google.com/twiki/bin/view/Main/ClientThreeDSampleGuidelines
+#
+#
+small   version-check-test
+small   event-test
+small   test-test
+small   serialization-test
+small   math-test
+small   features-test
+small   quaternion-test
+# TODO Temporarily removing until V8 bug is fixed
+small   v8-test
+small   init-status-test
+small   quaternion-test
+small   base-test
+small   util-test
+small   pixel-perfection      screenshot pdiff_threshold(2500) pdiff_threshold_mac(3000) except(*iexplore)
+medium  offscreen-test
+medium  texture-set-test      screenshot
+medium  param-array-test      screenshot
+small   no-rendergraph        screenshot
+small   non-cachable-params   screenshot pdiff_threshold(1700)
+small   type-test
+small   render-test
+# TODO Test disabled, as the behaviour on Chrome does not match other
+#  browsers - objects are not deleted properly.
+small   ownership-test
+small   effect-import-test
+
+# -- tests below this line are tests for which there is a python
+#    function to custom run the test. As such, only the 'except' and
+#    pdiff_threshold options have any meaning
+
+# These two tests rely on Selenium getting or setting a page's title and that
+# does not currently work with Chrome.
+medium  TestStressDrawShapes   except(*googlechrome)
+medium  TestStressMultiWindow  except(*googlechrome)
+
+large   TestStressCullingZSort pdiff_threshold(14100)

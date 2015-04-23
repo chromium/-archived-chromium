@@ -1,0 +1,7 @@
+This project is to support ActiveX controls with a plugin shim.
+
+Test:
+
+C:\Program Files\Mozilla Firefox\firefox.exe
+C:\Program Files\Opera\Opera.exe
+C:\chrome\chrome\Debug\chrome.exe 

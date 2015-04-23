@@ -1,0 +1,295 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+O3D Julia Set
+
+This sample draws an animated julia set in real time using
+the pixel shader for the computation.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html style="width: 100%; height: 100%;">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Julia Set Pixel Shader
+</title>
+
+<script type="text/javascript" src="o3djs/base.js"></script>
+
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.primitives');
+
+// Events
+// Run the init() function once the page has finished loading.
+//         unload() when the page is unloaded.
+window.onload = init;
+window.onunload = unload;
+// global variables
+var g_o3d;
+var g_math;
+var g_client;
+var g_o3dElement;
+var g_viewInfo;
+var g_pack;
+var g_o3dWidth = -1;
+var g_o3dHeight = -1;
+var g_clock = 0.0;
+var g_timeMult = 1;
+var g_finished = false;  // for selenium testing
+var g_seedParam;
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes o3d, loads the effect, and creates the square.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initialize global variables and libraries.
+  g_o3dElement = clientElements[0];
+  g_o3d = g_o3dElement.o3d;
+  g_math = o3djs.math;
+  g_client = g_o3dElement.client;
+
+  // Create a g_pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  // Create the render graph for a view.
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot,
+      [0, 0, 0, 1]);
+
+  // Load shader code from DOM and use it to build the effect.
+  var effect = g_pack.createObject('Effect');
+  effect.loadFromFXString(document.getElementById('shader').value);
+
+  // Create a Material for the effect.
+  var myMaterial = g_pack.createObject('Material');
+
+  // Apply our effect to this material.
+  myMaterial.effect = effect;
+
+  // Set the material's drawList for opaque objects.
+  myMaterial.drawList = g_viewInfo.performanceDrawList;
+
+  // create the parameters the effect needs to the material.
+  effect.createUniformParameters(myMaterial);
+
+  // Create a square.
+  var myShape = o3djs.primitives.createPlane(g_pack, myMaterial, 1, 1, 1, 1);
+
+  // Initialize effect parameters to something reasonable
+  g_seedParam = myMaterial.getParam('seed');
+  g_seedParam.value = [0.2, 0.5];
+
+  // Put the camera somewhere where it has a good view of that square.
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      [0, 1, 0],   //eye
+      [0, 0, 0],   //target
+      [0, 0, -1]); //up
+
+  // Generate the projection matrix based
+  // on the g_o3d plugin size by calling resize().
+  resize();
+
+  // Now attach the square to the root of the transform graph.
+  g_client.root.addShape(myShape);
+
+  g_client.setRenderCallback(onrender);
+
+  g_finished = true;  // for selenium testing.
+}
+
+
+/**
+ * Render callback.  Walks the seed of the Julia set through
+ * a parametric path in the complex plane that stays
+ * in the neighborhood of the Mandelbrot set.
+ */
+function onrender(render_event) {
+  g_clock += render_event.elapsedTime * g_timeMult;
+
+  var t = 0.1 * g_clock;
+  var x = 0.6 * Math.cos(3.0 * t) - 0.3;
+  var y = (0.5 * x + 1.7)*(0.2 * Math.sin(7 * t));
+
+  g_seedParam.value = [x, y];
+
+  resize();
+}
+
+
+/**
+ * Generates the projection matrix based on the size of the o3d plugin and
+ * calculates the view-projection matrix.
+ */
+function resize() {
+  var newWidth  = g_client.width;
+  var newHeight = g_client.height;
+
+  if (newWidth != g_o3dWidth || newHeight != g_o3dHeight) {
+    g_o3dWidth = newWidth;
+    g_o3dHeight = newHeight;
+
+    // Determine what the size of the rendered square within the client should
+    // be in pixels.
+    var side = g_o3dWidth < g_o3dHeight ?
+        g_o3dWidth : g_o3dHeight;
+
+    // Convert to the region of world space that must be enclosed by the
+    // orthographic projection.
+    var worldSize = g_math.divVectorScalar([g_o3dWidth, g_o3dHeight], side);
+
+    // Find a projection matrix to transform from world space to screen space.
+    g_viewInfo.drawContext.projection = g_math.matrix4.orthographic(
+        -0.5 * worldSize[0], 0.5 * worldSize[0],
+        -0.5 * worldSize[1], 0.5 * worldSize[1],
+        0.5, 1.5);
+  }
+}
+
+
+/**
+ * Removes any callbacks so they don't get called after the page has unloaded.
+ */
+function unload() {
+  if (g_client) {
+    g_client.cleanup();
+  }
+}
+
+
+</script>
+</head>
+<body style="width: 100%; height: 100%;">
+<table style="width: 100%; height: 100%;">
+  <tr>
+    <td>
+      <h1>Julia Set</h1>
+      <p>
+        This sample draws an animated julia set in real time using
+        the pixel shader for the computation.
+      </p>
+      <table id="container"  style="width: 100%; height: 80%;">
+        <tr>
+          <td height="100%">
+          <!-- Start of g_o3d plugin -->
+          <div id="o3d" style="width: 100%; height: 100%;"></div>
+          <!-- End of g_o3d plugin -->
+          </td>
+        </tr>
+      </table>
+      <!-- a simple way to get a multiline string -->
+      <textarea id="shader" name="shader" cols="80" rows="20"
+       style="display: none;">
+// The 4x4 world view projection matrix.
+float4x4 worldViewProjection : WORLDVIEWPROJECTION;
+
+// The seed for the julia set (c in the expression z(n+1) = z(n)^2+c).
+float2 seed;
+
+// input parameters for our vertex shader
+struct VertexShaderInput {
+  float4 position : POSITION;
+  float2 texCoord : TEXCOORD0;
+};
+
+// input parameters for our pixel shader
+// also the output parameters for our vertex shader
+struct PixelShaderInput {
+  float4 position : POSITION;
+  float2 texCoord : TEXCOORD0;
+};
+
+/**
+ * vertexShaderMain - Multiplies position by world-view-projection matrix, and
+ * passes on texture coordinates scaled to put the origin in the center of the
+ * quad and reveal a nicely sized portion of the plane to show the julia set.
+ */
+PixelShaderInput vertexShaderMain(VertexShaderInput input) {
+  PixelShaderInput output;
+
+  output.position = mul(input.position, worldViewProjection);
+  output.texCoord = 4.0 * (input.texCoord - float2(0.5, 0.5));
+
+  return output;
+}
+
+
+/**
+ * pixelShaderMain - Calculates the color of the pixel by iterating on the
+ * formula z = z*z + seed.  After some number of iterations, the magnitude of z
+ * determines the color.
+ */
+float4 pixelShaderMain(PixelShaderInput input) : COLOR {
+  float2 Z = input.texCoord;
+
+  // Number of iterations hardcoded here.  The more iterations, the crisper the
+  // image.
+  for(int i = 0; i < 10; ++i) {
+    Z =  float2(Z.x * Z.x - Z.y * Z.y, 2.0 * Z.x * Z.y) + seed;
+
+    // Some graphics cards and some software renderers don't appreciate large
+    // floating point values, so we clamp to prevent Z from getting that big.
+    if (i > 7) {
+      Z = clamp(Z, -25, 25);
+    }
+  }
+
+  return (1 - length(Z)) * float4(0.5, 1, 2, 1);
+}
+
+// Here we tell our effect file *which* functions are
+// our vertex and pixel shaders.
+
+// #o3d VertexShaderEntryPoint vertexShaderMain
+// #o3d PixelShaderEntryPoint pixelShaderMain
+// #o3d MatrixLoadOrder RowMajor
+      </textarea>
+    </td>
+  </tr>
+</table>
+</body>
+</html>
+
+

@@ -1,0 +1,69 @@
+# Copyright 2009, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+import os.path
+import subprocess
+Import('env')
+env.SConscript('$SCONSTRUCT_DIR/plugin/idl_list.scons')
+env.SConscript('$SCONSTRUCT_DIR/samples/o3djs/js_list.scons')
+Import('O3D_IDL_SOURCES')
+Import('O3D_JS_SOURCES')
+
+env.Replace(
+    JSDOC_DIR = '$SCONSTRUCT_DIR/documentation',
+    JSDOC_EZT_TEMPLATE_DIR = '$JSDOC_DIR/jsdoc-toolkit-templates/',
+    PYTHONPATH = ['$NIXYSA_DIR',
+                  '$GFLAGS_DIR/python',
+                  '$PLY_DIR']
+)
+
+# Build documentation
+IDL_DIR = "$SCONSTRUCT_DIR/plugin/"
+LOCAL_IDL_SOURCES = [IDL_DIR + i for i in O3D_IDL_SOURCES]
+JS_DIR = '$SCONSTRUCT_DIR/samples/o3djs/'
+LOCAL_JS_SOURCES = [JS_DIR + i for i in O3D_JS_SOURCES]
+
+DOCSGEN_ARGS = ['$JSDOC_DIR/build_docs.py $JAVA_EXE']
+
+env["BUILDERS"]["JSDocs"] = Builder(action=env.Python(DOCSGEN_ARGS))
+
+# index.ezt is a file that the jsdoctoolkit happens to build.
+# Putting it in jsdocs means that will be our target dir for the rest
+# of the files.
+env.JSDocs('base.js', LOCAL_JS_SOURCES + LOCAL_IDL_SOURCES +
+           ['$JSDOC_EZT_TEMPLATE_DIR/annotated.tmpl',
+            '$JSDOC_EZT_TEMPLATE_DIR/class.tmpl',
+            '$JSDOC_EZT_TEMPLATE_DIR/classtree.tmpl',
+            '$JSDOC_EZT_TEMPLATE_DIR/filelist.tmpl',
+            '$JSDOC_EZT_TEMPLATE_DIR/members.tmpl',
+            '$JSDOC_EZT_TEMPLATE_DIR/namespaces.tmpl',
+            '$JSDOC_EZT_TEMPLATE_DIR/publish.js',
+            '$JSDOC_EZT_TEMPLATE_DIR/static/header.html',
+            '$JSDOC_EZT_TEMPLATE_DIR/static/footer.html'])

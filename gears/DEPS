@@ -1,0 +1,28 @@
+# We pull 3 components from the Chrome tree at the trunk.
+chrome_rev = ''
+
+# We pull 2 components from the Gears tree at this revision.
+gears_rev = '@3147'
+
+deps = {
+  "src/build":
+    "svn://chrome-svn.corp.google.com/chrome/trunk/src/build" + chrome_rev,
+
+  "src/site_scons":
+    "svn://chrome-svn.corp.google.com/chrome/trunk/src/site_scons" + chrome_rev,
+
+  "src/third_party/scons":
+    "svn://chrome-svn.corp.google.com/chrome/trunk/src/third_party/scons" + chrome_rev,
+
+  "src/gears/gears":
+    "http://gears.googlecode.com/svn/trunk/gears" + gears_rev,
+
+  "src/gears/third_party":
+    "http://gears.googlecode.com/svn/trunk/third_party" + gears_rev,
+}
+
+# checkdeps.py shouldn't check include paths for files in these dirs:
+skip_child_includes = [
+   "gears",
+   "third_party",
+]

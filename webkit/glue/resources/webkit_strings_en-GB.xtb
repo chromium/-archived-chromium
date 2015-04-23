@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="en-GB">
+<translation id="4420062214988137980">Plug-in installation failed</translation>
+<translation id="1235745349614807883">Clear Recent Searches</translation>
+<translation id="3825324228893189080">Additional plug-in needed</translation>
+<translation id="2965480764085142436"><ph name="PLUGIN"/> plug-in is not installed</translation>
+<translation id="5048533449481078685">list marker</translation>
+<translation id="4202807286478387388">jump</translation>
+<translation id="4611115858363067980"><ph name="FILENAME"/><ph name="WIDTH"/>×<ph name="HEIGHT"/></translation>
+<translation id="4317653869502688143">Please confirm that you would like to install the <ph name="PLUGIN"/> plug-in. You should only install plug-ins that you trust.</translation>
+<translation id="7658239707568436148">Cancel</translation>
+<translation id="795667975304826397">No file chosen</translation>
+<translation id="1275511093094545429"><ph name="PLUGIN"/> plug-in needed</translation>
+<translation id="8662565117025751661">Downloading plug-in...</translation>
+<translation id="8141602879876242471">This is a searchable index. Enter search keywords:</translation>
+<translation id="6845533974506654842">press</translation>
+<translation id="8244226242650769279">image map</translation>
+<translation id="1383141426028388991">Failed to install plug-in from <ph name="URL"/></translation>
+<translation id="2548326553472216322">No recent searches</translation>
+<translation id="5944544982112848342">2048 (High Grade)</translation>
+<translation id="3040011195152428237">link</translation>
+<translation id="8281246460978372009">After installing the plug-in, click here to refresh</translation>
+<translation id="7364796246159120393">Choose File</translation>
+<translation id="8964020114565522021">Drag file here</translation>
+<translation id="838869780401515933">tick</translation>
+<translation id="2846343701378493991">1024 (Medium Grade)</translation>
+<translation id="5476505524087279545">untick</translation>
+<translation id="679352192834563463">No plug-in available to display this content</translation>
+<translation id="3789841737615482174">Install</translation>
+<translation id="6663448176199120256">Recent Searches</translation>
+<translation id="3600343118165084788">Click here to download plug-in</translation>
+<translation id="6807599807928161586">web area</translation>
+<translation id="5939518447894949180">Reset</translation>
+<translation id="3771786644471114952">Get Plug-in</translation>
+<translation id="1842960171412779397">select</translation>
+<translation id="6119846243427417423">activate</translation>
+<translation id="3926627843712816530">Please confirm that you would like to install this plug-in. You should only install plug-ins that you trust.</translation>
+<translation id="4838490908464673667">The required plug-in is not installed</translation>
+<translation id="8597182159515967513">heading</translation>
+<translation id="2653659639078652383">Submit</translation>
+</translationbundle>

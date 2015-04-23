@@ -1,0 +1,50 @@
+<html>
+<body>
+<embed id="plg" type="application/x-webkit-test-netscape"></embed><P>
+
+This tests that http URLs with plugins cannot access file URLs
+via the plugin. (Tests the NPN_GetURL API)
+
+<div id="result"></div>
+<iframe name="output" id="output"></iframe>
+
+<script>
+var NPERR_NO_ERROR = 0;
+
+function callback(result) {
+  // If we get a callback, then webkit attempted to load 
+  // the file.
+  var result = document.getElementById("result");
+  result.innerHTML = "FAILED - unexpected result " + result;
+  layoutTestController.notifyDone();
+}
+
+function checkresults() {
+  var result = document.getElementById("result");
+  var output = document.getElementById("output");
+  if (output.innerHTML == "") {
+    result.innerHTML = "SUCCESS";
+  } else {
+    result.innerHTML = "FAILED - content was loaded!";
+  }
+  layoutTestController.notifyDone();
+}
+
+function runtest() {
+  // Which file URL we attempt to load doesn't matter,
+  // and it doesn't even matter if the file exists.
+  // Webkit should block the load entirely.  If we get
+  // a callback on it - success or failure - then webkit
+  // attempted to load.
+  var subfile = "file:///c:/windows/system32/cmd.exe";
+  var plg = document.getElementById("plg");
+  plg.getURLNotify(subfile, "output", "callback()");
+  setTimeout("checkresults()", 500);
+}
+
+layoutTestController.waitUntilDone();
+runtest();
+</script>
+</body>
+</html>
+

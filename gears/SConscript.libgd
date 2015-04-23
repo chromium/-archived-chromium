@@ -1,0 +1,88 @@
+# Copyright (c) 2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Ripped and modded from chrome.
+
+Import('env')
+
+env = env.Clone(
+)
+
+env.Replace(
+    LIBGD_DIR = '$THIRD_PARTY_DIR/libgd',
+    CPPPATH = [
+        '$LIBGD_DIR',
+        '$THIRD_PARTY_DIR/libjpeg',
+        '$THIRD_PARTY_DIR/libpng',
+        '$THIRD_PARTY_DIR/zlib',
+        '$VC80_CPPPATH',
+    ],
+)
+
+env.Append(
+    CPPDEFINES = [
+        'HAVE_CONFIG_H',
+	'BGDWIN32',
+    ],
+
+)
+ 
+if env['OS'] == 'win32':
+  env.Append(
+      CPPFLAGS = [
+# Disable some warnings when building third-party code, so we can enable /WX.
+# Examples:
+#   warning C4244: conversion from 'type1' to 'type2', possible loss of data
+#   warning C4018: signed/unsigned mismatch in comparison
+#   warning C4003: not enough actual parameters for macro
+          '/wd4244',
+          '/wd4996',
+          '/wd4005',
+          '/wd4142',
+          '/wd4018',
+          '/wd4133',
+          '/wd4102',
+      ],
+  )
+elif env['OS'] in ['linux', 'osx']:
+  env.Append(
+      CPPFLAGS = [
+          '-Wno-unused-variable',
+          '-Wno-unused-function',
+          '-Wno-unused-label',
+      ],
+  )
+
+input_files = [
+        '$LIBGD_DIR/gd.c',
+        '$LIBGD_DIR/gdfx.c',
+        '$LIBGD_DIR/gd_security.c',
+        '$LIBGD_DIR/gd_gd.c',
+        '$LIBGD_DIR/gd_gd2.c',
+        '$LIBGD_DIR/gd_io.c',
+        '$LIBGD_DIR/gd_io_dp.c',
+        '$LIBGD_DIR/gd_gif_in.c',
+        '$LIBGD_DIR/gd_gif_out.c',
+        '$LIBGD_DIR/gd_io_file.c',
+        '$LIBGD_DIR/gd_io_ss.c',
+        '$LIBGD_DIR/gd_jpeg.c',
+        '$LIBGD_DIR/gd_png.c',
+        '$LIBGD_DIR/gd_ss.c',
+        '$LIBGD_DIR/gd_topal.c',
+        '$LIBGD_DIR/gd_wbmp.c',
+        '$LIBGD_DIR/gdcache.c',
+        '$LIBGD_DIR/gdfontg.c',
+        '$LIBGD_DIR/gdfontl.c',
+        '$LIBGD_DIR/gdfontmb.c',
+        '$LIBGD_DIR/gdfonts.c',
+        '$LIBGD_DIR/gdfontt.c',
+        '$LIBGD_DIR/gdft.c',
+        '$LIBGD_DIR/gdhelpers.c',
+        '$LIBGD_DIR/gdkanji.c',
+        '$LIBGD_DIR/gdtables.c',
+        '$LIBGD_DIR/gdxpm.c',
+        '$LIBGD_DIR/wbmp.c',
+]
+
+env.GearsStaticLibrary('gd', input_files)

@@ -1,0 +1,126 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<html>
+<head>
+  <title>Level Editor - Don't open this is a browser.
+  It's only good inside a SketchUp WebDialog</title>
+  <script type="text/javascript" src="init.js"></script>
+  <script type="text/javascript" src="autoincludes.js"></script>
+  <script type="text/javascript" src="gamelogic.js"></script>
+    <script type="text/javascript" src="sound/soundplayer.js"></script>
+
+<script>
+function parseWorld() {
+  url = 'skp:parse_world';
+  window.location.href = url;
+}
+
+function play() {
+  $('play-button').disabled = false;
+  $('pause-button').disabled = true;
+
+  url = 'skp:do_play@';
+  window.location.href = url;
+
+}
+
+function pause() {
+
+  $('play-button').disabled = false;
+  $('pause-button').disabled = true;
+  clearTimeout(timerID)
+}
+
+function save() {
+  url = 'skp:do_save@';
+  window.location.href = url;
+}
+
+function startNew() {
+  name = prompt("What do you want to call your new level?\n" +
+    "(Choose wisely... you can't rename yet.)","My First Level");
+  url = 'skp:do_new@';
+  url += 'name=' + name;
+  window.location.href = url;
+  $('export-button').disabled = false;
+  $('play-button').disabled = false;
+}
+
+function setWorldFromName(name) {
+  output.innerHTML += '<script type="text/javascript" src="autoincludes.js"><' + '/script>';
+  for (i=0;i<levels.length; i++) {
+    //alert('looking at ' + levels[i].colladaFile);
+    if (levels[i].colladaFile == name + '.o3dtgz') {
+      world = levels[i];
+      avatar = levels[i].actors[0];
+      nextFrame();
+      $('pause-button').disabled = false;
+      $('play-button').disabled = true;
+      break;
+    }
+  }
+
+}
+
+</script>
+</head>
+<style>
+A { font-family: sans-serif; text-decoration: none; }
+A:link    { color: yellow; }
+A:visited { color: yellow; }
+A:active  { color: yellow; }
+A:hover   { color: yellow; }
+BODY { font-family: sans-serif; }
+INPUT { width: 100%; text-align: left; padding-left: 6px; margin-top: 3px;}
+.head { background-color: black; color: gold; font-weight: bold; padding: 6px; }
+.levellink {
+  color: blue;
+  text-decoration: underline;
+  cursor: pointer;
+
+}
+</style>
+<body style="background-color:threedface;" onload="init()">
+  <div class="head">Select an action...</div>
+  <input type="button" onclick="startNew()" value="Start a new level from a template">
+  <input id="export-button" type="button" onclick="save()" disabled="true" value="Save this file and export to O3D">
+  <input id="play-button" type="button" disabled="true" onclick="play();" value="Play the level inside SketchUp">
+  <input id="pause-button" type="button" disabled="true" onclick="pause();" value="Pause playback">
+
+  <br><div class="head">Or select an existing level to load...</div>
+
+  <span id="content">List...</span>
+
+  <span id="output"></span>
+</body>
+</html>
+

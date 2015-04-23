@@ -1,0 +1,4 @@
+optipng.exe: v.0.5.5, under zlib/libpng license. Sources available at http://optipng.sourceforge.net/
+
+Sample use: (while in trunk/)
+  for /r %a in (*.png) do @chrome\tools\optipng -o7 %a

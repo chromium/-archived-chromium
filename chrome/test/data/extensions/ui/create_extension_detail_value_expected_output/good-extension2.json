@@ -1,0 +1,20 @@
+{
+  "id": "hpiknbiabeeppbpihjehijgoemciehgk",
+  "version": "2",
+  "name": "My extension 2",
+  "description": "",
+  "permissions": [],
+  "content_scripts": [],
+  "views": [
+    {
+      "path": "bar.html",
+      "render_proess_id": 42,
+      "render_view_id": 88
+    },
+    {
+      "path": "bar.html",
+      "render_proess_id": 0,
+      "render_view_id": 0
+    }
+  ]
+}

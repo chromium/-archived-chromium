@@ -1,0 +1,138 @@
+vars = {
+  "chromium_trunk":
+    "http://src.chromium.org/svn/trunk",
+  "nixysa_rev": "25",
+  "chromium_rev": "19057",
+  "o3d_code_rev": "91",
+}
+
+deps = {
+  "o3d/o3d_assets":
+    "http://o3d.googlecode.com/svn/trunk/googleclient/o3d_assets@" + Var("o3d_code_rev"),
+
+  "third_party/antlr3":
+    "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/antlr3@" + Var("o3d_code_rev"),
+
+  "third_party/cg":
+    "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/cg@" + Var("o3d_code_rev"),
+
+  "third_party/doxygen":
+    "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/doxygen@" + Var("o3d_code_rev"),
+
+  "third_party/fcollada":
+    "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/fcollada@" + Var("o3d_code_rev"),
+
+  "third_party/glew":
+    "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/glew@" + Var("o3d_code_rev"),
+
+  "third_party/java":
+    "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/java@" + Var("o3d_code_rev"),
+
+  "third_party/jsdoctoolkit":
+    "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/jsdoctoolkit@" + Var("o3d_code_rev"),
+
+  "third_party/pdiff":
+    "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/pdiff@" + Var("o3d_code_rev"),
+
+  "third_party/py":
+    "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/py@" + Var("o3d_code_rev"),
+
+  "third_party/scons":
+    "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/scons@" + Var("o3d_code_rev"),
+
+  "third_party/vectormath":
+    "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/vectormath@" + Var("o3d_code_rev"),
+
+  "third_party/wix_2_0_4221":
+    "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/wix_2_0_4221@" + Var("o3d_code_rev"),
+
+  "third_party/zip_utils":
+    "http://o3d.googlecode.com/svn/trunk/googleclient/third_party/zip_utils@" + Var("o3d_code_rev"),
+
+# Stuff from the Chromium tree.
+
+  "third_party/skia":
+    "http://skia.googlecode.com/svn/trunk@233",
+
+  "third_party/boost":
+    Var("chromium_trunk") + "/src/third_party/boost@" + Var("chromium_rev"),
+
+  "third_party/icu38":
+    Var("chromium_trunk") + "/deps/third_party/icu38@16445",
+
+  "third_party/libjpeg":
+    Var("chromium_trunk") + "/src/third_party/libjpeg@" + Var("chromium_rev"),
+
+  "third_party/libpng":
+    Var("chromium_trunk") + "/src/third_party/libpng@" + Var("chromium_rev"),
+
+  "third_party/zlib":
+    Var("chromium_trunk") + "/src/third_party/zlib@" + Var("chromium_rev"),
+
+  "v8":
+    "http://v8.googlecode.com/svn/trunk@2249",
+
+  "testing":
+    Var("chromium_trunk") + "/src/testing@" + Var("chromium_rev"),
+
+  "skia":
+    Var("chromium_trunk") + "/src/skia@" + Var("chromium_rev"),
+
+  "breakpad":
+    Var("chromium_trunk") + "/src/breakpad@" + Var("chromium_rev"),
+
+  "base":
+    Var("chromium_trunk") + "/src/base@" + Var("chromium_rev"),
+
+  # NACL has to be in this weird directory because it looks for
+  # googleclient two levels above it.
+  "third_party/native_client/googleclient/native_client":
+    "http://nativeclient.googlecode.com/svn/trunk/nacl/googleclient/native_client@188",
+
+  "breakpad/src":
+    "http://google-breakpad.googlecode.com/svn/trunk/src@346",
+
+  "third_party/nixysa/files":
+    "http://nixysa.googlecode.com/svn/trunk/nixysa@" + Var("nixysa_rev"),
+
+  "third_party/npapi/files":
+    "http://nixysa.googlecode.com/svn/trunk/third_party/npapi@" + Var("nixysa_rev"),
+
+  "third_party/ply/files":
+    "http://nixysa.googlecode.com/svn/trunk/third_party/ply-3.1@" + Var("nixysa_rev"),
+
+  "third_party/gflags/":
+    "http://google-gflags.googlecode.com/svn/trunk@30",
+
+  "testing/gtest":
+    "http://googletest.googlecode.com/svn/trunk@267",
+
+  "testing/gmock":
+    Var("chromium_trunk") + "/src/testing/gmock@" + Var("chromium_rev"),
+#    "http://googlemock.googlecode.com/svn/tags/release-1.0.0",
+
+  # Stuff needed for GYP to run
+  "build":
+    Var("chromium_trunk") + "/src/build@" + Var("chromium_rev"),
+
+  "tools/gyp":
+    "http://gyp.googlecode.com/svn/trunk@525",
+}
+
+deps_os = {
+  "win": {
+    "third_party/cygwin":
+      "/trunk/deps/third_party/cygwin@11984",
+
+    "third_party/python_24":
+      Var("chromium_trunk") + "/deps/third_party/python_24@7444",
+  },
+}
+
+hooks = [
+  {
+    # A change to a .gyp, .gypi, or to GYP itself shound run the generator.
+    "pattern": "\\.gypi?$|[/\\\\]src[/\\\\]tools[/\\\\]gyp[/\\\\]",
+    "action": ["python", "tools/gyp/gyp_dogfood", "o3d/build/all.gyp", "--depth", ".."],
+  },
+]

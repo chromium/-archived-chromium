@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="ca">
+<translation id="4420062214988137980">Error en la instal·lació del complement</translation>
+<translation id="1235745349614807883">Esborra les cerques recents</translation>
+<translation id="3825324228893189080">Es necessita un complement addicional</translation>
+<translation id="2965480764085142436">El complement <ph name="PLUGIN"/> no està instal·lat</translation>
+<translation id="5048533449481078685">marcador de llistes</translation>
+<translation id="4202807286478387388">salta</translation>
+<translation id="4611115858363067980"><ph name="FILENAME"/><ph name="WIDTH"/>×<ph name="HEIGHT"/></translation>
+<translation id="4317653869502688143">Confirma que vols instal·lar el complement <ph name="PLUGIN"/>. Només hauries d'instal·lar complements fiables.</translation>
+<translation id="7658239707568436148">Cancel·la</translation>
+<translation id="795667975304826397">No heu seleccionat cap fitxer.</translation>
+<translation id="1275511093094545429">Es necessita el complement <ph name="PLUGIN"/></translation>
+<translation id="8662565117025751661">S'està baixant el complement...</translation>
+<translation id="8141602879876242471">És un índex on es poden realitzar cerques. Introdueix els termes de cerca:</translation>
+<translation id="6845533974506654842">prem</translation>
+<translation id="8244226242650769279">mapa d'imatges</translation>
+<translation id="1383141426028388991">S'ha produït un error en instal·lar el connector des de <ph name="URL"/></translation>
+<translation id="2548326553472216322">No hi ha cerques recents</translation>
+<translation id="5944544982112848342">2048 (Gran)</translation>
+<translation id="3040011195152428237">enllaç</translation>
+<translation id="8281246460978372009">Després d'instal·lar el complement, fes clic aquí per actualitzar.</translation>
+<translation id="7364796246159120393">Selecciona el fitxer</translation>
+<translation id="8964020114565522021">Arrossegueu el fitxer aquí.</translation>
+<translation id="838869780401515933">marca</translation>
+<translation id="2846343701378493991">1024 (Mitjà)</translation>
+<translation id="5476505524087279545">desmarca</translation>
+<translation id="679352192834563463">No hi ha cap complement disponible per mostrar aquest contingut</translation>
+<translation id="3789841737615482174">Instal·la</translation>
+<translation id="6663448176199120256">Cerques recents</translation>
+<translation id="3600343118165084788">Fes clic aquí per baixar el complement</translation>
+<translation id="6807599807928161586">àrea web</translation>
+<translation id="5939518447894949180">Restablir</translation>
+<translation id="3771786644471114952">Obtén el complement</translation>
+<translation id="1842960171412779397">selecciona</translation>
+<translation id="6119846243427417423">activa</translation>
+<translation id="3926627843712816530">Confirma que vols instal·lar aquest complement. Només hauries d'instal·lar complements fiables.</translation>
+<translation id="4838490908464673667">El complement necessari no està instal·lat</translation>
+<translation id="8597182159515967513">Capçalera</translation>
+<translation id="2653659639078652383">Envia</translation>
+</translationbundle>

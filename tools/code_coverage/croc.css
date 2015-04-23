@@ -1,0 +1,124 @@
+/*
+ * croc.css - styles for croc HTML output
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *        * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *        * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following disclaimer
+ *     in the documentation and/or other materials provided with the
+ *     distribution.
+ *        * Neither the name of Google Inc. nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
+ *
+ *     THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *     "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *     LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ *     A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ *     OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ *     SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ *     LIMITED TO, PROCUREMENT  OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ *     DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ *     THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ *     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ *     OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+body {
+	font-family:arial;
+}
+
+table {
+	border-collapse:collapse;
+	border-width:0px;
+	border-style:solid;
+}
+
+thead {
+	background-color:#C0C0E0;
+	text-align:center;
+}
+
+td {
+	padding-right:10px;
+	padding-left:10px;
+	font-size:small;
+	border-width:1px;
+	border-style:solid;
+	border-color:black;
+}
+
+td.secdesc {
+	text-align:center;
+	font-size:medium;
+	font-weight:bold;
+	border-width:0px;
+	border-style:none;
+	padding-top:10px;
+	padding-bottom:5px;
+}
+
+td.section {
+	background-color:#D0D0F0;
+	text-align:center;
+}
+
+td.stat {
+	text-align:center;
+}
+
+td.number {
+	text-align:right;
+}
+
+td.graph {
+	/* Hide the dummy character */
+	color:#FFFFFF;
+	padding-left:6px;
+}
+
+td.high_pct {
+	text-align:right;
+	background-color:#B0FFB0;
+}
+td.mid_pct {
+	text-align:right;
+	background-color:#FFFF90;
+}
+td.low_pct {
+	text-align:right;
+	background-color:#FFB0B0;
+}
+
+
+span.missing {
+	background-color:#FFB0B0;
+}
+span.instr {
+	background-color:#FFFF90;
+}
+span.covered {
+	background-color:#B0FFB0;
+}
+
+span.g_missing {
+	background-color:#FF4040;
+}
+span.g_instr {
+	background-color:#FFFF00;
+}
+span.g_covered {
+	background-color:#40FF40;
+}
+
+p.time {
+	padding-top:10px;
+	font-size:small;
+	font-style:italic;
+}

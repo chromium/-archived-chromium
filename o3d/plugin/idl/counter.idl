@@ -1,0 +1,238 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+typedef float[] NumberArray;
+typedef NumberArray[] NumberArrayArray;
+
+%[
+  A Counter counts seconds, ticks or render frames depending on the type of
+  counter. You can set where it starts counting from and where it stops counting
+  at, whether or not it is running or paused and how it loops or does not loop.
+  You can also give it callbacks to call at specific count values.
+%]
+[nocpp, include="core/cross/counter.h"] class Counter
+    : ParamObject {
+
+  callback void CounterCallback();
+
+  %[
+    \var CountMode
+    \li CONTINUOUS, Keep running the counter forever.
+    \li ONCE, Stop at start or end depending on the direction.
+    \li CYCLE, When at end, jump back to start or visa versa.
+    \li OSCILLATE, Go from start to end back to start.
+    };
+  %]
+  enum CountMode {
+    CONTINUOUS,
+    ONCE,
+    CYCLE,
+    OSCILLATE
+  };
+
+  %[
+    Whether or not this counter is running. Default = true.
+  %]
+  [getter, setter] bool running_;
+
+  %[
+    Which direction this counter is counting. Default = true.
+  %]
+  [getter, setter] bool forward_;
+
+  %[
+    The start count for this counter. Default = 0.
+  %]
+  [getter, setter] float start_;
+
+  %[
+    The end count for this counter. Default = 0.
+  %]
+  [getter, setter] float end_;
+
+  %[
+    The current count value for this counter. Default = 0.
+  %]
+  [getter] float count_;
+
+  %[
+    The current count mode for this counter. Default = CONTINUOUS.
+  %]
+  [getter, setter] CountMode count_mode_;
+
+  %[
+    Sets the current count value for this counter as well as the resetting
+    the state of the callbacks.
+
+    In other words. Assume start = 1, end = 5, count = 1, and you have a
+    callback at 3.
+
+    <code>
+    myCounter.start = 1;
+    myCounter.end = 5;
+    myCounter.addCallback(3, myCallback);
+    myCounter.reset();
+
+    myCounter.advance(2);  // count is now 3, myCallback is called.
+    myCounter.advance(2);  // count is now 5
+    </code>
+
+    vs.
+
+    <code>
+    myCounter.start = 1;
+    myCounter.end = 5;
+    myCounter.addCallback(3, myCallback);
+    myCounter.reset();
+
+    myCounter.advance(2);  // count is now 3, myCallback is called.
+    myCounter.setCount(3); // count is now 3, callback state has been reset.
+    myCounter.advance(2);  // count is now 5, myCallback is called.
+    </code>
+
+    In the second case myCallback was called twice.
+
+    \param count Value to set the count to.
+  %]
+  void SetCount(float count);
+
+  %[
+    A multiplier used when advancing the count. The default value is 1.0.
+    For example you could set this to 0.5 to run the counter at half speed
+    or 2.0 to run it at double speed. Default = 1.
+  %]
+  [getter, setter] float multiplier_;
+
+  %[
+    Resets the counter back to the start or end time depending on the forward
+    setting and also resets the Callback state.
+    Note: Reset does not change the running state of the counter.
+  %]
+  void Reset();
+
+  %[
+    Advances the counter the given amount. The actual amount advanced depends
+    on the forward and multiplier settings. The formula is
+
+    <code>
+    new_count = count + advance_amount * multiplier * (forward ? 1.0 : -1.0);
+    </code>
+
+    Any callbacks that fall in the range between the counter's current count and
+    the amount advanced will be called.
+
+    This function is normally called automatically by the client if the counter
+    is set to running = true. but you can call it manually.
+
+    \param advance_amount Amount to advance count.
+  %]
+  [userglue] void Advance(float advance_amount);
+
+  %[
+    Adds a callback for a given count value. Only one callback can be
+    added to a specific count value. If another callback is added with the
+    same count value the previous callback for that value will be replaced.
+
+    Note: A callback at start will only get called when counting backward, a
+    callback at end will only get called counting forward.
+
+    \param count Count at which to call callback.
+    \param counter_callback Callback to call at given count.
+  %]
+  void AddCallback(float count, CounterCallback? counter_callback);
+
+  %[
+    Removes a callback for a given count value.
+
+    \param count Count to remove callback for,
+    \return true if there was a callback for that count, false if there was not
+        a callback for that count.
+  %]
+  bool RemoveCallback(float count);
+
+  %[
+    Removes all the callbacks on this counter.
+  %]
+  void RemoveAllCallbacks();
+
+  %[
+    Returns all the counts for which all callback has been added.
+    \return Array of counts.
+  %]
+  [userglue, const] NumberArray GetCallbackCounts();
+
+  [verbatim=cpp_glue] %{
+    // This is userglue because we need to force the client to call any
+    // callbacks that need to be called as a result of the advance.
+    void userglue_method_Advance(o3d::Counter* self,
+                                 float advance_amount) {
+      o3d::Counter::CounterCallbackQueue queue;
+      self->Advance(advance_amount, &queue);
+      queue.CallCounterCallbacks();
+    }
+    std::vector<float> userglue_method_GetCallbackCounts(
+        o3d::Counter* self) {
+      const o3d::Counter::CounterCallbackInfoArray& callbacks =
+          self->GetCallbacks();
+      std::vector<float> float_array;
+      float_array.reserve(callbacks.size());
+      for (unsigned ii = 0; ii < callbacks.size(); ++ii) {
+        float_array.push_back(callbacks[ii].count());
+      }
+      return float_array;
+    }
+  %}
+};  // Counter
+
+%[
+  A Counter that counts seconds.
+%]
+[nocpp, include="core/cross/counter.h"] class SecondCounter
+    : Counter {
+};  // SecondCounter
+
+%[
+  A Counter that counts render frames.
+%]
+[nocpp, include="core/cross/counter.h"] class RenderFrameCounter
+    : Counter {
+};  // RenderFrameCounter
+
+%[
+  A Counter that counts ticks.
+%]
+[nocpp, include="core/cross/counter.h"] class TickCounter
+    : Counter {
+};  // TickCounter
+
+}  // namespace o3d

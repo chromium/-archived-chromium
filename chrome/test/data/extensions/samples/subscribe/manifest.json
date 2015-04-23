@@ -1,0 +1,21 @@
+{
+  "content_scripts": [
+    {
+      "js": [
+        "feed_finder.js"
+      ], 
+      "matches": [
+        "http://*/*"
+      ]
+    }
+  ], 
+  "description": "Adds one-click subscription with Google Reader to your toolbar",
+  "name": "Subscribe in Reader", 
+  "permissions": [
+    "http://www.google.com/*"
+  ], 
+  "toolstrips": [
+    "toolstrip.html"
+  ], 
+  "version": "1.0"
+}

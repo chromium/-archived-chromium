@@ -1,0 +1,144 @@
+<html><head>
+<script>
+  function noop(x) {
+  }
+
+  var red1_clicks = 0;
+  var green1_clicks = 0;
+  var red2_clicks = 0;
+  var green2_clicks = 0;
+  
+  function red1Clicked() {
+    red1_clicks++;
+    checkResult();
+  }
+  
+  function green1Clicked() {
+    green1_clicks++;
+    checkResult();
+  }
+
+  function red2Clicked() {
+    red2_clicks++;
+    checkResult();
+  }
+  
+  function green2Clicked() {
+    green2_clicks++;
+    checkResult();
+  }
+
+  function checkResult() {
+    var output = document.getElementById("output");
+    var success = green1_clicks > 0 && green2_clicks > 0 &&
+        red1_clicks == 0 && red2_clicks == 0;
+    output.innerHTML = success ? "SUCCESS" : "FAILURE";
+    document.title = output.innerHTML;
+  }
+
+  function moveMouseOver(elem_name) {
+    var elem = document.getElementById(elem_name);
+    var x = elem.offsetLeft + elem.scrollWidth / 2;
+    var y = elem.offsetTop + elem.scrollHeight / 2;
+    var offsetParent = elem.offsetParent;
+    while (offsetParent) {
+      x += offsetParent.offsetLeft;
+      y += offsetParent.offsetTop;
+      offsetParent = offsetParent.offsetParent;
+    }
+    eventSender.mouseMoveTo(x, y);
+  }
+
+  function runTest() {
+    if (window.layoutTestController && window.eventSender) {
+      layoutTestController.waitUntilDone();
+      layoutTestController.dumpAsText();
+      setTimeout(doClickRed1, 0);
+    }
+  }
+
+  function doClickRed1() {
+    moveMouseOver("red_square1");
+    eventSender.mouseDown();
+    setTimeout(doClickGreen1, 0);
+  }
+
+  function doClickGreen1() {
+    eventSender.mouseUp();
+    moveMouseOver("green_square1");
+    eventSender.mouseDown();
+    setTimeout(doClickRed2, 0);
+  }
+
+  function doClickRed2() {
+    eventSender.mouseUp();
+    moveMouseOver("red_square2");
+    eventSender.mouseDown();
+    setTimeout(doClickGreen2, 0);
+  }
+
+  function doClickGreen2() {
+    eventSender.mouseUp();
+    moveMouseOver("green_square2");
+    eventSender.mouseDown();
+    setTimeout(finishTest, 0);
+  }
+
+  function finishTest() {
+    eventSender.mouseUp();
+    layoutTestController.notifyDone();
+  }
+</script>
+</head>
+<body onload="runTest()">
+
+<p>Test that iframe shims can be used to overlay HTML above a windowed
+plugin.  The red squares should be hidden by the blue flash plugin, and
+the green squares should appear over it.  To test interactively, click
+over the buttons on the squares.  You should not be able to reach the
+red squares' buttons.</p>
+
+<p>Prints "SUCCESS" on success, "FAILURE" on failure.</p>
+
+<div id=output>NONE</div>
+
+<div style="position: relative;">
+
+   <!-- div with a lower stacking order than the plugin, appearing earlier in the document -->
+   <div id="red_square1"
+	style="z-index: 50; background-color: #FF0000; position: absolute; top: -10; left: 50; width: 100px; height: 100px; overflow: hidden;">
+     <input type="button" onclick="red1Clicked()" value="red" style="position: absolute; top: 10; left: 10; width: 80px; height: 80px;"/>
+     <iframe src="javascript:void(0);" frameborder=0 style="z-index: -1; position: absolute; left: 0px; top: 0px; width: 100%; height: 100%;"></iframe>
+   </div>
+  
+   <!-- div with a higher stacking order than the plugin, appearing earlier in the document -->
+   <div id="green_square1"
+	style="z-index: 150; background-color: #00FF00; position: absolute; top: -10; left: 250; width: 100px; height: 100px; overflow: hidden;">
+     <input type="button" onclick="green1Clicked()" value="green" style="position: absolute; top: 10; left: 10; width: 80px; height: 80px;"/>
+     <iframe src="javascript:void(0);" frameborder=0 style="z-index: -1; position: absolute; left: 0px; top: 0px; width: 100%; height: 100%;"></iframe>
+   </div>
+
+   <div id="embed_parent" style="position: absolute; z-index: 100"
+     <embed width="400" height="200" wmode="window" loop="false" quality="high" src="simple_blank.swf" type="application/x-shockwave-flash" />
+   </div>
+
+   <!-- div with a lower stacking order than the plugin, appearing later in the document -->
+   <div id="red_square2"
+	style="z-index: 50; background-color: #FF0000; position: absolute; top: 110; left: 50; width: 100px; height: 100px; overflow: hidden;">
+     <input type="button" onclick="red2Clicked()" value="red" style="position: absolute; top: 10; left: 10; width: 80px; height: 80px;"/>
+     <iframe src="javascript:void(0);" frameborder=0 style="z-index: -1; position: absolute; left: 0px; top: 0px; width: 100%; height: 100%;"></iframe>
+   </div>
+  
+   <!-- div with a higher stacking order than the plugin, appearing later in the document -->
+   <div id="green_square2"
+	style="z-index: 150; background-color: #00FF00; position: absolute; top: 110; left: 250; width: 100px; height: 100px; overflow: hidden;">
+     <input type="button" onclick="green2Clicked()" value="green" style="position: absolute; top: 10; left: 10; width: 80px; height: 80px;"/>
+     <iframe src="javascript:void(0);" frameborder=0 style="z-index: -1; position: absolute; left: 0px; top: 0px; width: 100%; height: 100%;"></iframe>
+   </div>
+
+
+
+</div>
+
+</body>
+</html>

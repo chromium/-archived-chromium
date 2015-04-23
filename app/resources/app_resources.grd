@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grit latest_public_release="0" current_release="1">
+  <outputs>
+    <output filename="grit/app_resources.h" type="rc_header">
+      <emit emit_type='prepend'></emit>
+    </output>
+    <output filename="app_resources.rc" type="rc_all" />
+    <output filename="app_resources.pak" type="data_package" />
+  </outputs>
+  <release seq="1">
+    <includes>
+
+      <include name="IDR_DEFAULT_FAVICON" file="default_favicon.png" type="BINDATA" />
+
+      <!-- Window Controls -->
+      <include name="IDR_CLOSE" file="close.png" type="BINDATA" />
+      <include name="IDR_CLOSE_H" file="close_h.png" type="BINDATA" />
+      <include name="IDR_CLOSE_P" file="close_p.png" type="BINDATA" />
+      <include name="IDR_CLOSE_SA" file="close_sa.png" type="BINDATA" />
+      <include name="IDR_CLOSE_SA_H" file="close_sa_h.png" type="BINDATA" />
+      <include name="IDR_CLOSE_SA_P" file="close_sa_p.png" type="BINDATA" />
+      <include name="IDR_RESTORE" file="restore.png" type="BINDATA" />
+      <include name="IDR_RESTORE_H" file="restore_h.png" type="BINDATA" />
+      <include name="IDR_RESTORE_P" file="restore_p.png" type="BINDATA" />
+      <include name="IDR_MAXIMIZE" file="maximize.png" type="BINDATA" />
+      <include name="IDR_MAXIMIZE_H" file="maximize_h.png" type="BINDATA" />
+      <include name="IDR_MAXIMIZE_P" file="maximize_p.png" type="BINDATA" />
+      <include name="IDR_MINIMIZE" file="minimize.png" type="BINDATA" />
+      <include name="IDR_MINIMIZE_H" file="minimize_h.png" type="BINDATA" />
+      <include name="IDR_MINIMIZE_P" file="minimize_p.png" type="BINDATA" />
+
+      <!-- Frame Images -->
+      <include name="IDR_FRAME" file="frame_default.png" type="BINDATA" />
+      <include name="IDR_FRAME_INACTIVE" file="frame_default_inactive.png" type="BINDATA" />
+
+      <!-- Frame Edge Images -->
+      <include name="IDR_WINDOW_BOTTOM_CENTER" file="window_bottom_center.png" type="BINDATA" />
+      <include name="IDR_WINDOW_BOTTOM_LEFT_CORNER" file="window_bottom_left_corner.png" type="BINDATA" />
+      <include name="IDR_WINDOW_BOTTOM_RIGHT_CORNER" file="window_bottom_right_corner.png" type="BINDATA" />
+      <include name="IDR_WINDOW_LEFT_SIDE" file="window_left_side.png" type="BINDATA" />
+      <include name="IDR_WINDOW_RIGHT_SIDE" file="window_right_side.png" type="BINDATA" />
+      <include name="IDR_WINDOW_TOP_CENTER" file="window_top_center.png" type="BINDATA" />
+      <include name="IDR_WINDOW_TOP_LEFT_CORNER" file="window_top_left_corner.png" type="BINDATA" />
+      <include name="IDR_WINDOW_TOP_RIGHT_CORNER" file="window_top_right_corner.png" type="BINDATA" />
+
+      <!-- Frame Client Edge Images -->
+      <include name="IDR_APP_TOP_RIGHT" file="app_top_right.png" type="BINDATA" />
+      <include name="IDR_APP_TOP_CENTER" file="app_top_center.png" type="BINDATA" />
+      <include name="IDR_APP_TOP_LEFT" file="app_top_left.png" type="BINDATA" />
+      <include name="IDR_CONTENT_BOTTOM_CENTER" file="content_bottom_center.png" type="BINDATA" />
+      <include name="IDR_CONTENT_BOTTOM_LEFT_CORNER" file="content_bottom_left_corner.png" type="BINDATA" />
+      <include name="IDR_CONTENT_BOTTOM_RIGHT_CORNER" file="content_bottom_right_corner.png" type="BINDATA" />
+      <include name="IDR_CONTENT_LEFT_SIDE" file="content_left_side.png" type="BINDATA" />
+      <include name="IDR_CONTENT_RIGHT_SIDE" file="content_right_side.png" type="BINDATA" />
+
+      <!-- Throbber -->
+      <include name="IDR_THROBBER" file="throbber.png" type="BINDATA" />
+
+      <!-- Input Validation -->
+      <include name="IDR_INPUT_GOOD" file="input_good.png" type="BINDATA" />
+      <include name="IDR_INPUT_ALERT" file="input_alert.png" type="BINDATA" />
+
+      <!-- Folder Icons -->
+      <include name="IDR_FOLDER_CLOSED" file="folder_closed.png" type="BINDATA" />
+      <include name="IDR_FOLDER_OPEN" file="folder_open.png" type="BINDATA" />
+      <include name="IDR_FOLDER_CLOSED_RTL" file="folder_closed_rtl.png" type="BINDATA" />
+      <include name="IDR_FOLDER_OPEN_RTL" file="folder_open_rtl.png" type="BINDATA" />
+
+      <!-- Toolbar Button highlights -->
+      <include name="IDR_TEXTBUTTON_TOP_LEFT_H" file="textbutton_tl_h.png" type="BINDATA" />
+      <include name="IDR_TEXTBUTTON_TOP_H" file="textbutton_t_h.png" type="BINDATA" />
+      <include name="IDR_TEXTBUTTON_TOP_RIGHT_H" file="textbutton_tr_h.png" type="BINDATA" />
+      <include name="IDR_TEXTBUTTON_LEFT_H" file="textbutton_l_h.png" type="BINDATA" />
+      <include name="IDR_TEXTBUTTON_CENTER_H" file="textbutton_c_h.png" type="BINDATA" />
+      <include name="IDR_TEXTBUTTON_RIGHT_H" file="textbutton_r_h.png" type="BINDATA" />
+      <include name="IDR_TEXTBUTTON_BOTTOM_LEFT_H" file="textbutton_bl_h.png" type="BINDATA" />
+      <include name="IDR_TEXTBUTTON_BOTTOM_H" file="textbutton_b_h.png" type="BINDATA" />
+      <include name="IDR_TEXTBUTTON_BOTTOM_RIGHT_H" file="textbutton_br_h.png" type="BINDATA" />
+      <include name="IDR_TEXTBUTTON_TOP_LEFT_P" file="textbutton_tl_p.png" type="BINDATA" />
+      <include name="IDR_TEXTBUTTON_TOP_P" file="textbutton_t_p.png" type="BINDATA" />
+      <include name="IDR_TEXTBUTTON_TOP_RIGHT_P" file="textbutton_tr_p.png" type="BINDATA" />
+      <include name="IDR_TEXTBUTTON_LEFT_P" file="textbutton_l_p.png" type="BINDATA" />
+      <include name="IDR_TEXTBUTTON_CENTER_P" file="textbutton_c_p.png" type="BINDATA" />
+      <include name="IDR_TEXTBUTTON_RIGHT_P" file="textbutton_r_p.png" type="BINDATA" />
+      <include name="IDR_TEXTBUTTON_BOTTOM_LEFT_P" file="textbutton_bl_p.png" type="BINDATA" />
+      <include name="IDR_TEXTBUTTON_BOTTOM_P" file="textbutton_b_p.png" type="BINDATA" />
+      <include name="IDR_TEXTBUTTON_BOTTOM_RIGHT_P" file="textbutton_br_p.png" type="BINDATA" />
+
+      <!-- Menus -->
+      <include name="IDR_MENU_DROPARROW" file="menu_droparrow.png" type="BINDATA" />
+    </includes>
+  </release>
+</grit>

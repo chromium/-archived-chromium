@@ -1,0 +1,12 @@
+<script>
+function LayoutTestController() {
+  this.dumpAsText = function () { };
+  this.waitUntilDone = function () { };
+  this.notifyDone = function () {
+    var cookie = "%COOKIE%=" + encodeURIComponent(document.firstChild.innerText);
+    document.cookie = cookie;
+  };
+}
+var layoutTestController = new LayoutTestController();
+window.layoutTestController = layoutTestController;
+</script>

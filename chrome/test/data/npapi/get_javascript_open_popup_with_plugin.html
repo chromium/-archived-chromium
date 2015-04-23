@@ -1,0 +1,27 @@
+<html>
+
+<head>
+<script src="npapi.js"></script>
+</head>
+
+
+<body>
+<div id="statusPanel" style="border: 1px solid red; width: 100%">
+Test running....
+</div>
+
+
+Open Popup window with plugin Test<p>
+This test instantiates a plugin which executes the window.open call to open a popup <br />
+window with a windowed plugin instance. The test verifies that the plugin instance in <br />
+the popup window always has a valid parent window. <br />
+
+<embed type="application/vnd.npapi-test" 
+	src="foo"
+	name="plugin_javascript_open_popup_with_plugin"
+	id="1"
+	mode="np_embed"
+>
+
+</body>
+</html>

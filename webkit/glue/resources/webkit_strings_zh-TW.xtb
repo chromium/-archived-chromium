@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="zh-TW">
+<translation id="4420062214988137980">外掛程式安裝失敗</translation>
+<translation id="1235745349614807883">清除最近的搜尋記錄</translation>
+<translation id="3825324228893189080">需要額外的外掛程式</translation>
+<translation id="2965480764085142436"><ph name="PLUGIN"/> 外掛程式尚未安裝</translation>
+<translation id="5048533449481078685">清單標記</translation>
+<translation id="4202807286478387388">跳至另一頁</translation>
+<translation id="4611115858363067980"><ph name="FILENAME"/><ph name="WIDTH"/>×<ph name="HEIGHT"/></translation>
+<translation id="4317653869502688143">請確定您想要安裝 <ph name="PLUGIN"/> 外掛程式。建議您僅安裝可靠的外掛程式。</translation>
+<translation id="7658239707568436148">取消</translation>
+<translation id="795667975304826397">未選擇檔案</translation>
+<translation id="1275511093094545429">需要 <ph name="PLUGIN"/> 外掛程式</translation>
+<translation id="8662565117025751661">正在下載外掛程式...</translation>
+<translation id="8141602879876242471">這是可搜尋的索引，輸入搜尋關鍵字:</translation>
+<translation id="6845533974506654842">按下</translation>
+<translation id="8244226242650769279">影像地圖</translation>
+<translation id="1383141426028388991">無法從 <ph name="URL"/> 安裝外掛程式</translation>
+<translation id="2548326553472216322">沒有近期的搜尋</translation>
+<translation id="5944544982112848342">2048 (高級)</translation>
+<translation id="3040011195152428237">連結</translation>
+<translation id="8281246460978372009">安裝外掛程式後，請按一下這裡更新</translation>
+<translation id="7364796246159120393">選擇檔案</translation>
+<translation id="8964020114565522021">拖曳檔案至此</translation>
+<translation id="838869780401515933">選取</translation>
+<translation id="2846343701378493991">1024 (中等)</translation>
+<translation id="5476505524087279545">取消選取</translation>
+<translation id="679352192834563463">沒有外掛程式可供顯示目前內容</translation>
+<translation id="3789841737615482174">安裝</translation>
+<translation id="6663448176199120256">最近的搜尋</translation>
+<translation id="3600343118165084788">按一下這裡以下載掛程式</translation>
+<translation id="6807599807928161586">網頁範圍</translation>
+<translation id="5939518447894949180">重設</translation>
+<translation id="3771786644471114952">取得外掛程式</translation>
+<translation id="1842960171412779397">選取</translation>
+<translation id="6119846243427417423">啟動</translation>
+<translation id="3926627843712816530">請確定您想要安裝此外掛程式。建議您僅安裝可靠的外掛程式。</translation>
+<translation id="4838490908464673667">未安裝要求的外掛程式</translation>
+<translation id="8597182159515967513">標題</translation>
+<translation id="2653659639078652383">提交</translation>
+</translationbundle>

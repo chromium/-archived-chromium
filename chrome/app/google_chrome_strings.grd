@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This file contains definitions of strings that are specific to
+Google Chrome. These strings will be translated for each locale that Google
+Chrome supports. -->
+
+<grit base_dir="." latest_public_release="0" current_release="1"
+      source_lang_id="en" enc_check="möl">
+  <outputs>
+    <output filename="grit/google_chrome_strings.h" type="rc_header">
+      <emit emit_type='prepend'></emit>
+    </output>
+    <!-- We use different filenames here so we can include the file easily in
+         vcproj files using the $(CHROMIUM_BUILD). -->
+    <output filename="strings_google_chrome_ar.rc" type="rc_all" lang="ar" />
+    <output filename="strings_google_chrome_bg.rc" type="rc_all" lang="bg" />
+    <output filename="strings_google_chrome_bn.rc" type="rc_all" lang="bn" />
+    <output filename="strings_google_chrome_ca.rc" type="rc_all" lang="ca" />
+    <output filename="strings_google_chrome_cs.rc" type="rc_all" lang="cs" />
+    <output filename="strings_google_chrome_da.rc" type="rc_all" lang="da" />
+    <output filename="strings_google_chrome_de.rc" type="rc_all" lang="de" />
+    <output filename="strings_google_chrome_el.rc" type="rc_all" lang="el" />
+    <output filename="strings_google_chrome_en-GB.rc" type="rc_all" lang="en-GB" />
+    <output filename="strings_google_chrome_en-US.rc" type="rc_all" lang="en" />
+    <output filename="strings_google_chrome_es.rc" type="rc_all" lang="es" />
+    <output filename="strings_google_chrome_es-419.rc" type="rc_all" lang="es-419" />
+    <output filename="strings_google_chrome_et.rc" type="rc_all" lang="et" />
+    <output filename="strings_google_chrome_fi.rc" type="rc_all" lang="fi" />
+    <output filename="strings_google_chrome_fil.rc" type="rc_all" lang="fil" />
+    <output filename="strings_google_chrome_fr.rc" type="rc_all" lang="fr" />
+    <output filename="strings_google_chrome_gu.rc" type="rc_all" lang="gu" />
+    <output filename="strings_google_chrome_he.rc" type="rc_all" lang="he" />
+    <output filename="strings_google_chrome_hi.rc" type="rc_all" lang="hi" />
+    <output filename="strings_google_chrome_hr.rc" type="rc_all" lang="hr" />
+    <output filename="strings_google_chrome_hu.rc" type="rc_all" lang="hu" />
+    <output filename="strings_google_chrome_id.rc" type="rc_all" lang="id" />
+    <output filename="strings_google_chrome_it.rc" type="rc_all" lang="it" />
+    <output filename="strings_google_chrome_ja.rc" type="rc_all" lang="ja" />
+    <output filename="strings_google_chrome_kn.rc" type="rc_all" lang="kn" />
+    <output filename="strings_google_chrome_ko.rc" type="rc_all" lang="ko" />
+    <output filename="strings_google_chrome_lt.rc" type="rc_all" lang="lt" />
+    <output filename="strings_google_chrome_lv.rc" type="rc_all" lang="lv" />
+    <output filename="strings_google_chrome_ml.rc" type="rc_all" lang="ml" />
+    <output filename="strings_google_chrome_mr.rc" type="rc_all" lang="mr" />
+    <output filename="strings_google_chrome_nl.rc" type="rc_all" lang="nl" />
+    <output filename="strings_google_chrome_nb.rc" type="rc_all" lang="no" />
+    <!-- 'no' for Norwegian Bokmål. It should be 'nb'. -->
+    <output filename="strings_google_chrome_or.rc" type="rc_all" lang="or" />
+    <output filename="strings_google_chrome_pl.rc" type="rc_all" lang="pl" />
+    <output filename="strings_google_chrome_pt-BR.rc" type="rc_all" lang="pt-BR" />
+    <output filename="strings_google_chrome_pt-PT.rc" type="rc_all" lang="pt-PT" />
+    <output filename="strings_google_chrome_ro.rc" type="rc_all" lang="ro" />
+    <output filename="strings_google_chrome_ru.rc" type="rc_all" lang="ru" />
+    <output filename="strings_google_chrome_sk.rc" type="rc_all" lang="sk" />
+    <output filename="strings_google_chrome_sl.rc" type="rc_all" lang="sl" />
+    <output filename="strings_google_chrome_sr.rc" type="rc_all" lang="sr" />
+    <output filename="strings_google_chrome_sv.rc" type="rc_all" lang="sv" />
+    <output filename="strings_google_chrome_ta.rc" type="rc_all" lang="ta" />
+    <output filename="strings_google_chrome_te.rc" type="rc_all" lang="te" />
+    <output filename="strings_google_chrome_th.rc" type="rc_all" lang="th" />
+    <output filename="strings_google_chrome_tr.rc" type="rc_all" lang="tr" />
+    <output filename="strings_google_chrome_uk.rc" type="rc_all" lang="uk" />
+    <output filename="strings_google_chrome_vi.rc" type="rc_all" lang="vi" />
+    <output filename="strings_google_chrome_zh-CN.rc" type="rc_all" lang="zh-CN" />
+    <output filename="strings_google_chrome_zh-TW.rc" type="rc_all" lang="zh-TW" />
+
+    <output filename="google_chrome_strings_ar.pak" type="data_package" lang="ar" />
+    <output filename="google_chrome_strings_bg.pak" type="data_package" lang="bg" />
+    <output filename="google_chrome_strings_bn.pak" type="data_package" lang="bn" />
+    <output filename="google_chrome_strings_ca.pak" type="data_package" lang="ca" />
+    <output filename="google_chrome_strings_cs.pak" type="data_package" lang="cs" />
+    <output filename="google_chrome_strings_da.pak" type="data_package" lang="da" />
+    <output filename="google_chrome_strings_de.pak" type="data_package" lang="de" />
+    <output filename="google_chrome_strings_el.pak" type="data_package" lang="el" />
+    <output filename="google_chrome_strings_en-GB.pak" type="data_package" lang="en-GB" />
+    <output filename="google_chrome_strings_en-US.pak" type="data_package" lang="en" />
+    <output filename="google_chrome_strings_es.pak" type="data_package" lang="es" />
+    <output filename="google_chrome_strings_es-419.pak" type="data_package" lang="es-419" />
+    <output filename="google_chrome_strings_et.pak" type="data_package" lang="et" />
+    <output filename="google_chrome_strings_fi.pak" type="data_package" lang="fi" />
+    <output filename="google_chrome_strings_fil.pak" type="data_package" lang="fil" />
+    <output filename="google_chrome_strings_fr.pak" type="data_package" lang="fr" />
+    <output filename="google_chrome_strings_gu.pak" type="data_package" lang="gu" />
+    <output filename="google_chrome_strings_he.pak" type="data_package" lang="he" />
+    <output filename="google_chrome_strings_hi.pak" type="data_package" lang="hi" />
+    <output filename="google_chrome_strings_hr.pak" type="data_package" lang="hr" />
+    <output filename="google_chrome_strings_hu.pak" type="data_package" lang="hu" />
+    <output filename="google_chrome_strings_id.pak" type="data_package" lang="id" />
+    <output filename="google_chrome_strings_it.pak" type="data_package" lang="it" />
+    <output filename="google_chrome_strings_ja.pak" type="data_package" lang="ja" />
+    <output filename="google_chrome_strings_kn.pak" type="data_package" lang="kn" />
+    <output filename="google_chrome_strings_ko.pak" type="data_package" lang="ko" />
+    <output filename="google_chrome_strings_lt.pak" type="data_package" lang="lt" />
+    <output filename="google_chrome_strings_lv.pak" type="data_package" lang="lv" />
+    <output filename="google_chrome_strings_ml.pak" type="data_package" lang="ml" />
+    <output filename="google_chrome_strings_mr.pak" type="data_package" lang="mr" />
+    <output filename="google_chrome_strings_nl.pak" type="data_package" lang="nl" />
+    <output filename="google_chrome_strings_nb.pak" type="data_package" lang="no" />
+    <!-- 'no' for Norwegian Bokmål. It should be 'nb'. -->
+    <output filename="google_chrome_strings_or.pak" type="data_package" lang="or" />
+    <output filename="google_chrome_strings_pl.pak" type="data_package" lang="pl" />
+    <output filename="google_chrome_strings_pt-BR.pak" type="data_package" lang="pt-BR" />
+    <output filename="google_chrome_strings_pt-PT.pak" type="data_package" lang="pt-PT" />
+    <output filename="google_chrome_strings_ro.pak" type="data_package" lang="ro" />
+    <output filename="google_chrome_strings_ru.pak" type="data_package" lang="ru" />
+    <output filename="google_chrome_strings_sk.pak" type="data_package" lang="sk" />
+    <output filename="google_chrome_strings_sl.pak" type="data_package" lang="sl" />
+    <output filename="google_chrome_strings_sr.pak" type="data_package" lang="sr" />
+    <output filename="google_chrome_strings_sv.pak" type="data_package" lang="sv" />
+    <output filename="google_chrome_strings_ta.pak" type="data_package" lang="ta" />
+    <output filename="google_chrome_strings_te.pak" type="data_package" lang="te" />
+    <output filename="google_chrome_strings_th.pak" type="data_package" lang="th" />
+    <output filename="google_chrome_strings_tr.pak" type="data_package" lang="tr" />
+    <output filename="google_chrome_strings_uk.pak" type="data_package" lang="uk" />
+    <output filename="google_chrome_strings_vi.pak" type="data_package" lang="vi" />
+    <output filename="google_chrome_strings_zh-CN.pak" type="data_package" lang="zh-CN" />
+    <output filename="google_chrome_strings_zh-TW.pak" type="data_package" lang="zh-TW" />
+  </outputs>
+  <translations>
+    <file path="resources/google_chrome_strings_ar.xtb" lang="ar" />
+    <file path="resources/google_chrome_strings_bg.xtb" lang="bg" />
+    <file path="resources/google_chrome_strings_bn.xtb" lang="bn" />
+    <file path="resources/google_chrome_strings_ca.xtb" lang="ca" />
+    <file path="resources/google_chrome_strings_cs.xtb" lang="cs" />
+    <file path="resources/google_chrome_strings_da.xtb" lang="da" />
+    <file path="resources/google_chrome_strings_de.xtb" lang="de" />
+    <file path="resources/google_chrome_strings_el.xtb" lang="el" />
+    <file path="resources/google_chrome_strings_en-GB.xtb" lang="en-GB" />
+    <file path="resources/google_chrome_strings_es.xtb" lang="es" />
+    <file path="resources/google_chrome_strings_es-419.xtb" lang="es-419" />
+    <file path="resources/google_chrome_strings_et.xtb" lang="et" />
+    <file path="resources/google_chrome_strings_fi.xtb" lang="fi" />
+    <file path="resources/google_chrome_strings_fil.xtb" lang="fil" />
+    <file path="resources/google_chrome_strings_fr.xtb" lang="fr" />
+    <file path="resources/google_chrome_strings_gu.xtb" lang="gu" />
+    <file path="resources/google_chrome_strings_he.xtb" lang="he" />
+    <file path="resources/google_chrome_strings_hi.xtb" lang="hi" />
+    <file path="resources/google_chrome_strings_hr.xtb" lang="hr" />
+    <file path="resources/google_chrome_strings_hu.xtb" lang="hu" />
+    <file path="resources/google_chrome_strings_id.xtb" lang="id" />
+    <file path="resources/google_chrome_strings_it.xtb" lang="it" />
+    <file path="resources/google_chrome_strings_ja.xtb" lang="ja" />
+    <file path="resources/google_chrome_strings_kn.xtb" lang="kn" />
+    <file path="resources/google_chrome_strings_ko.xtb" lang="ko" />
+    <file path="resources/google_chrome_strings_lt.xtb" lang="lt" />
+    <file path="resources/google_chrome_strings_lv.xtb" lang="lv" />
+    <file path="resources/google_chrome_strings_ml.xtb" lang="ml" />
+    <file path="resources/google_chrome_strings_mr.xtb" lang="mr" />
+    <file path="resources/google_chrome_strings_nl.xtb" lang="nl" />
+    <file path="resources/google_chrome_strings_no.xtb" lang="no" />
+    <file path="resources/google_chrome_strings_or.xtb" lang="or" />
+    <file path="resources/google_chrome_strings_pl.xtb" lang="pl" />
+    <file path="resources/google_chrome_strings_pt-BR.xtb" lang="pt-BR" />
+    <file path="resources/google_chrome_strings_pt-PT.xtb" lang="pt-PT" />
+    <file path="resources/google_chrome_strings_ro.xtb" lang="ro" />
+    <file path="resources/google_chrome_strings_ru.xtb" lang="ru" />
+    <file path="resources/google_chrome_strings_sk.xtb" lang="sk" />
+    <file path="resources/google_chrome_strings_sl.xtb" lang="sl" />
+    <file path="resources/google_chrome_strings_sr.xtb" lang="sr" />
+    <file path="resources/google_chrome_strings_sv.xtb" lang="sv" />
+    <file path="resources/google_chrome_strings_ta.xtb" lang="ta" />
+    <file path="resources/google_chrome_strings_te.xtb" lang="te" />
+    <file path="resources/google_chrome_strings_th.xtb" lang="th" />
+    <file path="resources/google_chrome_strings_tr.xtb" lang="tr" />
+    <file path="resources/google_chrome_strings_uk.xtb" lang="uk" />
+    <file path="resources/google_chrome_strings_vi.xtb" lang="vi" />
+    <file path="resources/google_chrome_strings_zh-CN.xtb" lang="zh-CN" />
+    <file path="resources/google_chrome_strings_zh-TW.xtb" lang="zh-TW" />
+  </translations>
+  <release seq="1" allow_pseudo="false">
+    <messages fallback_to_english="true">
+      <message name="IDS_PRODUCT_NAME" desc="The Chrome application name">
+        Google Chrome
+      </message>
+      <message name="IDS_CERT_ERROR_COMMON_NAME_INVALID_EXTRA_INFO_2" desc="2nd paragraph of extra information for an unsafe common name in an X509 certificate">
+        In this case, the address listed in the certificate does not match the address of the website your browser tried to go to. One possible reason for this is that your communications are being intercepted by an attacker who is presenting a certificate for a different website, which would cause a mismatch. Another possible reason is that the server is set up to return the same certificate for multiple websites, including the one you are attempting to visit, even though that certificate is not valid for all of those websites. Google Chrome can say for sure that you reached &lt;strong&gt;<ph name="DOMAIN2">$1<ex>paypal.com</ex></ph>&lt;/strong&gt;, but cannot verify that that is the same site as &lt;strong&gt;<ph name="DOMAIN">$2<ex>www.paypal.com</ex></ph>&lt;/strong&gt; which you intended to reach. If you proceed, Chrome will not check for any further name mismatches. In general, it is best not to proceed past this point.
+      </message>
+      <message name="IDS_CERT_ERROR_EXPIRED_DETAILS" desc="Details for an expired X509 certificate">
+        You attempted to reach &lt;strong&gt;<ph name="DOMAIN">$1<ex>paypal.com</ex></ph>&lt;/strong&gt;, but the server presented an expired certificate. No information is available to indicate whether that certificate has been compromised since its expiration. This means Google Chrome cannot guarantee that you are communicating with &lt;strong&gt;<ph name="DOMAIN2">$2<ex>paypal.com</ex></ph>&lt;/strong&gt; and not an attacker. You should not proceed.
+      </message>
+      <message name="IDS_CERT_ERROR_NOT_YET_VALID_DETAILS" desc="Details for an X509 certificate that is not yet valid">
+        You attempted to reach &lt;strong&gt;<ph name="DOMAIN">$1<ex>paypal.com</ex></ph>&lt;/strong&gt;, but the server presented a certificate that is not yet valid. No information is available to indicate whether that certificate can be trusted. Google Chrome cannot reliably guarantee that you are communicating with &lt;strong&gt;<ph name="DOMAIN2">$2<ex>paypal.com</ex></ph>&lt;/strong&gt; and not an attacker. You should ensure that your clock and time zone are set correctly on your computer. If they are not, you should correct any issues and refresh this page. If they are correct, you should not proceed.
+      </message>
+      <message name="IDS_CERT_ERROR_AUTHORITY_INVALID_DETAILS" desc="Details for an X509 certificate with an invalid authority">
+        You attempted to reach &lt;strong&gt;<ph name="DOMAIN">$1<ex>paypal.com</ex></ph>&lt;/strong&gt;, but the server presented a certificate issued by an entity that is not trusted by your computer's operating system. This may mean that the server has generated its own security credentials, which Google Chrome cannot rely on for identity information, or an attacker may be trying to intercept your communications. You should not proceed, &lt;strong&gt;especially&lt;/strong&gt; if you have never seen this warning before for this site.
+      </message>
+      <message name="IDS_CERT_ERROR_CONTAINS_ERRORS_DETAILS" desc="Details of the error page for an X509 certificate that contains errors">
+        You attempted to reach &lt;strong&gt;<ph name="DOMAIN">$1<ex>paypal.com</ex></ph>&lt;/strong&gt;, but the certificate that the server presented contains errors. Google Chrome cannot use a certificate with errors and cannot validate the identity of the site that you have attempted to connect to. Your connection is not secure and you should not proceed.
+      </message>
+      <message name="IDS_TASK_MANAGER_TITLE" desc="The title of the Task Manager window">
+        Task Manager - Google Chrome
+      </message>
+      <message name="IDS_SESSION_CRASHED_VIEW_MESSAGE" desc="Message shown when the last session didn't exit cleanly.">
+        Google Chrome didn't shut down correctly. To reopen the pages you had open, click Restore.
+      </message>
+      <!-- Browser Window Title Format -->
+      <message name="IDS_BROWSER_WINDOW_TITLE_FORMAT" desc="The format for titles displayed in tabs and popup windows">
+        <ph name="PAGE_TITLE">$1<ex>Google</ex></ph> - Google Chrome
+      </message>
+      <message name="IDS_BROWSER_WINDOW_TITLE_FORMAT_NO_LOGO" desc="The format for titles displayed when the window has no distributor logo displayed">
+        <ph name="PAGE_TITLE">$1<ex>Google</ex></ph>
+      </message>
+      <message name="IDS_ABOUT_VERSION_COMPANY_NAME" desc="Company name on the about pages">
+        Google Inc.
+      </message>
+      <message name="IDS_ABOUT_VERSION_COPYRIGHT" desc="Copyright information on the about pages">
+        Copyright © 2006-2009 Google Inc. All Rights Reserved.
+      </message>
+      <message name="IDS_ABOUT_VERSION_LICENSE" desc="The label below the copyright message, containing the URLs.">
+        Google Chrome is made possible by the <ph name="BEGIN_LINK_CHROMIUM">BEGIN_LINK_CHR</ph>Chromium<ph name="END_LINK_CHROMIUM">END_LINK_CHR</ph> open source project and other <ph name="BEGIN_LINK_OSS">BEGIN_LINK_OSS</ph>open source software<ph name="END_LINK_OSS">END_LINK_OSS</ph>.
+      </message>
+      <message name="IDS_ABOUT_TERMS_OF_SERVICE" desc="The terms of service label in the About box.">
+        Google Chrome <ph name="TERMS_OF_SERVICE_LINK">$1<ex>Terms of Service</ex></ph>
+      </message>
+      <message name="IDS_TERMS_OF_SERVICE" desc="The Terms of Service link text in the About box. Used in IDS_ABOUT_TERMS_OF_SERVICE.">
+        Terms of Service
+      </message>
+      <message name="IDS_ACCNAME_APP" desc="The accessible name for the app menu.">
+        Chrome
+      </message>
+      <message name="IDS_ACCNAME_TOOLBAR" desc="The accessible name for the application's toolbar.">
+        Google Chrome Toolbar
+      </message>
+      <!-- Hung Browser Detector -->
+      <message name="IDS_BROWSER_HUNGBROWSER_MESSAGE" desc="Content of the dialog box shown when the browser is hung">
+        Google Chrome is unresponsive. Restart now?
+      </message>
+      <message name="IDS_IMPORT_PROGRESS_INFO" desc="Explanatory text for the importing progress dialog">
+        Google Chrome is now importing the following items from <ph name="BROWSER_COMPONENT">$1<ex>History</ex></ph>:
+      </message>
+      <message name="IDS_IMPORTER_LOCK_TEXT" desc="The message to be displayed on dialog">
+        Sadly, your Mozilla Firefox settings are not available while that browser is running. To import those settings to Google Chrome, save your work and close all Firefox windows. Then click Continue.
+      </message>
+      <message name="IDS_BUGREPORT_CHROME_MISBEHAVES">
+        Google Chrome is misbehaving
+      </message>
+      <message name="IDS_ABOUT_CHROME_TITLE" desc="Dialog title">
+        About Google Chrome
+      </message>
+      <!-- Uninstall messages -->
+      <message name="IDS_UNINSTALL_CLOSE_APP" desc="Message to user when uninstall detects other app instance running">
+        Please close all Chrome windows and try again.
+      </message>
+      <message name="IDS_UNINSTALL_VERIFY" desc="Message to confirm user wants to uninstall">
+        Are you sure you want to uninstall Google Chrome?
+      </message>
+      <message name="IDS_UNINSTALL_CHROME" desc="The text of the shortcut in the Start Menu for uninstalling chrome.">
+        Uninstall Google Chrome
+      </message>
+      <message name="IDS_FIRSTRUN_DLG_TITLE" desc="Dialog title for first-run dialog">
+        Welcome to Google Chrome
+      </message>
+      <message name="IDS_FIRSTRUN_DLG_TEXT" desc="Explains what the first-run dialog does">
+        Google Chrome is ready to complete your installation.
+      </message>
+      <message name="IDS_FIRSTRUN_DLG_DETAIL" desc="Text for detailed explanation of actions">
+        Google Chrome will do these tasks:
+      </message>
+      <message name="IDS_FIRSTRUN_DLG_OK" desc="Text for OK button on first-run dialog">
+        Start Google Chrome
+      </message>
+      <message name="IDS_FIRSTRUN_DLG_ACTION2" desc="Second action item on first-run dialog">
+        Add Google Chrome shortcuts to your desktop, quick launch bar, and Start menu
+      </message>
+      <message name="IDS_FR_CUSTOMIZE_DEFAULT_BROWSER" desc="Default browser checkbox label">
+        Make Google Chrome the default browser
+      </message>
+      <message name="IDS_FR_CUSTOMIZE_SHORTCUTS" desc="Create shortcuts preface text">
+        Create Google Chrome shortcuts in these locations:
+      </message>
+      <message name="IDS_NEW_TAB_MOST_VISITED_INTRO"
+               desc="Displayed to explain the Most Visited concept when there aren't enough most visited items.">
+        The "Most visited" area shows the websites that you use most often. After using Google Chrome for a while, you will see your most visited sites whenever you open a new tab. You can learn more about this and other features on the <ph name="BEGIN_LINK">&lt;a href="$1"&gt;</ph>Getting Started page<ph name="END_LINK">&lt;/a&gt;</ph>.
+      </message>
+      <message name="IDS_EXTERNAL_PROTOCOL_INFORMATION" desc="General information about what Chrome is trying to do when opening this external protocol">
+        Google Chrome needs to launch an external application to handle <ph name="SCHEME">$1<ex>acrobat:</ex></ph> links. The link requested is <ph name="PROTOLINK">$2<ex>acrobat:yourpdf</ex></ph>.
+      </message>
+      <!-- Strings used to warn that an OS is not supported -->
+      <message name="IDS_UNSUPPORTED_OS_WIN2000" desc="The text used to warn the user that Windows 2000 is not supported">
+        Google Chrome does not support Windows 2000. Some features may not work.
+      </message>
+      <message name="IDS_UNSUPPORTED_OS" desc="The text used to warn the user that current OS is not supported">
+        Google Chrome does not support <ph name="OS_NAME">$1<ex>Windows 2000</ex></ph>.
+      </message>
+      <message name="IDS_OPTIONS_CHROME_LANGUAGE_INFO" desc="Information text about the language of various Chrome features">
+        Change the language used in Google Chrome menus, dialog boxes, and tooltips.
+      </message>
+      <message name="IDS_OPTIONS_CHROME_UI_LANGUAGE" desc="The documentation string of the 'Chrome UI language' preference">
+        Google Chrome language:
+      </message>
+      <message name="IDS_OPTIONS_RESTART_REQUIRED" desc="The message displayed for an option that requires a restart to take effect. This appears in a message box if an option is changed that requires a restart.">
+        Please close all Chrome windows and restart Chrome for this change to take effect.
+      </message>
+      <message name="IDS_OPTIONS_RESET_MESSAGE" desc="The message shown when the user presses the 'Reset Chrome options' button">
+        When you reset Google Chrome options any changes you've made will be reverted to the default settings. Do you want to Reset Chrome options?
+      </message>
+      <message name="IDS_CANT_WRITE_USER_DIRECTORY_SUMMARY" desc="Summary of problem displayed in dialog when we can't create a directory for this user.">
+        Google Chrome cannot read and write to its data directory:\n\n<ph name="USER_DATA_DIRECTORY">$1<ex>C:\Documents and Settings\devint\Local Settings\Application Data\Google\Chrome</ex></ph>
+      </message>
+      <message name="IDS_OPTIONS_ENABLE_LOGGING" desc="The label of the checkbox to enable/disable crash and user metrics logging">
+        Help make Google Chrome better by automatically sending usage statistics and crash reports to Google
+      </message>
+      <message name="IDS_PROFILE_TOO_NEW_ERROR" desc="Error displayed on startup when the profile is from a newer version of the product and can not be read">
+        Your profile can not be used because it is from a newer version of Google Chrome.\n\nSome features may be unavailable. Please specify a different profile directory or use a newer version of Chrome.
+      </message>
+      <!-- Crash Recovery Dialog -->
+      <message name="IDS_CRASH_RECOVERY_TITLE" desc="Title of dialog shown when the browser crashes.">
+        Google Chrome
+      </message>
+      <message name="IDS_CRASH_RECOVERY_CONTENT" desc="Text content telling the user the browser has crashed.">
+        Whoa! Google Chrome has crashed. Restart now?
+      </message>
+      <message name="IDS_PASSWORD_MANAGER_SAVE_PASSWORD_PROMPT" desc="Info bar message to save a password">
+        Do you want Chrome to save your password?
+      </message>
+      <message name="IDS_IMPORT_PROGRESS_STATUS_CANCEL_CONFIRM" desc="Import cancellation confirmation">
+        If you cancel now, not all items will be imported. You can import again later from the Chrome menu.
+      </message>
+      <message name="IDS_FR_BUBBLE_QUESTION" desc="Main text for the bubble">
+        Chrome uses your default search engine, which is currently set to <ph name="PAGE_TITLE">$1<ex>Google</ex></ph>. Do you want to keep your default search engine?
+      </message>
+      <message name="IDS_CANT_WRITE_USER_DIRECTORY_EXIT_BUTTON" desc="Text on button of dialog that closes Chrome if we can't create a directory for this user.">
+        Exit Chrome
+      </message>
+      <message name="IDS_MACHINE_LEVEL_INSTALL_CONFLICT" desc="Error message to display when user tries to run user level Chromium even though machine level Chromium is already installed.">
+        An administrator has installed Google Chrome on this system, and it is available for all users. The system-level Google Chrome will replace your user-level installation now.
+      </message>
+      <message name="IDS_INSTALL_HIGHER_VERSION" desc="Error displayed when higher version already exists.">
+        This computer already has a more recent version of Google Chrome. If the software is not working, please uninstall Google Chrome and download it again.
+      </message>
+      <message name="IDS_INSTALL_USER_LEVEL_EXISTS" desc="Error displayed during system level install if user level Chromium is already installed.">
+        Google Chrome has already been installed for this user. If the software is not working, please uninstall Google Chrome and download it again.
+      </message>
+      <message name="IDS_INSTALL_SYSTEM_LEVEL_EXISTS" desc="Error displayed during user level install if system level Chromium is already installed.">
+        Google Chrome is already installed and available to all users of this computer. If you want to install Google Chrome at the user level, you must first uninstall the system-level version installed by an administrator.
+      </message>
+      <message name="IDS_INSTALL_FAILED" desc="Error displayed if installation fails due to some unknown error.">
+        Installation failed due to unspecified error. If Google Chrome is currently running, please close it and try again.
+      </message>
+      <message name="IDS_SETUP_PATCH_FAILED" desc="Error message when setup.exe fails to patch itself.">
+        Installation failed due to unspecified error. Please download Google Chrome again.
+      </message>
+      <message name="IDS_INSTALL_OS_NOT_SUPPORTED" desc="Error displayed if OS is not supported">
+        Google Chrome requires Windows Vista or Windows XP with SP2 or higher.
+      </message>
+      <message name="IDS_INSTALL_OS_ERROR" desc="Error displayed when any Windows API call fails and we do not have more specific information.">
+        An operating system error occurred during installation. Please download Google Chrome again.
+      </message>
+      <message name="IDS_INSTALL_TEMP_DIR_FAILED" desc="Error displayed when we fail to create temporary directory during installation.">
+        The installer couldn't create a temporary directory. Please check for free disk space and permission to install software.
+      </message>
+      <message name="IDS_INSTALL_UNCOMPRESSION_FAILED" desc="Error when when we can not uncompress installation archive.">
+        The installer failed to uncompress archive. Please download Google Chrome again.
+      </message>
+      <message name="IDS_INSTALL_INVALID_ARCHIVE" desc="Error displayed when we can not open the installation archive.">
+        The installer archive is corrupted or invalid. Please download Google Chrome again.
+      </message>
+      <message name="IDS_INSTALL_INSUFFICIENT_RIGHTS" desc="Error displayed when a non admin user tries to attempt system level install/uninstall.">
+        You do not have appropriate rights for system-level install. Try running the installer again as Administrator.
+      </message>
+      <message name="IDS_INSTALL_APP_CONFLICT" desc="Error displayed if installation fails due to another existing application.">
+        A conflict with another installed application has been detected.
+      </message>
+      <message name="IDS_UNINSTALL_FAILED" desc="Error during uninstall if we can not find the installation directory from registry.">
+        Google Chrome is not installed or it failed to find installation directory. Please download Google Chrome again.
+      </message>
+      <message name="IDS_INSTALL_DIR_IN_USE" desc="Error during install if Google Chrome version is missing from registry but the installation directory exists and can not be deleted.">
+        Google Chrome installation directory seems to be in use. Please reboot your computer and try again.
+      </message>
+      <!-- Options Dialog -->
+      <message name="IDS_OPTIONS_DISABLE_SERVICES" desc="The text in the options panel that describes how we use web services to improve browsing experience.">
+        Google Chrome may use web services to improve your browsing experience - you may optionally disable these services.
+      </message>
+      <message name="IDS_IMPORT_BOOKMARKS" desc="Explanatory text for the importing progress dialog when importing a bookmarks.html file from the bookmark manager">
+        Google Chrome is now importing Favorites/Bookmarks.
+      </message>
+      <message name="IDS_START_IN_PROFILE_SHORTCUT_NAME" desc="Name of the desktop shortcut to start the application in a specific profile.">
+        Google Chrome for <ph name="profile_name">$1</ph>
+      </message>
+      <message name="IDS_OEM_MAIN_SHORTCUT_NAME" desc="Name of the desktop shortcut to start the application for OEM pre-installations.">
+        Internet Browser
+      </message>
+      <message name="IDS_SHORTCUT_TOOLTIP" desc="Text for the hover-on tooltip for the Google Chrome shortcuts.">
+        Access the Internet
+      </message>
+      <message name="IDS_UNINSTALL_DELETE_PROFILE" desc="Text to show user to ask whether to delete all the profile data also during uninstallation.">
+        Also delete your browsing data?
+      </message>
+      <message name="IDS_DEFAULT_BROWSER_INFOBAR_TEXT" desc="Text to show in the default browser query infobar.">
+        Hooray, you're back! But Google Chrome isn't your default browser.
+      </message>
+      <message name="IDS_DEFAULT_BROWSER_INFOBAR_SHORT_TEXT" desc="More compact text to show in the default browser query infobar.">
+        Google Chrome isn't your default browser.
+      </message>
+      <message name="IDS_EXIT_MAC" desc="The menu item to quit the browser in the app menu.">
+        Quit Google Chrome
+      </message>
+      <message name="IDS_HIDE_MAC" desc="The menu item to hide all browser windows in the app menu.">
+        Hide Google Chrome
+      </message>
+      <message name="IDS_HELP_MAC" desc="The menu item to show help in the Help menu.">
+        Google Chrome Help
+      </message>
+    </messages>
+  </release>
+</grit>

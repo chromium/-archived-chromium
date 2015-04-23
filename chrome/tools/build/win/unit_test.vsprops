@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="unit_test"
+	InheritedPropertySheets="$(SolutionDir)third_party\wtl\using_wtl.vsprops;$(SolutionDir)..\tools\grit\build\using_generated_resources.vsprops"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="$(SolutionDir).."
+		PreprocessorDefinitions="UNIT_TEST"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		AdditionalDependencies="rpcrt4.lib oleacc.lib comsupp.lib"
+	/>
+</VisualStudioPropertySheet>

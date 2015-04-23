@@ -1,0 +1,120 @@
+<?xml version='1.0' encoding='windows-1252'?>
+
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+  Wix script for the installer that puts the d3dx9 dll where o3d can find
+  it.
+-->
+
+<Wix xmlns='http://schemas.microsoft.com/wix/2003/01/wi'>
+
+  <Product Name='O3D Extras' Id='$(var.ExtrasProductGuid)'
+      Language='1033' Codepage='1252' Version='$(var.ExtrasVersion)'
+      Manufacturer='Google' UpgradeCode='$(var.ExtrasUpgradeCode)'>
+    <Package Id='$(var.ExtrasPackageGuid)' Keywords='Installer'
+        Description='O3D Extras Installer' Manufacturer='Google'
+        InstallerVersion='101' InstallPrivileges='limited'
+        Languages='1033' Compressed='yes' SummaryCodepage='1252' />
+
+    <Media Id='1' Cabinet='o3dExtras.cab' EmbedCab='yes'
+        CompressionLevel='high'/>
+
+    <Directory Id='TARGETDIR' Name='SourceDir'>
+      <Directory Id='AppDataFolder' Name='QFiles'>
+        <Directory Id='pu.MozillaDir' Name='Mozilla'>
+          <Directory Id='pu.FirefoxPluginsDir' Name='plugins'>
+            <Directory Id='O3DPrivateDllDir' Name='O3D'
+                LongName='O3DExtras'>
+              <Component Id='D3DXRedist' Guid='$(var.ExtrasD3DXComponentGuid)'>
+                <File Id='d3dx' Name="d3dx9_36.dll" Vital='yes'
+                  DiskId='1' src='$(var.DxRedistPath)\d3dx9_36.dll' />
+                <Condition>NOT (ALLUSERS)</Condition>
+              </Component>
+            </Directory>
+          </Directory>
+        </Directory>
+      </Directory>
+      <!-- Write the current version of the plugin to the Google Update
+      registry key for auto update. -->
+      <Component Id='pu.UpdateReg' Guid='$(var.ExtrasGoogleUpdateRegGuid)'>
+        <Registry Id='pu.UpdateRegistryKeys' Root='HKCU'
+            Key='$(var.ExtrasGoogleUpdateRegKey)'
+            Name='pv' Value='$(var.ExtrasVersion)' Action='write'
+            Type='string' />
+        <Registry Id='pu.UpdateRegistryKeys2' Root='HKCU'
+            Key='$(var.ExtrasGoogleUpdateRegKey)'
+            Name='name' Value='o3d_extras' Action='write'
+            Type='string' />
+        <Registry Id='pu.UpdateRegistryKeys3' Root='HKCU'
+            Key='$(var.ExtrasGoogleUpdateRegKey)'
+            Name='lang' Value='en' Action='write'
+            Type='string' />
+        <Condition>NOT (ALLUSERS)</Condition>
+      </Component>
+    </Directory>
+
+    <Feature
+        Id='UpdateRegistry'
+        Level='1'>
+      <ComponentRef
+          Id='pu.UpdateReg'/>
+    </Feature>
+    <Feature
+        Id='DirectX'
+        Level='1'>
+      <ComponentRef
+          Id='D3DXRedist'/>
+    </Feature>
+
+    <Upgrade Id='$(var.ExtrasUpgradeCode)'>
+      <UpgradeVersion
+          Minimum='0.0.0.0' IncludeMinimum='yes'
+          Maximum='$(var.ExtrasVersion)' IncludeMaximum='yes'
+          OnlyDetect='no' Property='UPGRADING'/>
+    </Upgrade>
+
+    <InstallExecuteSequence>
+      <UnregisterClassInfo>
+        (REMOVE="ALL") OR UPGRADING
+      </UnregisterClassInfo>
+      <RemoveExistingProducts After='InstallInitialize'>
+        UPGRADING
+      </RemoveExistingProducts>
+      <RegisterClassInfo/>
+    </InstallExecuteSequence>
+
+    <InstallUISequence>
+    </InstallUISequence>
+
+ </Product>
+</Wix>

@@ -1,0 +1,36 @@
+# List of chrome.dll's dependencies.
+
+dependents = [
+  'KERNEL32.dll',
+  'USER32.dll',
+  'ADVAPI32.dll',
+  'WINMM.dll',
+  'COMCTL32.dll',
+  'SHLWAPI.dll',
+  'GDI32.dll',
+  'SHELL32.dll',
+  'VERSION.dll',
+  'USP10.dll',
+  'ole32.dll',
+  'OLEAUT32.dll',
+  'OLEACC.dll',
+  'secur32.dll',
+  't2embed.dll',
+]
+
+delay_loaded = [
+  'CRYPTUI.dll',
+  'IMM32.dll',
+  'CRYPT32.dll',
+  'WINHTTP.dll',
+  'WININET.dll',
+  'WS2_32.dll',
+  'PSAPI.DLL',
+  'dwmapi.dll',
+  'dbghelp.dll',
+  'COMDLG32.dll',
+  'urlmon.dll',
+  'avcodec-52.dll',
+  'avformat-52.dll',
+  'avutil-50.dll',
+]

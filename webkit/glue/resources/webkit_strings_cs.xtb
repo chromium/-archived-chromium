@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="cs">
+<translation id="4420062214988137980">Nepodařilo se nainstalovat plugin</translation>
+<translation id="1235745349614807883">Smazat nedávná vyhledávání</translation>
+<translation id="3825324228893189080">Je potřeba další plugin</translation>
+<translation id="2965480764085142436">Není nainstalován plugin <ph name="PLUGIN"/></translation>
+<translation id="5048533449481078685">značka seznamu</translation>
+<translation id="4202807286478387388">přejít</translation>
+<translation id="4611115858363067980"><ph name="FILENAME"/><ph name="WIDTH"/>×<ph name="HEIGHT"/></translation>
+<translation id="4317653869502688143">Potvrďte prosím, že si přejete instalovat plugin <ph name="PLUGIN"/>. Měli byste instalovat pouze takové pluginy, kterým důvěřujete.</translation>
+<translation id="7658239707568436148">Zrušit</translation>
+<translation id="795667975304826397">Nebyl zvolen žádný soubor</translation>
+<translation id="1275511093094545429">Je potřeba plugin <ph name="PLUGIN"/></translation>
+<translation id="8662565117025751661">Stahování pluginu...</translation>
+<translation id="8141602879876242471">Toto je prohledávatelný index. Zadejte hledaná klíčová slova:</translation>
+<translation id="6845533974506654842">zmáčknout</translation>
+<translation id="8244226242650769279">obrázková mapa</translation>
+<translation id="1383141426028388991">Nepodařilo se nainstalovat plugin z adresy <ph name="URL"/></translation>
+<translation id="2548326553472216322">Žádná nedávná vyhledávání</translation>
+<translation id="5944544982112848342">2048 (vysoká kvalita)</translation>
+<translation id="3040011195152428237">odkaz</translation>
+<translation id="8281246460978372009">Po instalaci pluginu klikněte sem pro obnovení</translation>
+<translation id="7364796246159120393">Vybrat soubor</translation>
+<translation id="8964020114565522021">Přetáhnout soubor sem</translation>
+<translation id="838869780401515933">zaškrtnout</translation>
+<translation id="2846343701378493991">1024 (Střední kvalita)</translation>
+<translation id="5476505524087279545">odstranit zaškrtnutí</translation>
+<translation id="679352192834563463">Není k dispozici žádný plugin pro zobrazení tohoto obsahu</translation>
+<translation id="3789841737615482174">Instalovat</translation>
+<translation id="6663448176199120256">Nedávná vyhledávání</translation>
+<translation id="3600343118165084788">Pro stažení pluginu klikněte sem</translation>
+<translation id="6807599807928161586">oblast webu</translation>
+<translation id="5939518447894949180">Resetovat</translation>
+<translation id="3771786644471114952">Získat plugin</translation>
+<translation id="1842960171412779397">zvolit</translation>
+<translation id="6119846243427417423">aktivovat</translation>
+<translation id="3926627843712816530">Potvrďte, prosím, že si přejete instalovat tento plugin. Měli byste instalovat pouze takové pluginy, kterým důvěřujete.</translation>
+<translation id="4838490908464673667">Požadovaný plugin není nainstalován</translation>
+<translation id="8597182159515967513">záhlaví</translation>
+<translation id="2653659639078652383">Odeslat</translation>
+</translationbundle>

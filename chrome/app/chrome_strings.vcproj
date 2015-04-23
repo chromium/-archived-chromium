@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="chrome_strings"
+	ProjectGUID="{D9DDAF60-663F-49CC-90DC-3D08CC3D1B28}"
+	RootNamespace="chrome_strings"
+	Keyword="Win32Proj"
+	>
+	<Platforms>
+		<Platform
+			Name="Win32"
+		/>
+	</Platforms>
+	<ToolFiles>
+		<ToolFile
+			RelativePath="..\..\tools\grit\build\grit_localized_resources.rules"
+		/>
+	</ToolFiles>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			ConfigurationType="10"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\debug.vsprops"
+			>
+			<Tool
+				Name="GRIT Generated Localized Resources"
+				PreprocessorDefinitions="$(CHROMIUM_BUILD)"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			ConfigurationType="10"
+			InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\build\release.vsprops"
+			>
+			<Tool
+				Name="GRIT Generated Localized Resources"
+				PreprocessorDefinitions="$(CHROMIUM_BUILD)"
+			/>
+		</Configuration>
+	</Configurations>
+	<Files>
+		<File
+			RelativePath=".\chromium_strings.grd"
+			>
+		</File>
+		<File
+			RelativePath="$(OutDir)\grit_derived_sources\grit\chromium_strings.h"
+			>
+		</File>
+		<File
+			RelativePath=".\generated_resources.grd"
+			>
+		</File>
+		<File
+			RelativePath="$(OutDir)\grit_derived_sources\grit\generated_resources.h"
+			>
+		</File>
+		<File
+			RelativePath=".\google_chrome_strings.grd"
+			>
+		</File>
+		<File
+			RelativePath="$(OutDir)\grit_derived_sources\grit\google_chrome_strings.h"
+			>
+		</File>
+		<File
+			RelativePath=".\resources\locale_settings.grd"
+			>
+		</File>
+		<File
+			RelativePath="$(OutDir)\grit_derived_sources\grit\locale_settings.h"
+			>
+		</File>
+	</Files>
+</VisualStudioProject>

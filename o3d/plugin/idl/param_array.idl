@@ -1,0 +1,149 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+%[
+  A ParamArray is an object that holds an array of Params.
+%]
+
+[nocpp, include="core/cross/param_array.h"] class ParamArray
+    : NamedObject {
+
+  %[
+    Creates a Param of the given type at the index requested. If a Param
+    already exists at that index the new param will be replace it. If the
+    index is past the end of the current array params of the requested type
+    will be created to fill out the array to the requested index.
+
+    \param index index at which to create new param.
+    \param param_type_name The type of Param to create. For a list of valid
+       types see ParamObject.createParam
+    \return Param created at index or null if failure.
+
+  %]
+  [userglue] Param? CreateParam(unsigned int index, String param_type_name);
+
+  %[
+    Gets a Param by index.
+
+    \param index Index of Param to get.
+    \return The Param at index, or null if out of range.
+  %]
+  [userglue, const] Param? GetParam(unsigned int index);
+
+  %[
+    Removes a range of params.
+
+    \param start_index Index of first param to remove.
+    \param num_to_remove The number of params to remove starting at start_index.
+  %]
+  void RemoveParams(unsigned int start_index, unsigned int num_to_remove);
+
+  %[
+    Resizes the array.
+
+    \param num_params The number of params to make the array.
+    \param param_type_name The type of Param to create if resizing
+       requires params to be created.  For a list of valid types see
+       ParamObject.createParam
+  %]
+  [userglue] void Resize(unsigned int num_params, String param_type_name);
+
+  %[
+    Gets all the param on this param object.
+
+    Each access to this field gets the entire list, so it is best to get it
+    just once. For example:
+    \code
+    var params = ParamArray.params;
+    for (var i = 0; i < params.length; i++) {
+      var param = params[i];
+    }
+    \endcode
+
+    Note that modifications to this array [e.g. push()] will not affect
+    the underlying ParamObject, while modifications to the array's members
+    <strong>will</strong> affect them.
+  %]
+  [userglue_getter, getter] ParamVector params_;
+
+  %[
+    Returns the number of parameters in this ParamArray.
+  %]
+  [userglue_getter, getter] unsigned int length;
+
+  [verbatim=cpp_glue] %{
+    o3d::ParamVector userglue_getter_params_(
+      o3d::ParamArray *self) {
+      const o3d::ParamArray::ParamRefVector& src_params = self->params();
+      o3d::ParamVector params(src_params.size());
+      for (unsigned ii = 0; ii < src_params.size(); ++ii) {
+        params[ii] = src_params[ii];
+      }
+      return params;
+    }
+    unsigned int userglue_getter_length(
+      o3d::ParamArray *self) {
+      return self->size();
+    }
+    o3d::Param* userglue_method_CreateParam(
+        o3d:: ParamArray *self,
+        unsigned int index,
+        const o3d::String& param_type_name) {
+      return self->CreateParamByClassName(index, param_type_name);
+    }
+    void userglue_method_Resize(
+        o3d:: ParamArray *self,
+        unsigned int num_params,
+        const o3d::String& param_type_name) {
+      self->ResizeByClassName(num_params, param_type_name);
+    }
+    o3d::Param* userglue_method_GetParam(
+        o3d:: ParamArray *self,
+        unsigned int index) {
+      return self->GetUntypedParam(index);
+    }
+  %}
+
+};  // ParamArray
+
+%[
+  A Param which stores a ParamArray.
+%]
+[nocpp, include="core/cross/param.h"] class ParamParamArray : Param {
+  %[
+    The ParamArray stored by the Param.
+  %]
+  [getter, setter] ParamArray value_;
+};
+
+}  // namespace o3d

@@ -1,0 +1,10 @@
+http://127.0.0.1:8000/security/XFrameOptions/resources/x-frame-options-deny-meta-tag-subframe-parent-same-origin-allow.html - willSendRequest <WebRequest URL "http://127.0.0.1:8000/security/XFrameOptions/resources/x-frame-options-deny-meta-tag-subframe-parent-same-origin-allow.html">
+<unknown> - didFinishLoading
+There should be content in the iframe below
+
+
+
+--------
+Frame: '<!--framePath //<!--frame0-->-->'
+--------
+PASS: This should show up as the parent is in the same origin.

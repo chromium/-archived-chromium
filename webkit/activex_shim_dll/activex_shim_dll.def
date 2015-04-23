@@ -1,0 +1,6 @@
+; activex_shim.def : Declares the module parameters.
+
+EXPORTS
+  NP_GetEntryPoints   @1
+  NP_Initialize       @2
+  NP_Shutdown         @3

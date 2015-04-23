@@ -1,0 +1,268 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+ Sample demonstrating drawing into a Canvas surface using an O3D texture.
+-->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+O3D Canvas
+</title>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="o3djs/base.js"></script>
+
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.io');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.effect');
+o3djs.require('o3djs.canvas');
+o3djs.require('o3djs.rendergraph');
+
+// Events
+// init() once the page has finished loading.
+// unload() when the page is unloaded.
+window.onload = createClients;
+window.onunload= unload;
+
+// Globals
+var g_o3d;
+var g_math;
+var g_client;
+var g_pack;
+var g_viewInfo;
+var g_brushTexture;
+var g_canvasQuad;
+var g_o3dElement;
+var g_finished = false;  // for selenium testing.
+var g_canvasWidth = 700;
+var g_canvasHeight = 500;
+var g_borderWidth = 50;
+var g_borderHeight = 50;
+var g_pluginWidth;
+var g_pluginHeight;
+var g_clientWidth;
+var g_clientHeight;
+
+/**
+ * Remove any callbacks so they don't get called after the page has unloaded.
+ */
+function unload() {
+  if (g_client) {
+    g_client.cleanup();
+
+    // Clear the mouse events.
+    onMouseUp();
+  }
+}
+
+function createClients() {
+  o3djs.util.makeClients(init);
+}
+
+
+/**
+ * This method gets called on a mouse move event.  If the mouse cursor is inside
+ * the canvas quad then it draws a copy of the brush texture onto the canvas
+ * surface at the mouse cursor position.
+ * @param e The mouse move event object
+ */
+function drawCursor(e) {
+  if (!g_brushTexture)
+    return;
+
+  var offset = {
+    x: e.x / g_client.width * g_clientWidth,
+    y: e.y / g_client.height * g_clientHeight
+  };
+
+  // Adjust for the top left corner of the canvas.
+  offset.x -= g_borderWidth;
+  offset.y -= g_borderHeight;
+
+  // Setting brushScale to a value other than 1 will draw a scaled copy of
+  // the brush bitmap onto the canvas surface.  This is achieved by applying
+  // a scale transformation before calling drawBitmap(), and restoring the
+  // draw matrix immediately after.
+  var brushScale = 1;
+
+  if (offset.x >= 0 && offset.x < g_canvasWidth &&
+      offset.y >= 0 && offset.y < g_canvasHeight) {
+    g_canvasQuad.canvas.saveMatrix();
+    g_canvasQuad.canvas.scale(brushScale, brushScale);
+
+    // Note that the coordinates passed to drawBitmap get scaled by the current
+    // canvas drawing matrix and therefore we adjust them by the scale to get
+    // the bitmap to follow the mouse position.
+    g_canvasQuad.canvas.drawBitmap(
+        g_brushTexture,
+        (offset.x / brushScale - g_brushTexture.width * 0.5),
+        (offset.y / brushScale + g_brushTexture.height * 0.5));
+    g_canvasQuad.canvas.restoreMatrix();
+    g_canvasQuad.updateTexture();
+  }
+}
+
+/**
+ * Fetches the bitmap pointed to by the URL supplied by the user, creates
+ * an O3D Texture object with it, and resets the value of g_brushTexture
+ * to point to the newly created texture.
+ */
+function changeBrushTexture() {
+  var textureUrl = document.getElementById('url').value;
+  o3djs.io.loadTexture(g_pack, textureUrl, function(texture, exception) {
+    // Remove the previous brush texture from the pack.
+    if (exception) {
+      alert(exception);
+    } else {
+      if (g_brushTexture) {
+        g_pack.removeObject(g_brushTexture);
+      }
+
+      g_brushTexture = texture;
+    }
+  });
+}
+
+/**
+ * Event handler that gets called when a mouse click takes place in the
+ * O3D element.  It registers a callback for mousemove which handles
+ * drawing and one for mouseup which removes the mousemove event.
+ * @param e The mouse down event.
+ */
+function onMouseDown(e) {
+  o3djs.event.addEventListener(g_o3dElement, 'mousemove', drawCursor);
+  o3djs.event.addEventListener(g_o3dElement, 'mouseup', onMouseUp);
+  // Draw the cursor at the clicked spot.
+  drawCursor(e);
+}
+
+/**
+ * Event handler for mouse up.  It clears the mouse move and mouse up event
+ * handlers.
+ */
+function onMouseUp() {
+  o3djs.event.removeEventListener(g_o3dElement, 'mousemove', drawCursor);
+  o3djs.event.removeEventListener(g_o3dElement, 'mouseup', onMouseUp);
+}
+
+function init(clientElements) {
+  // Initializes global variables and libraries.
+  var o3dElement = clientElements[0];
+  g_o3dElement = o3dElement;
+  g_o3d = o3dElement.o3d;
+  g_math = o3djs.math;
+  g_client = o3dElement.client;
+
+  // Store the size of the plugin, so that we can adjust coordinates in
+  // full-screen mode.  This is necessary because we're not adjusting the aspect
+  // ratio; we'd rather that the canvas filled the available area, rather than
+  // staying a fixed size or aspect ratio.
+  g_clientWidth = g_o3dElement.clientWidth;
+  g_clientHeight = g_o3dElement.clientHeight;
+
+  // Set the texture URL.
+  var path = window.location.href;
+  var index = path.lastIndexOf('/');
+  path = path.substring(0, index+1) + 'assets/brush.png';
+  var url = document.getElementById("url").value = path;
+
+  // Creates a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Set the background color to blue.
+  g_viewInfo.clearBuffer.clearColor = [0.5, 0.1, 1, 1];
+
+  // Setup an orthographic projection camera.
+  g_viewInfo.drawContext.projection = g_math.matrix4.orthographic(
+      0 + 0.5,
+      g_client.width + 0.5,
+      g_client.height + 0.5,
+      0 + 0.5,
+      0.001,
+      1000);
+
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      [0, 0, 1],  // Eye.
+      [0, 0, 0],  // Target.
+      [0, 1, 0]); // Up.
+
+  // Creates an instance of the canvas utilities library.
+  var canvasLib = o3djs.canvas.create(g_pack, g_client.root, g_viewInfo);
+
+  // Create a canvas surface to draw on.
+  var canvasQuad =
+    canvasLib.createXYQuad(g_borderWidth, g_borderHeight, 0, g_canvasWidth,
+        g_canvasHeight, false);
+
+  canvasQuad.canvas.clear([1, 0, 0, 1]);
+  canvasQuad.updateTexture();
+
+  // Set the initial brush texture.
+  changeBrushTexture();
+
+  // Setup the events to track mouse activity.
+  o3djs.event.addEventListener(o3dElement, 'mousedown', onMouseDown);
+
+  g_canvasQuad = canvasQuad;
+
+  g_finished = true;  // for selenium testing.
+}
+
+</script>
+</head>
+
+<body>
+<h1>O3D Canvas Sample: Drawing with bitmaps</h1>
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 800px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+<p><p>
+Brush URL: <input type="text" id="url" size="100">
+<input type="button" onclick="changeBrushTexture();" value="Change Brush"><BR>
+
+<p><p>Click and drag to draw onto the red canvas surface.
+</body>
+</html>
+

@@ -1,0 +1,12 @@
+// Copyright (c) 2008 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+#include "common.xcconfig"
+
+// Stripping is done in release mode, but is handled externally to Xcode.
+// See mac/strip_from_xcode for details.
+
+DEAD_CODE_STRIPPING = YES
+DEBUG_INFORMATION_FORMAT = dwarf
+GCC_PREPROCESSOR_DEFINITIONS = $(GCC_PREPROCESSOR_DEFINITIONS) NDEBUG

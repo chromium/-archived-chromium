@@ -1,0 +1,30 @@
+<html>
+
+<head>
+<script src="npapi.js"></script>
+</head>
+
+
+<body>
+<div id="statusPanel" style="border: 1px solid red; width: 100%">
+Test running....
+</div>
+
+
+NPP_NEW test<p>
+This test ensures we don't crash or assert if NPP_New fails.
+
+<embed	type="application/vnd.npapi-test" 
+	src="foo"
+	name="new_fails"
+	id="1"
+	mode="np_embed"
+>
+
+<script> 
+    var height = document.body.offsetHeight;
+    onSuccess("new_fails", 1);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+Example of multiple views into the same scene.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Non Cachable Params
+</title>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="../../../samples/o3djs/base.js"></script>
+
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.pack');
+o3djs.require('o3djs.camera');
+o3djs.require('o3djs.scene');
+
+// Events
+// init() once the page has finished loading.
+// unload() when the page is unloaded.
+window.onload = init;
+
+// global variables
+var g_o3d;
+var g_math;
+var g_client;
+var g_viewInfos = [];
+var g_pack;
+var g_o3d_width;  // width of our client area
+var g_o3d_height;  // height of our client area
+
+/**
+ * Returns the path of where the file is located
+ * with the trailing slash
+ */
+function getCurrentPath() {
+  var path = window.location.href;
+  var index = path.lastIndexOf('/');
+  return path.substring(0, index + 1);
+}
+
+/**
+ * Loads a model into the transform graph and generates its corresponding entry
+ * in the render graph when it is done loading.
+ * @param {Pack} packfile_name filename of the collada model.
+ * @param {string} file_name filename of the collada model.
+ * @param {Transform} parent parent node in the transform graph to which to load
+ *      the model into
+ */
+function loadModel(pack, file_name, parent) {
+  // Get our full path to the model
+  var model_path = getCurrentPath() + file_name;
+
+  // Load the file given the full path, and call the callback function
+  // when its done loading.
+  o3djs.scene.loadScene(g_client, pack, parent, model_path, callback);
+
+  /**
+   * Our callback is called once the model has been loaded into memory
+   * from the web or locally.
+   * @param {!o3d.Pack} pack The pack that was passed in above.
+   * @param {!o3d.Transform} parent The parent that was passed in above.
+   * @param {*} exception null if loading succeeded.
+   */
+  function callback(pack, parent, exception) {
+    if (exception) {
+      alert('Could not load: ' + file_name + '\n' + exception);
+    } else {
+      // Get a cameraInfo (an object with a view and projection matrix)
+      // using our javascript library function
+      var cameraInfo = o3djs.camera.getViewAndProjectionFromCameras(
+          parent,
+          g_o3d_width / 2,  // because this context only uses 1/2 the area
+          g_o3d_height);
+
+      // Copy the view and projection to the draw context of the first view.
+      g_viewInfos[0].drawContext.view = cameraInfo.view;
+      g_viewInfos[0].drawContext.projection = cameraInfo.projection;
+
+      // Generate draw elements and setup material draw lists.
+      o3djs.pack.preparePack(pack, g_viewInfos[0]);
+
+      // for each effect, get a list of it's params and setup a param chain
+      // for the SAS params
+      var effects = pack.getObjectsByClassName('o3d.Effect');
+      for (var ee = 0; ee < effects.length; ++ee) {
+        var effect = effects[ee];
+        var paramInfos = effect.getParameterInfo();
+        for (var pp = 0; pp < paramInfos.length; ++pp) {
+          var paramInfo = paramInfos[pp];
+          if (paramInfo.sasClassName != "") {
+            var param = effect.createParam(paramInfo.name, 'ParamMatrix4');
+            var sas_param = effect.createParam(paramInfo.name + "_sas",
+                                               paramInfo.sasClassName);
+            param.bind(sas_param);
+          }
+        }
+      }
+      window.g_testResult = true;
+    }
+  }
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D and loads the model into the transform graph.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initializes global variables and libraries.
+  var o3d = clientElements[0];
+  g_o3d = o3d.o3d;
+  g_math = o3djs.math;
+  g_client = o3d.client;
+
+  // Initialize the sample javascript library.
+  o3djs.base.init(o3d);
+
+  // Get the width and height of our client area. We will need this to create
+  // a projection matrix.
+  g_o3d_width = o3d.clientWidth;
+  g_o3d_height = o3d.clientHeight;
+
+  // Creates a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  // Create the render graph for a view for the left half of screen.
+  g_viewInfos[0] = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot,
+      [0.7, 0.2, 0.2, 1],
+      0,
+      [0, 0, 0.5, 1]);  // left half of screen.
+
+  // Setup 3 areas. Each area needs a viewport, a tree traveral, 2 drawpasses
+  // and although we could clear the screen once let's do it per viewport just
+  // as an example. The original area is already setup except it needs a
+  // viewport setting.
+
+  // make the 2 right viewports
+  for (var yy = 0; yy < 2; yy++) {
+    var viewInfo = o3djs.rendergraph.createExtraView(
+        g_viewInfos[0],
+        [0.5, yy * 0.5, 0.5, 0.5],  // right half top or bottom.
+        [0.5, 0.2 + 0.5 * yy, 0.7 - 0.5 * yy, 1.0],  // bg color.
+        yy + 1);  // after the other views.
+
+    // save if off for later?
+    g_viewInfos[g_viewInfos.length] = viewInfo;
+
+    // Get the drawcontext for this area and set the view and
+    // projection matrices.
+    var drawContext = viewInfo.drawContext;
+
+    if (yy == 0) {
+      drawContext.projection = g_math.matrix4.perspective(
+          45 * 3.14159 / 180,
+          (g_o3d_width * 0.5) / (g_o3d_height * 0.5),
+          0.1,
+          100);
+      drawContext.view = g_math.matrix4.lookAt(
+        [-10, 3, -15],  // eye
+        [0, 2, 0],  // target
+        [0, 1, 0]);  // up
+    } else {
+      // lets make this one orthographic
+      var aspect = g_o3d_width / g_o3d_height;
+      drawContext.projection = g_math.matrix4.orthographic(
+          -10,
+          10,
+          -10 / aspect,
+           10 / aspect,
+          0,
+          100);
+      // look directly from the front
+      drawContext.view = g_math.matrix4.lookAt(
+        [0, 5, 30],  // eye
+        [0, 5, 0],  // target
+        [0, 1, 0]);  // up
+    }
+  }
+
+  // Creates a transform to put our data on.
+  var my_data_root = g_pack.createObject('Transform');
+
+  // Connects our root to the client so that world matrices will
+  // get calculated.
+  my_data_root.parent = g_client.root;
+
+  // Load the model into the transform graph as a child my_data_root
+  loadModel(g_pack, '../../../samples/assets/yard.o3dtgz', my_data_root);
+}
+</script>
+</head>
+<body>
+<h1>Non Cachable Params</h1>
+<br/>
+Checks that non cachable param chains work by replacing all the standard (SAS)
+params with chains to those params. If they are not working the 3 views will
+show roughly the same image just with different aspect ratios.
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 800px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+</body>
+</html>

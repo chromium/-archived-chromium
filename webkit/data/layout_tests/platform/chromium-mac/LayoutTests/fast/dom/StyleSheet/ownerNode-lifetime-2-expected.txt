@@ -1,0 +1,4 @@
+CONSOLE MESSAGE: line 24: Uncaught TypeError: Cannot read property 'ownerNode' of null
+This test verifies that style sheet do not outlive their elements. Since you can get back to the element with the ownerNode attribute, it's important to keep the element alive.
+
+TEST HAS NOT RUN YET.

@@ -1,0 +1,44 @@
+<html>
+
+<head>
+<script src="npapi.js"></script>
+</head>
+
+<body>
+<div id="statusPanel" style="border: 1px solid red; width: 100%">
+Test running....
+</div>
+
+
+Plugin Instance In Paint Test<p>
+
+Tests that there's no deadlock when a plugin instance is created while handling a paint message.
+
+<DIV ID="PluginDiv">
+<embed	type="application/vnd.npapi-test" 
+	src="foo"
+	name="create_instance_in_paint"
+	id="1"
+	mode="np_embed"
+>
+</DIV>
+
+<DIV id="PluginDiv2"></DIV>
+
+<script> 
+var height = document.body.offsetHeight;
+    
+    
+function CreateNewInstance() {
+  var obj = document.createElement('embed');
+  obj.setAttribute('type', 'application/vnd.npapi-test');
+  obj.setAttribute('src', 'bar');
+  obj.setAttribute('name', 'create_instance_in_paint');
+  obj.setAttribute('id', '2');
+  obj.setAttribute('mode', 'np_embed');
+  document.getElementById("PluginDiv2").appendChild(obj);
+}
+</script>
+
+</body>
+</html>

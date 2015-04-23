@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="using_KJSBindings"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		PreprocessorDefinitions="WTF_USE_V8=0;_CRT_SECURE_NO_DEPRECATE;_SCL_SECURE_NO_WARNINGS;_SCL_SECURE_NO_DEPRECATE"
+		DisableSpecificWarnings="4244; 4291; 4521; 4099;"
+	/>
+</VisualStudioPropertySheet>

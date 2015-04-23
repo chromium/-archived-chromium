@@ -1,0 +1,17 @@
+This directory contains SunSpider, a JavaScript performance benchmark.
+
+SunSpider was developed and released by the WebKit team.
+
+This copy was fetched from:
+http://webkit.org/perf/sunspider-0.9/sunspider.html
+
+Version: 0.9
+
+Modifications:
+  - Included sunspider_uitest.js in sunspider-results.html. This file provides
+    an interface between the benchmark and the test automation.
+  - Included json2.js, a parser/stringifier for JSON in JavaScript, in
+    sunspider-results.html. This is used to stringify results for consumption
+    by the test automation.
+  - Modified sunspider-results.html to call automation.SetDone() after the
+    results have been analyzed.

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <title>Chromium Dev Build Warning</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        font-size: 0.8em;
+        margin: 2em 4em;
+      }
+
+      div.text {
+        max-width: 60ex;
+      }
+
+      div.stopcorner {
+        border-style: solid;
+        border-color: red white;
+        width: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <center>
+      <h1>Chromium Dev Build</h1>
+    </center>
+
+    <div class="text">
+
+    <p>This is an <i>in-progress</i> build of Chromium on Linux. The
+    following significant chunks of functionality are known to be
+    missing:</p>
+    <ul>
+      <li>Plugins, including Flash (so no YouTube, Hulu, etc.)</li>
+      <li>Printing</li>
+      <li>Complex text</li>
+      <li>Complex tab dragging</li>
+      <li>Gears support</li>
+    </ul>
+
+    <p>Other parts of the browser are notably incomplete, poorly tuned and
+    broken. User beware!</p>
+
+    <h3>&lsquo;Chromium&rsquo; <i>vs</i> &lsquo;Google Chrome&rsquo;</h3>
+
+    <p><a href="http://code.google.com/chromium/">Chromium</a> is an open
+    source browser project. <a href="http://www.google.com/chrome">Google
+      Chrome</a> is a browser from Google, based on the Chromium project.</p>
+
+    <p>This is a build of Chromium. No versions of Google Chrome for Linux will
+    exist until Google makes an official release.</p>
+
+    <h3>Don't file bugs without doing the work</h3>
+
+    <p>Every minute spent triaging and de-duplicating bugs is a minute spent
+    not fixing them.  If you have a good bug report (e.g. includes a
+    stack trace or a reduced test case), first verify it exists in the <a
+      href="http://build.chromium.org/buildbot/snapshots/chromium-rel-linux/">latest
+      build</a>, then <a
+      href="http://code.google.com/p/chromium/issues/list?can=1&q=os:linux">
+      verify it hasn't been filed already</a>, then <a
+      href="http://code.google.com/p/chromium/issues/entry?template=Defect%20on%20Linux">file
+      your bug using the Linux-specific template</a>.</p>
+
+    <h3>How to help</h3>
+
+    <p>Chromium is an open source project, and you are welcome to help out. We
+    have <a href="http://dev.chromium.org/">documentation for developers</a> as
+    well as mailing lists and an IRC channel.</p>
+
+    </div>
+
+    <p></p>
+  </body>
+</html>

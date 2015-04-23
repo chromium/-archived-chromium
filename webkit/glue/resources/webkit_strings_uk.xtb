@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="uk">
+<translation id="4420062214988137980">Не вдалось інсталювати модуль</translation>
+<translation id="1235745349614807883">Очистити останні пошуки</translation>
+<translation id="3825324228893189080">Потрібен додатковий модуль.</translation>
+<translation id="2965480764085142436">Модуль <ph name="PLUGIN"/> не інстальовано</translation>
+<translation id="5048533449481078685">маркер списку</translation>
+<translation id="4202807286478387388">перейти</translation>
+<translation id="4611115858363067980"><ph name="FILENAME"/><ph name="WIDTH"/>×<ph name="HEIGHT"/></translation>
+<translation id="4317653869502688143">Підтвердьте інсталяцію модуля <ph name="PLUGIN"/>. Слід інсталювати лише модулі, які вважаєте надійними.</translation>
+<translation id="7658239707568436148">Скасувати</translation>
+<translation id="795667975304826397">Файл не вибрано</translation>
+<translation id="1275511093094545429">Потрібен модуль <ph name="PLUGIN"/></translation>
+<translation id="8662565117025751661">Завантаження модуля...</translation>
+<translation id="8141602879876242471">Цей доступний для пошуку індекс. Введіть ключові слова пошуку:</translation>
+<translation id="6845533974506654842">натиснути</translation>
+<translation id="8244226242650769279">мапа зображення</translation>
+<translation id="1383141426028388991">Не вдалося встановити модуль із <ph name="URL"/></translation>
+<translation id="2548326553472216322">Немає останніх пошуків</translation>
+<translation id="5944544982112848342">2048 (Високий рівень)</translation>
+<translation id="3040011195152428237">посилання</translation>
+<translation id="8281246460978372009">Після інсталяції модуля натисніть тут, щоб оновити</translation>
+<translation id="7364796246159120393">Вибрати файл</translation>
+<translation id="8964020114565522021">Перетягніть файл сюди</translation>
+<translation id="838869780401515933">установити прапорець</translation>
+<translation id="2846343701378493991">1024 (Середній рівень)</translation>
+<translation id="5476505524087279545">зняти прапорець</translation>
+<translation id="679352192834563463">Немає доступного модуля для відображення цього вмісту</translation>
+<translation id="3789841737615482174">Інсталювати</translation>
+<translation id="6663448176199120256">Останні пошуки</translation>
+<translation id="3600343118165084788">Натисніть тут, щоб завантажити модуль</translation>
+<translation id="6807599807928161586">область Інтернету</translation>
+<translation id="5939518447894949180">Скинути</translation>
+<translation id="3771786644471114952">Отримати модуль</translation>
+<translation id="1842960171412779397">вибрати</translation>
+<translation id="6119846243427417423">активувати</translation>
+<translation id="3926627843712816530">Підтвердьте інсталяцію цього модуля. Слід інсталювати лише модулі, які вважаєте надійними.</translation>
+<translation id="4838490908464673667">Потрібний модуль не інстальовано</translation>
+<translation id="8597182159515967513">заголовок</translation>
+<translation id="2653659639078652383">Надіслати</translation>
+</translationbundle>

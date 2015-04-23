@@ -1,0 +1,194 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+ Sample demonstrating different fonts used for text rendering using
+ the Canvas API.
+-->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+O3D Canvas
+</title>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="o3djs/base.js"></script>
+
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.effect');
+o3djs.require('o3djs.canvas');
+o3djs.require('o3djs.rendergraph');
+
+// Events
+// init() once the page has finished loading.
+// unload() when the page is unloaded.
+window.onload = createClients;
+
+// Globals
+var g_client;
+var g_pack;
+var g_viewInfo;
+var g_math;
+var g_o3d;
+var g_finished = false;  // for selenium testing.
+
+function createClients() {
+  o3djs.util.makeClients(init);
+}
+
+function init(clientElements) {
+  // Initialize global variables and libraries.
+  var o3dElement = clientElements[0];
+  g_o3d = o3dElement.o3d;
+  g_math = o3djs.math;
+  g_client = o3dElement.client;
+
+  // Create a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Set the background color to blue.
+  g_viewInfo.clearBuffer.clearColor = [0.5, 0.1, 1, 1];
+
+  // Setup an orthographic projection camera.
+  g_viewInfo.drawContext.projection = g_math.matrix4.orthographic(
+      0 + 0.5,
+      g_client.width + 0.5,
+      g_client.height + 0.5,
+      0 + 0.5,
+      0.001,
+      1000);
+
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      [0, 0, 1],   // Eye.
+      [0, 0, 0],   // Target.
+      [0, 1, 0]);  // Up.
+
+  // Create an instance of the canvas utilities library.
+  var canvasLib = o3djs.canvas.create(g_pack, g_client.root, g_viewInfo);
+
+  // Create a canvas surface to draw on.
+  var canvasQuad = canvasLib.createXYQuad(50, 50, -1, 700, 500, false);
+
+  canvasQuad.canvas.clear([1, 1, 1, 1]);
+  canvasQuad.updateTexture();
+
+  var backgroundPaint = g_pack.createObject('CanvasPaint');
+  backgroundPaint.color = [1, 0.94, 0.94, 1];
+
+  var textPaint = g_pack.createObject('CanvasPaint');
+  textPaint.color = [0, 0, 0, 1];
+  textPaint.textSize = 24;
+
+  // Set drawTextBox to true to display the box showing the text extents
+  // returned by CanvasPaint.measureText()
+  var drawTextBox = false;
+
+  var typefaceArray = [ 'Arial', 'Arial Black', 'Comic Sans MS', 'Courier New',
+                        'Georgia', 'Impact', 'Palatino', 'Verdana', 
+                        'Webdings' ];
+
+  var verticalPosition = 10;
+  var horizontalPosition = 50;
+  for (var ii = 0; ii < typefaceArray.length; ii++) {
+    textPaint.textTypeface = typefaceArray[ii];
+    var lineDimensions = textPaint.measureText(typefaceArray[ii]);
+
+
+    // Add enough vertical spacing to clear the height of the text.
+    verticalPosition += lineDimensions[3] - lineDimensions[1] + 20;
+
+    if (drawTextBox) {
+      // Add the text origin position.
+      textSize[0] += horizontalPosition;
+      textSize[1] += verticalPosition;
+      textSize[2] += horizontalPosition;
+      textSize[3] += verticalPosition;
+
+      canvasQuad.canvas.drawRect(lineDimensions[0],
+                                 lineDimensions[1],
+                                 lineDimensions[2],
+                                 lineDimensions[3],
+                                 backgroundPaint);
+    }
+
+    canvasQuad.canvas.drawText(typefaceArray[ii],
+                               horizontalPosition,
+                               verticalPosition,
+                               textPaint);
+
+  }
+
+  var internationalText = [ 'ελληνικά', 'Српски' ];
+  textPaint.textTypeface = 'Arial';
+  horizontalPosition = 400;
+  verticalPosition = 10;
+  for (var ii = 0; ii < internationalText.length; ii++) {
+    var lineDimensions = textPaint.measureText(typefaceArray[ii]);
+
+    // Add enough vertical spacing to clear the height of the text.
+    verticalPosition += lineDimensions[3] - lineDimensions[1] + 20;
+
+    canvasQuad.canvas.drawText(internationalText[ii],
+                               horizontalPosition,
+                               verticalPosition,
+                               textPaint);
+  }
+
+  // Update the o3d texture associated with the canvas quad object.
+  canvasQuad.updateTexture();
+
+  g_finished = true;
+}
+
+</script>
+</head>
+
+<body>
+<h1>O3D Canvas Sample: Fonts</h1>
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 800px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+</body>
+</html>
+

@@ -1,0 +1,164 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+%[
+  A ParamObject is the base class for all objects that can have Params.
+  Defines methods to add and remove params, search for params, etc.
+%]
+[nocpp, include="core/cross/param_object.h"]
+class ParamObject : NamedObject {
+  %[
+    Creates a Param with the given name and type on the ParamObject.
+    Will fail if a param with the same name already exists.
+
+    \param param_name The name of the Param to be created.
+    \param param_type_name The type of Param to create. Valid types are
+         \li 'o3d.ParamBoolean'
+         \li 'o3d.ParamBoundingBox'
+         \li 'o3d.ParamDrawContext'
+         \li 'o3d.ParamDrawList'
+         \li 'o3d.ParamEffect'
+         \li 'o3d.ParamFloat'
+         \li 'o3d.ParamFloat2'
+         \li 'o3d.ParamFloat3'
+         \li 'o3d.ParamFloat4'
+         \li 'o3d.ParamFunction'
+         \li 'o3d.ParamInteger'
+         \li 'o3d.ParamMaterial'
+         \li 'o3d.ParamMatrix4'
+         \li 'o3d.ParamParamArray'
+         \li 'o3d.ParamRenderSurface'
+         \li 'o3d.ParamRenderDepthStencilSurface'
+         \li 'o3d.ParamSampler'
+         \li 'o3d.ParamSkin'
+         \li 'o3d.ParamSteamBank'
+         \li 'o3d.ParamState'
+         \li 'o3d.ParamString'
+         \li 'o3d.ParamTexture'
+         \li 'o3d.ParamTransform'
+         \li 'o3d.ProjectionParamMatrix4'
+         \li 'o3d.ProjectionInverseParamMatrix4'
+         \li 'o3d.ProjectionTransposeParamMatrix4'
+         \li 'o3d.ProjectionInverseTransposeParamMatrix4'
+         \li 'o3d.ViewParamMatrix4'
+         \li 'o3d.ViewInverseParamMatrix4'
+         \li 'o3d.ViewTransposeParamMatrix4'
+         \li 'o3d.ViewInverseTransposeParamMatrix4'
+         \li 'o3d.ViewProjectionParamMatrix4'
+         \li 'o3d.ViewProjectionInverseParamMatrix4'
+         \li 'o3d.ViewProjectionTransposeParamMatrix4'
+         \li 'o3d.ViewProjectionInverseTransposeParamMatrix4'
+         \li 'o3d.WorldParamMatrix4'
+         \li 'o3d.WorldInverseParamMatrix4'
+         \li 'o3d.WorldTransposeParamMatrix4'
+         \li 'o3d.WorldInverseTransposeParamMatrix4'
+         \li 'o3d.WorldViewParamMatrix4'
+         \li 'o3d.WorldViewInverseParamMatrix4'
+         \li 'o3d.WorldViewTransposeParamMatrix4'
+         \li 'o3d.WorldViewInverseTransposeParamMatrix4'
+         \li 'o3d.WorldViewProjectionParamMatrix4'
+         \li 'o3d.WorldViewProjectionInverseParamMatrix4'
+         \li 'o3d.WorldViewProjectionTransposeParamMatrix4'
+         \li 'o3d.WorldViewProjectionInverseTransposeParamMatrix4'
+    \return The newly created Param or null on failure.
+  %]
+  [userglue, noreturndocs]
+  Param? CreateParam(String param_name, String param_type_name);
+
+  %[
+    Searches by name for a Param defined in the object.
+
+    \param param_name Name to search for.
+    \return The Param with the given name, or null otherwise.
+  %]
+  [userglue, const, noreturndocs]
+  Param? GetParam(String param_name);
+
+  %[
+    Removes a Param from a ParamObject.
+
+    This function will fail if the param does not exist on this ParamObject
+    or if the param is unremovable.
+
+    \param param param to remove.
+    \return True if the param was removed.
+  %]
+  bool RemoveParam(Param param);
+
+  %[
+    Gets all the param on this param object.
+
+    Each access to this field gets the entire list, so it is best to get it
+    just once. For example:
+    \code
+    var params = paramObject.params;
+    for (var i = 0; i < params.length; i++) {
+      var param = params[i];
+    }
+    \endcode
+
+    Note that modifications to this array [e.g. push()] will not affect
+    the underlying ParamObject, while modifications to the array's members
+    <strong>will</strong> affect them.
+  %]
+  [userglue_getter, getter, property=r] ParamVector params_;
+
+  %[
+    Copies all the params from a the given source_param_object to this param
+    object. Does not replace any currently existing params with the same name.
+
+    \param source_param_object param object to copy params from.
+  %]
+  void CopyParams(ParamObject source_param_object);
+
+  [verbatim=cpp_glue] %{
+    o3d::ParamVector userglue_getter_params_(
+      o3d::ParamObject *self) {
+      return self->GetParams();
+    }
+    o3d::Param* userglue_method_CreateParam(
+        o3d:: ParamObject *self,
+        const o3d::String& param_name,
+        const o3d::String& param_type_name) {
+      return self->CreateParamByClassName(param_name, param_type_name);
+    }
+
+    o3d::Param* userglue_method_GetParam(
+        o3d:: ParamObject *self,
+        const o3d::String& param_name) {
+      return self->GetUntypedParam(param_name);
+    }
+  %}
+};
+
+}  // namespace o3d

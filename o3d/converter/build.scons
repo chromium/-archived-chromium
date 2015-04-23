@@ -1,0 +1,174 @@
+# Copyright 2009, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+Import('env')
+
+env.Append(
+  LIBPATH = [
+    '$NACL_LIB_DIR',
+    '$ANTLRLIBC_DIR/lib',
+    '$OBJ_ROOT/compiler/technique',
+    '$OBJ_ROOT/compiler/antlr',
+    '$CG_DIR/lib',
+  ],
+  LIBS = [
+    'o3dConvert',
+    'o3dCore',
+    'o3dArchive',
+    'o3dImport',
+    'o3dImportConditioner',
+    'o3dCorePlatform',
+    'o3dSerializer',
+    'o3dUtils',
+    'o3d_base',
+    'FColladaU',
+    'technique',
+    'antlr3c',
+    'google_nacl_imc',
+    'skia',
+  ] + env['ICU_LIBS'],
+)
+
+# add renderer specific libraries and includes to the linker environment
+env.Append(CPPPATH = env['RENDERER_INCLUDE_PATH'],
+           LIBPATH = env['RENDERER_LIB_PATH'],
+           LIBS = env['RENDERER_LIBS'])
+
+if env.Bit('windows'):
+  env.Append(
+    CCFLAGS=['/Wp64', '/D_CRT_SECURE_NO_WARNINGS'],
+    LINKFLAGS=['/SUBSYSTEM:CONSOLE'],
+    LIBS = [
+      'cg',
+      'cgGL',
+      'd3dx9',
+      'ole32',
+    ],
+  )
+
+if env.Bit('mac'):
+  env.Append(
+    LINKFLAGS = ['-F$CG_DIR'],
+    FRAMEWORKS = [
+      'ApplicationServices',
+      'Cg',
+      'Foundation',
+      'OpenGL',
+     ],
+  )
+
+inputs = [
+  'cross/converter.cc',
+  'cross/renderer_stub.cc',
+  'cross/buffer_stub.cc',
+  'cross/texture_stub.cc',
+  ]
+
+# Create converter library.
+lib = env.ComponentLibrary('o3dConvert', inputs)
+
+# Create a target executable program called 'o3dConverter'
+if env.Bit('mac'):
+  exe = env.ComponentProgram('o3dConverter',
+                             ['mac/converter_main.mm',
+                              'cross/converter_main.cc',
+                              ])
+  # Fix executable to look for Cg.framework in the appropriate place.
+  exe_fix = env.Command('$ARTIFACTS_DIR/converter/fixed_exe.stamp',
+                        [exe], [
+    '/usr/bin/install_name_tool'
+    ' -change '
+    '@executable_path/../Library/Frameworks/Cg.framework/Cg '
+    '@executable_path/Frameworks/Cg.framework/Cg '
+    "$SOURCE",
+    'touch $TARGET',
+    ])
+  # Copy the resulting executable to the Artifacts directory.
+  exe_install = env.Replicate('$ARTIFACTS_DIR/converter', [exe])
+  env.Depends(exe_install, exe_fix)
+else:
+  exe = env.ComponentProgram('o3dConverter', ['cross/converter_main.cc'])
+  # Copy the resulting executable to the Artifacts directory.
+  exe_install = env.Replicate('$ARTIFACTS_DIR', [exe])
+
+# Create a target executable program called 'o3dVerifier'
+if env.Bit('mac'):
+  verifier_exe = env.ComponentProgram('o3dVerifier',
+                             ['mac/converter_main.mm',
+                              'cross/verifier_main.cc',
+                              ])
+  # Copy the resulting executable to the Artifacts directory.
+  verifier_exe_install = env.Replicate('$ARTIFACTS_DIR/converter',
+                                       [verifier_exe])
+  verifier_exe_fix = env.Command('$ARTIFACTS_DIR/converter/verifier_exe.stamp',
+                                 [verifier_exe_install], [
+    '/usr/bin/install_name_tool'
+    ' -change '
+    '@executable_path/../Library/Frameworks/Cg.framework/Cg '
+    '@executable_path/Frameworks/Cg.framework/Cg '
+    "$SOURCE",
+    'touch $TARGET',
+    ])
+else:
+  verifier_exe = env.ComponentProgram('o3dVerifier', ['cross/verifier_main.cc'])
+  # Copy the resulting executable to the Artifacts directory.
+  verifier_exe_install = env.Replicate('$ARTIFACTS_DIR', [verifier_exe])
+
+# Put the Cg DLL's, cgc and the d3dx9 DLL there as well.
+if env.Bit('windows'):
+  env.Requires(exe_install, env.Replicate(
+    '$ARTIFACTS_DIR', [
+    '$CG_DIR/bin/cgc.exe',
+    '$CG_DIR/bin/cg.dll',
+    '$CG_DIR/bin/cgGL.dll',
+  ]))
+
+if env.Bit('mac'):
+  env.Requires(
+      exe_install,
+      env.Command(env.Dir('$ARTIFACTS_DIR/converter/Frameworks'),
+                  env.Dir("$CG_DIR/Cg.framework"),
+                  [ # Copy in a Cg framework for the converter to use.
+                   'ditto --arch i386 "$CG_DIR/Cg.framework" '
+                   '"$ARTIFACTS_DIR/converter/Frameworks/Cg.framework"',
+                   ]))
+  env.Requires(exe_install, env.Replicate(
+    '$ARTIFACTS_DIR/converter', [
+    '$CG_DIR/bin/cgc',
+  ]))
+
+if env.Bit('linux'):
+  env.Requires(exe_install, env.Replicate(
+    '$ARTIFACTS_DIR', [
+    '$CG_DIR/bin/cgc',
+    '$CG_DIR/lib/libCg.so',
+    '$CG_DIR/lib/libCgGL.so',
+    '$GLEW_DIR/lib/libGLEW.so.1.5',
+  ]))

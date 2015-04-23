@@ -1,0 +1,445 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+This sample creates an O3D area with a textured cube in the middle.  The
+user can specify the URL where the texture image will be picked from.
+This sample is a simple demonstration of texture usage in O3D.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Hello Square Textures: Getting started with O3D, take 3.
+</title>
+<script type="text/javascript" src="o3djs/base.js"></script>
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.io');
+
+// Events
+// Run the init() function once the page has finished loading.
+// Run the uninit() function when the page is unloaded.
+window.onload = init;
+window.onunload = uninit;
+
+// global variables
+var g_o3d;
+var g_math;
+var g_pack;
+var g_client;
+var g_cubeTransform;
+var g_sampler;
+var g_clock = 0;
+var g_timeMult = 1;
+var g_finished = false;  // for selenium testing
+var g_textureLoadDenied = false; // also for selenium testing
+
+/**
+ * Creates an O3D shape representing a cube.
+ * @param {o3d.Material} material the material used by the primitive.
+ * @return {o3d.Shape} The Shape object created.
+ */
+function createCube(material) {
+  // Create a Shape object for the mesh.
+  var cubeShape = g_pack.createObject('Shape');
+
+  // Create the Primitive that will contain the geometry data for
+  // the cube.
+  var cubePrimitive = g_pack.createObject('Primitive');
+
+  // Create a StreamBank to hold the streams of vertex data.
+  var streamBank = g_pack.createObject('StreamBank');
+
+  // Assign the material that was passed in to the primitive.
+  cubePrimitive.material = material;
+
+  // Assign the Primitive to the Shape.
+  cubePrimitive.owner = cubeShape;
+
+  // Assign the StreamBank to the Primitive.
+  cubePrimitive.streamBank = streamBank;
+
+  // The cube is made of 12 triangles (6 faces x 2 triangles per face)
+  cubePrimitive.primitiveType = g_o3d.Primitive.TRIANGLELIST;
+  cubePrimitive.numberPrimitives = 12; // 12 triangles
+
+  // Vertices used by each triangle must specify both a position and texture
+  // coordinates.  We cannot share vertices between adjacent cube faces since
+  // while their positions are the same, their texture coordinates are
+  // different.  We therefore create 24 vertices, 4 for each of the cube's
+  // six faces.
+  cubePrimitive.numberVertices = 24;
+
+  // Generate the draw element for the cube primitive.
+  cubePrimitive.createDrawElement(g_pack, null);
+
+  // Create a javascript array that stores the X, Y and Z coordinates of each
+  // of the 24 vertices used by the cube.
+  var positionArray = [
+     -0.5, -0.5,  0.5,
+      0.5, -0.5,  0.5,
+      0.5,  0.5,  0.5,
+     -0.5,  0.5,  0.5,
+     -0.5,  0.5,  0.5,
+      0.5,  0.5,  0.5,
+      0.5,  0.5, -0.5,
+     -0.5,  0.5, -0.5,
+     -0.5,  0.5, -0.5,
+      0.5,  0.5, -0.5,
+      0.5, -0.5, -0.5,
+     -0.5, -0.5, -0.5,
+     -0.5, -0.5, -0.5,
+      0.5, -0.5, -0.5,
+      0.5, -0.5,  0.5,
+     -0.5, -0.5,  0.5,
+      0.5, -0.5,  0.5,
+      0.5, -0.5, -0.5,
+      0.5,  0.5, -0.5,
+      0.5,  0.5,  0.5,
+     -0.5, -0.5, -0.5,
+     -0.5, -0.5,  0.5,
+     -0.5,  0.5,  0.5,
+     -0.5,  0.5, -0.5
+  ];
+
+  // The following array stores the texture coordinates (u, v) for each vertex.
+  // These coordinates are used by the shader when displaying the texture image
+  // on the mesh triangles.
+  var texCoordsArray = [
+      0, 0,
+      1, 0,
+      1, 1,
+      0, 1,
+      0, 0,
+      1, 0,
+      1, 1,
+      0, 1,
+      1, 1,
+      0, 1,
+      0, 0,
+      1, 0,
+      0, 0,
+      1, 0,
+      1, 1,
+      0, 1,
+      0, 0,
+      1, 0,
+      1, 1,
+      0, 1,
+      0, 0,
+      1, 0,
+      1, 1,
+      0, 1
+  ];
+
+  // The following array defines how vertices are to be put together to form
+  // the triangles that make up the cube's faces.  In the index array, every
+  // three elements define a triangle.  So for example vertices 0, 1 and 2
+  // make up the first triangle, vertices 0, 2 and 3 the second one, etc.
+  var indicesArray = [
+      0, 1, 2,
+      0, 2, 3,
+      4, 5, 6,
+      4, 6, 7,
+      8, 9, 10,
+      8, 10, 11,
+      12, 13, 14,
+      12, 14, 15,
+      16, 17, 18,
+      16, 18, 19,
+      20, 21, 22,
+      20, 22, 23
+  ];
+
+  // Create buffers containing the vertex data.
+  var positionsBuffer = g_pack.createObject('VertexBuffer');
+  var positionsField = positionsBuffer.createField('FloatField', 3);
+  positionsBuffer.set(positionArray);
+
+  var texCoordsBuffer = g_pack.createObject('VertexBuffer');
+  var texCoordsField = texCoordsBuffer.createField('FloatField', 2);
+  texCoordsBuffer.set(texCoordsArray);
+
+  var indexBuffer = g_pack.createObject('IndexBuffer');
+  indexBuffer.set(indicesArray);
+
+  // Associate the positions buffer with the StreamBank.
+  streamBank.setVertexStream(
+      g_o3d.Stream.POSITION, // semantic: This stream stores vertex positions
+      0,                     // semantic index: First (and only) position stream
+      positionsField,        // field: the field this stream uses.
+      0);                    // start_index: How many elements to skip in the
+                             //     field.
+
+  // Associate the texture coordinates buffer with the primitive.
+  streamBank.setVertexStream(
+      g_o3d.Stream.TEXCOORD,  // semantic
+      0,                      // semantic index
+      texCoordsField,         // field
+      0);                     // start_index
+
+  // Associate the triangle indices Buffer with the primitive.
+  cubePrimitive.indexBuffer = indexBuffer;
+
+  return cubeShape;
+}
+
+/**
+ * This method gets called every time O3D renders a frame.  Here's where
+ * we update the cube's transform to make it spin.
+ * @param {o3d.RenderEvent} renderEvent The render event object that gives
+ *     us the elapsed time since the last time a frame was rendered.
+ */
+function renderCallback(renderEvent) {
+  g_clock += renderEvent.elapsedTime * g_timeMult;
+  // Rotate the cube around the Y axis.
+  g_cubeTransform.identity();
+  g_cubeTransform.rotateY(2.0 * g_clock);
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D, creates the quad and sets up the transform and
+ * render graphs.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Set the texture URL.
+  var path = window.location.href;
+  var index = path.lastIndexOf('/');
+  path = path.substring(0, index+1) + 'assets/texture_b3.jpg';
+  var url = document.getElementById("url").value = path;
+
+  // Initialize global variables and libraries.
+  var o3dElement = clientElements[0];
+  g_client = o3dElement.client;
+  g_o3d = o3dElement.o3d;
+  g_math = o3djs.math;
+
+  // Create a pack to manage the objects created.
+  g_pack = g_client.createPack();
+
+  // Create the render graph for a view.
+  var viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Set up a perspective projection.
+  viewInfo.drawContext.projection = g_math.matrix4.perspective(
+      g_math.degToRad(30), // 30 degree fov.
+      g_client.width / g_client.height,
+      1,                  // Near plane.
+      5000);              // Far plane.
+
+  // Set up our view transformation to look towards the world origin where the
+  // cube is located.
+  viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      [0, 1, 5],   // eye
+      [0, 0, 0],   // target
+      [0, 1, 0]);  // up
+
+  // Create an Effect object and initialize it using the shaders from the
+  // text area.
+  var cubeEffect = g_pack.createObject('Effect');
+  var shaderString = document.getElementById('effect').value;
+  cubeEffect.loadFromFXString(shaderString);
+
+  // Create a Material for the mesh.
+  var cubeMaterial = g_pack.createObject('Material');
+
+  // Set the material's drawList.
+  cubeMaterial.drawList = viewInfo.performanceDrawList;
+
+  // Apply our effect to this material. The effect tells the 3D hardware
+  // which shaders to use.
+  cubeMaterial.effect = cubeEffect;
+
+  // Create an O3D Param on the material for every uniform used by the
+  // shader.
+  cubeEffect.createUniformParameters(cubeMaterial);
+
+  // Get the material's sampler parameter so that we can set the texture value
+  // to it.
+  var samplerParam = cubeMaterial.getParam('texSampler0');
+
+  // Create a Sampler object and set the min filtering to ANISOTROPIC.  This
+  // will improve the quality of the rendered texture when viewed at an angle.
+  g_sampler = g_pack.createObject('Sampler');
+  g_sampler.minFilter = g_o3d.Sampler.ANISOTROPIC;
+  g_sampler.maxAnisotropy = 4;
+  samplerParam.value = g_sampler;
+
+  // Create the Shape for the cube mesh and assign its material.
+  var cubeShape = createCube(cubeMaterial);
+
+  // Create a new transform and parent the Shape under it.
+  g_cubeTransform = g_pack.createObject('Transform');
+  g_cubeTransform.addShape(cubeShape);
+
+  // Note that we don't parent the transform until the texture is
+  // succesfully loaded because we don't want the system
+  // to try the draw the shape without its required texture.
+
+  // Set our render callback for animation.
+  // This sets a function to be executed every time a frame is rendered.
+  g_client.setRenderCallback(renderCallback);
+
+  // Set the initial texture.
+  changeTexture();
+}
+
+/**
+ * Fetches the bitmap pointed to by the URL supplied by the user, creates
+ * an O3D Texture object with it updates the Sampler used by the material
+ * to point to the newly created texture.
+ */
+function changeTexture() {
+  var textureUrl = document.getElementById('url').value;
+  o3djs.io.loadTexture(g_pack, textureUrl, function(texture, exception) {
+    // Remove the currently used texture from the pack so that when it's not
+    // referenced anymore, it can get destroyed.
+    if (g_sampler.texture)
+      g_pack.removeObject(g_sampler.texture);
+
+    // Because the loading is asynchronous an exception is not thrown but is
+    // instead passed on failure.
+    if (exception) {
+      g_sampler.texture = null;
+
+      g_textureLoadDenied = true;  // for selenium testing.
+    } else {
+      // Set the texture on the sampler object to the newly created texture
+      // object returned by the request.
+      g_sampler.texture = texture;
+
+      // We can now safely add the cube transform to the root of the
+      // scenegraph since it now has a valid texture.  If the transform
+      // is already parented under the root, the call will have no effect.
+      g_cubeTransform.parent = g_client.root;
+
+      g_finished = true;  // for selenium testing.
+    }
+  });
+}
+
+/**
+ * Removes any callbacks so they don't get called after the page has unloaded.
+ */
+function uninit() {
+  if (g_client) {
+    g_client.cleanup();
+  }
+}
+
+</script>
+</head>
+<body>
+<h1>Hello Cube: Textures</h1>
+This example shows how texture map a cube using an image fetched from a URL.
+<br/>
+
+
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 600px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+<br />
+Image URL: <input type="text" id="url" size="100">
+<input type="button" id="updateButton" onclick="changeTexture();" value="Update Texture"><BR>
+
+<!-- Don't render the textarea -->
+<div style="display:none">
+<!-- Start of effect -->
+<textarea id="effect">
+  // World View Projection matrix that will transform the input vertices
+  // to screen space.
+  float4x4 worldViewProjection : WorldViewProjection;
+
+  // The texture sampler is used to access the texture bitmap in the fragment
+  // shader.
+  sampler texSampler0;
+
+  // input parameters for our vertex shader
+  struct VertexShaderInput {
+    float4 position : POSITION;
+    float2 tex : TEXCOORD0;  // Texture coordinates
+  };
+
+  // input parameters for our pixel shader
+  struct PixelShaderInput {
+    float4 position : POSITION;
+    float2 tex : TEXCOORD0;  // Texture coordinates
+  };
+
+  /**
+   * The vertex shader simply transforms the input vertices to screen space.
+   */
+  PixelShaderInput vertexShaderFunction(VertexShaderInput input) {
+    PixelShaderInput output;
+
+    // Multiply the vertex positions by the worldViewProjection matrix to
+    // transform them to screen space.
+    output.position = mul(input.position, worldViewProjection);
+
+    output.tex = input.tex;
+    return output;
+  }
+
+ /**
+  * Given the texture coordinates, our pixel shader grabs the corresponding
+  * color from the texture.
+  */
+  float4 pixelShaderFunction(PixelShaderInput input): COLOR {
+    return tex2D(texSampler0, input.tex);
+  }
+
+  // Here we tell our effect file *which* functions are
+  // our vertex and pixel shaders.
+
+  // #o3d VertexShaderEntryPoint vertexShaderFunction
+  // #o3d PixelShaderEntryPoint pixelShaderFunction
+  // #o3d MatrixLoadOrder RowMajor
+</textarea>
+<!-- End of effect -->
+</div>
+</body>
+</html>

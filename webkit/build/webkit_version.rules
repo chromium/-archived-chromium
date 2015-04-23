@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VisualStudioToolFile
+	Name="WebKit Version"
+	Version="8.00"
+	>
+	<Rules>
+		<CustomBuildRule
+			Name="WebKitVersion"
+			DisplayName="WebKit Version"
+			CommandLine="$(SolutionDir)/../third_party/python_24/python.exe $(SolutionDir)/../webkit/build/webkit_version.py &quot;$(InputPath)&quot; &quot;$(IntDir)/../WebCore/&quot;"
+			Outputs="$(IntDir)/../WebCore/webkit_version.h"
+			FileExtensions="*.xcconfig"
+			ExecutionDescription="Generating webkit_version.h"
+			>
+			<Properties>
+			</Properties>
+		</CustomBuildRule>
+	</Rules>
+</VisualStudioToolFile>

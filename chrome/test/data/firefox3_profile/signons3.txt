@@ -1,0 +1,18 @@
+#2e
+.
+http://localhost:8080
+loginuser
+MDIEEPgAAAAAAAAAAAAAAAAAAAEwFAYIKoZIhvcNAwcECCZ75mS/2HwhBAj+/bq+5rbwnA==
+*loginpass
+MDIEEPgAAAAAAAAAAAAAAAAAAAEwFAYIKoZIhvcNAwcECBLe/6FaBaeiBAhSpECjLu7u0Q==
+http://localhost:8080
+---
+.
+http://localhost:8080 (localhost)
+
+MDIEEPgAAAAAAAAAAAAAAAAAAAEwFAYIKoZIhvcNAwcECE6NmWUq+BITBAhvbI1J3RKb6Q==
+*
+MDoEEPgAAAAAAAAAAAAAAAAAAAEwFAYIKoZIhvcNAwcECFckjT05RJ8uBBCWqEqv8ciEPf+Q8Fpgbtpf
+
+---
+.

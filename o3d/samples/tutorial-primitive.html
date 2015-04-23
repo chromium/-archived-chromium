@@ -1,0 +1,120 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+This sample shows how to display something without having to manually setup a
+shader.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Tutorial: Primitive.
+</title>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="o3djs/base.js"></script>
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.camera');
+o3djs.require('o3djs.material');
+
+// Events
+// init() once the page has finished loading.
+window.onload = init;
+
+// global variables
+var g_finished = false;  // for selenium testing
+var g_client;
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D, create a primitive and apply a basic material.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initializes global variables and libraries.
+  var o3d = clientElements[0];
+  g_client = o3d.client;
+
+  // Creates a pack to manage our resources/assets
+  var pack = g_client.createPack();
+
+  // Create a view.
+  var viewInfo = o3djs.rendergraph.createBasicView(
+      pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Create a material.
+  var material = o3djs.material.createBasicMaterial(
+      pack,
+      viewInfo,
+      [1, 0, 0, 1]);  // red
+
+  // Create a cube.
+  var shape = o3djs.primitives.createCube(pack, material, 10);
+
+  // Make a transform for the cube, attach the cube and parent it.
+  var transform = pack.createObject('Transform');
+  transform.parent = g_client.root;
+  transform.addShape(shape);
+
+  // Make our camera show the scene.
+  o3djs.camera.fitContextToScene(g_client.root,
+                                 g_client.width,
+                                 g_client.height,
+                                 viewInfo.drawContext);
+
+  g_finished = true;  // for selenium
+}
+
+</script>
+</head>
+<body>
+<h1>Tutorial: Primitive.</h1>
+<p>This sample shows how to display something without having to manually setup a
+shader.</p>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 600px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+</body>
+
+</html>

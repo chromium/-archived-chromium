@@ -1,0 +1,210 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+A Selenium test to make that streams lasting past the client don't crash.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Ownership Test
+</title>
+<!-- Our javascript code -->
+<script type="text/javascript" src="../../../samples/o3djs/base.js"></script>
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+
+window.onload = init;
+
+// global variables
+var g_testResult;
+var g_streamArrays = [];
+var g_effectInfo;
+
+/**
+ * Creates a o3d object.
+ */
+function init() {
+  // Create a client.
+  var clientSpan = document.getElementById('client');
+  var objElem = o3djs.util.createClient(clientSpan);
+  objElem.style.width = '60px';
+  objElem.style.height = '60px';
+  objElem.id = 'o3d';
+  objElem.name ='o3d';
+
+  // wait for the browsers to settle down.
+  var clearId = window.setInterval(function() {
+    if (document.o3d.o3d) {
+      window.clearInterval(clearId);
+      test();
+    }
+
+  }, 10);
+}
+
+function makeBufferAndFreeClient() {
+  // Initialize global variables and libraries.
+  var o3d = document.o3d.o3d;
+  var client = document.o3d.client;
+
+  // Create a g_pack to manage our resources/assets
+  var pack = client.createPack();
+
+  var effect = pack.createObject('Effect');
+  effect.loadFromFXString('' +
+       'float var1;\n' +
+       'float2 var2;\n' +
+       'float3 var3;\n' +
+       'float4 var4;\n' +
+       'struct a2v {\n' +
+       ' float4 pos : POSITION;\n' +
+       '};\n'+
+       'struct v2f {\n' +
+       '  float4 pos : POSITION;\n' +
+       '};\n' +
+       'v2f vsMain(a2v IN) {\n' +
+       '  v2f OUT;\n' +
+       '  OUT.pos = IN.pos;\n' +
+       '  return OUT;\n' +
+       '}\n' +
+       'float4 psMain(v2f IN): COLOR {\n' +
+       '  return float4(var1, var2.y, var3.z, var4.w);\n' +
+       '}\n' +
+       '// #o3d VertexShaderEntryPoint vsMain\n' +
+       '// #o3d PixelShaderEntryPoint psMain\n' +
+       '// #o3d MatrixLoadOrder RowMajor\n');
+  g_effectInfo = effect.getParameterInfo();
+
+
+  // Let's create a lot of buffers just to try to make it crash.
+  for (var ii = 0; ii < 100; ii++) {
+    var bank = pack.createObject('StreamBank');
+    var buffer = pack.createObject('VertexBuffer');
+    var field = buffer.createField('FloatField', 3);
+
+    var vertsArray = [
+      // Triangle 1
+      -0.5,  0.5, 0,
+      -0.5, -0.5, 0,
+       0.5, -0.5, 0,
+
+      // Triangle 2
+       0.5,  0.5, 0,
+      -0.5,  0.5, 0,
+       0.5, -0.5, 0
+    ];
+    buffer.set(vertsArray);
+    bank.setVertexStream(o3d.Stream.POSITION,
+                         0,
+                         field,
+                         0);
+
+    // copy the streams out so they last past the client.
+    g_streamArrays[ii] = bank.vertexStreams;
+  }
+
+  pack.destroy();
+
+  var clientSpan = document.getElementById('client');
+  var clientNode = clientSpan.childNodes[0];
+  clientSpan.removeChild(clientNode);
+}
+
+function isDefined(variable) {
+  return (typeof(variable) == "undefined") ? false : true;
+}
+
+function test() {
+  makeBufferAndFreeClient();
+
+  // check that we can still access the stream objects.
+  var caught = false;
+  try {
+    // Chrome does not always throw exceptions when methods/properties on NPAPI
+    // objects fail, so we explicitly throw here.
+    var stream = g_streamArrays[1][0];
+    if (!isDefined(stream))
+      throw 'error';
+
+    // The stream object may exist as an empty container, so probe its normally
+    // expected properties - they should no longer exist.
+    var semantic = stream.semantic;
+    var field = stream.field;
+
+    // The object was deleted, so both of its properties should not exist.
+    if (!isDefined(semantic) && !isDefined(field))
+      throw 'error'
+  } catch (e) {
+    // We should always get here unless there is a bug.
+    caught = true;
+  }
+
+  var caught2 = false;
+  try {
+    var effectInfo = g_effectInfo[0];
+    var name = effect.name;
+    if (!isDefined(name)) {
+      throw 'error';
+    }
+  } catch(e) {
+    // We should always get here unless there is a bug.
+    caught2 = true;
+  }
+
+  // This should free the Stream objects.
+  g_streamArrays = null;
+
+  // attempt to allocate lots of stuff to hopefully force the browser
+  // to garbage collect. If there is a bug we should crash here.
+  var array = {};
+  for (var ii = 0; ii < 100000; ii++) {
+    array['abced' + ii] = 'this is a waste of memory';
+  }
+
+  if (caught && caught2)
+    document.getElementById('testStatus').innerHTML = "Finished - Passed";
+  else
+    document.getElementById('testStatus').innerHTML = "Finished - Failed";
+  g_testResult = caught;
+}
+
+</script>
+</head>
+<body>
+<h1>Ownership Test</h1>
+<div id="client" style="width: 60px; height 60px;"></div>
+<div>Status: <span id="testStatus">--running--</span></div>
+</body>
+</html>

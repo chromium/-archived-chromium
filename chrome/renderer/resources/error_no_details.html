@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html id="t" jsvalues="dir:textdirection">
+<head>
+<title jscontent="title">
+</title>
+<style type="text/css"><!--
+body {
+ background-color: #fff;
+ color: #000;
+ font-family: arial,sans-serif;
+ font-size: 83%;
+ line-height: 120%;
+ max-width: 35em;
+ padding: 0.5em 1em;
+}
+li {
+ padding-bottom: .3em;
+}
+ul {
+ margin: .5em 0 0;
+ padding-bottom: 0;
+}
+h1 {
+ font-size: 1.5em;
+ margin-bottom: 1.5em;
+}
+h2 {
+ font-size: 1em;
+ font-weight: bold;
+ margin: 0 0 .5em;
+ padding: 0;
+}
+a {
+ color: #00c;
+}
+a:active {
+ color: #f00;
+}
+a:visited {
+ color: #551a8b;
+}
+#errorSummary, #suggestions, #search {
+ margin-bottom: 2.5em;
+}
+//-->
+</style>
+</head>
+
+<body>
+
+<h1 jscontent="heading"></h1>
+
+<div id="errorSummary" jsselect="summary">
+ <p jseval="this.innerHTML = $this.msg;"></p>
+</div>
+
+<div id="suggestions">
+ <h2 jscontent="suggestionsHeading"></h2>
+ <ul>
+  <li jsselect="suggestionsReload">
+    <span jseval="this.innerHTML = $this.msg;"></span>
+  </li>
+  <li jsselect="suggestionsHomepage">
+    <span jscontent="suggestionsHomepageMsg"></span>
+    <a jscontent="hostName" jsvalues="href:homePage"></a>
+  </li>
+  <li jsselect="suggestionsLearnMore">
+    <span jseval="this.innerHTML = $this.msg;"></span>
+  </li>
+ </ul>
+</div>
+
+</body>
+</html>

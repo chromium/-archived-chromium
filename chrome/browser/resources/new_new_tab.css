@@ -1,0 +1,706 @@
+html {
+  /* This is needed because of chrome://theme/css/new_tab.css */
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+#main {
+  background: url(chrome://theme/product_logo) no-repeat 0 0px;
+  position: relative;
+  margin: 0 auto;
+  width: 940px;
+  -webkit-transition: width .5s;
+}
+
+html[dir='rtl'] #main {
+  background-position-x: 100%;
+}
+
+html[anim='false'] *,
+.no-anim, .no-anim *,
+.loading * {
+  -webkit-transition: none !important;
+  -webkit-animation: none !important;
+}
+
+/* Most Visited */
+
+#most-visited {
+  position: relative;
+  padding: 0;
+  margin-bottom: 34px;
+  height: 372px;
+  -webkit-user-select: none;
+  -webkit-transition: height .5s, opacity .5s;
+}
+
+@-webkit-keyframes 'thumbnail-enter' {
+  /* 2.5s */
+  0%, 20% {
+    -webkit-box-shadow: 0px 2px 2px hsla(0, 0%, 0%, .5);
+    -webkit-border-radius: 4px;
+  }
+
+  100% {
+    -webkit-border-top-left-radius: 0;
+    -webkit-border-top-right-radius: 0;
+    -webkit-box-shadow: 0px 2px 2px hsla(0, 0%, 0%, 0);
+  }
+}
+
+@-webkit-keyframes 'edit-mode-border-enter' {
+  /* 2.5s */
+  0%, 20% {
+    background-color: hsla(213, 66%, 57%, 0);
+    -webkit-box-shadow: 0px 2px 2px hsla(0, 0%, 0%, 0);
+  }
+
+  100% {
+    background-color: hsla(213, 66%, 57%, 1);
+    -webkit-box-shadow: 0px 2px 2px hsla(0, 0%, 0%, .5);
+  }
+}
+
+@-webkit-keyframes 'edit-bar-enter' {
+  /* 2.5s */
+  0%, 20% {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  100% {
+    opacity: 1;
+    pointer-events: inherit;
+  }
+}
+
+.thumbnail-container {
+  position: absolute;
+  -webkit-transition: top .5s, left .5s;
+  color: black;
+  text-decoration: none;
+  -webkit-transition: left .5s, top .5s;
+}
+
+.list > .thumbnail-container {
+  -webkit-transition: left .5s, top .5s, width .5s;
+}
+
+.thumbnail,
+.thumbnail-container > .title {
+  width: 212px; /* natural size is 196 */
+  height: 132px; /* 136 */
+  -webkit-transition: width .5s, height .5s;
+}
+
+.thumbnail-wrapper {
+  display: block;
+  -webkit-background-size: 212px 132px;
+  background: no-repeat 4px 4px;
+  background-color: white;
+  -webkit-border-radius: 5px;
+  -webkit-transition: -webkit-background-size .5s;
+}
+
+.filler * {
+  visibility: hidden;
+}
+
+.filler {
+  pointer-events: none;
+}
+
+.filler .thumbnail-wrapper {
+  visibility: inherit;
+  border: 1px solid hsl(0, 0%, 90%);
+  background-color: hsl(0, 0%, 95%);
+  -webkit-border-radius: 2px;
+  display: block;
+}
+
+.filler .thumbnail {
+  visibility: visible;
+  border-color: hsl(0, 0%, 90%);
+  background-color: hsl(0, 0%, 95%);
+}
+
+.edit-bar {
+  opacity: 0;
+  pointer-events: none;
+  display: -webkit-box;
+  -webkit-box-orient: horizontal;
+  -webkit-box-align: stretch;
+  padding: 3px;
+  padding-bottom: 0;
+  height: 17px; /* 23 - 2 * 3 */
+  -webkit-transition: opacity .5s;
+  cursor: move;
+  font-size: 100%;
+  line-height: 17px;
+  background-image: -webkit-gradient(linear, left top, left bottom,
+                                     from(hsl(213, 87%, 67%)),
+                                     to(hsl(213, 66%, 57%)));
+  -webkit-border-top-left-radius: 4px;
+  -webkit-border-top-right-radius: 4px;
+}
+
+.edit-bar > * {
+  display: block;
+  position: relative;
+}
+
+.thumbnail-container:hover .edit-bar {
+  -webkit-animation: 'edit-bar-enter' 2.5s;
+  opacity: 1;
+  pointer-events: inherit;
+}
+
+.edit-bar > .spacer {
+  -webkit-box-flex: 1;
+}
+
+.edit-bar > .pin,
+.edit-bar > .remove {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  background-image: no-repeat 50% 50%;
+}
+
+.edit-bar > .pin {
+  background-image: url(chrome://theme/newtab_pin_off);
+}
+
+.edit-bar > .pin:hover {
+  background-image: url(chrome://theme/newtab_pin_off_h);
+}
+
+.edit-bar > .pin:active {
+  background-image: url(chrome://theme/newtab_pin_off_p);
+}
+
+.pinned .edit-bar > .pin {
+  background-image: url(chrome://theme/newtab_pin_on);
+}
+
+.pinned .edit-bar > .pin:hover {
+  background-image: url(chrome://theme/newtab_pin_on_h);
+}
+
+.pinned .edit-bar > .pin:active {
+  background-image: url(chrome://theme/newtab_pin_on_p);
+}
+
+.edit-bar > .remove {
+  background-image: url(chrome://theme/newtab_close);
+}
+
+.edit-bar > .remove:hover {
+  background-image: url(chrome://theme/newtab_close_h);
+}
+
+.edit-bar > .remove:active {
+  background-image: url(chrome://theme/newtab_close_p);
+}
+
+:link,
+:visited,
+.link {
+  cursor: pointer;
+  text-decoration: underline;
+  color: hsl(213, 90%, 24%);
+}
+
+.thumbnail-container > .title {
+  line-height: 16px;
+  height: 16px;
+  margin: 0;
+  margin-top: 4px;
+  font-size: 100%;
+  font-weight:normal;
+  padding: 0 3px;
+  opacity: 1;
+  -webkit-transition: opacity .5s, width .5s;
+  color: black;
+}
+
+.thumbnail-container > .title > div {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  background: no-repeat 0 50%;
+  -webkit-background-size: 16px;
+  padding-left: 20px; /* we cannot use padding start here because even if we set
+                         the direction we always want the icon on the same side
+                      */
+  padding-right: 0;
+}
+
+html[dir=rtl] .thumbnail-container > .title > div {
+  background-position-x: 100%;
+  padding-left: 0;
+  padding-right: 20px;
+  text-align: right;
+}
+
+.thumbnail {
+  border: 3px solid hsla(213, 63%, 93%, 1);
+  padding: 1px;
+  -webkit-border-radius: 5px;
+  display: block;
+  -webkit-box-shadow: 0px 2px 2px hsla(0, 0%, 0%, 0);
+  -webkit-transition: width .5s, height .5s, border-color .5s,
+      -webkit-border-radius .5s, -webkit-box-shadow .5s;
+}
+
+.edit-mode-border {
+  -webkit-border-radius: 4px;
+  background-color: hsla(213, 54%, 95%, 0);
+}
+
+.thumbnail-container:hover .thumbnail {
+  -webkit-animation: 'thumbnail-enter' 2.5s;
+  border-color: hsla(213, 66%, 57%, 1);
+  -webkit-box-shadow: 0px 2px 2px hsla(0, 0%, 0%, 0);
+  -webkit-border-top-left-radius: 0;
+  -webkit-border-top-right-radius: 0;
+
+  background-image: -webkit-gradient(linear, left top, left bottom,
+    from(hsla(0, 0%, 0%, 0)),
+    color-stop(0.85, hsla(0, 0%, 47%, 0)),
+    to(hsla(0, 0%, 47%, 0.2))
+    );
+}
+
+.thumbnail-container:hover > .edit-mode-border {
+  -webkit-animation: 'edit-mode-border-enter' 2.5s;
+  background-color: hsla(213, 66%, 57%, 1);
+  -webkit-box-shadow: 0px 2px 2px hsla(0, 0%, 0%, .5);
+}
+
+.dragging {
+  -webkit-transition: none;
+}
+
+.dragging > .title {
+  opacity: 0 !important;
+}
+
+.list > .dragging > .title {
+  opacity: 1;
+}
+
+.hide {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+@-webkit-keyframes 'fade-in' {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  -webkit-animation: 'fade-in' 2.5s;
+}
+
+/* Notification */
+
+#notification {
+  position: relative;
+  background-color: hsl(52, 100%, 80%);
+  -webkit-border-radius: 4px;
+  padding: 8px 16px;
+  white-space: nowrap;
+  display: table;
+  margin: 10px auto;
+  font-weight: bold;
+  opacity: 0;
+  visibility: hidden;
+  -webkit-transition: opacity 1s;
+  z-index: 1;
+}
+
+#notification > * {
+  display: table-cell;
+  max-width: 500px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#notification:hover,
+#notification.show {
+  opacity: 1;
+  visibility: inherit;
+}
+
+#notification .link {
+  -webkit-margin-start: 20px;
+}
+
+/* List mode */
+
+.list .thumbnail,
+.list .edit-bar {
+  display: none;
+}
+
+.list > .thumbnail-container {
+  -webkit-box-sizing: border-box;
+}
+
+.list > .thumbnail-container > .title {
+  font-size: 140%;
+  line-height: 40px;
+  height: 40px;
+  color: hsl(213, 27%, 68%);
+  text-decoration: underline;
+  width: 100%;
+}
+
+.list .title > div {
+  color: rgb(6, 45, 117);
+}
+
+.section {
+  background: white;
+  -webkit-border-radius: 4px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border: 1px solid hsl(213, 65%, 92%);
+  padding-bottom: 5px;
+  overflow: hidden;
+  min-height: 198px; /* height of 6 items plus the header */
+  vertical-align: top;
+  margin: 0;
+}
+
+.section > h2 {
+  background-image: -webkit-gradient(linear, left top, left bottom,
+      from(hsl(213, 87%, 67%)),
+      to(hsl(213, 66%, 57%)));
+  -webkit-border-top-left-radius: 2px;
+  -webkit-border-top-right-radius: 2px;
+  padding: 4px 8px;
+  color: white;
+  font-size: 100%;
+  margin: 0px;
+}
+
+.item {
+  background: no-repeat 0% 50%;
+  padding: 2px;
+  padding-left: 18px;
+  -webkit-background-size: 16px;
+  background-color: hsla(213, 63%, 93%, 0);
+  display: block;
+  line-height: 20px;
+  -webkit-box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+  font-size: 100%;
+}
+
+html[dir='rtl'] .item {
+  background-position-x: 100%;
+  padding-right: 18px;
+  padding-left: 2px;
+  text-align: right;
+}
+
+.tips-title {
+  color: black;
+  text-decoration: none;
+  padding-top: 6px;
+  white-space: normal;
+}
+
+.tips-container {
+  padding-top: 4px;
+}
+
+.window {
+  position: relative;
+  overflow: visible; /* We use visible so that the menu can be a child and shown
+                        on :hover. To get this to work we have to set visibility
+                        to visible which unfortunately breaks the ellipsis for t
+                        he window items */
+  background-image: url(chrome://theme/newtab_closed_window);
+}
+
+.window-menu {
+  position: absolute;
+  display: none;
+  border: 1px solid #999;
+  -webkit-box-shadow: 5px 5px 10px hsla(0, 0%, 0%, .3);
+  background-color: hsla(213, 0%, 100%, .95);
+  width: 157px;
+  left: 0;
+  white-space: nowrap;
+  z-index: 1;
+  padding: 1px;
+  cursor: default;
+}
+
+.hbox {
+  display: -webkit-box;
+  -webkit-box-orient: horizontal;
+}
+
+#recent-tabs,
+#downloads {
+  -webkit-box-flex: 1;
+  width: 50%;
+}
+
+.section h3 {
+  padding: 8px 5px;
+  padding-bottom: 0;
+  font-size: 80%;
+  font-weight: normal;
+  margin: 0;
+  -webkit-margin-start: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-container {
+  margin: 0 5px;
+  text-decoration: underline;
+  color: hsl(213, 27%, 68%);
+}
+
+.item.nav:after {
+  content: '\00bb'; /* raque gets flipped automatically in rtl */
+  font-size: 120%;
+  -webkit-padding-start: 2px;
+}
+
+#recent-activities {
+  -webkit-transition: width .5s, opacity .5s;
+}
+
+.section {
+  -webkit-box-flex: 1;
+  width: 50%;
+  display: inline-block;
+}
+
+#view-toolbar {
+  -webkit-user-select: none;
+  text-align: right;
+  position: relative;
+  top: 35px;
+}
+
+html[dir='rtl'] #view-toolbar {
+  text-align: left;
+}
+
+#view-toolbar > input {
+  -webkit-appearance: none;
+  background-color: transparent;
+  width: 19px;
+  height: 17px;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  vertical-align: top;
+  -webkit-margin-start: 5px;
+}
+
+#lower-sections {
+  position: relative;
+  overflow: hidden;
+  -webkit-transition: height .5s, width .5s, opacity .5s;
+  white-space: nowrap;
+}
+
+#lower-sections > .section {
+  -webkit-transition: width .5s, opacity .5s, left .5s;
+  -webkit-box-sizing: border-box;
+  width: 460px; /* Set default size so we don't have to do a js layout at
+                   load */
+}
+
+#lower-sections .spacer {
+  width: 20px;
+  -webkit-transition: width .5s;
+  display: inline-block;
+}
+
+#thumb-checkbox {
+  background-image: url(chrome://theme/newtab_thumb_off);
+}
+
+#thumb-checkbox:hover {
+  background-image: url(chrome://theme/newtab_thumb_off_h);
+}
+
+#thumb-checkbox:active {
+  background-image: url(chrome://theme/newtab_thumb_off_p);
+}
+
+#thumb-checkbox:checked {
+  background-image: url(chrome://theme/newtab_thumb_on);
+}
+
+#thumb-checkbox:checked:hover {
+  background-image: url(chrome://theme/newtab_thumb_on_h);
+}
+
+#thumb-checkbox:checked:active {
+  background-image: url(chrome://theme/newtab_thumb_on_p);
+}
+
+#list-checkbox {
+  background-image: url(chrome://theme/newtab_list_off);
+}
+
+#list-checkbox:hover {
+  background-image: url(chrome://theme/newtab_list_off_h);
+}
+
+#list-checkbox:active {
+  background-image: url(chrome://theme/newtab_list_off_p);
+}
+
+#list-checkbox:checked {
+  background-image: url(chrome://theme/newtab_list_on);
+}
+
+#list-checkbox:checked:hover {
+  background-image: url(chrome://theme/newtab_list_on_h);
+}
+
+#list-checkbox:checked:active {
+  background-image: url(chrome://theme/newtab_list_on_p);
+}
+
+#option-button {
+  background-image: url(chrome://theme/newtab_option);
+}
+
+#option-button:hover {
+  background-image: url(chrome://theme/newtab_option_h);
+}
+
+#option-button:active {
+  background-image: url(chrome://theme/newtab_option_p);
+}
+
+#option-menu {
+  -webkit-user-select: none;
+  position: absolute;
+  right: 0;
+  left: auto;
+  top: 53px; /* Position this below the option button. The option button
+                is positioned 35px from the top and has a height of 17px. We add
+                one to get some spacing there as well: 35 + 17 + 1 = 53 */
+  cursor: default;
+  pointer-events: all;
+  min-width: 175px;
+}
+
+html[dir='rtl'] #option-menu {
+  right: auto;
+  left: 0;
+}
+
+#option-menu > div {
+  padding: 3px 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#option-menu > [selected] {
+  background-color: hsla(213, 66%, 57%, 1);
+  color: white;
+}
+
+/* Hard code thumbnail positions to improve initial layout speed */
+#t0, #t4 {
+  left: 0;
+}
+
+#t1, #t5 {
+  left: 240px;
+}
+
+#t2, #t6 {
+  left: 480px;
+}
+
+#t3, #t7 {
+  left: 720px;
+}
+
+#t4, #t5, #t6, #t7 {
+  top: 186px;
+}
+
+/* small */
+
+@media (max-width: 940px) {
+
+  #main {
+    width: 692px;
+  }
+
+  #most-visited {
+    height: 294px;
+  }
+
+  .thumbnail,
+  .thumbnail-container > .title {
+    width: 150px;
+    height: 93px;
+  }
+
+  .thumbnail-container > .title {
+    height: auto;
+  }
+
+  .thumbnail-wrapper {
+    -webkit-background-size: 150px 93px;
+  }
+
+  #notification > * {
+    max-width: 300px;
+  }
+
+  #lower-sections > .section {
+    width: 336px; /* Same here, see above */
+  }
+
+  #t0, #t4 {
+    left: 0;
+  }
+
+  #t1, #t5 {
+    left: 178px;
+  }
+
+  #t2, #t6 {
+    left: 356px;
+  }
+
+  #t3, #t7 {
+    left: 534px;
+  }
+
+  #t4, #t5, #t6, #t7 {
+    top: 147px;
+  }
+}

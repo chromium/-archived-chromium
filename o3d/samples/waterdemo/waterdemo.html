@@ -1,0 +1,439 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+  Water Demo
+</title>
+<style type="text/css">
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
+</style>
+<script type="text/javascript" src="../o3djs/base.js"></script>
+
+<script type="text/javascript" src="waterdemo.js"></script>
+<script type="text/javascript" src="uicomponents.js"></script>
+<script type="text/javascript" src="cameracontrol.js"></script>
+</head>
+<body>
+  <!-- Start of o3d plugin -->
+  <div id="o3d" style="width: 100%; height: 100%;"></div>
+  <!-- End of o3d plugin -->
+<!-- Don't render the textarea -->
+<div style="display:none">
+
+<!-- *********************************************************************
+     Shader for the sky dome
+     ********************************************************************* -->
+<textarea id="dome" name="dome" cols="80" rows="20">
+  // Constant float4x4 matrices
+  float4x4 WVP : WORLDVIEWPROJECTION;
+  float4x4 world : WORLD;
+
+  // Positions of the light and camera
+  float3 lightDirection;
+  float3 cameraEye;
+
+  // Samplers for textures
+  sampler2D DiffuseSampler;
+  sampler2D HorizonRamp;
+  sampler2D SunRamp;
+
+  // Input to our vertex shader
+  struct a2v {
+    float3 pos : POSITION;
+    float4 col : COLOR;
+    float3 normal : NORMAL;
+    float2 texcoord0 : TEXCOORD0;
+  };
+
+  // Input to our pixel shader and output of our vertex shader
+  struct v2f {
+    float4 pos : POSITION;
+    float3 worldPos : TEXCOORD0;
+    float3 eye : TEXCOORD1;
+  };
+
+  v2f vsMain(a2v IN) {
+    v2f OUT;
+    float4 objectPos = float4(IN.pos, 1);
+    OUT.pos = mul(objectPos, WVP);
+    OUT.worldPos = mul(objectPos,world).xyz;
+    OUT.eye = OUT.worldPos - cameraEye;
+    return OUT;
+  }
+
+  float4 psMain(v2f IN): COLOR {
+    // TODO: lightDirection is a constant--no need to normalize each vert
+    float3 L = normalize(lightDirection);
+    float LdotEye=dot(L, normalize(IN.eye));
+
+    float4 sun = tex2D(SunRamp, float2((1-LdotEye)*40, (1-LdotEye)*40));
+    float4 horizon = tex2D(HorizonRamp, IN.worldPos.yy/80);
+    return sun.w*sun*.7+(1-sun.w*.7)*horizon;
+  }
+
+  // Here we tell our effect file *which* functions are
+  // our vertex and pixel shaders.
+
+  // #o3d VertexShaderEntryPoint vsMain
+  // #o3d PixelShaderEntryPoint psMain
+  // #o3d MatrixLoadOrder RowMajor
+</textarea>
+
+<!-- *********************************************************************
+     Shader for the water
+     Based on Tessendorf's "Simulating Ocean Water" paper
+     ********************************************************************* -->
+<textarea id="water" name="water" cols="80" rows="20">
+  float4x4 WVP : WorldViewProjection;
+  float4x4 worldInverseTranspose : WORLDINVERSETRANSPOSE;
+  float4x4 world : WORLD;
+
+  // Positions of the light and camera
+  float3 lightDirection;
+  float3 cameraEye;
+
+  // Time from the javascript program
+  float inputTime;
+
+  float reflectivity;
+  float3 swizzle1;
+
+  // Textures
+  sampler2D HeightSampler;
+  sampler2D Reflectivity;
+  sampler2D ReflectionSampler;
+  sampler2D HorizonRamp;
+  sampler2D SunRamp;
+  sampler2D RockTexture;
+
+  struct a2v{
+    float3 Position : POSITION;
+    float3 Normal : NORMAL;
+    float2 texcoord0 : TEXCOORD0;
+  };
+
+  struct v2f{
+    float4 pos : POSITION;
+    float2 texcoord0 : TEXCOORD0;
+    float3 lightVec : TEXCOORD1;
+    float4 diffuse : TEXCOORD2;
+    float3 eyeVec : TEXCOORD3;
+    float3 normal : TEXCOORD4;
+    float3 worldPos : TEXCOORD5;
+    float2 worldTexCoord : TEXCOORD6;
+  };
+
+
+  float displacement(float2 vec,float time) {
+    // These values could be passed in
+    float frequency = 15;
+    float scaleFactor = .075;
+
+    float displacement=0;
+    displacement+=scaleFactor*sin((vec.x*-.4+vec.y*-.9)*frequency+time);
+    displacement+=scaleFactor*.5*sin((vec.x*.1+vec.y*-.9)*frequency*3+time);
+    displacement+=scaleFactor*.25*sin((vec.x*-.2+vec.y*-.8)*frequency*9+time);
+    return displacement;
+  }
+
+  v2f vsMain (a2v IN){
+    v2f OUT;
+
+    float4 PosWorld = mul(float4(IN.Position, 1.0),world);
+
+    float displacementC = displacement(PosWorld.xz/10, inputTime);
+    float4 newPosition = float4(IN.Position,1) + displacementC*float4(0,1,0,0);
+
+    OUT.normal = mul(float4(IN.Normal,1),worldInverseTranspose).xyz;
+    OUT.pos = mul(newPosition, WVP);
+    OUT.worldPos = PosWorld.xyz;
+    OUT.diffuse = float4(displacementC,displacementC,displacementC,1);
+    // TODO: lightDirection is a constant--no need to normalize each vert
+    OUT.lightVec = normalize(lightDirection);
+    OUT.eyeVec = normalize(PosWorld.xyz - cameraEye);
+    OUT.worldTexCoord = PosWorld.xz/40;
+    OUT.texcoord0 = IN.texcoord0;
+    return OUT;
+  }
+
+  float4 psMain (v2f IN) : COLOR{
+    // Use central differencing to get the normal from the bump maps
+    // The swizzle says which channel we're using
+    float r = dot(tex2D(HeightSampler, IN.worldTexCoord.xy+float2(.005,0)).xyz,
+                  swizzle1);
+    float l = dot(tex2D(HeightSampler, IN.worldTexCoord.xy+float2(-.005,0)).xyz,
+                  swizzle1);
+    float b = dot(tex2D(HeightSampler, IN.worldTexCoord.xy+float2(0,.005)).xyz,
+                  swizzle1);
+    float f = dot(tex2D(HeightSampler, IN.worldTexCoord.xy+float2(0,-.005)).xyz,
+                  swizzle1);
+    float norm = .01*40;
+    float3 bump = float3((r-l)/norm, 1, (b-f)/norm);
+    float3 n = normalize(bump + IN.normal);
+
+    // Precalculate the calculation of reflectivity basead on costhetai
+    // and store as a texture for lookup
+    float costhetai = abs(dot(IN.eyeVec, n));
+    float reflectivity = tex2D(Reflectivity, float2(costhetai,0)).x;
+
+    float3 reflectV = normalize(reflect(IN.eyeVec, n));
+
+    float3 dPE = IN.worldPos-IN.eyeVec;
+    float dist = length(dPE) * .61;
+    dist = exp(-dist);
+
+    float3 L = normalize(IN.lightVec);
+    float LdotReflectV = dot(L, reflectV);
+
+    // Calculate the sun ramp for its reflection on the water
+    float4 sun = tex2D(SunRamp, float2((1-LdotReflectV)*40,0));
+    sun.xyz = sun.w*sun.xyz;
+    float4 horizon = tex2D(HorizonRamp, reflectV.yy*2);
+
+    // Add in the refelction of the rock
+    float2 vPos = float2((IN.texcoord0.x-.7668)*11.7,
+                         ((1-IN.texcoord0.y)-.888)*11);
+    vPos += bump.xz/7;
+    float4 islandReflection = tex2D(ReflectionSampler, vPos);
+    reflectivity = reflectivity*(1-islandReflection.w*
+                   (.75-.75*islandReflection.x));
+
+    // Get the reflection of the environment (sun, sky)
+    float4 environmentColor = sun*.7+(1-sun.w*.7)*horizon;
+
+    // The color of the water when we look straight into it, not at a glancing
+    // angle
+    float4 internalColor = float4(0, .1, .15, 1);
+
+    // First interpolate water color with reflection from environment
+    float4 firstlerp = lerp(internalColor, environmentColor, reflectivity);
+    // Then interpolate with the air to give atmosphere and some haze
+    return lerp(firstlerp, float4(.1, .1, .1, 1), dist) +
+           pow(LdotReflectV,200)*float4(.9,.6,.4,0);
+  }
+
+  // #o3d VertexShaderEntryPoint vsMain
+  // #o3d PixelShaderEntryPoint psMain
+  // #o3d MatrixLoadOrder RowMajor
+</textarea>
+
+
+<!-- *********************************************************************
+     Shader for the rocks
+     ********************************************************************* -->
+<textarea id="rocks" name="rocks" cols="80" rows="20">
+  // The 4x4 world view projection matrix.
+  float4x4 WVP : WORLDVIEWPROJECTION;
+
+  // positions of the light and camera
+  float3 lightDirection;
+  float3 cameraEye;
+
+  // Varying time input
+  float inputTime;
+
+  float4 ambient_color;
+  float4 diffuse_Color;
+
+  sampler2D DiffuseSampler;
+  sampler2D BumpSampler;
+
+  // Input to our vertex shader
+  struct a2v {
+    float3 pos : POSITION;
+    float3 normal : NORMAL;
+    float2 texcoord0 : TEXCOORD0;
+  };
+
+  // Input to our pixel shader and output of our vertex shader
+  struct v2f {
+    float4 pos : POSITION;
+    float2 texcoord0 : TEXCOORD0;
+    float3 lightVec : TEXCOORD1;
+    float3 normal : TEXCOORD2;
+  };
+
+  v2f vsMain(a2v IN) {
+    v2f OUT;
+
+    OUT.pos = mul(float4(IN.pos, 1.0), WVP);
+    // TODO: lightDirection is a constant--no need to normalize each vert
+    float3 l = normalize(lightDirection);
+    float3 n = IN.normal;
+
+    ambient_color = float4(0.4, 0.4, 0.4, 1);
+
+    OUT.texcoord0 = IN.texcoord0;
+    OUT.lightVec = l;
+    OUT.normal = n;
+    return OUT;
+  }
+
+  float4 psMain(v2f IN): COLOR {
+    ambient_color = float4(0.2, 0.2, 0.2, 1);
+    float3 n = normalize(IN.normal);
+    float4 diffuse = tex2D(DiffuseSampler, IN.texcoord0.xy);
+    float4 diffuseCol = diffuse * saturate(dot(n,normalize(IN.lightVec)));
+    return diffuseCol + ambient_color*diffuse;
+  }
+
+  // Here we tell our effect file *which* functions are
+  // our vertex and pixel shaders.
+
+  // #o3d VertexShaderEntryPoint vsMain
+  // #o3d PixelShaderEntryPoint psMain
+  // #o3d MatrixLoadOrder RowMajor
+</textarea>
+
+<!-- *********************************************************************
+     Shader for the sun
+     ********************************************************************* -->
+<textarea id="sun" name="sun" cols="80" rows="20">
+  // The 4x4 world view projection matrix.
+  float4x4 WVP : WORLDVIEWPROJECTION;
+
+  sampler2D DiffuseSampler;
+
+  // Input parameters for our vertex shader
+  struct a2v {
+    float3 pos : POSITION;
+    float3 normal : NORMAL;
+    float2 texcoord0 : TEXCOORD0;
+  };
+
+  // Input parameters for our pixel shader
+  struct v2f {
+    float4 pos : POSITION;
+    float2 tex : TEXCOORD0;
+  };
+
+  v2f vsMain(a2v IN) {
+    v2f OUT;
+    OUT.pos = mul(float4(IN.pos,1), WVP);
+    OUT.tex = IN.texcoord0;
+    return OUT;
+  }
+
+  float4 psMain(v2f IN): COLOR {
+    return tex2D(DiffuseSampler, IN.tex);
+  }
+
+  // Here we tell our effect file *which* functions are
+  // our vertex and pixel shaders.
+
+  // #o3d VertexShaderEntryPoint vsMain
+  // #o3d PixelShaderEntryPoint psMain
+  // #o3d MatrixLoadOrder RowMajor
+</textarea>
+
+<!-- *********************************************************************
+     Shader for the bridge
+     ********************************************************************* -->
+<textarea id="bridge" name="bridge" cols="80" rows="20">
+  // The 4x4 world view projection matrix.
+  float4x4 WVP : WORLDVIEWPROJECTION;
+
+  // Positions of the light and camera
+  float3 lightPos;
+  float3 cameraEye;
+
+  // Changing time variable
+  float inputTime;
+
+  // Color for the bridge
+  float4 lightDiffuse;
+
+  sampler2D DiffuseSampler;
+
+  float3 bridgeEnd1;
+  float3 bridgeEnd2;
+
+  // Input parameters for our vertex shader
+  struct a2v {
+    float3 pos : POSITION;
+    float3 col : COLOR;
+    float3 normal : NORMAL;
+  };
+
+  // Input parameters for our pixel shader
+  struct v2f {
+    float4 pos : POSITION;
+  };
+
+  v2f vsMain(a2v IN) {
+    v2f OUT;
+
+    // These two could possible be passed in--different wind values
+    float d_frequency = .5;
+    float d_scale = .1;
+
+    bridgeEnd1 = float3(21,11.3,-50.5);
+    bridgeEnd2 = float3(23.3,11,-37);
+    float halfBridgeLength = .5*distance(bridgeEnd1,bridgeEnd2);
+    float3 displacementVector = float3(0,1,0);
+    float displacement = sin(d_frequency*inputTime);
+    float percentFromEnd1 = distance(IN.pos,bridgeEnd1)/halfBridgeLength;
+    float percentFromEnd2 = distance(IN.pos,bridgeEnd2)/halfBridgeLength;
+    float d_weight = percentFromEnd1*percentFromEnd2;
+    float3 newPosition = IN.pos +
+                         d_weight*d_scale*displacement*displacementVector;
+    OUT.pos = mul(float4(newPosition,1), WVP);
+    return OUT;
+  }
+
+  float4 psMain(v2f IN): COLOR {
+    return lightDiffuse;
+  }
+
+  // Here we tell our effect file *which* functions are
+  // our vertex and pixel shaders.
+
+  // #o3d VertexShaderEntryPoint vsMain
+  // #o3d PixelShaderEntryPoint psMain
+  // #o3d MatrixLoadOrder RowMajor
+</textarea>
+</div>
+</body>
+</html>
+
+

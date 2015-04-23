@@ -1,0 +1,37 @@
+This directory contains files needed for mozilla interfaces required
+for the new Java Plugin APIs.
+
+Definitions of frozen interfaces are copied from Gecko SDK 
+http://releases.mozilla.org/pub/mozilla.org/xulrunner/releases/1.8.0.4/sdk/gecko-sdk-win32-msvc-1.8.0.4.zip
+
+nscore.h
+nsError.h
+nsID.h
+nsISupports.h
+nsISupportsBase.h
+nsrootidl.h
+prcpucfg.h
+prlong.h
+prtime.h
+prtypes.h
+xpcom-config.h
+
+The prtypes.h file was modified to include "base/basictypes.h" instead of
+mozilla's protypes.h to avoid type clashes.
+
+nsISupports.h was modified to remove inclusion of nsISupportsUtils.h to avoid
+pulling in unnecessary headers and definitions.
+
+Definitions of remaining interfaces are auto generated during compilation of
+Mozilla source code. For convenience, these are copied from:
+http://publicsvn.songbirdnest.com/browser/trunk/dependencies/win32/mozilla/debug/include/plugin?rev=1
+
+nsICookieStorage.h
+nsIPluginManager.h
+nsIPluginManager2.h
+nsplugindefs.h
+nspluginroot.h
+
+The following files come from mozilla/camino and are not part of the Gecko SDK:
+
+NSWorkspace+Utils.h/m
