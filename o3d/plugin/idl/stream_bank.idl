@@ -1,0 +1,148 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+%[
+  The StreamBank a collection of streams that hold vertices.
+%]
+[nocpp, include="core/cross/primitive.h"]
+class StreamBank : NamedObject {
+
+  %[
+    Binds a VertexBuffer field to the StreamBank and defines how the data in
+    the buffer should be interpreted. The field's buffer must be of a
+    compatible type otherwise the binding fails and the function returns false.
+    \param semantic The particular use of this stream.
+    \param semantic_index Which index of a particular semantic to use.
+    \param field The field containing information for this stream.
+    \param start_index The first element to use.
+    \return True if successful.
+  %]
+  bool SetVertexStream(Stream::Semantic semantic,
+                       int semantic_index,
+                       Field field,
+                       unsigned int start_index);
+
+  %[
+    Searches the vertex streams bound to the StreamBank for one with the given
+    stream semantic.  If a stream is not found then it returns null.
+    \param semantic The particular use of this stream.
+    \param semantic_index Which index of a particular semantic to use.
+    \return The found stream or null if it does not exist.
+  %]
+  [userglue]
+  Stream? GetVertexStream(Stream::Semantic semantic, int semantic_index);
+
+  %[
+    Removes a vertex stream from this StreamBank.
+    \param semantic The particular use of this stream.
+    \param semantic_index Which index of a particular semantic to use.
+    \return true if the specified stream existed.
+  %]
+  bool RemoveVertexStream(Stream::Semantic semantic, int semantic_index);
+
+  %[
+    Binds the source stream to the corresponding stream in this VertexSource.
+
+    \param source Source to get vertices from.
+    \param semantic The semantic of the vertices to get
+    \param semantic_index The semantic index of the vertices to get.
+    \return True if success. False if failure. If the requested semantic or
+      semantic index do not exist on the source or this source the bind will
+      fail.
+  %]
+  bool BindStream(VertexSource source,
+                  Stream::Semantic semantic,
+                  int semantic_index);
+
+  %[
+    Unbinds the requested stream.
+    \param semantic The semantic of the vertices to unbind
+    \param semantic_index The semantic index of the vertices to unbind.
+    \return True if unbound. False those vertices do not exist or were not
+        bound.
+  %]
+  bool UnbindStream(Stream::Semantic semantic, int semantic_index);
+
+  %[
+    An array of the vertex streams on this StreamBank.
+
+    Each access to this field gets the entire list so it is best to get it
+    just once. For example:
+    \code
+    var streams = streamBank.vertexStreams;
+    for (var i = 0; i < streams.length; i++) {
+      var stream = streams[i];
+    }
+    \endcode
+
+    Note that modifications to this array [e.g. push()] will not affect
+    the underlying StreamBank, while modifications to the members of the array.
+    <strong>will</strong> affect them.
+  %]
+  [userglue_getter, getter] StreamVector vertex_streams;
+
+  [verbatim=cpp_glue] %{
+    std::vector<o3d::Stream*> userglue_getter_vertex_streams(
+        o3d::StreamBank* self) {
+      std::vector<o3d::Stream*> streams;
+      const o3d::StreamParamVector& stream_params =
+          self->vertex_stream_params();
+      streams.reserve(stream_params.size());
+      for (unsigned ii = 0; ii < stream_params.size(); ++ii) {
+        streams.push_back(
+            const_cast<o3d::Stream*>(&stream_params[ii]->stream()));
+      }
+      return streams;
+    }
+    o3d::Stream* userglue_method_GetVertexStream(
+        o3d::StreamBank* self,
+        o3d::Stream::Semantic semantic,
+        int semantic_index) {
+      return const_cast<o3d::Stream*>(
+          self->GetVertexStream(semantic, semantic_index));
+    }
+  %}
+};  // StreamBank
+
+%[
+  A Param which stores a StreamBank.
+%]
+[nocpp, include="core/cross/stream_bank.h"]
+class ParamStreamBank : Param {
+  %[
+    The StreamBank stored by the Param.
+  %]
+  [getter, setter] StreamBank? value_;
+};
+
+}  // namespace o3d

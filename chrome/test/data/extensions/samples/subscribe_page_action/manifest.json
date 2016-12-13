@@ -1,0 +1,25 @@
+{
+  "name": "RSS Subscription Extension",
+  "description": "Adds one-click subscription to your toolbar",
+  "version": "1.1",
+  "permissions": [
+    "http://*/*"
+  ],
+  "background_page": "background.html",
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "file://*.*"],
+      "js": ["feed_finder.js"]
+    }
+  ],
+  "page_actions": [
+    {
+      "id": "RssPageAction",
+      "name": "Subscribe to this feed",
+      "icons": [
+         "feed-icon-16x16.png",
+         "feed-icon-16x16-subscribed.png"
+      ]
+    }
+  ]
+}

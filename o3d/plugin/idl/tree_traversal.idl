@@ -1,0 +1,71 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+%[
+  A TreeTraversal has multiple DrawLists registered with it. Each DrawList has
+  a DrawContext registered with it. At render time the TreeTraversal walks the
+  transform graph from the transform it's pointing at and for each DrawElement
+  it finds who's matertial matches one of its registered DrawLists it adds that
+  DrawElement to that DrawList.
+%]
+[nocpp, include="core/cross/tree_traversal.h"] class TreeTraversal
+   : RenderNode {
+
+  %[
+    The root Transform this TreeTraversal will start traversing from.
+  %]
+  [getter, setter] Transform? transform_;
+
+  %[
+    Registers a DrawList with this TreeTraversal so that when this
+    TreeTraversal traverses its tree, DrawElements using materials that use
+    this DrawList will be added though possibly culled by the view frustum of
+    the DrawContext. Note: passing in the same DrawList more than once will
+    override the previous settings for that DrawList.
+    \param draw_list DrawList to register.
+    \param draw_context DrawContext to use with the DrawList.
+    \param reset true if you want the DrawList reset before traversing.
+  %]
+  void RegisterDrawList(DrawList draw_list,
+                        DrawContext draw_context,
+                        bool reset);
+
+  %[
+    Unregisters a DrawList with this TreeTraversal.
+    \param draw_list DrawList to unregister.
+    \return true if unregistered. false if this draw_list was not registered.
+  %]
+  bool UnregisterDrawList(DrawList draw_list);
+};  // TreeTraversal
+
+}  // namespace o3d

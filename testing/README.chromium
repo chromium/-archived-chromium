@@ -1,0 +1,39 @@
+We include a snapshot of gmock from http://googlemock.googlecode.com/svn/trunk
+with chromium.patch applied.
+
+Current revision: 173
+
+
+-- HOW TO USE --
+
+If you are unfamiliar with gmock, there is an example of how to write a test
+based on gmock in base/gmock_unittest.cc.  To use gmock, just add a dependency
+onto testing/gmock.gyp:gmock in your gyp target.
+
+For more general informaiton, there is a lot of good documentation availble on
+the googlemock website:
+
+  http://code.google.com/p/googlemock/
+
+In particular, the "For Dummies" guide is a good place to start.  The
+"CheatSheet" and "CookBook" are better as references.
+
+
+-- RECREATING PACKAGE --
+
+Starting with r173, gmock began distributing a pared down version of tr1 tuple
+that can be used on compilers without TR1.  This means that we will no longer
+need TR1 or boost on windows.
+
+Recreating this package is now just exporting the wanted revision.
+Example:
+
+    svn export --ignore-externals \
+        http://googlemock.googlecode.com/svn/trunk/ gmock
+
+When checking out a copy from svn, --ignore-externals should be used to avoid
+getting an extra copy of gtest.
+
+This command will grab the head of trunk. Optionally, -r [revision number] to
+can be passed to svn export if you want a specific revision.  The current
+revision of the source is listed at the top of the README.

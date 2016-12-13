@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="bg">
+<translation id="4420062214988137980">Инсталирането на приставката не бе успешно</translation>
+<translation id="1235745349614807883">Изчистване на скорошните търсения</translation>
+<translation id="3825324228893189080">Изисква се допълнителна приставка</translation>
+<translation id="2965480764085142436">Приставката за <ph name="PLUGIN"/> не е инсталирана</translation>
+<translation id="5048533449481078685">списъчен показалец</translation>
+<translation id="4202807286478387388">преминаване</translation>
+<translation id="4611115858363067980"><ph name="FILENAME"/><ph name="WIDTH"/>×<ph name="HEIGHT"/></translation>
+<translation id="4317653869502688143">Моля, потвърдете, че искате да инсталирате приставката за <ph name="PLUGIN"/>. Инсталирайте само тези приставки, които считате за надеждни.</translation>
+<translation id="7658239707568436148">Отказ</translation>
+<translation id="795667975304826397">Няма избран файл</translation>
+<translation id="1275511093094545429">Необходима е приставка за <ph name="PLUGIN"/></translation>
+<translation id="8662565117025751661">Приставката се изтегля...</translation>
+<translation id="8141602879876242471">В този индекс може да се търси. Въведете ключови думи за търсене:</translation>
+<translation id="6845533974506654842">натискане</translation>
+<translation id="8244226242650769279">карта с изображения</translation>
+<translation id="1383141426028388991">Неуспешно инсталиране на приставката от <ph name="URL"/></translation>
+<translation id="2548326553472216322">Няма скорошни търсения</translation>
+<translation id="5944544982112848342">2048 (висока степен на сложност)</translation>
+<translation id="3040011195152428237">връзка</translation>
+<translation id="8281246460978372009">След като инсталирате приставката, кликнете тук, за да опресните прозореца</translation>
+<translation id="7364796246159120393">Избор на файл</translation>
+<translation id="8964020114565522021">Плъзнете файла тук</translation>
+<translation id="838869780401515933">отмятане</translation>
+<translation id="2846343701378493991">1024 (средна степен на сложност)</translation>
+<translation id="5476505524087279545">премахване на отметката</translation>
+<translation id="679352192834563463">Няма приставка, с която може да се покаже това съдържание</translation>
+<translation id="3789841737615482174">Инсталиране</translation>
+<translation id="6663448176199120256">Скорошни търсения</translation>
+<translation id="3600343118165084788">Кликнете тук, за да изтеглите приставката</translation>
+<translation id="6807599807928161586">уеб зона</translation>
+<translation id="5939518447894949180">Повторно задаване</translation>
+<translation id="3771786644471114952">Изтегляне на приставката</translation>
+<translation id="1842960171412779397">Избиране</translation>
+<translation id="6119846243427417423">активиране</translation>
+<translation id="3926627843712816530">Моля, потвърдете, че искате да инсталирате тази приставка. Инсталирайте само тези приставки, които считате за надеждни.</translation>
+<translation id="4838490908464673667">Необходимата приставка не е инсталирана</translation>
+<translation id="8597182159515967513">заглавие</translation>
+<translation id="2653659639078652383">Изпращане</translation>
+</translationbundle>

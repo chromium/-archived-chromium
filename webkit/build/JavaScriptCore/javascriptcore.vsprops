@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="javascriptcore"
+	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\build\external_code.vsprops;.\using_javascriptcore.vsprops;..\webkit_common.vsprops"
+	DeleteExtensionsOnClean="*.obj;*.ilk;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.pgc;*.pgd;$(TargetPath)"
+	>
+	<Tool
+		Name="VCPreBuildEventTool"
+		Description="Constructing generated files..."
+		CommandLine="prebuild.bat $(IntDir) $(OutDir)"
+	/>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="&quot;$(ProjectDir)&quot;;&quot;$(IntDir)&quot;;&quot;$(IntDir)\DerivedSources&quot;;../../../third_party/WebKit/JavaScriptCore;&quot;../../../third_party/WebKit/JavaScriptCore/os-win32&quot;;../../../third_party/WebKit/JavaScriptCore/pcre;../../../third_party/WebKit/JavaScriptCore/kjs;../../../third_party/WebKit/JavaScriptCore/runtime;../../../third_party/WebKit/JavaScriptCore/bytecompiler;../../../third_party/WebKit/JavaScriptCore/parser;../../../third_party/WebKit/JavaScriptCore/debugger;../../../third_party/WebKit/JavaScriptCore/wtf;../../../third_party/WebKit/JavaScriptCore/API;../../../third_party/WebKit/JavaScriptCore/VM;../../../third_party/WebKit/JavaScriptCore/profiler;../../../third_party/WebKit/JavaScriptCore/bindings;../../../third_party/WebKit/JavaScriptCore/bindings/c;../../../third_party/WebKit/JavaScriptCore/bindings/jni;../../pending;../../pending/kjs;../../pending/wtf"
+		PreprocessorDefinitions="ENABLE_JSC_MULTIPLE_THREADS=0;__STD_C"
+	/>
+</VisualStudioPropertySheet>

@@ -1,0 +1,6 @@
+{
+  "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC4RIIi/YbLZ6dRpdQnWfrQuo2vunkuPJpD9HNvZQ3J5aylSw7Y8ghzom793CbTJK1ZI254yZtkaWZJWOBhPKCaaRac+qfpRN1spl42vpyMn1OrGQm1pwZT6rDpCyIVIx/k2o4puMsQHNUIqxXPu3Oj+KSVdCIGOmabMhz765UjhwIDAQAB",
+  "version": "1.0.0.0",
+  "name": "Roundtrip ApiCall Test Extension",
+  "description": "An extension for an extension UITest."
+}

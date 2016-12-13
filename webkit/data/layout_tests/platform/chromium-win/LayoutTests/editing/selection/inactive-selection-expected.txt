@@ -1,0 +1,6 @@
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html, <div id='input' contenteditable='true'>should be an inactive selection</div> from frame with URL inactive-selection.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 15: Uncaught TypeError: Cannot call method 'getElementById' of undefined
+This test verifies that an editable element in one frame retains an inactive selection after you've made a selection in another frame.
+
+ 

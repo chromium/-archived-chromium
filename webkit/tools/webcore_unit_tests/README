@@ -1,0 +1,3 @@
+This directory contains unit tests for some WebCore classes.  Ideally, these
+should just be contributed to WebCore, but since WebCore does not have support
+for gtest-style tests yet, we will keep them here for the time being.

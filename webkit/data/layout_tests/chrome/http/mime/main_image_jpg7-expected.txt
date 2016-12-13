@@ -1,0 +1,9 @@
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x600
+  RenderBlock {HTML} at (0,0) size 800x600
+    RenderBody {BODY} at (8,8) size 784x584
+      RenderText {#text} at (0,0) size 781x36
+        text run at (0,0) width 714: "This tests loading of a an HTML page with a FLASH object when the HTTP content-type is set to \"image/jpg\" . "
+        text run at (714,0) width 67: "Expected :"
+        text run at (0,18) width 229: "This page should have NOTHING ."

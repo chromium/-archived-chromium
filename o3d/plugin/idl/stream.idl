@@ -1,0 +1,118 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+%[
+  Namespace o3d
+%]
+namespace o3d {
+
+%[
+  A stream object defines how Buffer data is interpreted by an Effect when
+  rendering a Primitive..
+  It contains a pointer to a Field, a semantic and semantic index
+  that determine how the data is accessed.
+%]
+
+[nocpp, include="core/cross/stream.h"]
+class Stream : ObjectBase {
+  %[
+    \var Semantic,
+    \li UNKNOWN_SEMANTIC = 0,
+    \li POSITION,
+    \li NORMAL,
+    \li TANGENT,
+    \li BINORMAL,
+    \li COLOR,
+    \li TEXCOORD
+
+    Semantics used when binding buffers to the streambank.  They determine how
+    the Stream links up to the shader inputs.
+  %]
+  enum Semantic {
+    UNKNOWN_SEMANTIC = 0,
+    POSITION,
+    NORMAL,
+    TANGENT,
+    BINORMAL,
+    COLOR,
+    TEXCOORD
+  };
+
+  %[
+    The associated Field.
+  %]
+  [userglue_getter, getter] Field? field;
+
+  %[
+    The semantic specified for the Stream.
+  %]
+  [getter] Semantic semantic;
+
+  %[
+    The semantic index specified for the Stream
+    (eg., TEXCOORD1 = 1, BINORMAL7 = 7, etc).
+  %]
+  [getter] int semantic_index;
+
+  %[
+    The start index for the Stream.
+  %]
+  [getter] unsigned int start_index;
+
+  [verbatim=cpp_glue] %{
+    o3d::Field* userglue_getter_field(o3d::Stream* self) {
+      return const_cast<o3d::Field*>(&self->field());
+    }
+  %}
+};
+
+%[
+  An array of Streams.
+%]
+typedef Stream[] StreamVector;
+
+%[
+  A Param which stores a Stream.
+%]
+[nocpp, include="core/cross/stream.h"] class ParamVertexBufferStream : Param {
+  %[
+    The Stream stored by the Param.
+  %]
+  [userglue_getter, getter] Stream? stream;
+  [verbatim=cpp_glue] %{
+    o3d::Stream* userglue_getter_stream(
+        o3d::ParamVertexBufferStream* self) {
+      return const_cast<o3d::Stream*>(&self->stream());
+    }
+  %}
+};
+
+}  // namespace o3d

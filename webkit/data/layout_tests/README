@@ -1,0 +1,18 @@
+This directory contains layout tests.  It also contains platform-specific
+results until we can move them into LayoutTests/platform/.
+
+  chrome/
+    contains webkit tests and results for chrome specific issues
+
+  pending/
+    contains webkit tests that should be sent upstream to webkit.org
+
+  LayoutTests/
+    pulled in via gclient DEPS from svn.webkit.org
+
+  platform/
+    contains platform-specifc results, in platform directories exactly as we
+    will be upstreaming them to webkit.org:
+      platform/chromium-win/
+      platform/chromium-mac/
+      etc.

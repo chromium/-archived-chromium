@@ -1,0 +1,32 @@
+include_rules = [
+  "+app",
+  "+net",
+  "+printing",
+  "+views",
+
+  # The subdirectories in chrome/ will manually allow their own include
+  # directories in chrome/ so we disallow all of them.
+  "-chrome",
+  "+chrome/common",
+  "+chrome/test",
+
+  # Don't allow inclusion of these other libs we shouldn't be calling directly.
+  "-v8",
+  "-webkit",
+  "-tools",
+
+  # Allow inclusion of WebKit API files.
+  "+webkit/api",
+
+  # Allow inclusion of Mozilla interface headers.
+  "+third_party/mozilla",
+
+  # Allow usage of Google Toolbox for Mac.
+  "+third_party/GTM",
+
+  # Our Skia extensions.
+  "+skia/ext",
+
+  # On Linux, we include some breakpad headers
+  "+breakpad/linux",
+]

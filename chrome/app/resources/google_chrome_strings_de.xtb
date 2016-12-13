@@ -1,0 +1,71 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="de">
+<translation id="6676384891291319759">Internet starten</translation>
+<translation id="8579274574697852281">Für Google Chrome ist Windows Vista oder Windows XP SP1 oder höher erforderlich.</translation>
+<translation id="698670068493841342">Google Chrome wurde bereits für diesen Nutzer installiert. Falls die Software nicht funktioniert, deinstallieren Sie Google Chrome und laden Sie es erneut herunter.</translation>
+<translation id="7400722733683201933">Info zu Google Chrome</translation>
+<translation id="7101265395643981223">Google Chrome starten</translation>
+<translation id="1549918799472947005">Google Chrome verwendet Ihre Standardsuchmaschine, für die zurzeit <ph name="PAGE_TITLE"/> festgelegt ist. Möchten Sie die Standardsuchmaschine beibehalten?</translation>
+<translation id="2370289711218562573">Google Chrome importiert gerade Favoriten/Lesezeichen.</translation>
+<translation id="8970027151245482499">Google Chrome ist nicht installiert oder das Installationsverzeichnis wurde nicht gefunden. Laden Sie Google Chrome erneut herunter.</translation>
+<translation id="7958215378280655655">Wenn Sie die Google Chrome-Optionen zurücksetzen, werden sämtliche vorgenommenen Änderungen auf die Standardeinstellungen zurückgesetzt. Möchten Sie die Optionen zurücksetzen?</translation>
+<translation id="4281844954008187215">Nutzungsbedingungen</translation>
+<translation id="2197898401230534722">Alle Profildaten löschen</translation>
+<translation id="1137776625614346046">Im Bereich &quot;Am häufigsten besucht&quot; werden die am häufigsten aufgerufenen Websites angezeigt. Nachdem Sie Google Chrome einige Zeit verwendet haben, werden Ihnen die am häufigsten besuchten Websites beim Öffnen eines neuen Tabs angezeigt. Weitere Informationen hierzu und zu anderen Funktionen erhalten Sie auf der Seite <ph name="BEGIN_LINK"/>Erste Schritte<ph name="END_LINK"/>.</translation>
+<translation id="4728575227883772061">Installation aufgrund von unbekanntem Fehler fehlgeschlagen. Falls Google Chrome bereits ausgeführt wird, schließen Sie es und versuchen Sie es erneut.</translation>
+<translation id="4149882025268051530">Das Installationsprogramm konnte das Archiv nicht dekomprimieren. Laden Sie Google Chrome erneut herunter.</translation>
+<translation id="4343226815564935778">Das Installationsverzeichnis von Google Chrome scheint bereits verwendet zu werden. Starten Sie Ihren Computer neu und versuchen Sie es erneut.</translation>
+<translation id="4506896920521131223">Copyright © 2006-2009 Google Inc. Alle Rechte vorbehalten.</translation>
+<translation id="6817660909204164466">Helfen Sie, Google Chrome zu verbessern, indem Sie automatisch Nutzungsstatistiken und Ausfallberichte an Google senden.</translation>
+<translation id="8227755444512189073">Google Chrome muss zum Verarbeiten von <ph name="SCHEME"/>-Links eine externe Anwendung starten. Der angeforderte Link lautet <ph name="PROTOLINK"/>.</translation>
+<translation id="1281036569101707544">Google Chrome-<ph name="TERMS_OF_SERVICE_LINK"/></translation>
+<translation id="8815061062167142136">Fehler! Google Chrome ist abgestürzt. Möchten Sie neu starten?</translation>
+<translation id="5016204670686360703">Wenn Sie jetzt abbrechen, werden nicht alle Elemente importiert. Sie können später erneut Elemente aus dem Google Chrome-Menü importieren.</translation>
+<translation id="7241541963706135274">Google Chrome führt folgende Aufgaben aus:</translation>
+<translation id="8446794773162156990">Es liegt ein Google Chrome-Fehler vor.</translation>
+<translation id="3889417619312448367">Google Chrome deinstallieren</translation>
+<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
+<translation id="8810218179782551669">Google Chrome-Sprache:</translation>
+<translation id="3940866277504106378">Google Chrome verwendet möglicherweise Web-Services, um Ihnen das Surfen im Internet zu erleichtern - Sie können diese Services optional deaktivieren.</translation>
+<translation id="7001386529596391893">Google Chrome-Verknüpfungen an diesen Speicherorten erstellen:</translation>
+<translation id="6134282421960734039">Möchten Sie, dass Google Chrome Ihr Passwort speichert?</translation>
+<translation id="1195935957447623558">Google Chrome wurde nicht richtig heruntergefahren. Klicken Sie auf &quot;Wiederherstellen&quot;, um die bereits geöffneten Seiten erneut zu öffnen.</translation>
+<translation id="2499193704281978000">Google Chrome reagiert nicht. Möchten Sie neu starten?</translation>
+<translation id="7747138024166251722">Das Installationsprogramm konnte kein temporäres Verzeichnis erstellen. Überprüfen Sie, ob freier Speicherplatz und die Rechte zum Installieren von Software vorhanden sind.</translation>
+<translation id="6009537148180854585">Sie haben versucht, auf &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; zuzugreifen. Der Server hat sich jedoch mit einem fehlerhaften Zertifikat ausgewiesen. Google Chrome kann kein Zertifikat mit Fehlern verwenden und die Identität dieser Website nicht überprüfen, zu der Sie eine Verbindung herstellen wollten. Ihre Verbindung ist nicht sicher. Fahren Sie nicht fort.</translation>
+<translation id="3324235665723428530">Ihr Profil kann nicht verwendet werden, da es aus einer neueren Google Chrome-Version stammt.\n\nEinige Funktionen sind möglicherweise nicht verfügbar. Geben Sie ein anderes Profilverzeichnis an oder verwenden Sie eine neuere Chrome-Version.</translation>
+<translation id="1759842336958782510">Chrome</translation>
+<translation id="2044287590254833138">Google Chrome-Toolbar</translation>
+<translation id="6481075104394517441">Sie haben versucht auf &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; zuzugreifen. Der Server hat sich jedoch mit einem Zertifikat ausgewiesen, das noch nicht gültig ist. Es sind keine Informationen zur Vertrauenswürdigkeit des Zertifikats verfügbar. Google Chrome kann deshalb nicht zuverlässig garantieren, dass Sie mit &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; und nicht mit einem Hacker kommunizieren. Stellen Sie sicher, dass Uhrzeit und Zeitzone auf dem Computer richtig eingestellt sind. Ist dies nicht der Fall, korrigieren Sie diese Werte und aktualisieren Sie diese Seite. Sind sie korrekt, sollten Sie nicht fortfahren.</translation>
+<translation id="8862326446509486874">Sie verfügen nicht über die erforderlichen Rechte für eine systemweite Installation. Starten Sie das Installationsprogramm als Administrator.</translation>
+<translation id="2874156562296220396">Google Chrome wurde ermöglicht durch das Open Source-Projekt <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> und andere <ph name="BEGIN_LINK_OSS"/>Open Source-Software<ph name="END_LINK_OSS"/>.</translation>
+<translation id="6921913858457830952">Google Chrome kann die Installation nun abschließen.</translation>
+<translation id="7100330187273168372">Google Chrome kann im folgenden Datenverzeichnis weder lesen noch schreiben:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">Möchten Sie Google Chrome wirklich deinstallieren?</translation>
+<translation id="5941830788786076944">Google Chrome als Standardbrowser festlegen</translation>
+<translation id="4127951844153999091">In diesem Fall stimmt die im Zertifikat aufgeführte Adresse nicht mit der Adresse der Website ein, zu der Ihr Browser wechseln wollte. Ein möglicher Grund hierfür ist, dass Ihre Kommunikation von einem Hacker abgefangen wird, der sich mit einem Zertifikat für eine andere Website ausweist, was eine Abweichung verursachen könnte. Ein weiterer möglicher Grund ist, dass der Server so eingerichtet ist, dass er dasselbe Zertifikat für mehrere Websites zurückgibt, auch für diejenige, die Sie gerade besuchen möchten, obwohl dieses Zertifikat nicht für alle diese Websites gültig ist. Google Chrome garantiert, dass Sie auf &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; zugegriffen haben, kann aber nicht bestätigen, dass es sich um dieselbe Website wie &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; handelt, die Sie aufrufen möchten. Wenn Sie fortfahren, wird Chrome keine weiteren Namensabweichungen überprüfen. Im Allgemeinen ist es am besten, hier nicht fortzufahren.</translation>
+<translation id="2712549016134575851">Ein Konflikt mit einer anderen installierten Anwendung wurde erkannt.</translation>
+<translation id="7161904924553537242">Willkommen bei Google Chrome</translation>
+<translation id="8236873504073475138">Google Chrome unterstützt Windows 2000 nicht. Einige Funktionen sind möglicherweise nicht verfügbar.</translation>
+<translation id="5046764976540625289">Google Chrome beenden</translation>
+<translation id="8865765905101981392">Internetbrowser</translation>
+<translation id="582763753075639530">Schließen Sie alle Google Chrome-Fenster und starten Sie Chrome neu, damit diese Änderung wirksam wird.</translation>
+<translation id="8776515774046280928">Google Chrome ist bereits installiert und für alle Nutzer dieses Computers verfügbar. Falls Sie Google Chrome auf Nutzerebene installieren möchten, muss erst die von einem Administrator installierte Version auf Systemebene deinstalliert werden.</translation>
+<translation id="3335672657969596251">Google Chrome unterstützt <ph name="OS_NAME"/> nicht.</translation>
+<translation id="3636771339108070045">Dieser Computer verfügt bereits über eine aktuellere Version von Google Chrome. Falls die Software nicht funktioniert, deinstallieren Sie Google Chrome und laden Sie es erneut herunter.</translation>
+<translation id="3396666154568987767">Google Chrome für <ph name="PROFILE_NAME"/></translation>
+<translation id="1964682833763362793">Schließen Sie alle Chrome-Fenster und versuchen Sie es erneut.</translation>
+<translation id="1001534784610492198">Das Installationsarchiv ist beschädigt oder ungültig. Laden Sie Google Chrome erneut herunter.</translation>
+<translation id="6626317981028933585">Leider sind Ihre Mozilla Firefox-Einstellungen nicht verfügbar, wenn dieser Browser ausgeführt wird. Um diese Einstellungen in Google Chrome zu importieren, speichern Sie Ihre Arbeit und schließen Sie alle Firefox-Fenster. Klicken Sie anschließend auf &quot;Weiter&quot;.</translation>
+<translation id="8540666473246803645">Google Chrome</translation>
+<translation id="6049075767726609708">Ein Administrator hat Google Chrome auf diesem System installiert. Es ist für alle Nutzer verfügbar. Durch die Installation von Google Chrome auf Systemebene wird Ihre Installation auf Nutzerebene jetzt ersetzt.</translation>
+<translation id="3870154837782082782">Google Inc.</translation>
+<translation id="1446473746922165495">Ändern Sie die Sprache der Google Chrome-Menüs, Dialogfelder und Kurzinfos.</translation>
+<translation id="9189723490960700326">Sie haben versucht, auf &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; zuzugreifen. Der Server hat sich jedoch mit einem abgelaufenen Zertifikat ausgewiesen. Es sind keine Informationen verfügbar, um eine Manipulation des Zertifikats seit seinem Ablauf auszuschließen. Google Chrome kann deshalb nicht garantieren, dass Sie mit &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; und nicht mit einem Hacker kommunizieren. Fahren Sie nicht fort.</translation>
+<translation id="7106741999175697885">Task-Manager - Google Chrome</translation>
+<translation id="8449380764213232436">Google Chrome importiert nun die folgenden Elemente aus <ph name="BROWSER_COMPONENT"/>:</translation>
+<translation id="3396977131400919238">Während der Installation ist ein Fehler im Betriebssystem aufgetreten. Laden Sie Google Chrome erneut herunter.</translation>
+<translation id="2618799103663374905">Google Chrome-Verknüpfungen zum Desktop, zur Schnellstartleiste und zum Startmenü hinzufügen</translation>
+<translation id="1144950271450340860">Sie haben versucht, &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; aufzurufen. Der Server hat sich jedoch mit einem Zertifikat ausgewiesen, das von einer Entität ausgestellt wurde, die vom Betriebssystem Ihres Computers als nicht vertrauenswürdig eingestuft wurde. Dies bedeutet möglicherweise, dass der Server seine eigenen Anmeldeinformationen erzeugt hat, auf die Google Chrome als Identitätsinformationen nicht vertrauen kann, oder dass ein Hacker versucht, Ihre Kommunikation abzufangen. Fahren Sie nicht fort, &lt;strong&gt;insbesondere&lt;/strong&gt; wenn diese Warnung für diese Website vorher noch nie erschienen ist.</translation>
+</translationbundle>

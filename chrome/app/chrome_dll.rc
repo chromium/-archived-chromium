@@ -1,0 +1,247 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "chrome_dll_resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+// Note that we don't handle any of the VK_BROWSER_* commands here. We will
+// pick those up in the WM_APPCOMMAND message.
+IDR_MAINFRAME ACCELERATORS
+BEGIN
+    VK_LEFT,        IDC_BACK,                   VIRTKEY, ALT
+    VK_BACK,        IDC_BACK,                   VIRTKEY
+    VK_DELETE,      IDC_CLEAR_BROWSING_DATA,    VIRTKEY, CONTROL, SHIFT
+    VK_F4,          IDC_CLOSE_TAB,              VIRTKEY, CONTROL
+    "W",            IDC_CLOSE_TAB,              VIRTKEY, CONTROL
+    "W",            IDC_CLOSE_POPUPS,           VIRTKEY, SHIFT, ALT
+    "F",            IDC_FIND,                   VIRTKEY, CONTROL
+    "G",            IDC_FIND_NEXT,              VIRTKEY, CONTROL
+    VK_F3,          IDC_FIND_NEXT,              VIRTKEY
+    "G",            IDC_FIND_PREVIOUS,          VIRTKEY, CONTROL, SHIFT
+    VK_F3,          IDC_FIND_PREVIOUS,          VIRTKEY, SHIFT
+    VK_F6,          IDC_FOCUS_LOCATION,         VIRTKEY
+    "D",            IDC_FOCUS_LOCATION,         VIRTKEY, ALT
+    "L",            IDC_FOCUS_LOCATION,         VIRTKEY, CONTROL
+    "K",            IDC_FOCUS_SEARCH,           VIRTKEY, CONTROL
+    "E",            IDC_FOCUS_SEARCH,           VIRTKEY, CONTROL
+    "T",            IDC_FOCUS_TOOLBAR,          VIRTKEY, SHIFT, ALT
+    VK_RIGHT,       IDC_FORWARD,                VIRTKEY, ALT
+    VK_BACK,        IDC_FORWARD,                VIRTKEY, SHIFT
+    VK_F11,         IDC_FULLSCREEN,             VIRTKEY
+    VK_F1,          IDC_HELP_PAGE,              VIRTKEY
+    "J",            IDC_JS_CONSOLE,             VIRTKEY, CONTROL, SHIFT
+    "N",            IDC_NEW_INCOGNITO_WINDOW,   VIRTKEY, CONTROL, SHIFT
+    "T",            IDC_NEW_TAB,                VIRTKEY, CONTROL
+    "N",            IDC_NEW_WINDOW,             VIRTKEY, CONTROL
+    // NOTE: IDC_NEW_WINDOW_PROFILE_N is bound to the key ctrl-shift-(N+1), and
+    // opens a new window using profile number N. For example,
+    // IDC_NEW_WINDOW_PROFILE_0 is bound to ctrl-shift-1, and opens a window in
+    // profile 0.
+    "1",            IDC_NEW_WINDOW_PROFILE_0,   VIRTKEY, CONTROL, SHIFT
+    VK_NUMPAD1,     IDC_NEW_WINDOW_PROFILE_0,   VIRTKEY, CONTROL, SHIFT
+    "2",            IDC_NEW_WINDOW_PROFILE_1,   VIRTKEY, CONTROL, SHIFT
+    VK_NUMPAD2,     IDC_NEW_WINDOW_PROFILE_1,   VIRTKEY, CONTROL, SHIFT
+    "3",            IDC_NEW_WINDOW_PROFILE_2,   VIRTKEY, CONTROL, SHIFT
+    VK_NUMPAD3,     IDC_NEW_WINDOW_PROFILE_2,   VIRTKEY, CONTROL, SHIFT
+    "4",            IDC_NEW_WINDOW_PROFILE_3,   VIRTKEY, CONTROL, SHIFT
+    VK_NUMPAD4,     IDC_NEW_WINDOW_PROFILE_3,   VIRTKEY, CONTROL, SHIFT
+    "5",            IDC_NEW_WINDOW_PROFILE_4,   VIRTKEY, CONTROL, SHIFT
+    VK_NUMPAD5,     IDC_NEW_WINDOW_PROFILE_4,   VIRTKEY, CONTROL, SHIFT
+    "6",            IDC_NEW_WINDOW_PROFILE_5,   VIRTKEY, CONTROL, SHIFT
+    VK_NUMPAD6,     IDC_NEW_WINDOW_PROFILE_5,   VIRTKEY, CONTROL, SHIFT
+    "7",            IDC_NEW_WINDOW_PROFILE_6,   VIRTKEY, CONTROL, SHIFT
+    VK_NUMPAD7,     IDC_NEW_WINDOW_PROFILE_6,   VIRTKEY, CONTROL, SHIFT
+    "8",            IDC_NEW_WINDOW_PROFILE_7,   VIRTKEY, CONTROL, SHIFT
+    VK_NUMPAD8,     IDC_NEW_WINDOW_PROFILE_7,   VIRTKEY, CONTROL, SHIFT
+    "9",            IDC_NEW_WINDOW_PROFILE_8,   VIRTKEY, CONTROL, SHIFT
+    VK_NUMPAD9,     IDC_NEW_WINDOW_PROFILE_8,   VIRTKEY, CONTROL, SHIFT
+    "O",            IDC_OPEN_FILE,              VIRTKEY, CONTROL
+    "P",            IDC_PRINT,                  VIRTKEY, CONTROL
+    "R",            IDC_RELOAD,                 VIRTKEY, CONTROL
+    VK_F5,          IDC_RELOAD,                 VIRTKEY
+    VK_F5,          IDC_RELOAD,                 VIRTKEY, CONTROL
+    VK_F5,          IDC_RELOAD,                 VIRTKEY, SHIFT
+    VK_HOME,        IDC_HOME,                   VIRTKEY, ALT
+    "T",            IDC_RESTORE_TAB,            VIRTKEY, CONTROL, SHIFT
+    "S",            IDC_SAVE_PAGE,              VIRTKEY, CONTROL
+    "9",            IDC_SELECT_LAST_TAB,        VIRTKEY, CONTROL
+    VK_NUMPAD9,     IDC_SELECT_LAST_TAB,        VIRTKEY, CONTROL
+    VK_TAB,         IDC_SELECT_NEXT_TAB,        VIRTKEY, CONTROL
+    VK_NEXT,        IDC_SELECT_NEXT_TAB,        VIRTKEY, CONTROL
+    VK_TAB,         IDC_SELECT_PREVIOUS_TAB,    VIRTKEY, CONTROL, SHIFT
+    VK_PRIOR,       IDC_SELECT_PREVIOUS_TAB,    VIRTKEY, CONTROL
+    "M",            IDC_SELECT_PROFILE,         VIRTKEY, CONTROL
+    // NOTE: IDC_SELECT_TAB_N is bound to the key ctrl-(N+1), and selects the
+    // tab at index N. For example, IDC_SELECT_TAB_0 is bound to ctrl-1, and
+    // selects the tab at index 0.
+    "1",            IDC_SELECT_TAB_0,           VIRTKEY, CONTROL
+    VK_NUMPAD1,     IDC_SELECT_TAB_0,           VIRTKEY, CONTROL
+    "2",            IDC_SELECT_TAB_1,           VIRTKEY, CONTROL
+    VK_NUMPAD2,     IDC_SELECT_TAB_1,           VIRTKEY, CONTROL
+    "3",            IDC_SELECT_TAB_2,           VIRTKEY, CONTROL
+    VK_NUMPAD3,     IDC_SELECT_TAB_2,           VIRTKEY, CONTROL
+    "4",            IDC_SELECT_TAB_3,           VIRTKEY, CONTROL
+    VK_NUMPAD4,     IDC_SELECT_TAB_3,           VIRTKEY, CONTROL
+    "5",            IDC_SELECT_TAB_4,           VIRTKEY, CONTROL
+    VK_NUMPAD5,     IDC_SELECT_TAB_4,           VIRTKEY, CONTROL
+    "6",            IDC_SELECT_TAB_5,           VIRTKEY, CONTROL
+    VK_NUMPAD6,     IDC_SELECT_TAB_5,           VIRTKEY, CONTROL
+    "7",            IDC_SELECT_TAB_6,           VIRTKEY, CONTROL
+    VK_NUMPAD7,     IDC_SELECT_TAB_6,           VIRTKEY, CONTROL
+    "8",            IDC_SELECT_TAB_7,           VIRTKEY, CONTROL
+    VK_NUMPAD8,     IDC_SELECT_TAB_7,           VIRTKEY, CONTROL
+    "B",            IDC_SHOW_BOOKMARK_BAR,      VIRTKEY, CONTROL
+    "B",            IDC_SHOW_BOOKMARK_MANAGER,  VIRTKEY, CONTROL, SHIFT
+    "J",            IDC_SHOW_DOWNLOADS,         VIRTKEY, CONTROL
+    "H",            IDC_SHOW_HISTORY,           VIRTKEY, CONTROL
+    "D",            IDC_STAR,                   VIRTKEY, CONTROL
+    VK_ESCAPE,      IDC_STOP,                   VIRTKEY
+    VK_ESCAPE,      IDC_TASK_MANAGER,           VIRTKEY, SHIFT
+    "U",            IDC_VIEW_SOURCE,            VIRTKEY, CONTROL
+    VK_OEM_MINUS,   IDC_ZOOM_MINUS,             VIRTKEY, CONTROL
+    VK_OEM_MINUS,   IDC_ZOOM_MINUS,             VIRTKEY, CONTROL, SHIFT
+    VK_SUBTRACT,    IDC_ZOOM_MINUS,             VIRTKEY, CONTROL
+    "0",            IDC_ZOOM_NORMAL,            VIRTKEY, CONTROL
+    VK_NUMPAD0,     IDC_ZOOM_NORMAL,            VIRTKEY, CONTROL
+    VK_OEM_PLUS,    IDC_ZOOM_PLUS,              VIRTKEY, CONTROL
+    VK_OEM_PLUS,    IDC_ZOOM_PLUS,              VIRTKEY, CONTROL, SHIFT
+    VK_ADD,         IDC_ZOOM_PLUS,              VIRTKEY, CONTROL
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE
+BEGIN
+    "chrome_dll_resource.h\0"
+END
+
+2 TEXTINCLUDE
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#else     // APSTUDIO_INVOKED
+#include "chrome_dll_version.rc"
+#endif    // APSTUDIO_INVOKED
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+// This is duplicated from the .exe file to make ATL happy (it tries to load
+// the icon from the current module). We can perhaps work around this in the
+// future to get the icon from the .exe, which would save a copy.
+
+#if defined(GOOGLE_CHROME_BUILD)
+IDR_MAINFRAME       ICON                        "theme\google_chrome\chrome.ico"
+#else
+IDR_MAINFRAME       ICON                        "theme\chromium\chromium.ico"
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_IPC_SETTINGS DIALOGEX 0, 0, 723, 558
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "IPC Logging Settings"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_View,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,22,170,529
+    CONTROL         "",IDC_ViewHost,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,187,22,170,529
+    CONTROL         "",IDC_Plugin,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,367,22,170,279
+    CONTROL         "",IDC_PluginHost,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,546,22,170,279
+    CONTROL         "",IDC_NPObject,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,367,326,170,145
+    CONTROL         "",IDC_PluginProcess,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,546,326,170,50
+    CONTROL         "",IDC_PluginProcessHost,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,546,381,170,90
+    CONTROL         "",IDC_DevToolsAgent,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,367,480,170,71
+    CONTROL         "",IDC_DevToolsClient,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,546,480,170,71
+    PUSHBUTTON      "Check All",IDC_ViewAll,7,6,56,13
+    PUSHBUTTON      "Check None",IDC_ViewNone,121,7,56,13
+    PUSHBUTTON      "Check All",IDC_ViewHostAll,187,7,56,13
+    PUSHBUTTON      "Check None",IDC_ViewHostNone,301,7,56,13
+    PUSHBUTTON      "Check All",IDC_PluginAll,367,7,56,13
+    PUSHBUTTON      "Check None",IDC_PluginNone,482,7,56,13
+    PUSHBUTTON      "Check All",IDC_NPObjectAll,367,310,56,13
+    PUSHBUTTON      "Check None",IDC_NPObjectNone,481,310,56,13
+    PUSHBUTTON      "Check All",IDC_PluginHostAll,546,7,56,13
+    PUSHBUTTON      "Check None",IDC_PluginHostNone,660,7,56,13
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_IPC_SETTINGS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 784
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 421
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+#include "installer_util_strings.rc"
+
+// We include these resources because all ICON types need to be in the
+// same .rc file.  See:
+// http://www.technewsgroups.net/group/microsoft.public.dotnet.general/topic2111.aspx
+#include "webkit\\default_plugin\\default_plugin_resources.rc"
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED

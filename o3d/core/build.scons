@@ -1,0 +1,215 @@
+# Copyright 2009, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+# Import the build environment that was decided in the project SConstruct.
+# This may be the Debug or Optimized environment
+Import('env')
+
+# Cross platform inputs used to build the cross platform library.
+cross_inputs = [
+    'cross/bounding_box.cc',
+    'cross/buffer.cc',
+    'cross/canvas.cc',
+    'cross/canvas_paint.cc',
+    'cross/canvas_shader.cc',
+    'cross/class_manager.cc',
+    'cross/clear_buffer.cc',
+    'cross/client.cc',
+    'cross/client_info.cc',
+    'cross/core_metrics.cc',
+    'cross/counter.cc',
+    'cross/counter_manager.cc',
+    'cross/curve.cc',
+    'cross/draw_context.cc',
+    'cross/draw_element.cc',
+    'cross/draw_list.cc',
+    'cross/draw_list_manager.cc',
+    'cross/draw_pass.cc',
+    'cross/effect.cc',
+    'cross/element.cc',
+    'cross/error_status.cc',
+    'cross/error_stream_manager.cc',
+    'cross/evaluation_counter.cc',
+    'cross/event.cc',
+    'cross/event_manager.cc',
+    'cross/features.cc',
+    'cross/field.cc',
+    'cross/file_request.cc',
+    'cross/function.cc',
+    'cross/iclass_manager.cc',
+    'cross/ierror_status.cc',
+    'cross/id_manager.cc',
+    'cross/material.cc',
+    'cross/math_utilities.cc',
+    'cross/matrix4_axis_rotation.cc',
+    'cross/matrix4_composition.cc',
+    'cross/matrix4_scale.cc',
+    'cross/matrix4_translation.cc',
+    'cross/message_queue.cc',
+    'cross/named_object.cc',
+    'cross/object_base.cc',
+    'cross/object_manager.cc',
+    'cross/pack.cc',
+    'cross/param.cc',
+    'cross/param_array.cc',
+    'cross/param_cache.cc',
+    'cross/param_object.cc',
+    'cross/param_operation.cc',
+    'cross/primitive.cc',
+    'cross/profiler.cc',
+    'cross/ray_intersection_info.cc',
+    'cross/renderer.cc',
+    'cross/render_context.cc',
+    'cross/render_node.cc',
+    'cross/render_surface.cc',
+    'cross/render_surface_set.cc',
+    'cross/sampler.cc',
+    'cross/semantic_manager.cc',
+    'cross/service_locator.cc',
+    'cross/shape.cc',
+    'cross/skin.cc',
+    'cross/state.cc',
+    'cross/state_set.cc',
+    'cross/standard_param.cc',
+    'cross/stream.cc',
+    'cross/stream_bank.cc',
+    'cross/texture.cc',
+    'cross/texture_base.cc',
+    'cross/timer.cc',
+    'cross/tree_traversal.cc',
+    'cross/transform.cc',
+    'cross/transformation_context.cc',
+    'cross/vertex_source.cc',
+    'cross/viewport.cc',
+    # These will eventually move, but they are cross platform now
+    'cross/bitmap.cc',
+    'cross/bitmap_tga.cc',
+    'cross/bitmap_png.cc',
+    'cross/bitmap_jpg.cc',
+#   'cross/bitmap_gif.cc',
+    'cross/bitmap_dds.cc',
+]
+
+env.Append(CPPPATH=['$SKIA_DIR/include/core',
+                    '$SKIA_DIR/include/effects'])
+
+# Renderer and platform specific inputs.
+platform_inputs = []
+
+# Add a precompiled header declaration to the Windows environment.
+if env['TARGET_PLATFORM'] == 'WINDOWS':
+  env.Append(CCFLAGS='/Ylcore')
+  pch, pch_obj = env.PCH('cross/precompile.cc')
+  env['PCH'] = pch
+  env['PCHSTOP'] = 'core/cross/precompile.h'
+  platform_inputs += [pch_obj]
+else:
+  platform_inputs += ['cross/precompile.cc']
+
+# Based on the renderer requested, append the platform-specific source
+if 'RENDERER_D3D9' in env['CPPDEFINES'] :
+  platform_inputs += [
+    'win/d3d9/buffer_d3d9.cc',
+    'win/d3d9/draw_element_d3d9.cc',
+    'win/d3d9/effect_d3d9.cc',
+    'win/d3d9/install_check.cc',
+    'win/d3d9/param_cache_d3d9.cc',
+    'win/d3d9/sampler_d3d9.cc',
+    'win/d3d9/stream_bank_d3d9.cc',
+    'win/d3d9/primitive_d3d9.cc',
+    'win/d3d9/renderer_d3d9.cc',
+    'win/d3d9/render_surface_d3d9.cc',
+    'win/d3d9/texture_d3d9.cc',
+    'win/d3d9/utils_d3d9.cc',
+  ]
+elif 'RENDERER_GL' in env['CPPDEFINES'] :
+  platform_inputs += [
+    'cross/gl/buffer_gl.cc',
+    'cross/gl/draw_element_gl.cc',
+    'cross/gl/effect_gl.cc',
+    'cross/gl/install_check.cc',
+    'cross/gl/param_cache_gl.cc',
+    'cross/gl/primitive_gl.cc',
+    'cross/gl/renderer_gl.cc',
+    'cross/gl/stream_bank_gl.cc',
+    'cross/gl/render_surface_gl.cc',
+    'cross/gl/texture_gl.cc',
+    'cross/gl/utils_gl.cc',
+    "cross/gl/sampler_gl.cc",
+  ]
+elif 'RENDERER_CB' in env['CPPDEFINES'] :
+  platform_inputs += [
+    'cross/command_buffer/buffer_cb.cc',
+    'cross/command_buffer/effect_cb.cc',
+    'cross/command_buffer/install_check.cc',
+    'cross/command_buffer/param_cache_cb.cc',
+    'cross/command_buffer/primitive_cb.cc',
+    'cross/command_buffer/renderer_cb.cc',
+    'cross/command_buffer/sampler_cb.cc',
+    'cross/command_buffer/states_cb.cc',
+    'cross/command_buffer/stream_bank_cb.cc',
+    'cross/command_buffer/texture_cb.cc',
+  ]
+  if env['TARGET_PLATFORM'] == 'WINDOWS':
+    platform_inputs += [
+        'win/command_buffer/win32_cb_server.cc',
+    ]
+elif 'RENDERER_MOCK' in env['CPPDEFINES'] :
+  platform_inputs += [ ]
+else :
+  print 'No renderer defined, exiting.\n'
+  print """Add 'RENDERER=gl', 'RENDERER=d3d' or 'RENDERER=cb' to the command line."""
+  Exit(1)
+
+if env['TARGET_PLATFORM'] == 'MAC':
+  platform_inputs += [
+    "mac/performance_timer.cc",
+  ]
+
+if env['TARGET_PLATFORM'] == 'WINDOWS':
+  platform_inputs += [
+      "win/performance_timer.cc",
+  ]
+
+if env['TARGET_PLATFORM'] == 'LINUX':
+  platform_inputs += [
+      "linux/performance_timer.cc",
+  ]
+
+env.Append(CPPPATH = env['RENDERER_INCLUDE_PATH'])
+
+# Create a platform independent library from the cross sources
+# called "o3dCore"
+o3dcore_lib = env.ComponentLibrary('o3dCore', cross_inputs)
+
+
+# Create a platform-specific target library from the sources
+# called "o3dCorePlatform"
+o3dcorerender_lib = env.ComponentLibrary('o3dCorePlatform', platform_inputs)

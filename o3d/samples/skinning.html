@@ -1,0 +1,276 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+O3D Skinning example.
+
+Shows a simple skinned cylinder.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Skinning.
+</title>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="o3djs/base.js"></script>
+
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.effect');
+o3djs.require('o3djs.primitives');
+
+// Events
+// init() once the page has finished loading.
+// unload() when the page is unloaded.
+window.onload = init;
+window.onunload = unload;
+
+// global variables
+var g_o3d;
+var g_math;
+var g_client;
+var g_viewInfo;
+var g_pack;
+var g_transforms = [];
+var g_finished = false;  // for selenium testing.
+var g_clock = 0;
+var g_timeMult = 1;
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D and creates one shape.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initializes global variables and libraries.
+  var o3dElement = clientElements[0];
+  g_o3d = o3dElement.o3d;
+  g_math = o3djs.math;
+  g_client = o3dElement.client;
+
+  // Creates a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  // Create the render graph for a view.
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Set our projection matrix, with a vertical field of view of 45 degrees
+  // a near clipping plane of 0.1 and far clipping plane of 10000.
+  g_viewInfo.drawContext.projection = g_math.matrix4.perspective(
+      g_math.degToRad(45),
+      g_client.width / g_client.height,
+      0.1,
+      10000);
+
+  // Create and load the effect.
+  var effect = g_pack.createObject('Effect');
+  o3djs.effect.loadEffect(effect, 'shaders/phong-with-colormult.shader');
+
+  // Create a Material for the effect.
+  var material = g_pack.createObject('Material');
+
+  // Apply our effect to this material.
+  material.effect = effect;
+
+  // Set the material's drawList
+  material.drawList = g_viewInfo.performanceDrawList;
+
+  // Create the params the effect needs on the material.
+  effect.createUniformParameters(material);
+
+  // Set the material parameters.
+  material.getParam('lightWorldPos').value = [1000, 1000, 0];
+  material.getParam('lightIntensity').value = [1, 1, 1, 1];
+  material.getParam('ambientIntensity').value = [0.1, 0.1, 0.1, 1];
+  material.getParam('ambient').value = [1, 1, 1, 1];
+  material.getParam('diffuse').value = [1, 0.2, 1, 1];
+  material.getParam('specular').value = [0.5, 0.5, 0.5, 1];
+  material.getParam('shininess').value = 50;
+  material.getParam('colorMult').value = [1, 1, 1, 1];
+
+  // Create a cylinder.
+  var vertexInfo = o3djs.primitives.createCylinderVertices(
+      40, 200, 12, 20,
+      [[1, 0, 0, 0],
+       [0, 1, 0, 0],
+       [0, 0, 1, 0],
+       [0, 100, 0, 1]]);
+  var shape = vertexInfo.createShape(g_pack, material);
+
+  // Create an ParamArray to hold matrices for skinning.
+  var matrices = g_pack.createObject('ParamArray');
+
+  // Create a Skin to hold the influences and bind pose.
+  var skin = g_pack.createObject('Skin');
+
+  // Create a SkinEval to use the Skin.
+  var skinEval = g_pack.createObject('SkinEval');
+
+  // Tell the SkinEval which matrices and Skin to use.
+  skinEval.matrices = matrices;
+  skinEval.skin = skin;
+
+  // Create 11 matrices on our ParamArray.
+  matrices.resize(11, 'o3d.ParamMatrix4');
+
+  // Create 11 transforms for the bones and parent them into a chain.
+  for (var ii = 0; ii <= 10; ++ii) {
+    var transform = g_pack.createObject('Transform');
+    g_transforms[ii] = transform;
+    if (ii > 0) {
+      transform.translate(0, 20, 0);
+    }
+    transform.parent = ii == 0 ? g_client.root : g_transforms[ii - 1];
+    // Bind the world matrix of the transform to the corresponding matrix in the
+    // ParamArray.
+    matrices.getParam(ii).bind(transform.getParam('worldMatrix'));
+    // Store the inverse world matrix of each transform as the bind pose for the
+    // skin.
+    skin.setInverseBindPoseMatrix(ii, g_math.inverse(transform.worldMatrix));
+  }
+
+  // Add the cylinder to the root transform.
+  g_transforms[0].addShape(shape);
+
+  // Skinning happens in world space so bind the transform of the shape
+  // to the SkinEval so it can put our skin in object space.
+  skinEval.getParam('base').bind(g_transforms[0].getParam('worldMatrix'));
+
+  // Make our source data for skinning and setup the influences for each bone.
+  // We only need the position and normals.
+  var positions = [];
+  var normals = [];
+  var positionStream = vertexInfo.findStream(g_o3d.Stream.POSITION);
+  var normalStream = vertexInfo.findStream(g_o3d.Stream.NORMAL);
+  var numVertices = positionStream.numElements();
+  for (var ii = 0; ii < numVertices; ++ii) {
+    // Choose the bones to influence the vertex based on its height.
+    var y = positionStream.getElementVector(ii)[1] / 20;
+    var influence = y % 1;
+    var bone = Math.floor(y);
+    var bone_2 = bone + 1;
+    if (bone_2 > 10) {
+      bone_2 = 10;
+    }
+    skin.setVertexInfluences(ii, [bone, 1 - influence, bone_2, influence]);
+  }
+
+  // Create a SourceBuffer for the Skin and set the vertices on it.
+  var sourceBuffer = g_pack.createObject('SourceBuffer');
+  var positionField = sourceBuffer.createField('FloatField', 3);
+  var normalField = sourceBuffer.createField('FloatField', 3);
+  sourceBuffer.allocateElements(numVertices);
+  positionField.setAt(0, positionStream.elements);
+  normalField.setAt(0, normalStream.elements);
+
+  // Tell the skinEval how to use the SourceBuffer
+  skinEval.setVertexStream(g_o3d.Stream.POSITION,
+                           0,
+                           positionField,
+                           0);
+  skinEval.setVertexStream(g_o3d.Stream.NORMAL,
+                           0,
+                           normalField,
+                           0);
+
+  // Bind the Primitive's position and normal streams
+  // to the SkinEval so the SkinEval will fill them in each frame.
+  var streamBank = shape.elements[0].streamBank;
+  streamBank.bindStream(skinEval, g_o3d.Stream.POSITION, 0);
+  streamBank.bindStream(skinEval, g_o3d.Stream.POSITION, 0);
+
+  // Setup an onrender callback for animation.
+  g_client.setRenderCallback(onrender);
+
+  g_finished = true;  // for selenium testing.
+}
+
+/**
+ * Called every frame.
+ * @param {!o3d.RenderEvent} renderEvent Info for rendering.
+ */
+function onrender(renderEvent) {
+  // Get the number of seconds since the last render.
+  var elapsedTime = renderEvent.elapsedTime;
+  g_clock += elapsedTime * g_timeMult;
+
+  var x = Math.sin(g_clock * 0.3) * 400;
+  var z = Math.cos(g_clock * 0.3) * 400;
+  var y = Math.sin(g_clock * 0.7) * 50 + 100;
+
+  // spin the camera.
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      [x, y, z],   // eye
+      [0, 100, 0], // target
+      [0, 1, 0]);  // up
+
+  // Make our bone chain bend.
+  var rotation = Math.PI / g_transforms.length * Math.sin(g_clock * 1);
+  for (var ii = 1; ii < g_transforms.length; ++ii) {
+    var transform = g_transforms[ii];
+    transform.identity();
+    transform.translate(0, 20, 0);
+    transform.rotateX(rotation);
+  }
+}
+
+/**
+ * Removes any callbacks so they don't get called after the page has unloaded.
+ */
+function unload() {
+  if (g_client) {
+    g_client.cleanup();
+  }
+}
+</script>
+</head>
+<body>
+<h1>Skinning</h1>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 800px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+</body>
+</html>

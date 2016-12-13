@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="release_impl_pgo_instrument"
+	OutputDirectory="$(DefaultOutputDirectory)_pgo"
+	IntermediateDirectory="$(DefaultOutputDirectory)_pgo\obj\$(ProjectName)"
+	InheritedPropertySheets=".\release_defaults.vsprops"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		Optimization="3"
+		InlineFunctionExpansion="2"
+		EnableIntrinsicFunctions="true"
+		FavorSizeOrSpeed="2"
+		OmitFramePointers="true"
+		EnableFiberSafeOptimizations="true"
+		WholeProgramOptimization="true"
+	/>
+	<Tool
+		Name="VCLibrarianTool"
+		AdditionalOptions="/ltcg"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		LinkTimeCodeGeneration="2"
+	/>
+	<Tool
+		Name="VCPreBuildEventTool"
+		CommandLine="xcopy /D /Y &quot;$(DevEnvDir)..\..\VC\bin\pgort80.dll&quot; &quot;$(OutDir)&quot;"
+	/>
+</VisualStudioPropertySheet>

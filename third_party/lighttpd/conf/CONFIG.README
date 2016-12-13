@@ -1,0 +1,15 @@
+====================
+LightTPD Configfiles
+====================
+
+lighttpd-inc.conf:
+  default configuration file
+
+lighttpd-srv.conf:
+  logging configuration for service
+
+lighttpd-tag.conf:
+  server tag information
+
+lighttpd-auth.conf:
+  backend authentication userfile (use with mod_auth)

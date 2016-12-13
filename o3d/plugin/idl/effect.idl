@@ -1,0 +1,231 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+%[
+  EffectParameterInfo holds information about the Parameters an Effect needs.
+  \sa o3d.Effect.getParameterInfo
+%]
+[binding_model=by_value, nocpp, include="core/cross/effect.h"]
+class EffectParameterInfo {
+  %[
+    The name of the parameter.
+  %]
+  [getter] String name;
+
+  %[
+    The type of the parameter.
+  %]
+  [userglue_getter, getter] String class_name;
+
+  %[
+    The number of elements.  Non-zero for array types, zero for non-array types.
+  %]
+  [getter] int num_elements;
+
+  %[
+    The semantic of the parameter. This is always in UPPERCASE.
+  %]
+  [getter] String semantic;
+
+  %[
+    If this is a standard parameter (SAS) this will be the name of the type
+    of Param needed. Otherwise it will be the empty string.
+
+    Standard Parameters are generally handled automatically by o3d but you
+    can supply your own if you have a unique situation.
+  %]
+  [userglue_getter, getter] String sas_class_name;
+
+  [verbatim=cpp_glue] %{
+    o3d::String userglue_getter_class_name(
+        const o3d::EffectParameterInfo& self) {
+      return self.class_type()->name();
+    }
+    o3d::String userglue_getter_sas_class_name(
+        const o3d::EffectParameterInfo& self) {
+      return self.sas_class_type() ? self.sas_class_type()->name() : "";
+    }
+  %}
+};
+
+typedef EffectParameterInfo[] EffectParameterInfoArray;
+
+%[
+  EffectStreamInfo holds information about the Streams an Effect needs.
+  \sa o3d.Effect.getStreamInfo
+%]
+[binding_model=by_value, nocpp, include="core/cross/effect.h"]
+class EffectStreamInfo {
+  %[
+    The semantic of the stream.
+  %]
+  [getter] Stream::Semantic semantic;
+
+  %[
+    The semantic index of the stream.
+  %]
+  [getter] int semantic_index;
+};
+
+typedef EffectStreamInfo[] EffectStreamInfoArray;
+
+%[
+  An Effect contains a vertex and pixel shader.
+%]
+
+[nocpp, include="core/cross/effect.h"] class Effect : ParamObject {
+  %[
+    Loads the vertex and pixel shader programs from an string containing
+    an O3D FX description.
+
+    The string is subset of CG and HLSL. No techinques are allowed.
+
+    To define the entry points add 2 lines in the following format.
+    \code
+      "// #o3d VertexShaderEntryPoint myVertexShader\n"
+      "// #o3d PixelShaderEntryPoint myPixelShader\n"
+    \endcode
+
+    where "myVertexShader" and "myPixelShader" are the names of your
+    vertex and pixel shaders. At this time the format of those 2 lines
+    is extremely strict. You must have 1 and exactly 1 space between // and
+    #o3d, between #o3d and
+    VertexShaderEntryPoint/PixelShaderEntryPoint and between those and your
+    entry points.
+
+    You must also specify a matrix load order like this.
+
+    \code
+    // #o3d MatrixLoadOrder RowMajor
+    \endcode
+
+    Valid orders are RowMajor and ColumnMajor
+
+    Note: Currently it is possible to create effects strings that work on only
+    one platform (GL or D3D). You should test your shaders on both platforms.
+
+    By version 1.0 this function will enforce shaders
+    that only work on both platforms. That format is mostly CG.
+
+    \param effect the code of the effect.
+    \return True if successful.
+  %]
+  [virtual, pure] bool LoadFromFXString(String effect);
+
+  %[
+    For each of the effect's uniform parameters, creates corresponding
+    parameters on the given ParamObject. Skips SAS Parameters.
+
+    If a Param with the same name but the wrong type already exists on the
+    given ParamObject CreateUniformParameters will attempt to replace it with
+    one of the correct type.
+
+    Note: The most common thing to pass to this function is a Material but
+    depending on your application it may be more appropriate to pass in a
+    Transform, Effect, Element or DrawElement.
+
+    \param param_object The param object on which the new paramters will be
+        created.
+    \sa o3d.Effect.createSASParameters
+  %]
+  void CreateUniformParameters(ParamObject param_object);
+
+  %[
+    For each of the effect's uniform parameters, if it is a SAS parameter
+    creates corresponding StandardParamMatrix4 parameters on the given
+    ParamObject.  Note that SAS parameters are handled automatically by the
+    rendering system. so except in some rare cases there is no reason to call
+    this function.  Also be aware that the StandardParamMatrix4 Paramters like
+    WorldViewProjectionParamMatrix4, etc.. are only valid during rendering.
+    At all other times they will not return valid values.
+
+    If a Param with the same name but the wrong type already exists on the
+    given ParamObject CreateSASParameters will attempt to replace it with
+    one of the correct type.
+
+    \param param_object The param object on which the new paramters will be
+        created.
+    \sa o3d.Effect.createUniformParameters
+  %]
+  void CreateSASParameters(ParamObject param_object);
+
+  %[
+    Gets info about the parameters this effect needs.
+    \return an array of EffectParameterInfos.
+  %]
+  [userglue] EffectParameterInfoArray GetParameterInfo();
+
+  %[
+    Gets info about the streams this effect needs.
+    \return an array of EffectParameterInfos.
+  %]
+  [userglue] EffectStreamInfoArray GetStreamInfo();
+
+  %[
+    \var MatrixLoadOrder,
+    \li ROW_MAJOR,  Matrix parameters are loaded in row-major order (DX-style).
+    \li COLUMN_MAJOR,   Matrix parameters are loaded in column-major order
+        (OpenGL-style).
+  %]
+  enum MatrixLoadOrder {
+    ROW_MAJOR,
+    COLUMN_MAJOR
+  };
+
+  %[
+    The order in which matrix data is loaded to the GPU.
+  %]
+  [getter] MatrixLoadOrder matrix_load_order_;
+
+  %[
+    The source for the shaders on this Effect.
+  %]
+  [getter] String source_;
+
+  [verbatim=cpp_glue] %{
+    std::vector<o3d::EffectParameterInfo> userglue_method_GetParameterInfo(
+        o3d::Effect* self) {
+      std::vector<o3d::EffectParameterInfo> info_array;
+      self->GetParameterInfo(&info_array);
+      return info_array;
+    }
+    std::vector<o3d::EffectStreamInfo> userglue_method_GetStreamInfo(
+        o3d::Effect* self) {
+      std::vector<o3d::EffectStreamInfo> info_array;
+      self->GetStreamInfo(&info_array);
+      return info_array;
+    }
+  %}
+};
+
+}  // namespace o3d

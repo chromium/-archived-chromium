@@ -1,0 +1,7 @@
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,        <body style="padding: 9px; margin: 10px; outline: thin solid blue;">            <div id="target" style="padding: 6px; margin: 8px; outline: thin solid green;"></div>        </body> from frame with URL offsetLeft-offsetTop-body-quirk.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 13: Uncaught TypeError: Cannot call method 'getElementById' of undefined
+ 
+ 
+ 
+

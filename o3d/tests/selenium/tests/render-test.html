@@ -1,0 +1,136 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+Render Test
+
+Make sure that if client.render() is called multiple times it is only rendered
+once. client.render() should only flag that the client needs to be rendered and
+the system (browser + plugin) should render it the next time it's time to
+render. It should NOT render immediately therefore multiple calls to
+client.render() without returning to the browser should only make it render
+once.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Render Test.
+</title>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="../../../samples/o3djs/base.js"></script>
+
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.rendergraph');
+
+// Events
+// init() once the page has finished loading.
+// unload() when the page is unloaded.
+window.onload = init;
+window.onunload = uninit;
+
+// Events
+// init() once the page has finished loading.
+window.onload = init;
+
+// global variables
+var g_client;
+var g_renderCount = 0;
+
+function onRender() {
+  ++g_renderCount;
+}
+
+/**
+ * Creates the client areas.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  var o3dElement = clientElements[0];
+
+  var o3d = o3dElement.o3d;
+  g_client = o3dElement.client;
+  g_client.renderMode = o3d.Client.RENDERMODE_ON_DEMAND;
+
+  g_client.setRenderCallback(onRender);
+
+  for (var ii = 0; ii < 60; ++ii) {
+    g_client.render();
+  }
+
+  setTimeout(checkResults, 1000);
+}
+
+function checkResults() {
+  // We give it some leeway in case the browser is settling down.
+  window.g_testResult = g_renderCount < 5;
+
+  document.getElementById('success').innerHTML =
+      g_testResult ? 'pass' : '<font color="red">fail</font>';
+}
+
+/**
+ * Cleans up.
+ */
+function uninit() {
+  if (g_client) {
+    g_client.cleanup();
+  }
+}
+
+</script>
+</head>
+<body>
+<h1>Render Test</h1>
+Make sure that if client.render() is called multiple times it is only rendered
+once. client.render() should only flag that the client needs to be rendered and
+the system (browser + plugin) should render it the next time it's time to
+render. It should NOT render immediately therefore multiple calls to
+client.render() without returning to the browser should only make it render
+once.
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 100px; height: 100px;"></div>
+<!-- End of O3D plugin -->
+<div>Test Results: <span id="success"></span></div>
+</body>
+</html>

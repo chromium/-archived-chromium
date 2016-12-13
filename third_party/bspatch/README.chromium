@@ -1,0 +1,13 @@
+This is Chrome's locally patched copy of Colin Percival's bspatch tool
+(see ../bsdiff for the corresponding bsdiff tool).
+
+Originally obtained from Mozilla's local copy/fork of bspatch; see:
+
+http://lxr.mozilla.org/mozilla/source/toolkit/mozapps/update/src/updater/
+
+The license is shared in common with bsdiff.
+
+Local changes include CRC32 verification.
+
+Update(08 Sep 08): Changed ApplyBinaryPatch to accept wchar_t paths
+instead of char paths.

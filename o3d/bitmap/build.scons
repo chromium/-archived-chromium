@@ -1,0 +1,163 @@
+# Copyright 2009, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+# Import the build environment that was decided in the project SConstruct.
+# This may be the Debug or Optimized environment
+import os.path;
+
+Import('env')
+
+env.Append(CPPPATH = env['RENDERER_INCLUDE_PATH'])
+
+# Create the PNG library -------------------------------------------------------
+env_png = env.Clone()
+png_sources = [
+    'png',
+    'pngerror',
+    'pnggccrd',
+    'pngget',
+    'pngmem',
+    'pngpread',
+    'pngread',
+    'pngrio',
+    'pngrtran',
+    'pngrutil',
+    'pngset',
+    'pngtrans',
+    'pngvcrd',
+    'pngwio',
+    'pngwrite',
+    'pngwtran',
+    'pngwutil',
+]
+
+if env.Bit('windows'):
+  env_png.Append(
+      CCFLAGS = [
+          '/wd4267',  # disable warning about implicit size_t conversions
+          '/wd4996',  # disable warning about unsafe string functions
+      ],
+  )
+
+png_objects = env_png.MakeObjects(png_sources, '$PNG_DIR', 'c')
+png_lib = env_png.ComponentLibrary('libpng', png_objects)
+
+
+# Create the JPEG library ------------------------------------------------------
+env_jpeg = env.Clone()
+jpeg_sources = [
+    'jcapimin',
+    'jcapistd',
+    'jccoefct',
+    'jccolor',
+    'jcdctmgr',
+    'jchuff',
+    'jcinit',
+    'jcmainct',
+    'jcmarker',
+    'jcmaster',
+    'jcomapi',
+    'jcparam',
+    'jcphuff',
+    'jcprepct',
+    'jcsample',
+    'jctrans',
+    'jdapimin',
+    'jdapistd',
+    'jdatadst',
+    'jdatasrc',
+    'jdcoefct',
+    'jdcolor',
+    'jddctmgr',
+    'jdhuff',
+    'jdinput',
+    'jdmainct',
+    'jdmarker',
+    'jdmaster',
+    'jdmerge',
+    'jdphuff',
+    'jdpostct',
+    'jdsample',
+    'jdtrans',
+    'jerror',
+    'jfdctflt',
+    'jfdctfst',
+    'jfdctint',
+    'jidctflt',
+    'jidctfst',
+    'jidctint',
+    'jidctred',
+    'jmemmgr',
+    'jmemnobs',
+    'jquant1',
+    'jquant2',
+    'jutils',
+]
+
+if env.Bit('windows'):
+  env_jpeg.Append(
+      CCFLAGS = [
+          '/TC',  # compile as C, not C++
+          '/wd4267',  # disable warning about implicit size_t conversions
+          '/wd4996',  # disable warning about unsafe string functions
+      ],
+      CPPDEFINES = ['_CRT_SECURE_NO_DEPRECATE'],
+  )
+
+jpeg_objects = env_jpeg.MakeObjects(jpeg_sources, '$JPEG_DIR', 'c')
+jpeg_lib = env_jpeg.ComponentLibrary('libjpeg', jpeg_objects)
+
+minizip_inputs = [
+  'ioapi',
+  'mztools',
+  'unzip',
+  'zip',
+]
+minizip_objects = env.MakeObjects(minizip_inputs,
+                                  '$ZLIB_DIR/contrib/minizip',
+                                  'c')
+
+zlib_inputs = [
+  'adler32',
+  'compress',
+  'crc32',
+  'deflate',
+  'gzio',
+  'infback',
+  'inffast',
+  'inflate',
+  'inftrees',
+  'trees',
+  'uncompr',
+  'zutil',
+]
+zlib_objects = env.MakeObjects(zlib_inputs, '$ZLIB_DIR', 'c')
+
+zlib_lib = env.ComponentLibrary('zlib', zlib_objects + minizip_objects)

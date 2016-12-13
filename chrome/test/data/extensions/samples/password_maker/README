@@ -1,0 +1,12 @@
+passwordmaker.html is the mostly-unmodified* downloadable javascript version
+of PasswordMaker from http://passwordmaker.org/Javascript .  It gets loaded
+into a popup window when a user needs to type in his master password.
+* I added a <script src="passwordmaker-custom.js">, and removed the ASCII art
+logo.
+
+passwordmaker-custom.js contains all the custom modifications that were needed
+to make passwordmaker.html work as a Chrome extension.
+
+favicon.ico is the favicon from the PasswordMaker site.
+
+The rest are standard extension bits.

@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+  <ModulePrefs title="3D Scatter Chart"
+    height="340"
+    author="Google O3D Team"
+    author_email="o3d-discuss@googlegroups.com"
+  />
+
+<Content type="html">
+<![CDATA[
+
+<!-- Include vizualizations - Load the Google AJAX API -->
+<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+
+<!-- The path to the utility libraries. -->
+<script type="text/javascript" src="http://o3d.googlecode.com/svn/trunk/samples/o3djs/base.js"></script>
+
+<script type="text/javascript">
+
+// for gadgets we need to specify the base path of our included utility files.
+o3djs.basePath="http://o3d.googlecode.com/svn/trunk/samples/";
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.quaternions');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.effect');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.arcball');
+o3djs.require('o3djs.event');
+
+// Load the Visualization API.
+google.load('visualization', '1', {'packages':['piechart']});
+
+// The initClient() function runs when the page has finished loading.
+_IG_RegisterOnloadHandler(initClient);
+
+// global variables
+var g_o3dElement;
+var g_client;
+var g_o3d;
+var g_math;
+var g_quaternions;
+var g_pack;
+var g_viewInfo;
+var g_modelRoot;
+var g_eyeView;
+var g_cubeShape;
+var g_material;
+var g_aball;
+var g_thisRot;
+var g_lastRot;
+var g_zoomFactor;
+var g_dragging;
+var g_dataView;
+var g_dataSpreadsheet;
+var g_finished = false;  // for selenium testing.
+
+/**
+ * Creates the client area.
+ */
+function initClient() {
+  o3djs.util.makeClients(main);
+}
+
+/**
+ * Initializes global variables, positions camera, draws the 3D chart.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function main(clientElements) {
+  // Init global variables.
+  initGlobals(clientElements);
+
+  // Set up the view and projection transformations.
+  initContext();
+
+  // Setup rendering on demand only.
+  g_client.renderMode = g_o3d.Client.RENDERMODE_ON_DEMAND;
+
+  // Add the 3D chart model to the transform hierarchy.
+  create3dChartModel();
+
+  // Query the spreadsheet for the chart data.
+  queryChartDataSource();
+
+  // Start rendering.
+  g_client.render();
+
+  // Execute keyPressed(..) when we detect a keypress on the window or
+  // on the o3d object.
+  window.document.onkeypress = keyPressed;
+  g_o3dElement.onkeypress = keyPressed;
+
+  o3djs.event.addEventListener(g_o3dElement, 'mousedown', startDragging);
+  o3djs.event.addEventListener(g_o3dElement, 'mousemove', drag);
+  o3djs.event.addEventListener(g_o3dElement, 'mouseup', stopDragging);
+  o3djs.event.addEventListener(g_o3dElement, 'wheel', scrollMe);
+
+  g_finished = true;  // for selenium testing.
+}
+
+/**
+ * Initializes global variables and libraries.
+ */
+function initGlobals(clientElements) {
+  // init o3d globals.
+  g_o3dElement = clientElements[0];
+  g_client = g_o3dElement.client;
+  g_o3d = g_o3dElement.o3d;
+  g_math = o3djs.math;
+  g_quaternions = o3djs.quaternions;
+
+  // Create an arcball.
+  g_aball = o3djs.arcball.create(g_o3dElement.clientWidth,
+                                 g_o3dElement.clientHeight);
+
+  // Create a pack to manage the objects created.
+  g_pack = g_client.createPack();
+
+  // Create a transform node to act as the 'root' of the model.
+  // Attach it to the root of the transform graph.
+  g_modelRoot = g_pack.createObject('Transform');
+  g_modelRoot.parent = g_client.root;
+
+  // Create the render graph for the view.
+  var clearColor = [.98, .98, .98, 1];
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot,
+      clearColor);
+
+  // Create a material for the objects rendered.
+  g_material = createPhongMaterial([1, 1, 1, 1]);
+
+  // Create a cube shape to simulate the scatter points.
+  g_cubeShape = o3djs.primitives.createCube(
+    g_pack,
+    g_material,
+    1);
+
+  // set the chart data spreadsheet.
+  g_dataSpreadsheet = 'http://spreadsheets.google.com/tq?key=pjdnPsZuqE92yNqA4iqT9Ig&range=A4:C533&gid=0';
+}
+
+/**
+ * Initialize the original view of the model.
+ */
+function initContext() {
+  g_eyeView = [-35, 60, 140];
+  g_zoomFactor = 1.03;
+  g_dragging = false;
+  g_modelRoot.identity();
+  g_lastRot = g_math.matrix4.identity();
+  g_thisRot = g_math.matrix4.identity();
+
+  // Set up a perspective transformation for the projection.
+  g_viewInfo.drawContext.projection = g_math.matrix4.perspective(
+      g_math.degToRad(40),    // 30 degree frustum.
+      g_o3dElement.clientWidth / g_o3dElement.clientHeight,  // Aspect ratio.
+      1,                     // Near plane.
+      10000);                // Far plane.
+
+  // Set up our view transformation to look towards the axes origin.
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      g_eyeView,  // eye
+      [0, 0, 0],  // target
+      [0, 1, 0]); // up
+}
+
+/**
+ * Reset to the original view of the model.
+ */
+function resetView() {
+  initContext();
+  g_client.render();
+}
+
+/**
+ * Creates a phong material based on the given single color.
+ * @param {Array} baseColor An array with 4 entries, the R,G,B, and A components
+ *   of a color.
+ * @return {!o3d.Material} A phong material whose overall pigment is baseColor.
+ */
+function createPhongMaterial(baseColor) {
+  // Create a new, empty Material object.
+  var material = g_pack.createObject('Material');
+
+  var lightPosition = [1000, 2000, 3000];
+  o3djs.effect.attachStandardShader(
+      g_pack, material, lightPosition, 'phong');
+
+  material.drawList = g_viewInfo.performanceDrawList;
+
+  // Assign parameters to the phong material.
+  material.getParam('emissive').value = [0, 0, 0, 1];
+  material.getParam('ambient').value =
+      [.1 * baseColor[0], .1 * baseColor[1], .1 * baseColor[2], 1];
+  material.getParam('diffuse').value =
+      [.9 * baseColor[0], .9 * baseColor[1], .9 * baseColor[2], 1];
+  material.getParam('specular').value = [.5, .5, .5, 1];
+  material.getParam('shininess').value = 50;
+  material.getParam('lightColor').value = [1, 1, 1, 1];
+
+  return material;
+}
+
+/**
+ * Initializes and queries the spreadsheet for the chart data.
+ * The query is asynchronous and the response is handled by a callback.
+ */
+function queryChartDataSource() {
+  // Get chart data from the spreadsheet.
+  var query = new google.visualization.Query(g_dataSpreadsheet);
+
+  // Send the query with a callback function.
+  query.send(handleQueryResponse);
+}
+
+/**
+ * Handler for the spreadsheet query.
+ * Called when the query response is returned.
+ */
+function handleQueryResponse(response) {
+  if (response.isError()) {
+    alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
+    return;
+  }
+
+  // Get the DataTable.
+  var dataTable = response.getDataTable();
+
+  // Create a DataView.
+  g_dataView = new google.visualization.DataView(dataTable);
+
+  // Create the scatter chart.
+  createScatterObject();
+
+  // Start rendering.
+  g_client.render();
+}
+
+
+/**
+ * Create a 3D Scatter object by plotting each data point on a 3D model.
+ */
+function createScatterObject() {
+  // size of a scatter point (represented as a small cube).
+  var pointSize = 0.5;
+
+  for (var i = 0; i < g_dataView.getNumberOfRows(); i += 1) {
+    var varX = g_dataView.getValue(i,0);
+    var varY = g_dataView.getValue(i,2);
+    var varZ = g_dataView.getValue(i,1);
+
+    // create the transform for the cube.
+    var transform = g_pack.createObject('Transform');
+    transform.parent = g_modelRoot;
+    transform.addShape(g_cubeShape);
+    // translate and scale the point correctly relative to origin
+    transform.translate(varX, varY, varZ);
+    transform.scale(pointSize, pointSize, pointSize);
+    transform.createParam('diffuse', 'ParamFloat4').value = [1, 0, 0, 1];
+  }
+}
+
+/**
+ * Creates a 3D chart model.
+ */
+function create3dChartModel() {
+  // create the x,y,z axes - use the cylinder primitive.
+  var cylinder_length = 90;
+  var cylinder_radius = 0.15;
+  var cylinder_subdivisions = 6;
+
+  var cylinder = o3djs.primitives.createCylinder(
+      g_pack,
+      g_material,
+      cylinder_radius,   // Radius.
+      cylinder_length,   // Depth.
+      cylinder_subdivisions,    // Number of subdivisions.
+      1);
+
+  var cylinder_x = g_pack.createObject('Transform');
+  cylinder_x.parent = g_modelRoot;
+  cylinder_x.addShape(cylinder);
+  cylinder_x.createParam('diffuse', 'ParamFloat4').value = [1, 0.2, 0.2, 1];
+  cylinder_x.rotateZ(Math.PI / 2);
+
+  var cylinder_y = g_pack.createObject('Transform');
+  cylinder_y.parent = g_modelRoot;
+  cylinder_y.addShape(cylinder);
+  cylinder_y.createParam('diffuse', 'ParamFloat4').value = [0.2, 1, 0.2, 1];
+  cylinder_y.rotateX(Math.PI / 2);
+
+  var cylinder_z = g_pack.createObject('Transform');
+  cylinder_z.parent = g_modelRoot;
+  cylinder_z.addShape(cylinder);
+  cylinder_z.createParam('diffuse', 'ParamFloat4').value = [0.2, 0.2, 1, 1];
+}
+
+/**
+ * Callback for the keypress event.
+ * Rotates the 3D model along the x, y or z-axes based on key pressed.
+ * Zooms in and out by moving the viewpoint.
+ * @param {event} event keyPress event passed to us by javascript.
+ */
+function keyPressed(event) {
+  var keyChar = String.fromCharCode(o3djs.event.getEventKeyChar(event));
+  keyChar = keyChar.toLowerCase();
+
+  var delta = 0.03;   // rotation delta.
+  // Create an array associating the keystroke to an axis about which to rotate.
+  // Then dereference that array to get the axis.
+
+  switch(keyChar) {
+    case 'a':
+      g_modelRoot.localMatrix =
+          g_math.mul(g_modelRoot.localMatrix,
+                     g_math.matrix4.rotationY(-delta));
+      break;
+    case 'd':
+      g_modelRoot.localMatrix =
+          g_math.mul(g_modelRoot.localMatrix,
+                     g_math.matrix4.rotationY(delta));
+      break;
+    case 'w':
+      g_modelRoot.localMatrix =
+          g_math.mul(g_modelRoot.localMatrix,
+                     g_math.matrix4.rotationX(-delta));
+      break;
+    case 's':
+      g_modelRoot.localMatrix =
+          g_math.mul(g_modelRoot.localMatrix,
+                     g_math.matrix4.rotationX(delta));
+      break;
+    case 'l':
+      g_modelRoot.localMatrix =
+          g_math.mul(g_modelRoot.localMatrix,
+                     g_math.matrix4.rotationZ(-delta));
+      break;
+    case 'k':
+      g_modelRoot.localMatrix =
+          g_math.mul(g_modelRoot.localMatrix,
+                     g_math.matrix4.rotationZ(delta));
+      break;
+    case 'i':
+      ZoomInOut(g_zoomFactor);
+      break;
+    case 'o':
+      ZoomInOut(1.0 / g_zoomFactor);
+      break;
+  }
+
+  o3djs.event.cancel(event);
+
+  g_client.render();
+}
+
+/**
+ * Zooms the model in / out by changing the viewpoint.
+ * @param {number} zoom zooming factor.
+ */
+function ZoomInOut(zoom) {
+  for (i = 0; i < g_eyeView.length; i += 1) {
+    g_eyeView[i] = g_eyeView[i] / zoom;
+  }
+
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      g_eyeView, // eye
+      [0, 0, 0],   // target
+      [0, 1, 0]);  // up
+}
+
+/**
+ * Start mouse dragging.
+ * @param {event} e event.
+ */
+function startDragging(e) {
+  g_lastRot = g_thisRot;
+  g_aball.click([e.x, e.y]);
+  g_dragging = true;
+}
+
+/**
+ * Use the arcball to rotate the model.
+ * Computes the rotation matrix.
+ * @param {event} e event.
+ */
+function drag(e) {
+  if (g_dragging) {
+    var rotationQuat = g_aball.drag([e.x, e.y]);
+    var rot_mat = g_quaternions.quaternionToRotation(rotationQuat);
+    g_thisRot = g_math.mul(g_lastRot, rot_mat);
+    var m = g_modelRoot.localMatrix;
+    g_math.matrix4.setUpper3x3(m, g_thisRot);
+    g_modelRoot.localMatrix = m;
+
+    g_client.render();
+  }
+}
+
+/**
+ * Stop dragging.
+ * @param {event} e event.
+ */
+function stopDragging(e) {
+  g_dragging = false;
+}
+
+/**
+ * Using the mouse wheel zoom in and out of the model.
+ * @param {event} e event.
+ */
+function scrollMe(e) {
+  var zoom = (e.deltaY < 0) ? 1 / g_zoomFactor : g_zoomFactor;
+  ZoomInOut(zoom);
+  g_client.render();
+}
+
+</script>
+
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 320px; height: 320px;"></div>
+<!-- End of O3D plugin -->
+
+<form name="default_form" action="#" method="get" >
+<div style="font-size:10">
+Rotate: (W, S), (A, D), (K, L) &nbsp &nbsp &nbsp Zoom: (I, O)&nbsp &nbsp &nbsp
+<input type="button" value="Reset View" onclick="resetView()" style="font-size:10"/>
+</div>
+</form>
+]]>
+</Content>
+</Module>

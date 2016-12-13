@@ -1,0 +1,40 @@
+# -*- python -*-
+# Crocodile config file for Chromium linux
+
+{
+  # List of rules, applied in order
+  'rules' : [
+    # Files/paths to include.  Specify these before the excludes, since rules
+    # are in order.
+    {
+      'regexp' : '^CHROMIUM/(base|media|net|printing|chrome|v8|webkit/glue)/',
+      'include' : 1,
+    },
+    # Don't include subversion or mercurial SCM dirs
+    {
+      'regexp' : '.*/(\\.svn|\\.hg)/',
+      'include' : 0,
+    },
+    # Don't include output dirs
+    {
+      'regexp' : '.*/(Debug|Release|sconsbuild|xcodebuild)/',
+      'include' : 0,
+    },
+    # Don't include third-party source
+    {
+      'regexp' : '.*/third_party/',
+      'include' : 0,
+    },
+    # Don't include windows or mac specific files
+    {
+      'regexp' : '.*(_|/)(mac|win)(\\.|_)',
+      'include' : 0,
+    },
+
+    # Groups
+    {
+      'regexp' : '.*_test_linux\\.',
+      'group' : 'test',
+    },
+  ],
+}

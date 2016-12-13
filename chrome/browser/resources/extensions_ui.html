@@ -1,0 +1,319 @@
+<!DOCTYPE HTML>
+<html id="root">
+<head>
+<meta charset="utf-8">
+<title jscontent="title"></title>
+<script>
+/**
+ * This variable structure is here to document the structure that the template
+ * expects to correctly populate the page.
+ */
+var extensionDataFormat = {
+  "extensions": [
+    {
+      "id": "0000000000000000000000000000000000000000",
+      "name": "Extension Name",
+      "description": "Extension long format description",
+      "version": "1.0.231",
+      "content_scripts": [
+        {
+          "js": ["script1_file1.js", "script1_file2.js"],
+          "css": ["script1_file1.css", "script1_file2.css"],
+          "matches": ["http://*/*", "http://other.com/*"]
+        },
+        {
+          "js": ["script2_file1.js", "script2_file2.js"],
+          "css": ["script2_file1.css", "script2_file2.css"],
+          "matches": ["http://*/*", "http://other.com/*"]
+        }
+      ],
+      // TODO(aa): It would be nice to also render what type of view each one
+      // is, like 'toolstrip', 'background', etc. Eventually, if we can also
+      // debug and inspect content scripts, maybe we don't need to list the
+      // components, just the views.
+      "views": [
+        {
+          "path": "toolstrip.html",
+          "renderViewId": 1,
+          "renderProcessId": 1
+        },
+        {
+          "path": "background.html",
+          "renderViewId": 2,
+          "renderProcessId": 1
+        }
+      ]
+    },
+    {
+      "id": "0000000000000000000000000000000000000001",
+      "name": "Extension Name",
+      "description": "Extension long format description",
+      "version": "1.0.231",
+      "content_scripts": [
+        {
+          "js": ["script1_file1.js", "script1_file2.js"],
+          "css": ["script1_file1.css", "script1_file2.css"],
+          "matches": ["http://*/*", "http://other.com/*"]
+        },
+        {
+          "js": ["script2_file1.js", "script2_file2.js"],
+          "css": ["script2_file1.css", "script2_file2.css"],
+          "matches": ["http://*/*", "http://other.com/*"]
+        }
+      ],
+      "views": [
+        {
+          "path": "foo/bar/toolstrip.html",
+          "renderViewId": 3,
+          "renderProcessId": 1
+        }
+      ]
+    }
+  ],
+  "errors": [
+    "something failed to happen",
+    "something else failed to happen"
+  ]
+};
+
+/**
+ * Takes the |extensionsData| input argument which represents data about the
+ * currently installed/running extensions and populates the html jstemplate with
+ * that data. It expects an object structure like the above.
+ * @param {Object} extensionsData Detailed info about installed extensions
+ */
+function showExtensionsData(extensionsData) {
+  // This is the javascript code that processes the template:
+  var input = new JsEvalContext(extensionsData);
+  var output = document.getElementById('extensionTemplate');
+  jstProcess(input, output);
+}
+
+/*
+ * Asks the C++ ExtensionDOMHandler to get details about the installed
+ * extensions and return detailed data about the configuration. The
+ * ExtensionDOMHandler should reply to returnExtensionsData() (below).
+ */
+function requestExtensionsData() {
+  chrome.send("requestExtensionsData", []);
+}
+
+// Used for observing function of the backend datasource for this page by
+// tests.
+window.domui_responded_ = false;
+
+function returnExtensionsData(extensionsData) {
+  window.domui_responded_ = true;
+  showExtensionsData(extensionsData);
+
+  // We are currently hiding the body because the first call to jstProcess() to
+  // insert localized strings happens prior to this call which runs during the
+  // body.onload event, causes a flickering.
+  document.getElementById('body-container').style.display = "inline";
+}
+
+/**
+ * Tell the C++ ExtensionDOMHandler to inspect the page detailed in |viewData|.
+ */
+function sendInspectMessage(viewData) {
+  // TODO(aa): This is ghetto, but DOMUIBindings doesn't support sending
+  // anything other than arrays of strings, and this is all going to get
+  // replaced with V8 extensions soon anyway.
+  chrome.send('inspect', [
+    String(viewData.renderProcessId), String(viewData.renderViewId)
+  ]);
+}
+
+/**
+ * Handles an 'uninstall' button getting clicked.
+ */
+function handleUninstallExtension(node) {
+  // Tell the C++ ExtensionDOMHandler to uninstall an extension.
+  chrome.send('uninstall', [node.extensionId]);
+  
+  // Find the div above us with class 'extension' and remove it.
+  while (node) {
+    if (node.className == 'extension') {
+      node.parentNode.removeChild(node);
+      return;
+    }
+    node = node.parentNode;
+  }
+  
+  throw new Error("Couldn't find containing extension element.");
+}
+</script>
+<style>
+body {
+  background-color: Window;
+  color: WindowText;
+  font: message-box;
+}
+
+div#outside {
+ margin-left: 5%;
+ margin-right: 5%;
+ text-align: justify;
+ width: 90%;
+}
+
+div#installed-extensions {
+  font-size: xx-large;
+  font-weight: bold;
+  text-align: center;
+}
+
+div.extension-name {
+  font-size: large;
+  font-weight: bold;
+  margin-top: 2em;
+  text-align: left;
+}
+
+div.extension-uninstall {
+  margin-bottom: 1em;
+}
+
+dl {
+  margin: 0px 0px 3px 0px;
+}
+
+table {
+  background-color: Window;
+  border: 1px solid ThreeDShadow;
+  border-spacing: 0px;
+  color: WindowText;
+  font: message-box;
+  margin-bottom: 20px;
+  text-align: left;
+  width: 100%;
+}
+
+th {
+  background-color: Highlight;
+  color: HighlightText;
+  text-align: center;
+}
+
+th + th,
+td + td {
+  border-left: 1px dotted ThreeDShadow;
+}
+
+td {
+  border-top: 1px dotted ThreeDShadow;
+  text-align: left;
+}
+
+th, td {
+  padding: 3px;
+}
+
+th.type, th.suff {
+  width: 20%;
+}
+
+th.desc {
+  width: 50%;
+}
+
+#error-box {
+  background-color:#D8D8D8;
+  margin-top: 8px;
+  padding: 8px;
+  width: 100%;
+}
+#error-log {
+  color: #B00000;
+  font-weight: bold;
+}
+.error {
+  font-style:italic;
+}
+</style>
+</head>
+<body onload="requestExtensionsData();">
+  <div id="body-container" style="display:none;">
+    <div id="outside">
+      <div id="installed-extensions">Installed Extensions</div>
+      <div id="extensionTemplate">
+
+        <div id="error-box" jsdisplay="errors.length > 0">
+          <div id="error-log">Errors</div>
+          <div class="error" jsselect="errors" jscontent="$this">
+              Error Detail</div>
+        </div>
+
+        <div class="extension-name" jsdisplay="extensions.length === 0">
+            No Extensions Installed</div>
+
+        <div jsdisplay="extensions.length > 0">
+          <div class="extension" jsselect="extensions">
+            <div class="extension-name" jscontent="name">Extension Name</div>
+            <div class="extension-uninstall">
+              <button
+                jsvalues=".extensionId:id"
+                onclick="handleUninstallExtension(this)"
+                >Uninstall</button>
+            </div>
+            <dl>
+              <dd>Id: <span jscontent="id">0000000000000000000000000000000000000000</span></dd>
+              <dd>
+                <span jscontent="description">Extension Description</span>
+              </dd>
+              <dd>Version: <span jscontent="version">x.x.x.x</span></dd>
+            </dl>
+
+            <table jsselect="content_scripts">
+              <thead>
+                <tr><th colspan="2">Content Script</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>URL Match Patterns</td>
+                  <td>
+                    <span jsselect="matches"
+                        jscontent="(($index > 0) ? ', ' : '') + $this">
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>CSS Files</td>
+                  <td>
+                    <span jsselect="css"
+                        jscontent="(($index > 0) ? ', ' : '') + $this">
+                    </span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>JavaScript Files</td>
+                  <td>
+                    <span jsselect="js"
+                        jscontent="(($index > 0) ? ', ' : '') + $this">
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table>
+              <thead>
+                <tr><th colspan="2">Active Views</th></tr>
+              </thead>
+              <tbody>
+                <tr jsselect="views">
+                  <td width="100%"><span jscontent="path"></span></td>
+                  <td width="1" align="right"><button
+                    jsvalues=".extensionView:$this"
+                    onclick="sendInspectMessage(this.extensionView);"
+                  >Inspect</button></td>
+                  <!-- TODO(aa): Debug link -->
+                 </tr>
+               </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

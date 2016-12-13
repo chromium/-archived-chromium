@@ -1,0 +1,13 @@
+This is Chromium's copy of the Mozilla codesighs tool.
+
+Originally obtained from Mozilla's Mercurial repository
+on 17 April 2009:
+
+http://hg.mozilla.org/mozilla-central/tools/codesighs
+
+The LICENSE from http://hg.mozilla.org/mozilla-central has been copied
+here.
+
+There are no local changes to the code itself.
+
+A codesighs.gyp file has been added for building with Chromium.

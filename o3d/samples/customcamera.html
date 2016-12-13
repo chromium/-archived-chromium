@@ -1,0 +1,404 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+O3D Tutorial B4
+
+This tutorial shows how we generate a simple cube mesh
+and view it using a dynamically generated camera which can be animated.
+
+We also show how to dynamically change the perspective matrix
+to adjust to the correct aspect ratio as the o3d window is resized.
+
+The cube can be animated along the target's y-axis and the animation is
+done every time a frame is rendered.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Tutorial B4: Cameras and events
+</title>
+<style type="text/css">
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
+</style>
+<!-- Our javascript code -->
+<script type="text/javascript" src="o3djs/base.js"></script>
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.effect');
+
+// Events
+// Run the init() function once the page has finished loading.
+//         unload() when the page is unloaded.
+window.onload = init;
+window.onunload = unload;
+
+// global variables
+var g_o3d;
+var g_math;
+var g_client;
+var g_pack;
+var g_viewInfo;
+var g_o3dElement;
+var g_o3dWidth = -1;
+var g_o3dHeight = -1;
+
+// Our view and projection matrices
+// The view matrix transforms objects from world space to view space.
+var g_viewMatrix;
+// The projection matrix projects objects from view space to the screen.
+var g_projMatrix;
+
+// Animation varibles
+
+// Boolean flag that signals whether animation is on.
+var g_animate;
+// Current angle
+var g_animateAngle;
+
+/**
+ * Creates our client area by looking for <div>s with an id that starts with
+ * "o3d".
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D, loads the effect, and draws the cube.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initialize global variables and libraries.
+  g_o3dElement = clientElements[0];
+  g_o3d = g_o3dElement.o3d;
+  g_math = o3djs.math;
+  g_client = g_o3dElement.client;
+
+  // Create a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  // Create the render graph for a view.
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Reset animation variables.
+  g_animate = false;
+  g_animateAngle = 0;
+
+  // Create and load the effect.
+  var effect = g_pack.createObject('Effect');
+  o3djs.effect.loadEffect(effect, 'shaders/vertex-color.shader');
+
+  // Create a material for it.
+  var myMaterial = g_pack.createObject('Material');
+
+  // Set the material's drawList
+  myMaterial.drawList = g_viewInfo.performanceDrawList;
+
+  // Apply our effect to this material. The effect tells the 3D hardware
+  // which shader to use.
+  myMaterial.effect = effect;
+
+  // Create the parameters the effect needs on the material.
+  effect.createUniformParameters(myMaterial);
+
+  // Create a cube.
+  var cube = o3djs.primitives.createRainbowCube(g_pack, myMaterial, 1);
+
+  setDefaultCameraValues();
+  setCamera();
+
+  // Generate the projection and viewProjection matrices based
+  // on the plugin size by calling Resize().
+  resize();
+
+  // Attach the cube to the root of the transform graph.
+  var root = g_client.root;
+  root.addShape(cube);
+
+
+  // Set our render callback for animation.
+  // This sets a function to be executed every time a frame is rendered.
+  g_client.setRenderCallback(onrender);
+}
+
+// Generates the projection matrix based on the size of the g_o3d plugin
+// and calculates the view-projection matrix.
+function resize() {
+  var newWidth  = g_client.width;
+  var newHeight = g_client.height;
+
+  if (newWidth != g_o3dWidth || newHeight != g_o3dHeight) {
+    g_o3dWidth = newWidth;
+    g_o3dHeight = newHeight;
+
+    // Create our projection matrix, with a vertical field of view of 45 degrees
+    // a near clipping plane of 0.1 and far clipping plane of 100.
+    g_projMatrix = g_math.matrix4.perspective(
+        g_math.degToRad(45),
+        g_o3dWidth / g_o3dHeight,
+        0.1,
+        100);
+
+    // update our view projection matrix
+    setViewProjection();
+  }
+}
+
+// Sets the view and projection matrices.
+function setViewProjection() {
+  g_viewInfo.drawContext.view = g_viewMatrix;
+  g_viewInfo.drawContext.projection = g_projMatrix;
+}
+
+// Sets the default camera values and updates the view matrix
+function setDefaultCameraValues() {
+  var myForm = document.defaultForm;
+
+  // default eye position = (2, 2, 4)
+  myForm.eyeX.value = '2.0';
+  myForm.eyeY.value = '1.0';
+  myForm.eyeZ.value = '4.0';
+
+  // default target position = (0, 0, 0)
+  // (ie centre of the cube)
+  myForm.targetX.value = '0.0';
+  myForm.targetY.value = '0.0';
+  myForm.targetZ.value = '0.0';
+
+  // default up vector = (0, 1, 0)
+  // (this tells the renderer which direction is 'up')
+  // in this case, we define the positive y-axis to be 'up'.
+  myForm.upX.value = '0.0';
+  myForm.upY.value = '1.0';
+  myForm.upZ.value = '0.0';
+
+  // update the view matrix
+  setCamera();
+}
+
+// Updates the view matrix using the current camera parameters
+function setCamera() {
+  // Create our view matrix using the target, eye, and up vectors in the form
+  // and using the lookAt(..)
+  // helper function to create the matrix.
+  var myForm = document.defaultForm;
+
+  // Eye-position, this is where our camera is at.
+  var eye = [parseFloat(myForm.eyeX.value),
+             parseFloat(myForm.eyeY.value),
+             parseFloat(myForm.eyeZ.value)];
+
+  // Target, this is where our camera is pointed at.
+  var target = [parseFloat(myForm.targetX.value),
+                parseFloat(myForm.targetY.value),
+                parseFloat(myForm.targetZ.value)];
+
+  // Up-vector, this tells the camera which direction is 'up'.
+  // We define the positive y-direction to be up in this example.
+  var up = [parseFloat(myForm.upX.value),
+            parseFloat(myForm.upY.value),
+            parseFloat(myForm.upZ.value)];
+
+  g_viewMatrix = g_math.matrix4.lookAt(eye, target, up);
+
+  // if we already have our projection matrix,
+  // update the view projection matrix.
+  if (g_projMatrix)
+    setViewProjection();
+}
+
+// Validates a field in the form to make sure it contains a float.
+function validateFloat(field) {
+  var floatValue = parseFloat(field.value);
+  if (isNaN(floatValue))
+    field.value = '0.0';
+  else
+    field.value = floatValue;
+}
+
+// Toggles animation
+function toggleAnimate() {
+  // toggle the animate flag.
+  g_animate = !g_animate;
+
+  if (g_animate) {
+    // turn on animation
+    document.defaultForm.btnAnimate.value = 'Stop animation';
+  } else {
+    // turn off animation
+    document.defaultForm.btnAnimate.value = 'Animate';
+  }
+}
+
+// Animates the camera.
+// This function executes on each frame.
+// It was set using g_client.setRenderCallback(..)
+// in initStep2().
+function onrender(renderEvent) {
+  resize();
+  if (g_animate) {
+    // Update the angle frame rate independently.
+    g_animateAngle += 2.0 * renderEvent.elapsedTime;
+
+    var myForm = document.defaultForm;
+    // Set radius to 1.5
+    var radius = 1.5;
+    // rotate around the y-axis relative to the target
+    myForm.eyeX.value = parseFloat(myForm.targetX.value) +
+                         Math.sin(g_animateAngle) * radius;
+    myForm.eyeZ.value = parseFloat(myForm.targetZ.value) +
+                         Math.cos(g_animateAngle) * radius;
+
+    setCamera();
+  }
+}
+
+/**
+ * Removes any callbacks so they don't get called after the page has unloaded.
+ */
+function unload() {
+  if (g_client) {
+    g_client.cleanup();
+  }
+}
+
+</script>
+</head>
+<body>
+<table width="100%" style="height:100%;"><tr><td valign="middle" align="center">
+<table width="100%" style="height:100%;"><tr><td>
+<h1>Cameras and events</h1>
+<p>
+This tutorial shows how we generate a simple cube mesh
+and view it using a dynamically generated camera which can be animated.
+</p>
+<p>
+Press Animate to animate the camera and use the textboxes to manually
+set the position of the camera.
+</p>
+<!-- Centre everything in the div -->
+  <table id="container" width="98%" style="height:50%;"><tr><td height="100%">
+  <!-- Start of g_o3d plugin -->
+  <div id="o3d" style="width: 100%; height: 100%;"></div>
+  <!-- End of g_o3d plugin -->
+  </td></tr></table>
+  <!-- Format input fields nicely in a table -->
+  <form action="#" method="get" name="defaultForm">
+    <table style="margin-left:auto; margin-right:auto"
+           summary="This table contains camera controls.">
+      <thead style="font-weight:bold; text-align:center">
+        <tr>
+          <th></th>
+          <th>x</th>
+          <th>y</th>
+          <th>z</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Eye</td>
+          <td><input name="eyeX"
+                     type="text"
+                     onblur="validateFloat(this)"/></td>
+          <td><input name="eyeY"
+                     type="text"
+                     onblur="validateFloat(this)"/></td>
+          <td><input name="eyeZ"
+                     type="text"
+                     onblur="validateFloat(this)"/></td>
+          <td rowspan="2">
+            <input name="btnSet"
+                   type="button"
+                   value="Set camera"
+                   onClick="setCamera()"/>
+          </td>
+        </tr>
+        <tr>
+          <td>Target</td>
+          <td><input name="targetX"
+                     type="text"
+                     onblur="validateFloat(this)"/></td>
+          <td><input name="targetY"
+                     type="text"
+                     onblur="validateFloat(this)"/></td>
+          <td><input name="targetZ"
+                     type="text"
+                     onblur="validateFloat(this)"/></td>
+        </tr>
+        <tr>
+          <td>Up vector</td>
+          <td><input name="upX"
+                     type="text"
+                     onblur="validateFloat(this)"/></td>
+          <td><input name="upY"
+                     type="text"
+                     onblur="validateFloat(this)"/></td>
+          <td><input name="upZ"
+                     type="text"
+                     onblur="validateFloat(this)"/></td>
+          <td>
+            <input name="btnDefault"
+                   type="button"
+                   value="Restore default camera"
+                   onClick="setDefaultCameraValues()"/>
+          </td>
+        </tr>
+        <tr>
+          <td colspan="5" style="text-align:center">
+            <input name="btnAnimate"
+                   type="button"
+                   value="Animate"
+                   onClick="toggleAnimate()"/>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </form>
+</td></tr></table>
+</td></tr></table>
+</body>
+</html>

@@ -1,0 +1,411 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+O3D Animation.
+
+Shows various things being animated by O3D.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Animation.
+</title>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="o3djs/base.js"></script>
+
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.effect');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.primitives');
+
+// Events
+// init() once the page has finished loading.
+window.onload = init;
+
+// global variables
+var g_framesRendered = 0;
+var g_o3d;
+var g_math;
+var g_client;
+var g_viewInfo;
+var g_pack;
+var g_finished = false;  // for selenium
+var g_groupTransforms = [];
+var GROUPS_ACROSS = 2;
+var UNITS_ACROSS_GROUP = 2;
+var TOTAL_ACROSS = GROUPS_ACROSS * UNITS_ACROSS_GROUP;
+var HALF_WIDTH = TOTAL_ACROSS * 0.0;
+var UNIT_SPACING = 200;
+
+/**
+ * Creates an oscillating animation to animate a single float from 0 to
+ * endOutput over endInput seconds with a little bit of ease in, ease out.
+ *
+ * @param {!o3d.Pack} pack Pack to associate created objects with.
+ * @param {!o3d.ParamObject} paramObject Object that has param to animate.
+ * @param {string} paramName Name of the param to animate.
+ * @param {number} endInput Number of seconds to take to get
+ * @param {number} endOutput Target value.
+ */
+function attachParamFloatAnimation(pack,
+                                   paramObject,
+                                   paramName,
+                                   endInput,
+                                   endOutput) {
+  // Create a FunctionEval through which to evaluate the curve.
+  var functionEval = pack.createObject('FunctionEval');
+
+  // Bind the param we want to get its value from our FunctionEval's output.
+  paramObject.getParam(paramName).bind(functionEval.getParam('output'));
+
+  // Create a curve
+  var curve = pack.createObject('Curve');
+
+  // Set the functionEval to use the curve as it's function.
+  functionEval.functionObject = curve;
+
+  // Create 2 keys for the curve.
+  var key1 = curve.createKey('BezierCurveKey');
+  key1.input = 0;
+  key1.output = 0;
+  key1.outTangent = [0, endInput * 2 / 3];
+  var key2 = curve.createKey('BezierCurveKey');
+  key2.inTangent = [endInput / 3, endOutput];
+  key2.input = endInput;
+  key2.output = endOutput;
+
+  // Set the curve to oscillate.
+  curve.postInfinity = g_o3d.Curve.OSCILLATE;
+
+  // Make a SecondCounter to provide an input to the functionEval.
+  var counter = pack.createObject('SecondCounter');
+
+  // Bind the counter's count to the input of the FunctionEval.
+  functionEval.getParam('input').bind(counter.getParam('count'));
+}
+
+/**
+ * Creates an oscillating animation to animate a single float of a float4 from 0
+ * to endOutput over endInput seconds with a little bit of ease in, ease out.
+ *
+ * @param {!o3d.Pack} pack Pack to associate created objects with.
+ * @param {!o3d.ParamObject} paramObject Object that has param to animate.
+ * @param {string} paramName Name of the param Float4 to animate.
+ * @param {string} innerParamName Name of the individual float to animate.
+ * @param {number} endInput Duration of animation.
+ * @param {number} endOutput Target value.
+ * @return {!o3d.ParamObject} The created ParamOperation.
+ */
+function attach1FloatOfFloat4Animation(pack,
+                                       paramObject,
+                                       paramName,
+                                       innerParamName,
+                                       endInput,
+                                       endOutput) {
+
+  var paramOp = pack.createObject('ParamOp4FloatsToFloat4');
+  paramObject.getParam(paramName).bind(paramOp.getParam('output'));
+  attachParamFloatAnimation(pack, paramOp, innerParamName, endInput, endOutput);
+  return paramOp;
+}
+
+/**
+ * Creates an animation to animate one of the 9 values of a TRSToMatrix4 and
+ * binds it to a transform.
+ *
+ * @param {!o3d.Pack} pack Pack to associate created objects with.
+ * @param {!o3d.Transform} transform Transform to animate.
+ * @param {number} endInput Duration of animation.
+ * @param {number} endOutput Target value.
+ * @param {string} paramName Name of param to animate.
+ * @return {!o3d.TRSToMatrix4} The created TRSToMatrix4.
+ */
+function attachTRSAnimation(pack, transform, endInput, endOutput, paramName) {
+  var trs = pack.createObject('TRSToMatrix4');
+  transform.getParam('localMatrix').bind(trs.getParam('output'));
+  attachParamFloatAnimation(pack, trs, paramName, endInput, endOutput);
+  return trs;
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D and sets up some shapes with animations.
+ */
+function initStep2(clientElements) {
+  // Initializes global variables and libraries.
+  var o3dElement = clientElements[0];
+  g_o3d = o3dElement.o3d;
+  g_math = o3djs.math;
+  g_client = o3dElement.client;
+
+  // Creates a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Create our projection matrix, with a vertical field of view of 45
+  // degrees a near clipping plane of 0.1 and far clipping plane of 10000.
+  g_viewInfo.drawContext.projection = g_math.matrix4.perspective(
+      g_math.degToRad(45),
+      g_client.width / g_client.height,
+      0.1,
+      10000);
+
+  // Set our view
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      [100, 50, 400], // Eye.
+      [0, 0, 0],      // Target.
+      [0, 1, 0]);     // Up.
+
+  var effect = g_pack.createObject('Effect');
+  effect.loadFromFXString(document.getElementById('shader').value);
+
+  // Create a Material for the effect.
+  var material = g_pack.createObject('Material');
+
+  // Apply our effect to this material.
+  material.effect = effect;
+
+  // Set the material's drawList for translucent objects.
+  material.drawList = g_viewInfo.zOrderedDrawList;
+
+  // Create the parameters the effect needs on the material.
+  effect.createUniformParameters(material);
+
+  // Set the light position
+  var light_pos_param = material.getParam('light_pos');
+  light_pos_param.value = [100, 75, 400];
+
+  // Set the phong components of the light source
+  var light_ambient_param = material.getParam('light_ambient');
+  var light_diffuse_param = material.getParam('light_diffuse');
+  var light_specular_param = material.getParam('light_specular');
+
+  light_ambient_param.value = [0.1, 0.1, 0.1, 1]; // Gray
+  light_diffuse_param.value = [1, 1, 1, 1]; // White
+  light_specular_param.value = [0.5, 0.5, 0.5, 1]; // White
+
+  // Set the shininess of the material (for specular lighting)
+  var shininess_param = material.getParam('shininess');
+  shininess_param.value = 5.0;
+
+  // Position of the camera.
+  // (should be the same as the 'eye' position given below)
+  var camera_pos_param = material.getParam('camera_pos');
+  // Camera is at (0, 0, 3).
+  camera_pos_param.value = [0, 0, 3];
+
+  var data = [ { paramName: 'translateY',
+                 endOutput: 50,
+                 color: [1, 0, 0, 1] },
+               { paramName: 'rotateY',
+                 endOutput: Math.PI,
+                 color: [0, 1, 0, 1] },
+               { paramName: 'scaleY',
+                 endOutput: 3,
+                 color: [1, 1, 0, 1] },
+               { paramName: '',
+                 endOutput: Math.PI * 3,
+                 color: [1, 1, 0, 1] } ];
+
+  for (var ii = 0; ii < 4; ++ii) {
+    var xPos = (ii - 1.5) * 100;
+    // Create a shape.
+    var shape;
+    switch (ii) {
+    case 0:
+    case 2:
+      shape = o3djs.primitives.createSphere(g_pack, material, 40, 10, 12);
+      break;
+    case 1:
+    case 3:
+      shape = o3djs.primitives.createCube(g_pack, material, 60);
+      break;
+    }
+
+    var transform = g_pack.createObject('Transform');
+    transform.parent = g_client.root;
+    transform.addShape(shape);
+
+    // Change the color of each one
+    transform.createParam('colorMult', 'ParamFloat4').value = data[ii].color;
+
+    switch (ii) {
+      case 0:
+      case 1:
+      case 2:
+        var trs = attachTRSAnimation(g_pack,
+                                     transform,
+                                     ii * 0.6 + 0.5,
+                                     data[ii].endOutput,
+                                     data[ii].paramName);
+
+        // space them out.
+        trs.translateX = xPos;
+        break;
+
+      case 3: {
+        var paramOp = attach1FloatOfFloat4Animation(g_pack,
+                                                    transform,
+                                                    'colorMult',
+                                                    'input3',
+                                                    0.5,
+                                                    1);
+        paramOp.input1 = 1;
+        paramOp.input2 = 1;
+        transform.translate(xPos, 0, 0);
+        break;
+      }
+    }
+  }
+
+  g_finished = true;  // for selenium
+}
+
+</script>
+</head>
+<body>
+<h1>Animation</h1>
+Once the scene is setup no Javascript is running.
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 800px; height: 600px"></div>
+<!-- End of O3D plugin -->
+<!-- Don't render the textarea -->
+<div style="display:none">
+<textarea id="shader" name="fx" cols="80" rows="20">
+// The 4x4 world view projection matrix.
+float4x4 worldViewProjection : WorldViewProjection;
+float4x4 worldInverseTranspose : WorldInverseTranspose;
+float4x4 world : World;
+
+// positions of the light and camera
+float3 light_pos;
+float3 camera_pos;
+
+// lighting components of the light source
+float4 light_ambient;
+float4 light_diffuse;
+float4 light_specular;
+
+//  shininess of the material. (for specular lighting)
+float shininess;
+
+float4 colorMult;
+
+// input parameters for our vertex shader
+struct a2v {
+  float4 pos : POSITION;
+  float3 normal : NORMAL;
+  float4 col : COLOR;
+};
+
+// input parameters for our pixel shader
+// also the output parameters for our vertex shader
+struct v2f {
+  float4 pos : POSITION;
+  float4 pos2 : TEXCOORD0;
+  float3 norm : TEXCOORD1;
+  float3 light : TEXCOORD2;
+  float4 col : COLOR;
+};
+
+/**
+ * vsMain - our vertex shader
+ *
+ * @param IN.pos Position vector of vertex
+ * @param IN.normal Normal of vertex
+ * @param IN.col Color of vertex
+ */
+v2f vsMain(a2v IN) {
+  /**
+   * We use the standard phong illumination equation here.
+   * We restrict (clamp) the dot products so that we
+   * don't get any negative values.
+   * All vectors are normalized for proper calculations.
+   *
+   * The output color is the summation of the
+   * ambient, diffuse, and specular contributions.
+   *
+   * Note that we have to transform each vertex and normal
+   * by the view projection matrix first.
+   */
+  v2f OUT;
+
+  OUT.pos = mul(IN.pos, worldViewProjection);
+  OUT.pos2 = OUT.pos;
+  OUT.norm = mul(float4(IN.normal, 0), worldInverseTranspose).xyz;
+  OUT.light = light_pos - mul(IN.pos, world).xyz;
+  OUT.col = IN.col;
+  return OUT;
+}
+/**
+ * psMain - pixel shader
+ *
+ * @param IN.pos Position vector of vertex
+ * @param IN.col Color of vertex
+ */
+float4 psMain(v2f IN): COLOR {
+  float3 light = normalize(IN.light);
+  float3 normal = normalize(IN.norm);
+  float3 r = normalize(reflect(normal, light));
+  float3 v = normalize(IN.pos2.xyz);
+  float4 litR = lit(dot(normal, light), dot(r, v), shininess);
+  return float4(((light_ambient + light_diffuse * litR.y) * colorMult +
+  light_specular * litR.z).xyz, colorMult.w);
+}
+
+// Here we tell our effect file *which* functions are
+// our vertex and pixel shaders.
+
+// #o3d VertexShaderEntryPoint vsMain
+// #o3d PixelShaderEntryPoint psMain
+// #o3d MatrixLoadOrder RowMajor
+</textarea>
+</div>
+</body>
+</html>

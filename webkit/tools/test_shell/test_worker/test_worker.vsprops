@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="test_worker"
+	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;..\..\..\build\webkit_common.vsprops"
+	>
+	<Tool
+		Name="VCLinkerTool"
+		ModuleDefinitionFile="test_worker.def"
+	/>
+</VisualStudioPropertySheet>

@@ -1,0 +1,131 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+[include="core/cross/file_request.h"] callback void FileRequestCallback();
+
+%[
+  A FileRequest object is used to carry out an asynchronous request for a file
+  to be loaded.  Its use parallels that of XMLHttpRequest; you create one, call
+  open, set the onreadystatechange callback, and call send.
+  Note that unlike XMLHttpRequests, FileRequests cannot be reused.
+
+  For texture loads, on success the texture will be stored in a field of the
+  same name on the FileRequest itself.
+
+  \code
+  var request = pack.createFileRequest("TEXTURE");
+  var texture;
+  request.open("GET", url, true);
+  request.onreadystatechange = function() {
+    if (request.done) {
+      if (request.success) {
+        texture = request.texture;
+      } else {
+        dump('Load of texture file returned failure.');
+      }
+    }
+  };
+  request.send();
+  \endcode
+%]
+
+[nocpp, include="core/cross/file_request.h"] class FileRequest
+    : ObjectBase {
+  %[
+    A callback to call whenever the ready state of the request changes.
+  %]
+  [setter=set_onreadystatechange]
+  FileRequestCallback onreadystatechange;
+
+  %[
+    The URI this request is for.
+  %]
+  [getter=uri] String uri;
+  %[
+    On completion of successful texture file loads, this holds the loaded
+    texture.
+  %]
+  [getter=texture] Texture? texture;
+  %[
+    Whether or not to generate mip-maps on textures that are loaded (default:
+    true). Mip-maps are not generated for DXTC textures. DDS files can contain
+    pre-computed mip-maps for DXTC textures though.
+  %]
+  [getter, setter] bool generate_mipmaps;
+
+  %[
+    This holds the same values as in XMLHttpRequest:
+    \li 0 = uninitialized
+    \li 1 = opened
+    \li 2 = sent
+    \li 3 = receiving
+    \li 4 = loaded (the file has been downloaded, but may or may not have been
+    parsed yet)
+  %]
+  [getter=ready_state] int readyState;
+  %[
+    This indicates whether any further processing will be done on this
+    FileRequest.
+  %]
+  [getter=done] bool done;
+  %[
+    This field is only valid if done is true.  It indicates whether or not the
+    request succeeded. If it failed error holds an error message.
+  %]
+  [getter=success] bool success;
+
+  %[
+    An error message.
+    If done is true and success is false this will be an error message
+    describing what went wrong.
+  %]
+  [getter] String error;
+
+  %[
+    Set up several of the request fields.
+    \param method "GET" is the only supported method at this time
+    \param uri the location of the file to fetch
+    \param async true is the only legal value at this time
+  %]
+  [nocpp, userglue, plugin_data] void open(
+      String method, String uri, bool async);
+
+  %[
+    Send the request.
+    Unlike XMLHttpRequest the onreadystatechange callback will be called no
+    matter what, with success or failure.
+  %]
+  [nocpp, userglue, plugin_data] void send();
+};
+
+}  // namespace o3d

@@ -1,0 +1,104 @@
+# Copyright (c) 2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import os
+
+import utils
+
+Import('env')
+
+env = env.Clone() 
+
+
+# Building .from_bin.cc files.
+
+# Must be run from within the gears dir.  More hoops to jump through to fix up
+# path names and arguments.
+env.Replace(
+# len() + 1 to include trailing '/'
+# TODO: is there a better way to strip off $OPEN_DIR from $SOURCE?
+    LEN_OPEN_DIR = len(os.path.normpath(env.subst('$OPEN_DIR'))) + 1,
+    BIN2CPP = 'cd $OPEN_DIR && python tools/bin2cpp.py',
+    BIN2CPPCOM = '$BIN2CPP ${str(SOURCE)[LEN_OPEN_DIR:]} > ${TARGET.abspath}',
+)
+bin2cpp_builder = Builder(action = '$BIN2CPPCOM')
+env.Append(BUILDERS = {'Bin2cpp': bin2cpp_builder})
+
+
+# C++ flags.
+
+env.Prepend(
+    CPPDEFINES = [
+# Common items, like notifier, are not related to any browser.
+        'BROWSER_NONE=1',
+    ]
+)
+
+# OS X needs to be 'LINUX' in common sources.
+# TODO(nigeltao): Should we instead have a UNIX flag, rather than calling
+# Mac OS X a "flavor of Linux"??
+if env['OS'] == 'osx':
+  env.Append(CPPDEFINES = ['LINUX'])
+
+
+#-----------------------------------------------------------------------------
+# Generate the dependency tree.
+
+def PatternRule(t, s): return utils.PatternRule(t, s, env)
+def GetInputs(var): return utils.GetInputs(var, env)
+
+outputs = {}
+
+# genfiles/%: %.m4
+outputs['COMMON_M4S'] = \
+    [env.M4(*PatternRule('$COMMON_GENFILES_DIR/${SOURCE.filebase}', src))
+     for src in GetInputs('$COMMON_M4SRCS')]
+
+# genfiles/%.from_bin.cc: %
+if GetInputs('$COMMON_BINSRCS'):
+  bins = [env.Bin2cpp(*PatternRule(
+              '$COMMON_GENFILES_DIR/${SOURCE.file}.from_bin.cc', src))
+         for src in GetInputs('$COMMON_BINSRCS')]
+  outputs['BROWSER_LINKSRCS'] = [env.SharedObject(bin) for bin in bins]
+
+outputs['IPC_TEST_EXE'] = env.ChromeProgram('ipc_test',
+    GetInputs('$IPC_TEST_CPPSRCS'))
+
+# Note: crash_sender.exe name needs to stay in sync with name used in
+# exception_handler_win32.cc and exception_handler_osx/google_breakpad.mm.
+outputs['CRASH_SENDER_EXE'] = None
+if env['OS'] == 'win32':
+  outputs['CRASH_SENDER_EXE'] = env.ChromeProgram('crash_sender',
+      GetInputs('$CRASH_SENDER_CPPSRCS'),
+      LIBS = Split('advapi32.lib shell32.lib wininet.lib'))
+elif env['OS'] == 'osx':
+  outputs['CRASH_SENDER_EXE'] = env.ChromeProgram('crash_sender',
+      GetInputs('$CRASH_SENDER_CPPSRCS'),
+      FRAMEWORKS = env['FRAMEWORKS'] +
+          Split('Carbon Cocoa Foundation IOKit SystemConfiguration'),
+      LIBS = env['LIBS'] + ['crypto', 'stdc++'])
+env.Alias('gears', outputs['CRASH_SENDER_EXE'])
+
+if env['OS'] == 'osx':
+# Crash inspector is launched by the crashed process from it's exception
+# handler and is what actually communicates with the crashed process to
+# extract the minidump.  It then launches crash_sender in order to actually
+# send the minidump over the wire.
+  outputs['OSX_CRASH_INSPECTOR_EXE'] = env.ChromeProgram('crash_inspector',
+      GetInputs('$OSX_CRASH_INSPECTOR_CPPSRCS'),
+      FRAMEWORKS = env['FRAMEWORKS'] + ['Carbon'],
+      LIBS = env['LIBS'] + ['breakpad_osx-gears'])
+
+  outputs['OSX_LAUNCHURL_EXE'] = env.ChromeProgram('launch_url_with_browser',
+      GetInputs('$OSX_LAUNCHURL_CPPSRCS'),
+      FRAMEWORKS = env['FRAMEWORKS'] +
+          Split('CoreFoundation ApplicationServices'),
+      LIBS = env['LIBS'] + ['stdc++'])
+
+  outputs['SF_INSTALLER_PLUGIN_EXE'] = env.ChromeSharedLibrary('stats_pane',
+      GetInputs('$SF_INSTALLER_PLUGIN_CPPSRCS'),
+      FRAMEWORKS = env['FRAMEWORKS'] + Split('Cocoa InstallerPlugins'))
+
+# See main SConscript for how 'outputs' is used.
+Return('outputs')

@@ -1,0 +1,786 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="sk">
+<translation id="6779164083355903755">&amp;Odstrániť</translation>
+<translation id="3581034179710640788">Skončila sa platnosť bezpečnostného certifikátu stránky!</translation>
+<translation id="8275038454117074363">Importovať</translation>
+<translation id="8418445294933751433">&amp;Zobraziť ako kartu</translation>
+<translation id="2160383474450212653">Písma a jazyky</translation>
+<translation id="4405141258442788789">Skončil sa časový limit operácie.</translation>
+<translation id="5048179823246820836">Severské</translation>
+<translation id="561349411957324076">Hotovo</translation>
+<translation id="4610656722473172270">Panel s nástrojmi Google</translation>
+<translation id="2088818908407967256">Táto stránka obsahuje nezabezpečené prvky.</translation>
+<translation id="1871244248791675517">Ins</translation>
+<translation id="2972581237482394796">&amp;Dopredu</translation>
+<translation id="6135826906199951471">Del</translation>
+<translation id="528468243742722775">End</translation>
+<translation id="1723824996674794290">&amp;Nové okno</translation>
+<translation id="7567293639574541773">&amp;Preskúmať prvok</translation>
+<translation id="8571213806525832805">Posledné 4 týždne</translation>
+<translation id="6021004449668343960">Písmo Sans-Serif:</translation>
+<translation id="4422428420715047158">Doména:</translation>
+<translation id="4021918302616263355">Pomocou služby <ph name="ENGINE"/> vyhľadať text <ph name="SEARCH_TERMS"/></translation>
+<translation id="5376169624176189338">Kliknutím prejdete naspäť. Pri dlhšom stlačení sa zobrazí história.</translation>
+<translation id="6310545596129886942">Počet zvyšných sekúnd: <ph name="NUMBER_FEW"/></translation>
+<translation id="9181716872983600413">Unicode</translation>
+<translation id="1383861834909034572">Otvoriť po prebratí</translation>
+<translation id="4211171103079968550">Povoliť jazyk Java</translation>
+<translation id="1076818208934827215">Microsoft Internet Explorer</translation>
+<translation id="9154072353677278078">Server <ph name="DOMAIN"/> na adrese <ph name="REALM"/> vyžaduje používateľské meno a heslo.</translation>
+<translation id="2193841602817119749">Webová stránka na adrese &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; bola nahlásená ako stránka s phishingom. Stránky s phishingom majú oklamať používateľov, aby zadali svoje osobné alebo finančné informácie. Takéto stránky sa často prezentujú ako stránky dôveryhodných inštitúcií, napríklad banky.</translation>
+<translation id="8178665534778830238">Obsah:</translation>
+<translation id="1379170046778889619">Informácie o zabezpečení</translation>
+<translation id="1818606096021558659">Stránka</translation>
+<translation id="7982789257301363584">Sieť</translation>
+<translation id="4108206167095122329">Odstrániť &amp;všetko</translation>
+<translation id="7481475534986701730">Nedávno navštívené stránky</translation>
+<translation id="4565377596337484307">Skryť heslo</translation>
+<translation id="762917759028004464">Predvolený prehliadač je momentálne <ph name="BROWSER_NAME"/></translation>
+<translation id="9213479837033539041">Počet zvyšných sekúnd: <ph name="NUMBER_MANY"/></translation>
+<translation id="6391832066170725637">Súbor alebo adresár sa nenašiel.</translation>
+<translation id="8256087479641463867">Prispôsobiť nastavenia</translation>
+<translation id="7070442422749762650">Otvorenie webovej stránky na adrese &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt; zapríčinilo príliš veľa presmerovaní.  Vyčistenie súborov cookie pre túto webovú stránku môže vyriešiť problém.  Ak to nepomôže, môže sa jednať o nesprávnu konfiguráciu servera, nie o problém s vaším počítačom.</translation>
+<translation id="7931071620596053769">Niektoré z nasledujúcich stránok prestali reagovať. Môžete počkať, kým začnú reagovať, alebo ich nútene ukončiť.</translation>
+<translation id="1209866192426315618">Počet zvyšných minút: <ph name="NUMBER_DEFAULT"/></translation>
+<translation id="2179052183774520942">Pridať vyhľadávací mechanizmus</translation>
+<translation id="2956948609882871496">Importovať záložky...</translation>
+<translation id="1621207256975573490">Uložiť &amp;rám ako...</translation>
+<translation id="2278562042389100163">Otvoriť okno prehliadača</translation>
+<translation id="4589279373639964403">Exportovať záložky...</translation>
+<translation id="5463275305984126951">Index adresára <ph name="LOCATION"/></translation>
+<translation id="5154917547274118687">Pamäť</translation>
+<translation id="873849583815421063">Dokončuje sa...</translation>
+<translation id="5819484510464120153">Vytvoriť &amp;skratky pre aplikácie...</translation>
+<translation id="1748246833559136615">Ukončiť</translation>
+<translation id="8927064607636892008">Vyskytla sa neznáma chyba pri zobrazovaní tejto webovej stránky. Ak chcete pokračovať, kliknite na tlačidlo Obnoviť alebo otvorte inú stránku.</translation>
+<translation id="5667293444945855280">Škodlivý softvér</translation>
+<translation id="5613020302032141669">Šípka doľava</translation>
+<translation id="3433489605821183222">Certifikát servera obsahuje chyby</translation>
+<translation id="6479177161510354016">Výstraha pre stránku <ph name="SITE"/></translation>
+<translation id="6698381487523150993">Vytvorené:</translation>
+<translation id="4684748086689879921">Vynechať import</translation>
+<translation id="5516565854418269276">&amp;Vždy zobraziť panel so záložkami</translation>
+<translation id="6426222199977479699">Chyba protokolu SSL</translation>
+<translation id="443008484043213881">Nástroje</translation>
+<translation id="314605055819837597">Údaje používateľa</translation>
+<translation id="8534801226027872331">V tomto prípade váš prehliadač prijal certifikát, ktorý obsahuje chyby a nedá sa spracovať. Znamená to, že prehliadač nerozumie informáciám v certifikáte, ktoré sa týkajú identity alebo sa používajú na zabezpečenie pripojenia. Nemali by ste pokračovať.</translation>
+<translation id="4422347585044846479">Upraviť záložku pre túto stránku</translation>
+<translation id="6370820475163108109"><ph name="ORGANIZATION_NAME"/> (<ph name="DOMAIN_NAME"/>)</translation>
+<translation id="8820817407110198400">Záložky</translation>
+<translation id="2994458892329442723">Povoliť doplnkové moduly</translation>
+<translation id="1669397342410349095">Nahlásiť phishingovú webovú stránku...</translation>
+<translation id="1674989413181946727">Nastavenia protokolu SSL na úrovni počítača:</translation>
+<translation id="1773709998578631869">Prebieha preberanie súborov (počet: <ph name="DOWNLOAD_COUNT"/>). Ak teraz zatvoríte aplikáciu Google Chrome, preberanie týchto súborov bude zrušené.</translation>
+<translation id="8703575177326907206">Vaše pripojenie k doméne <ph name="DOMAIN"/> sa nešifruje.</translation>
+<translation id="1644574205037202324">História</translation>
+<translation id="2518917559152314023">&amp;Pridať...</translation>
+<translation id="4510290974676570902">Typ MIME</translation>
+<translation id="5565725983873655007">Ak bezpečné stránky (SSL) obsahujú zmiešaný obsah:</translation>
+<translation id="4419098590196511435">Niečo chýba</translation>
+<translation id="3512466011168167042">Zobraziť návrhy pre chyby navigácie</translation>
+<translation id="7767960058630128695">Heslá:</translation>
+<translation id="6518014396551869914">&amp;Kopírovať obrázok</translation>
+<translation id="4120898696391891645">Stránka sa nenačíta</translation>
+<translation id="5584537427775243893">Importovanie</translation>
+<translation id="4181841719683918333">Jazyky</translation>
+<translation id="6451650035642342749">Odstrániť nastavenia automatického otvárania</translation>
+<translation id="7121570032414343252">Počet sekúnd: <ph name="NUMBER_TWO"/></translation>
+<translation id="5098629044894065541">Hebrejské</translation>
+<translation id="7751559664766943798">Vždy zobraziť panel so záložkami</translation>
+<translation id="7511635910912978956">Počet zvyšných hodín: <ph name="NUMBER_FEW"/></translation>
+<translation id="1720675772864601791">Povoliť nezabezpečené obrázky</translation>
+<translation id="2167276631610992935">JavaScript</translation>
+<translation id="5233638681132016545">Nová karta</translation>
+<translation id="5210365745912300556">Zatvoriť kartu</translation>
+<translation id="8806796506533854282">Zadajte názov nového profilu</translation>
+<translation id="5948410903763073882">Alt+<ph name="KEY_COMBO_NAME"/></translation>
+<translation id="8571852575982769756">Nie sú nainštalované žiadne doplnkové moduly</translation>
+<translation id="7925285046818567682">Čakanie na <ph name="HOST_NAME"/>...</translation>
+<translation id="3280237271814976245">Uložiť &amp;ako...</translation>
+<translation id="5300471193642408424">Zobraziť stránky</translation>
+<translation id="7658239707568436148">Zrušiť</translation>
+<translation id="2154710561487035718">Kopírovať adresu URL</translation>
+<translation id="4244236525807044920">Zmeniť nastavenia písma a jazyka</translation>
+<translation id="2679629658858164554">Adresa URL stránky:</translation>
+<translation id="6746124502594467657">Presunúť nadol</translation>
+<translation id="3383487468758466563">Písma a jazyky:</translation>
+<translation id="6163363155248589649">&amp;Normálny</translation>
+<translation id="7222373446505536781">F11</translation>
+<translation id="3873963583678942942">(Bez názvu)</translation>
+<translation id="8725178340343806893">Obľúbené položky/záložky</translation>
+<translation id="3605499851022050619">diagnostická stránka Safe Browsing (bezpečné prehliadanie)</translation>
+<translation id="4307992518367153382">Základy</translation>
+<translation id="5912378097832178659">&amp;Upraviť vyhľadávacie mechanizmy...</translation>
+<translation id="4813345808229079766">Pripojenie</translation>
+<translation id="411666854932687641">Súkromná pamäť</translation>
+<translation id="119944043368869598">Vymazať všetko</translation>
+<translation id="4200983522494130825">Nová &amp;karta</translation>
+<translation id="5455790498993699893"><ph name="ACTIVE_MATCH"/> z <ph name="TOTAL_MATCHCOUNT"/></translation>
+<translation id="2303544859777878640">Jazyky:</translation>
+<translation id="2021921916539001817">Prenos z <ph name="HOST_NAME"/>...</translation>
+<translation id="6909042471249949473">Vyčistiť údaje z tohto obdobia:</translation>
+<translation id="7615851733760445951">&lt;žiadny vybratý súbor cookie&gt;</translation>
+<translation id="3660179305079774227">Šípka nahor</translation>
+<translation id="7400418766976504921">Adresa URL</translation>
+<translation id="5392041771307264501">Vyberte profil na otvorenie nového okna</translation>
+<translation id="68541483639528434">Zatvoriť ostatné karty</translation>
+<translation id="2897878306272793870">Naozaj chcete otvoriť tento počet kariet: <ph name="TAB_COUNT"/>?</translation>
+<translation id="362276910939193118">Zobraziť celú históriu</translation>
+<translation id="692135145298539227">odstrániť</translation>
+<translation id="2663762871503078613">Import:</translation>
+<translation id="1635247229519770914">Pokračovať v inštalácii</translation>
+<translation id="8945419807169257367">Certifikát servera sa nedá overiť.</translation>
+<translation id="5872213955895293073">Ladiť jazyk JavaScript</translation>
+<translation id="1965338962645102116">Ak chcete importovať záložky z Panela s nástrojmi do prehliadača Chrome, musíte byť prihlásení vo svojom účte Google. Prihláste sa a skúste import znovu.</translation>
+<translation id="5903264686717710770">Názov:</translation>
+<translation id="8899851313684471736">Otvoriť odkaz v novom &amp;okne</translation>
+<translation id="6686490380836145850">Zatvoriť karty vpravo</translation>
+<translation id="5608669887400696928">Počet hodín: <ph name="NUMBER_DEFAULT"/></translation>
+<translation id="3990502903496589789">Pravý okraj</translation>
+<translation id="5303890401939113396">Ladiaci program jazyka JavaScript – Prerušenie</translation>
+<translation id="2423578206845792524">Uložiť &amp;obrázok ako...</translation>
+<translation id="9068931793451030927">Cesta:</translation>
+<translation id="7052402604161570346">Tento typ súborov môže poškodiť váš počítač. Naozaj chcete prevziať súbor <ph name="FILE_NAME"/>?</translation>
+<translation id="8642489171979176277">Importované z Panela s nástrojmi Google</translation>
+<translation id="2011110593081822050">Webový pracovník:  <ph name="WORKER_NAME"/></translation>
+<translation id="350069200438440499">Názov súboru:</translation>
+<translation id="8494979374722910010">Zlyhal pokus o pripojenie k serveru.</translation>
+<translation id="8507996248087185956">Počet minút: <ph name="NUMBER_DEFAULT"/></translation>
+<translation id="5296476177639202243">Pre dopyt „<ph name="SEARCH_TEXT"/>“ sa nenašli žiadne záložky.</translation>
+<translation id="939736085109172342">Nový priečinok</translation>
+<translation id="2009541932026160416">Kliknutím na tlačidlo <ph name="CROSS_IMAGE"/> odstránite miniatúru</translation>
+<translation id="5641560969478423183">Certifikát servera sa nezhoduje s adresou URL</translation>
+<translation id="121827551500866099">Zobraziť všetky prevzaté súbory...</translation>
+<translation id="3115147772012638511">Čakanie na vyrovnávaciu pamäť...</translation>
+<translation id="1426410128494586442">Áno</translation>
+<translation id="6513615899227776181">Doplnkový modul: <ph name="PLUGIN_NAME"/></translation>
+<translation id="3520476450377425184">Počet zvyšných dní: <ph name="NUMBER_MANY"/></translation>
+<translation id="1059307158073710225">Skontrolovať pravopis:</translation>
+<translation id="7643817847124207232">Prerušilo sa pripojenie na internet.</translation>
+<translation id="758007724455091072">Vytvoriť pre tento profil odkaz na pracovnej ploche</translation>
+<translation id="932327136139879170">Home</translation>
+<translation id="5600907569873192868">Počet zvyšných minút: <ph name="NUMBER_MANY"/></translation>
+<translation id="908263542783690259">Vyčistiť históriu prehľadávania</translation>
+<translation id="7484645889979462775">Nikdy pre túto stránku</translation>
+<translation id="8666066831007952346">Počet zvyšných dní: <ph name="NUMBER_TWO"/></translation>
+<translation id="6390842777729054533">Počet zvyšných sekúnd: <ph name="NUMBER_ZERO"/></translation>
+<translation id="3909791450649380159">&amp;Vystrihnúť</translation>
+<translation id="2955913368246107853">Zatvoriť panel pre vyhľadávanie</translation>
+<translation id="3122464029669770682">CPU</translation>
+<translation id="1684861821302948641">Nútene ukončiť stránky</translation>
+<translation id="5965640700983474726">Zadajte text na vyhľadanie</translation>
+<translation id="2142570832281562688">Zadajte názov profilu</translation>
+<translation id="5904714272463161824">&amp;Nahlásiť chybu alebo nefunkčnú webovú stránku...</translation>
+<translation id="1608306110678187802">Tlačiť &amp;rám...</translation>
+<translation id="4948468046837535074">Otvoriť tieto stránky:</translation>
+<translation id="6978121630131642226">Vyhľadávacie mechanizmy</translation>
+<translation id="7012108905414904806">Táto stránka však obsahuje iné zdroje, ktoré nie sú bezpečné. Tieto zdroje sa dajú zobraziť pri prenose a útočník ich môže upraviť tak, aby mali rovnaký vzhľad alebo správanie ako stránka.</translation>
+<translation id="4515911410595374805">Niektoré prvky na tejto stránke pochádzajú z neovereného zdroja a nezobrazili sa.</translation>
+<translation id="1195447618553298278">Neznáma chyba.</translation>
+<translation id="1087119889335281750">&amp;Žiadne pravopisné návrhy</translation>
+<translation id="5076340679995252485">&amp;Vložiť</translation>
+<translation id="14171126816530869">Identita spoločnosti <ph name="ORGANIZATION"/> so sídlom <ph name="LOCALITY"/> bola overená spoločnosťou <ph name="ISSUER"/>.</translation>
+<translation id="1587275751631642843">&amp;Konzola jazyka JavaScript</translation>
+<translation id="5821894118254011366">Úplne blokovať súbory cookie tretej strany</translation>
+<translation id="1134009406053225289">Otvoriť v okne inkognito</translation>
+<translation id="3473105180351527598">Povoliť ochranu pred phishingom a malware</translation>
+<translation id="6151323131516309312">Stlačte kláves <ph name="SEARCH_KEY"/> na prehľadanie stránky <ph name="SITE_NAME"/></translation>
+<translation id="2342959293776168129">Vyčistiť históriu preberania</translation>
+<translation id="2503522102815150840">Zlyhanie prehliadača...</translation>
+<translation id="6786747875388722282">Rozšírenia</translation>
+<translation id="2815500128677761940">Panel so záložkami</translation>
+<translation id="8041183585493091279">Adresa URL služby návrhov:</translation>
+<translation id="9189691339671500905">Nastavte vyhľadávací mechanizmus, ktorý sa použije v poli.</translation>
+<translation id="4571852245489094179">&amp;Importovať záložky a nastavenia...</translation>
+<translation id="6514771739083339959">Domovská stránka:</translation>
+<translation id="4421917670248123270">Zatvoriť a zrušiť preberania</translation>
+<translation id="5605623530403479164">Ostatné vyhľadávacie mechanizmy</translation>
+<translation id="5710435578057952990">Identita tejto webovej stránky nebola overená.</translation>
+<translation id="5287240709317226393">Zobraziť súbory cookie</translation>
+<translation id="333371639341676808">Zakázať tejto stránke otvárať ďalšie dialógové okná.</translation>
+<translation id="5844183150118566785">Produkt <ph name="PRODUCT_NAME"/> má najnovšiu verziu (<ph name="VERSION"/>)</translation>
+<translation id="7791543448312431591">Pridať</translation>
+<translation id="772440777491435074">Informácie o certifikáte...</translation>
+<translation id="2869459179306435079">Importovať nastavenia z:</translation>
+<translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
+<translation id="3369624026883419694">Rozpoznávanie hostiteľa...</translation>
+<translation id="3967132639560659870">Na tejto stránke je niekoľko chýb protokolu SSL:</translation>
+<translation id="175196451752279553">Znovu o&amp;tvoriť zatvorenú kartu</translation>
+<translation id="5039804452771397117">Povoliť</translation>
+<translation id="2266011376676382776">Stránka/-y nereaguje</translation>
+<translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
+<translation id="5782620817391526544">Panel so záložkami</translation>
+<translation id="3493653833301553455">Automatické dopĺňanie formulára:</translation>
+<translation id="644038709730536388">Získajte viac informácií o spôsoboch ochrany pred škodlivým softvérom online.</translation>
+<translation id="4172706149171596436">Zmeniť nastavenia proxy</translation>
+<translation id="5650551054760837876">Nenašli sa žiadne výsledky vyhľadávania.</translation>
+<translation id="3234408098842461169">Šípka nadol</translation>
+<translation id="825608351287166772">Certifikáty majú časovo vymedzenú platnosť, rovnako ako každý identifikačný doklad, napríklad cestovný pas. Certifikát prijatý vaším prehliadačom ešte nie je platný! Ak sa skončila platnosť certifikátu, už sa nemusia udržiavať niektoré informácie o stave certifikátu (napríklad, či je zrušený a nemali by ste mu už dôverovať). Dôveryhodnosť tohto certifikátu sa však nedá overiť. Nemali by ste pokračovať.</translation>
+<translation id="2742457360514408037">Blokované automaticky otvárané okná: <ph name="COUNT"/></translation>
+<translation id="4874539263382920044">Názov musí obsahovať minimálne jeden znak</translation>
+<translation id="3549657413697417275">Prehľadať históriu</translation>
+<translation id="4250680216510889253">Nie</translation>
+<translation id="7905536804357499080">Použiť aktuálnu</translation>
+<translation id="7378810950367401542">/</translation>
+<translation id="3087734570205094154">Spodok</translation>
+<translation id="1871540228654219948">Webové stránky na adrese &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; obsahujú prvky z webových stránok, na ktorých sa zrejme nachádza škodlivý softvér – softvér, ktorý môže poškodiť váš počítač alebo vykonávať rôzne operácie bez vášho vedomia. Váš počítač sa môže infikovať už aj pri návšteve webových stránok, ktoré obsahujú škodlivý softvér.</translation>
+<translation id="8899388739470541164">Vietnamské</translation>
+<translation id="4089663545127310568">Vyčistiť uložené heslá</translation>
+<translation id="6500444002471948304">Pridať priečinok...</translation>
+<translation id="2794293857160098038">Predvolené možnosti vyhľadávania</translation>
+<translation id="5935630983280450497">Počet zvyšných minút: <ph name="NUMBER_ONE"/></translation>
+<translation id="5496587651328244253">Usporiadať</translation>
+<translation id="5568069709869097550">Nedá sa prihlásiť</translation>
+<translation id="4181898366589410653">V certifikáte servera sa nenašiel žiadny mechanizmus rušenia certifikátov.</translation>
+<translation id="6364916375976753737">Rolovať doľava</translation>
+<translation id="1665770420914915777">Použiť stránku Nová karta</translation>
+<translation id="7789175495288668515">Zmeňte predvolené možnosti inštalácie.</translation>
+<translation id="347250956943431997">Certifikát servera jel zrušený</translation>
+<translation id="9087164549070846958">Ak však pracujete v organizácii, ktorá generuje svoje vlastné certifikáty, a snažíte sa pripojiť k internej webovej stránke organizácie, ktorá používa takýto certifikát, tento problém môžete bezpečne vyriešiť. Koreňový certifikát vašej organizácie môžete naimportovať ako „koreňový certifikát“. Keď sa znovu pokúsite pripojiť k internej webovej stránka, táto chyba sa už nezobrazí, pretože certifikáty vydané alebo overené vašou spoločnosťou sa považujú za dôveryhodné. Ak potrebujete pomoc pri pridávaní nového koreňového certifikátu do systému Windows, kontaktujte personál technickej podpory vašej organizácie.</translation>
+<translation id="7977590112176369853">&lt;zadajte dotaz&gt;</translation>
+<translation id="5155632014218747366">Podrobné informácie o problémoch na týchto stránkach nájdete na stránke Google <ph name="DIAGNOSTIC_PAGE"/> pre doménu <ph name="DOMAIN"/>.</translation>
+<translation id="1120026268649657149">Kľúčové slovo musí byť prázdne alebo jedinečné</translation>
+<translation id="5317780077021120954">Uložiť</translation>
+<translation id="358344266898797651">Keltské</translation>
+<translation id="5055518462594137986">Pamätať si moju voľbu pre všetky odkazy tohto typu.</translation>
+<translation id="2870560284913253234">Webová stránka</translation>
+<translation id="4164507027399414915">Obnoviť všetky odstránené miniatúry</translation>
+<translation id="7543025879977230179">Možnosti produktu <ph name="PRODUCT_NAME"/></translation>
+<translation id="2648845569394238430">Prehľadať:</translation>
+<translation id="2175607476662778685">Panel Rýchle spustenie</translation>
+<translation id="6434309073475700221">Odstrániť</translation>
+<translation id="1425127764082410430">Pomocou &amp;služby <ph name="SEARCH_ENGINE"/> vyhľadať text „<ph name="SEARCH_TERMS"/>“</translation>
+<translation id="877010697526426622">Webová stránka na adrese &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt; je dočasne nedostupná alebo sa trvalo presunula na novú adresu.</translation>
+<translation id="4378551569595875038">Pripájanie...</translation>
+<translation id="7029809446516969842">Heslá</translation>
+<translation id="8211437954284917092">Ak chcete hľadať vo svojich záložkách, zadajte dopyt do textového poľa uvedeného vyššie.</translation>
+<translation id="5958418293370246440"><ph name="SAVED_FILES"/> z <ph name="TOTAL_FILES"/> súborov</translation>
+<translation id="6805291412499505360">Obmedziť spôsob použitia súborov cookie tretích strán</translation>
+<translation id="1201402288615127009">Ďalej</translation>
+<translation id="370665806235115550">Načítava sa...</translation>
+<translation id="6592392877063354583">Stránka na adrese <ph name="SECURE_PAGE_URL"/> obsahuje nezabezpečený obsah z adresy <ph name="INSECURE_RESOURCE_URL"/>.</translation>
+<translation id="3810973564298564668">Spravovať</translation>
+<translation id="254416073296957292">&amp;Nastavenie jazyka...</translation>
+<translation id="4222982218026733335">Neplatný certifikát servera</translation>
+<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Aktivovali ste prehľadávanie inkognito<ph name="END_BOLD"/>. Stránky, ktoré si prezeráte v tomto okne, sa nezobrazia v histórii prehliadača ani v histórii vyhľadávania. Na rozdiel od súborov cookie po zatvorení okna inkognito v počítači nevytvoria žiadny záznam. Akékoľvek načítané súbory alebo vytvorené záložky sa však uchovajú.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Prehľadávanie inkognito neovplyvňuje správanie ostatných ľudí, serverov ani softvéru. Venujte zvýšenú pozornosť:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>Webovým stránkam, ktoré zbierajú alebo zdieľajú vaše osobné informácie<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Poskytovateľom internetových služieb alebo zamestnancom, ktorí sledujú vami navštívené stránky<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Škodlivému softvéru, ktorý sleduje vami stlačené klávesy výmenou za bezplatné „smajlíky“ <ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Pozorovaniu tajnými agentmi<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>Ľuďom stojacim za vaším chrbtom<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Viac informácií<ph name="END_LINK"/> o prehliadaní inkognito.</translation>
+<translation id="4439241094464540230">&lt;Nový profil&gt;...</translation>
+<translation id="1813414402673211292">Vyčistiť údaje o prehľadávaní</translation>
+<translation id="2356762928523809690">Server aktualizácií nie je dostupný (chyba: <ph name="ERROR_NUMBER"/>)</translation>
+<translation id="5436510242972373446">Prehľadať webovú stránku <ph name="SITE_NAME"/>:</translation>
+<translation id="8730621377337864115">Hotovo</translation>
+<translation id="2953767478223974804"><ph name="NUMBER_ONE"/> minúta</translation>
+<translation id="8210608804940886430">Stránkovať nadol</translation>
+<translation id="5015344424288992913">Určenie proxy...</translation>
+<translation id="2398703750948514961">Zrušené</translation>
+<translation id="3675321783533846350">Nastavte proxy na pripojenie do siete.</translation>
+<translation id="1572103024875503863">Počet dní: <ph name="NUMBER_MANY"/></translation>
+<translation id="8453184121293348016">Nenašiel sa žiadny mechanizmus rušenia certifikátov.</translation>
+<translation id="7163503212501929773">Počet zvyšných hodín: <ph name="NUMBER_MANY"/></translation>
+<translation id="3283719377675052581">neznámy</translation>
+<translation id="374530189620960299">Bezpečnostný certifikát webovej stránky nie je dôveryhodný!</translation>
+<translation id="5048040498971143039">Výsledky vyhľadávania pre výraz „<ph name="SEARCH_STRING"/>“</translation>
+<translation id="5453632173748266363">Cyrilika</translation>
+<translation id="5329858601952122676">&amp;Odstrániť</translation>
+<translation id="6100736666660498114">Ponuka Štart</translation>
+<translation id="1120098871254928930">Povoliť načítanie celého obsahu</translation>
+<translation id="3994878504415702912">&amp;Lupa</translation>
+<translation id="5602600725402519729">Znova &amp;načítať</translation>
+<translation id="9010612682952491200">Nová karta [<ph name="PROFILE_NAME"/>]</translation>
+<translation id="7965010376480416255">Zdieľaná pamäť</translation>
+<translation id="6248988683584659830">Nastavenia vyhľadávania</translation>
+<translation id="8887733174653581061">Vždy navrchu</translation>
+<translation id="610886263749567451">Výstraha pre jazyk JavaScript</translation>
+<translation id="8413126021676339697">Zobraziť celú históriu</translation>
+<translation id="8860923508273563464">Počkať na dokončenie preberaní</translation>
+<translation id="1823768272150895732">Písmo</translation>
+<translation id="4475552974751346499">Prehľadať prevzaté súbory</translation>
+<translation id="1111153019813902504">Posledné záložky</translation>
+<translation id="3786934874263773074">&amp;Nájsť na stránke</translation>
+<translation id="6295228342562451544">Keď sa pripojíte k zabezpečenej webovej stránke, server hosťujúci stránku vášmu prehliadaču poskytne informácie nazývané „certifikát“. Certifikát slúži na overenie identity servera. Certifikát obsahuje informácie o identite (napríklad adresa webovej stránky), overené treťou stranou, ktorej váš počítač dôveruje. Kontrolou zhody adresy v certifikáte s adresou webovej stránky sa dá určiť, či naozaj bezpečne komunikujete s požadovanou webovou stránkou, a nie s treťou stranou (napríklad s útočníkom na vašu sieť).</translation>
+<translation id="5502500733115278303">Importované z prehliadača Firefox</translation>
+<translation id="569109051430110155">Zistiť automaticky</translation>
+<translation id="4408599188496843485">P&amp;omocník</translation>
+<translation id="2800662284745373504">Certifikát servera je neplatný</translation>
+<translation id="2681441671465314329">Vyprázdniť vyrovnávaciu pamäť</translation>
+<translation id="6222380584850953107">Zobraziť uložené heslá</translation>
+<translation id="1521442365706402292">Spravovať certifikáty</translation>
+<translation id="7887998671651498201">Nasledujúci doplnkový modul prestal reagovať: <ph name="PLUGIN_NAME"/>Chcete ho zastaviť?</translation>
+<translation id="8088823334188264070">Počet sekúnd: <ph name="NUMBER_MANY"/></translation>
+<translation id="3712897371525859903">Uložiť stránku &amp;ako...</translation>
+<translation id="3433151241941574321">Pridať stránku</translation>
+<translation id="7910768399700579500">&amp;Nový priečinok</translation>
+<translation id="6883611015375728278">Blokovať všetky súbory cookie</translation>
+<translation id="3819791248093819058">Nenašla sa žiadna webová stránka pre webovú adresu: &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;</translation>
+<translation id="8942948210663084792">Vymazanie údajov:</translation>
+<translation id="6710213216561001401">Dozadu</translation>
+<translation id="583281660410589416">Neznámy</translation>
+<translation id="5528368756083817449">Správca záložiek</translation>
+<translation id="1560991001553749272">Záložka je pridaná.</translation>
+<translation id="3966072572894326936">Vybrať iný priečinok...</translation>
+<translation id="7781829728241885113">Včera</translation>
+<translation id="7596288230018319236">Zobrazia sa tu všetky navštívené stránky, okrem stránok otvorených v utajenom okne. Na prehľadanie všetkých stránok vo svojej histórii môžete použiť tlačidlo Prehľadať.</translation>
+<translation id="2665163749053788434">História návštev</translation>
+<translation id="7434509671034404296">Vývojár</translation>
+<translation id="6447842834002726250">Súbory cookie</translation>
+<translation id="5170568018924773124">Zobraziť v priečinku</translation>
+<translation id="2674170444375937751">Naozaj chcete odstrániť tieto stránky zo svojej histórie?</translation>
+<translation id="7334704644505105275">Ladiaci program jazyka JavaScript – Aktívny</translation>
+<translation id="7629827748548208700">Karta: <ph name="TAB_NAME"/></translation>
+<translation id="8028993641010258682">Veľkosť</translation>
+<translation id="1383876407941801731">Hľadať</translation>
+<translation id="8398877366907290961">Pokračovať!</translation>
+<translation id="290414493736480793">Poďakovanie</translation>
+<translation id="6449085810994685586">&amp;Skontrolovať pravopis tohto poľa</translation>
+<translation id="50960180632766478">Počet zvyšných minút: <ph name="NUMBER_FEW"/></translation>
+<translation id="8664389313780386848">&amp;Zobraziť zdrojový kód stránky</translation>
+<translation id="3089982169226026948">Vyberte profil</translation>
+<translation id="57646104491463491">Dátum úpravy</translation>
+<translation id="3867260226944967367">Táto webová stránka sa nenašla.</translation>
+<translation id="6507969014813375884">Zjednodušená čínština</translation>
+<translation id="1767991048059195456">Odoslať prehľad</translation>
+<translation id="5646376287012673985">Umiestnenie</translation>
+<translation id="1110155001042129815">Čakajte, prosím.</translation>
+<translation id="7071586181848220801">Neznámy doplnkový modul</translation>
+<translation id="8235325155053717782">Chyba <ph name="ERROR_NUMBER"/> (<ph name="ERROR_NAME"/>): <ph name="ERROR_TEXT"/></translation>
+<translation id="1084824384139382525">Kopírovať adre&amp;su odkazu</translation>
+<translation id="5042992464904238023">Webový obsah</translation>
+<translation id="1181037720776840403">Odstrániť</translation>
+<translation id="59174027418879706">Povolené</translation>
+<translation id="8141503649579618569"><ph name="DOWNLOAD_RECEIVED"/>/<ph name="DOWNLOAD_TOTAL"/>, <ph name="TIME_LEFT"/></translation>
+<translation id="2534091581909016888"><ph name="SITE"/></translation>
+<translation id="6659594942844771486">Tab</translation>
+<translation id="5452592754878692665">Zmeniť nastavenia služby Google Gears</translation>
+<translation id="5316814419223884568">hľadať odtiaľto</translation>
+<translation id="965674096648379287">Na správne zobrazenie tejto webovej stránky sa vyžadujú údaje, ktoré ste už zadali. Tieto údaje môžete odoslať znovu, ale zopakujete tým akciu, ktorú už táto stránka vykonala. Ak chcete znovu odoslať údaje a zobraziť túto stránku, kliknite na tlačidlo Obnoviť.</translation>
+<translation id="43742617823094120">V tomto prípade váš prehliadač prijal certifikát, ktorý je zrušený jeho vydavateľom. Zvyčajne to znamená, že sa narušila integrita certifikátu. Tento certifikát by ste nemali považovať za dôveryhodný. V žiadnom prípade by ste nemali pokračovať ďalej.</translation>
+<translation id="2065985942032347596">Vyžaduje sa autentifikácia</translation>
+<translation id="1175364870820465910">&amp;Tlačiť...</translation>
+<translation id="3866249974567520381">Popis</translation>
+<translation id="5552632479093547648">Zistil sa škodlivý softvér a pokus o neoprávnené získavanie údajov!</translation>
+<translation id="9118804773997839291">Nižšie je uvedený zoznam všetkých nebezpečných prvkov pre stránku. Ak chcete získať viac informácií o konkrétnom prvku, kliknite na odkaz Diagnostika.</translation>
+<translation id="7754704193130578113">Pred každým preberaním sa spýtať, kam uložiť súbor</translation>
+<translation id="2497284189126895209">Všetky súbory</translation>
+<translation id="435463392378565996">Pomocné nastavenia</translation>
+<translation id="5360606537916580043">Posledný deň</translation>
+<translation id="6589689504565594563">Odstrániť súbory cookie</translation>
+<translation id="6833901631330113163">Juhoeurópske</translation>
+<translation id="5256138355144269748">Blokované automaticky otvárané okná</translation>
+<translation id="2820806154655529776"><ph name="NUMBER_ONE"/> sekunda</translation>
+<translation id="3122496702278727796">Nedal sa vytvoriť údajový adresár</translation>
+<translation id="8446970197849314122">Môžete importovať svoje záložky a nastavenia z iných prehliadačov a používateľských účtov v tomto počítači.</translation>
+<translation id="6281636957902664775">Prejsť na adresu <ph name="URL"/></translation>
+<translation id="630065524203833229">U&amp;končiť</translation>
+<translation id="2649204054376361687"><ph name="CITY"/>, <ph name="COUNTRY"/></translation>
+<translation id="5264618369089706215">Vyhľadávania</translation>
+<translation id="1168020859489941584">Čas do otvorenia: <ph name="TIME_REMAINING"/></translation>
+<translation id="7814458197256864873">&amp;Kopírovať</translation>
+<translation id="4692623383562244444">Vyhľadávacie nástroje</translation>
+<translation id="2526590354069164005">Pracovná plocha</translation>
+<translation id="4890284164788142455">Thajčina</translation>
+<translation id="3889424535448813030">Šípka doprava</translation>
+<translation id="5435666907653217300">Iný problém</translation>
+<translation id="8382913212082956454">Kopírovať &amp;e-mailovú adresu</translation>
+<translation id="6419902127459849040">Stredoeurópske</translation>
+<translation id="1714078437629572290">Otvoriť domovskú stránku</translation>
+<translation id="2544782972264605588">Počet zvyšných sekúnd: <ph name="NUMBER_DEFAULT"/></translation>
+<translation id="2454247629720664989">Kľúčové slovo</translation>
+<translation id="614298788004369532">Táto stránka obsahuje niekoľko nezabezpečených prvkov.</translation>
+<translation id="1628736721748648976">Kódovanie</translation>
+<translation id="6521850982405273806">Nahlásiť chybu</translation>
+<translation id="8503813439785031346">Meno používateľa</translation>
+<translation id="290555789621781773">Počet minút: <ph name="NUMBER_TWO"/></translation>
+<translation id="7073704676847768330">Toto pravdepodobne nie je stránka, ktorú hľadáte!</translation>
+<translation id="7642109201157405070">Pokračovať v importe</translation>
+<translation id="6463795194797719782">&amp;Upraviť</translation>
+<translation id="4188026131102273494">Kľúčové slovo:</translation>
+<translation id="2290414052248371705">Zobraziť všetok obsah</translation>
+<translation id="6434892175081553796">Zatvoriť karty otvorené z tejto karty</translation>
+<translation id="3268761268932257769">Automaticky načítavať obrázky</translation>
+<translation id="7227780179130368205">Zistil sa malware!</translation>
+<translation id="3942946088478181888">Pomôžte mi porozumieť</translation>
+<translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (predvolené nastavenie)</translation>
+<translation id="111844081046043029">Naozaj chcete odísť z tejto stránky?</translation>
+<translation id="4497415007571823067">Pokúšate sa otvoriť doménu &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ale v skutočnosti ste skontaktovali server, ktorý sa identifikuje ako &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Môže to spôsobovať nesprávna konfigurácia servera alebo vážnejší problém. Útočník na vašu sieť sa môže snažiť prinútiť vás navštíviť falošnú (a možno škodlivú) verziu domény &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;. Nemali by ste pokračovať.</translation>
+<translation id="3202578601642193415">Najnovšie</translation>
+<translation id="8112886015144590373">Počet hodín: <ph name="NUMBER_FEW"/></translation>
+<translation id="8739589585766515812">Odstrániť históriu z dnešného dňa</translation>
+<translation id="1398853756734560583">Maximalizovať</translation>
+<translation id="3340262871848042885">Skončila sa platnosť certifikátu servera</translation>
+<translation id="8978540966440585844">Pr&amp;ehľadávať...</translation>
+<translation id="6690744523875189208">Počet hodín: <ph name="NUMBER_TWO"/></translation>
+<translation id="3577682619813191010">Kopírovať &amp;súbor</translation>
+<translation id="5260878308685146029">Počet zvyšných minút: <ph name="NUMBER_TWO"/></translation>
+<translation id="2192505247865591433">Od:</translation>
+<translation id="5921544176073914576">Stránka s phishingom</translation>
+<translation id="6192792657125177640">Výnimky</translation>
+<translation id="2822650824848709219">Blokovať všetok nezabezpečený obsah</translation>
+<translation id="1901303067676059328">Vybrať &amp;všetko</translation>
+<translation id="2168039046890040389">Page Up</translation>
+<translation id="1559333154119355392">Prevzaté: <ph name="DOWNLOAD_SIZE"/></translation>
+<translation id="2435457462613246316">Zobraziť heslo</translation>
+<translation id="394984172568887996">Importované z prehliadača IE</translation>
+<translation id="5315873049536339193">Identita</translation>
+<translation id="6144890426075165477"><ph name="PRODUCT_NAME"/> nie je momentálne váš predvolený prehliadač.</translation>
+<translation id="9107059250669762581">Počet dní: <ph name="NUMBER_DEFAULT"/></translation>
+<translation id="872451400847464257">Upraviť vyhľadávací mechanizmus</translation>
+<translation id="6463061331681402734">Počet minút: <ph name="NUMBER_MANY"/></translation>
+<translation id="8717266507183354698">Zobraziť všetky stránky v histórii, ktoré obsahujú text <ph name="SEARCH_TERMS"/></translation>
+<translation id="5645845270586517071">Chyba zabezpečenia</translation>
+<translation id="8695758493354644945">Zobraziť <ph name="NUM_MATCHES"/> posledných stránok v histórii, ktoré obsahujú text <ph name="SEARCH_TERMS"/></translation>
+<translation id="8186012393692847636">Na automatické dokončovanie zadávaných vyhľadávaní a adries URL na paneli s adresou použite službu návrhov.</translation>
+<translation id="4711094779914110278">Turecké</translation>
+<translation id="4002066346123236978">Názov</translation>
+<translation id="9015241028623917394">Riadiť aktuálnu stránku</translation>
+<translation id="7861215335140947162">&amp;Preberanie</translation>
+<translation id="5460429403253574028">Odstrániť miniatúry</translation>
+<translation id="2505402373176859469"><ph name="RECEIVED_AMOUNT"/> z <ph name="TOTAL_SIZE"/></translation>
+<translation id="6644512095122093795">Ponúknuť uloženie hesiel</translation>
+<translation id="5384051050210890146">Vyberte dôveryhodné certifikáty SSL.</translation>
+<translation id="6865323153634004209">Prispôsobiť tieto nastavenia</translation>
+<translation id="154603084978752493">Pridať ako vyhľadávací &amp;mechanizmus...</translation>
+<translation id="3254409185687681395">Vytvoriť záložku pre túto stránku</translation>
+<translation id="1384616079544830839">Identita tejto webovej stránky bola overená spoločnosťou <ph name="ISSUER"/>.</translation>
+<translation id="1800035677272595847">Neoprávnené získavanie údajov (phishing)</translation>
+<translation id="4610637590575890427">Chceli ste prejsť na adresu <ph name="SITE"/>?</translation>
+<translation id="8349305172487531364">Panel so záložkami</translation>
+<translation id="7208899522964477531">Na stránke <ph name="SITE_NAME"/> hľadať text <ph name="SEARCH_TERMS"/></translation>
+<translation id="8004582292198964060">Prehliadač</translation>
+<translation id="2224551243087462610">Upraviť názov priečinka</translation>
+<translation id="5433207235435438329">Jazyk jazykového korektora:</translation>
+<translation id="3183922693828471536">Rolovať na toto miesto</translation>
+<translation id="2527167509808613699">Ľubovoľný typ pripojenia</translation>
+<translation id="1234466194727942574">Ovládací prvok Tabstrip</translation>
+<translation id="4035758313003622889">&amp;Správca úloh</translation>
+<translation id="558442360746014982">Pôvodná správa o chybe je uvedená nižšie</translation>
+<translation id="1768211415369530011">Ak akceptujete túto požiadavku, spustí sa táto aplikácia:\n\n <ph name="APPLICATION"/></translation>
+<translation id="4552416320897244156">PgDwn</translation>
+<translation id="8986267729801483565">Umiestnenie preberaných súborov:</translation>
+<translation id="8318945219881683434">Nedal sa overiť stav zrušenia.</translation>
+<translation id="3191701650141760424">Ukončiť inštaláciu</translation>
+<translation id="3745810751851099214">Poslať pre:</translation>
+<translation id="8877448029301136595">[rodičovský adresár]</translation>
+<translation id="1963227389609234879">Odstrániť všetko</translation>
+<translation id="7052633198403197513">Kláves F1</translation>
+<translation id="2496180316473517155">História prehľadávania</translation>
+<translation id="602251597322198729">Stránka sa pokúša prevziať viacero súborov. Chcete to povoliť?</translation>
+<translation id="2052389551707911401">Počet hodín: <ph name="NUMBER_MANY"/></translation>
+<translation id="6691936601825168937">&amp;Dopredu</translation>
+<translation id="7736284018483078792">Zmeňte jazyk slovníka jazykového korektora.</translation>
+<translation id="2148716181193084225">Dnes</translation>
+<translation id="3574305903863751447"><ph name="CITY"/>, <ph name="STATE"/> <ph name="COUNTRY"/></translation>
+<translation id="4756388243121344051">&amp;História</translation>
+<translation id="4789872672210757069">Informácie o produkte <ph name="PRODUCT_NAME"/></translation>
+<translation id="1017280919048282932">Prid&amp;ať do slovníka</translation>
+<translation id="1829244130665387512">Nájsť na stránke</translation>
+<translation id="4115153316875436289">Počet dní: <ph name="NUMBER_TWO"/></translation>
+<translation id="5107325588313356747">Ak chcete skryť prístup k tomuto programu, musíte ho odinštalovať pomocou\napletu <ph name="CONTROL_PANEL_APPLET_NAME"/> v Ovládacom paneli.\n\nChcete spustiť aplet <ph name="CONTROL_PANEL_APPLET_NAME"/>?</translation>
+<translation id="8627795981664801467">Len bezpečné pripojenia</translation>
+<translation id="2190355936436201913">(prázdne)</translation>
+<translation id="5868426874618963178">Poslať zdrojový kód aktuálnej stránky</translation>
+<translation id="5818003990515275822">Kórejčina</translation>
+<translation id="4182252350869425879">Upozornenie: Podozrenie na stránku s phishingom!</translation>
+<translation id="1164369517022005061">Počet zvyšných hodín: <ph name="NUMBER_DEFAULT"/></translation>
+<translation id="2214283295778284209">Stránka <ph name="SITE"/> je nedostupná.</translation>
+<translation id="7552620667503495646">Otvoriť rám na novej &amp;karte</translation>
+<translation id="8755376271068075440">&amp;Väčší</translation>
+<translation id="8187473050234053012">Bezpečnostný certifikát servera je zrušený!</translation>
+<translation id="152482086482215392">Zostáva <ph name="NUMBER_ONE"/> sekunda</translation>
+<translation id="8447116497070723931">PgUp</translation>
+<translation id="1970746430676306437">Zobraziť i&amp;nformácie o stránke</translation>
+<translation id="4588090240171750605">Rolovať doprava</translation>
+<translation id="8940262601983387853">Názov súboru cookie</translation>
+<translation id="8053959338015477773">Na zobrazenie niektorých prvkov na tejto stránke sa vyžaduje doplnkový modul.</translation>
+<translation id="4666192354592784528">Táto stránka sa nedá celá získať cez bezpečné pripojenie.  Stránka obsahuje niekoľko prvkov, ktoré sa získali cez nezabezpečené pripojenia.</translation>
+<translation id="7414887922320653780">Zostáva <ph name="NUMBER_ONE"/> hodina</translation>
+<translation id="399179161741278232">Importované</translation>
+<translation id="3927932062596804919">Odmietnuť</translation>
+<translation id="6484929352454160200">Je k dispozícii nová verzia produktu {<ph name="PRODUCT_NAME"/></translation>
+<translation id="7035824132811506448">Naposledy pridané</translation>
+<translation id="2371076942591664043">Otvoriť po prebratí</translation>
+<translation id="6069278982995177296">Duplikovať</translation>
+<translation id="2979639724566107830">Otvoriť v novom okne</translation>
+<translation id="2822854841007275488">Arabské</translation>
+<translation id="2815448242176260024">Nikdy neukladať heslá</translation>
+<translation id="2666092431469916601">Vrch</translation>
+<translation id="4047498523333824092">Obnoviť naposledy otvorené stránky</translation>
+<translation id="6503077044568424649">Najviac navštevované</translation>
+<translation id="1040471547130882189">Doplnkový modul nereaguje</translation>
+<translation id="790025292736025802">Adresa <ph name="URL"/> sa nenašla</translation>
+<translation id="895347679606913382">Spúšťa sa...</translation>
+<translation id="3319048459796106952">Nové okno i&amp;nkognito</translation>
+<translation id="4195643157523330669">Otvoriť na novej karte</translation>
+<translation id="4178055285485194276">Pri spustení:</translation>
+<translation id="1154228249304313899">Otvoriť túto stránku:</translation>
+<translation id="3627588569887975815">Otvoriť odkaz v &amp;utajenom okne</translation>
+<translation id="5578327870501192725">Vaše pripojenie k doméne <ph name="DOMAIN"/> sa šifruje <ph name="BIT_COUNT"/>-bitovou šifrou.</translation>
+<translation id="7079333361293827276">Certifikát servera nie je dôveryhodný</translation>
+<translation id="8331626408530291785">Rolovať nahor</translation>
+<translation id="1526560967942511387">Dokument bez názvu</translation>
+<translation id="5538307496474303926">Čistí sa...</translation>
+<translation id="6783679543387074885">Nahlásiť chybu alebo nefunkčnú webovú stránku</translation>
+<translation id="5285267187067365830">Inštalovať doplnkový modul...</translation>
+<translation id="8015746205953933323">Táto webová stránka nie je k dispozícii.</translation>
+<translation id="8520668773617044689">Firefox</translation>
+<translation id="8434177709403049435">&amp;Kódovanie</translation>
+<translation id="7895330511272068835">Informácie o doplnkových moduloch</translation>
+<translation id="9012607008263791152">Som si vedomý, že návšteva tejto stránky môže poškodiť môj počítač.</translation>
+<translation id="6004539838376062211">&amp;Možnosti kontroly pravopisu</translation>
+<translation id="7887334752153342268">Duplikovať</translation>
+<translation id="703748601351783580">Otvoriť všetky záložky v novom okne</translation>
+<translation id="1293699935367580298">Esc</translation>
+<translation id="8502249598105294518">Prispôsobiť a spravovať prehliadač <ph name="PRODUCT_NAME"/></translation>
+<translation id="815598010540052116">Rolovať nadol</translation>
+<translation id="5291303148298143069">Upozorniť na blokovanie automaticky otváraného okna</translation>
+<translation id="2115926821277323019">Musíte zadať platnú adresu URL</translation>
+<translation id="7397054681783221164">Odstrániť tieto položky:</translation>
+<translation id="4891251785049117953">Odstrániť údaje uloženého formulára</translation>
+<translation id="5230516054153933099">Okno</translation>
+<translation id="7554791636758816595">Nová karta</translation>
+<translation id="4400697530699263877">Zlepšiť výkon načítavania stránok pomocou predvýberu DNS</translation>
+<translation id="1086613338090581534">Ak sa platnosť certifikátu ešte neskončila, vydavateľ certifikátu zodpovedá za udržiavanie „zoznamu zrušených certifikátov“. Ak by bol certifikát skompromitovaný, vydavateľ ho môže zrušiť pridaním do zoznamu zrušených certifikátov a váš prehliadač už tento certifikát nebude považovať za dôveryhodný. Stav zrušenia certifikátov so skončenou platnosťou sa nemusí udržiavať. Kým je tento certifikát platný pre navštívenú webovú stránku, nie je možné určiť, či bol certifikát kompromitovaný a následne zrušený alebo či zostáva naďalej bezpečný. Z tohto dôvodu nie je možné určiť, či komunikujete s legitímnou webovou stránkou alebo či bol certifikát kompromitovaný a v skutočnosti komunikujete s útočníkom, ktorý si tento certifikát privlastnil. Nemali by ste pokračovať ďalej.</translation>
+<translation id="3157931365184549694">Obnoviť</translation>
+<translation id="6059232451013891645">Priečinok:</translation>
+<translation id="8182985032676093812">Zdrojový kód pre <ph name="PAGE_URL"/></translation>
+<translation id="7042418530779813870">Vl&amp;ožiť a hľadať</translation>
+<translation id="1570242578492689919">Písma a kódovanie</translation>
+<translation id="3031557471081358569">Vyberte položky na import:</translation>
+<translation id="3031433885594348982">Vaše pripojenie k doméne <ph name="DOMAIN"/> sa šifruje slabou šifrou.</translation>
+<translation id="4047345532928475040">Nepoužiteľné</translation>
+<translation id="5657156137487675418">Povoliť všetky súbory cookie</translation>
+<translation id="3228279582454007836">Túto stránku ste v minulosti nikdy nenavštívili.</translation>
+<translation id="4890855023395992542">Adresa URL služby:</translation>
+<translation id="2814489978934728345">Zastaviť otváranie tejto stránky</translation>
+<translation id="2354001756790975382">Iné záložky</translation>
+<translation id="8561574028787046517">Produkt <ph name="PRODUCT_NAME"/> bol aktualizovaný</translation>
+<translation id="641480858134062906">Adresu <ph name="URL"/> sa nepodarilo načítať</translation>
+<translation id="3693415264595406141">Heslo:</translation>
+<translation id="74568296546932365">Ponechať <ph name="PAGE_TITLE"/> ako predvolený vyhľadávací mechanizmus</translation>
+<translation id="6181769708911894002">Upozornenie: Návšteva tejto stránky môže poškodiť váš počítač!</translation>
+<translation id="8299269255470343364">Japonské</translation>
+<translation id="5204993535447683655">&lt;a jsvalues=&quot;href:reloadUrl&quot;&gt;Obnoviť&lt;/a&gt; túto webovú stránku neskôr.</translation>
+<translation id="3635774677705394651">Zdá sa, že webová stránka na adrese &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; obsahuje malware – softvér, ktorý môže poškodiť váš počítač alebo vykonávať sa bez vášho vedomia.  Váš počítač sa môže infikovať už aj pri návšteve stránky, ktorá obsahuje malware.</translation>
+<translation id="7280343984261969618">Spustí doplnkové moduly v testovacom okne bez privilégií. Spôsobí, že niektoré doplnkové moduly nebudú správne fungovať.</translation>
+<translation id="50030952220075532">Zostáva <ph name="NUMBER_ONE"/> deň</translation>
+<translation id="2359808026110333948">Pokračovať</translation>
+<translation id="1618661679583408047">Bezpečnostný certifikát servera ešte nie je platný!</translation>
+<translation id="9040508646567685134">Vykonávanie skriptu na tejto stránke trvá pridlho. Chcete zistiť, či sa môže skript dokončiť, alebo ho chcete ukončiť?</translation>
+<translation id="3065140616557457172">Zadajte text na vyhľadávanie alebo adresu URL – funguje všetko.</translation>
+<translation id="5986279928654338866">Server <ph name="DOMAIN"/> vyžaduje používateľské meno a heslo.</translation>
+<translation id="7056713340842386352">Najviac navštevované [<ph name="PROFILE_NAME"/>]</translation>
+<translation id="5765780083710877561">Popis:</translation>
+<translation id="7221869452894271364">Obnoviť túto stránku</translation>
+<translation id="8646430701497924396">Použiť protokol SSL 2.0</translation>
+<translation id="8179976553408161302">Enter</translation>
+<translation id="8261506727792406068">Odstrániť</translation>
+<translation id="345693547134384690">Otvoriť &amp;obrázok na novej karte</translation>
+<translation id="1375198122581997741">Informácie o verzii</translation>
+<translation id="1474307029659222435">Otvoriť &amp;rám v novom okne</translation>
+<translation id="3527085408025491307">Priečinok</translation>
+<translation id="3169621169201401257">Podrobné informácie o problémoch s týmito prvkami nájdete na stránke Google <ph name="DIAGNOSTIC_PAGE"/> pre doménu <ph name="DOMAIN"/>.</translation>
+<translation id="2559292239863842334">Na tomto mieste sa zobrazia polia pre vyhľadávanie, ktoré používate najčastejšie na iných webových stránkach.</translation>
+<translation id="770015031906360009">Grécke</translation>
+<translation id="4474796446011988286">Vo vašom počítači sa nachádzajú tieto súbory cookie:</translation>
+<translation id="884923133447025588">Nenašiel sa žiadny mechanizmus rušenia certifikátov.</translation>
+<translation id="9170848237812810038">&amp;Naspäť</translation>
+<translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/> kB</translation>
+<translation id="4444364671565852729">Produkt <ph name="PRODUCT_NAME"/> bol aktualizovaný na verziu <ph name="VERSION"/></translation>
+<translation id="6483805311199035658">Prebieha otváranie súboru <ph name="FILE"/>...</translation>
+<translation id="9154176715500758432">Zostať na tejto stránke</translation>
+<translation id="5875565123733157100">Typ chyby:</translation>
+<translation id="2440604414813129000">&amp;Zobraziť zdrojový kód</translation>
+<translation id="8200772114523450471">Pokračovať</translation>
+<translation id="3009731429620355204">Relácie</translation>
+<translation id="3473034187222004855">Kopírovať &amp;cestu k súboru</translation>
+<translation id="6325525973963619867">Zlyhanie</translation>
+<translation id="1676388805288306495">Zmeňte predvolené písmo a jazyk pre webové stránky.</translation>
+<translation id="4701488924964507374"><ph name="SENTENCE1"/> <ph name="SENTENCE2"/></translation>
+<translation id="1163931534039071049">&amp;Zobraziť zdrojový kód rámu</translation>
+<translation id="7564847347806291057">Ukončiť proces</translation>
+<translation id="7851589172948533362">Overené spoločnosťou <ph name="ISSUER"/></translation>
+<translation id="5501358408399407103">Webová stránka, len HTML\0*.htm\0Webová stránka, úplná\0*.htm</translation>
+<translation id="7063412606254013905">Získajte viac informácií o podvodoch typu phishing.</translation>
+<translation id="307767688111441685">Stránka vyzerá podozrivo</translation>
+<translation id="5295309862264981122">Potvrdiť navigáciu</translation>
+<translation id="6847541693235449912">Prejsť</translation>
+<translation id="5333374927882515515">Importovať záložky, heslá a ostatné nastavenia z prehliadača <ph name="DEF_BROWSER"/></translation>
+<translation id="4239831617079978238">Koniec relácie</translation>
+<translation id="7377249249140280793"><ph name="RELATIVE_DATE"/> – <ph name="FULL_DATE"/></translation>
+<translation id="8954894007019320973">(Pokračovanie)</translation>
+<translation id="3748412725338508953">Vzniklo priveľa presmerovaní.</translation>
+<translation id="8929159553808058020">Pridajte jazyky, ktoré používate na čítanie webových stránok. Zoraďte ich do poradia, ktoré uprednostňujete. Pridajte len potrebné jazyky, pretože niektoré znaky na webových stránkach v iných jazykoch môžu mať odlišný vzhľad.</translation>
+<translation id="8831104962952173133">Zistil sa phishing!</translation>
+<translation id="2614223168876839822">Vymažte svoje údaje z prehliadania na tomto počítači. Upozorňujeme, že to môže mať nepriaznivý vplyv na obsah stránky Nová karta.</translation>
+<translation id="4745142959976410383">Ak ste túto požiadavku neiniciovali vy, môže ísť o pokus o útok na váš systém. Ak ste túto akciu neiniciovali explicitnou akciou, mali by ste kliknúť na tlačidlo Zrušiť.</translation>
+<translation id="1897258631034940238">Webové stránky na adrese &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; obsahujú prvky z webových stránok, ktoré sú nahlásené ako webové stránky „neoprávnene získavajúce údaje“. Webové stránky, ktoré neoprávnene získavajú údaje, navádzajú používateľov na zadanie osobných alebo finančných informácií. Tieto webové stránky často predstierajú, že reprezentujú dôveryhodné inštitúcie, napríklad banky.</translation>
+<translation id="8288345061925649502">Zmeniť vyhľadávací mechanizmus</translation>
+<translation id="1095623615273566396">Počet sekúnd: <ph name="NUMBER_FEW"/></translation>
+<translation id="5139955368427980650">&amp;Otvoriť</translation>
+<translation id="7088615885725309056">Staršie</translation>
+<translation id="746319800473277382">Prejsť na domovskú stránku lokality:</translation>
+<translation id="8562413501751825163">Pred importovaním zatvoriť prehľadávač Firefox</translation>
+<translation id="5034259512732355072">Vybrať iný adresár...</translation>
+<translation id="5074322878757699801">Importovať údaje...</translation>
+<translation id="5706242308519462060">Predvolené kódovanie:</translation>
+<translation id="5280833172404792470">Opustiť zobrazenie na celú obrazovku (<ph name="ACCELERATOR"/>)</translation>
+<translation id="129553762522093515">Naposledy zatvorené</translation>
+<translation id="8355915647418390920">Počet dní: <ph name="NUMBER_FEW"/></translation>
+<translation id="3702416240431471861">Google Gears:</translation>
+<translation id="3891357445869647828">Povoliť jazyk JavaScript</translation>
+<translation id="6451458296329894277">Potvrdiť opakované odoslanie formulára</translation>
+<translation id="3218545474413654570"><ph name="URL"/> – <ph name="WINDOW_TITLE"/></translation>
+<translation id="5116333507878097773"><ph name="NUMBER_ONE"/> hodina</translation>
+<translation id="1851266746056575977">Aktualizovať teraz</translation>
+<translation id="19901320010520290">Webové stránky na adrese &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; obsahujú prvky z webových stránok, na ktorých sa zrejme nachádza škodlivý softvér – softvér, ktorý môže poškodiť váš počítač alebo vykonávať rôzne operácie bez vášho vedomia. Váš počítač sa môže infikovať už aj pri návšteve webových stránok, ktoré obsahujú škodlivý softvér. Na týchto webových stránkach sa tiež nachádza obsah z webových stránok, ktoré sú nahlásené ako webové stránky „neoprávnene získavajúce údaje“. Webové stránky, ktoré neoprávnene získavajú údaje, navádzajú používateľov na zadanie osobných alebo finančných informácií. Tieto webové stránky často predstierajú, že reprezentujú dôveryhodné inštitúcie, napríklad banky.</translation>
+<translation id="9065203028668620118">Upraviť</translation>
+<translation id="4867297348137739678">Posledný týždeň</translation>
+<translation id="4881695831933465202">Otvoriť</translation>
+<translation id="5981759340456370804">Štatistiky pre záujemcov</translation>
+<translation id="6644971472240498405"><ph name="NUMBER_ONE"/> deň</translation>
+<translation id="6512448926095770873">Odísť z tejto stránky</translation>
+<translation id="5607455023223000189">Nainštalované doplnkové moduly</translation>
+<translation id="7009102566764819240">Nižšie je uvedený zoznam všetkých nebezpečných prvkov pre stránku. Ak chcete získať viac informácií o škodlivosti konkrétneho zdroja, kliknite na odkaz Diagnostika. Ak viete, že tento zdroj bol nahlásený ako „neoprávnene získavajúci údaje“ omylom, kliknite na odkaz Nahlásiť chybu.</translation>
+<translation id="494645311413743213">Počet zvyšných sekúnd: <ph name="NUMBER_TWO"/></translation>
+<translation id="1485146213770915382">Vložiť <ph name="SEARCH_TERMS_LITERAL"/> do adresy URL, kde by sa mali zobraziť hľadané slová.</translation>
+<translation id="5626134646977739690">Názov:</translation>
+<translation id="7125953501962311360">Predvolený prehliadač:</translation>
+<translation id="721197778055552897"><ph name="BEGIN_LINK"/>Viac informácií<ph name="END_LINK"/> o tomto probléme.</translation>
+<translation id="7774607445702416100">Internet Explorer</translation>
+<translation id="146000042969587795">Tento rám je zablokovaný, pretože obsahuje nezabezpečený obsah.</translation>
+<translation id="8112223930265703044">Všetko</translation>
+<translation id="1983108933174595844">Poslať snímku aktuálnej stránky</translation>
+<translation id="436869212180315161">Stlačiť</translation>
+<translation id="8241707690549784388">Vami hľadaná stránka použila informácie, ktoré ste zadali. Návrat na túto stránku môže spôsobiť zopakovanie akcie, ktorú ste vykonali. Chcete pokračovať?</translation>
+<translation id="486595306984036763">Otvoriť prehľad phishingu</translation>
+<translation id="1568162916422682473">Zlyhal tento doplnkový modul: <ph name="PLUGIN_NAME"/></translation>
+<translation id="2441719842399509963">Prestaviť na predvolené hodnoty</translation>
+<translation id="170407012880898501">Uložiť text z formulárov, a tým zjednodušiť ich vypĺňanie</translation>
+<translation id="8116972784401310538">%Správca záložiek</translation>
+<translation id="6040143037577758943">Zatvoriť</translation>
+<translation id="4943872375798546930">Žiadne výsledky</translation>
+<translation id="4910619056351738551">Prečítajte si tieto návrhy:</translation>
+<translation id="7451556917824271099">Webová lokalita na adrese &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; obsahuje prvky zo stránky &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt; a zdá sa, že tieto prvky sú malware - softvér, ktorý môže poškodiť váš počítač alebo vykonávať sa bez vášho vedomia.  Váš počítač sa môže infikovať už aj pri návšteve stránky, ktorá obsahuje malware.</translation>
+<translation id="1232569758102978740">Bez názvu</translation>
+<translation id="9149866541089851383">Upraviť...</translation>
+<translation id="7000311294523403548">Webová stránka bez názvu</translation>
+<translation id="7649070708921625228">Pomocník</translation>
+<translation id="7442246004212327644">Vyči&amp;stiť</translation>
+<translation id="9002707937526687073">Tl&amp;ačiť...</translation>
+<translation id="5556459405103347317">Obnoviť</translation>
+<translation id="7727721885715384408">Premenovať...</translation>
+<translation id="5508407262627860757">Zrušiť!</translation>
+<translation id="7587108133605326224">Baltické</translation>
+<translation id="8598751847679122414">Táto webová stránka sa presmerúva sama na seba.</translation>
+<translation id="5271549068863921519">Uložiť heslo</translation>
+<translation id="2987775926667433828">Tradičná čínština</translation>
+<translation id="6227291405321948850">Obrázok z webu bez názvu</translation>
+<translation id="1684248949164455892">V tomto prípade certifikát nie je overený treťou stranou, ktorej váš počítač dôveruje. Každý môže vytvoriť certifikát s ľubovoľným názvom webovej stránky a preto je nutné overiť ho dôveryhodnou treťou stranou. Bez tohto overenia sú informácie o identite v certifikáte bezvýznamné. Z tohto dôvodu nie je možné skontrolovať, či komunikujete so skutočnou doménou &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; alebo s útočníkom, ktorý si vygeneroval vlastný certifikát s názvom webovej stránky &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Nemali by ste pokračovať ďalej.</translation>
+<translation id="8045462269890919536">Rumunské</translation>
+<translation id="3927097095400773697"><ph name="DOWNLOAD_SIZE"/>, zrušené</translation>
+<translation id="2927657246008729253">Zmeniť...</translation>
+<translation id="3478477629095836699">Nastavenia súborov cookie:</translation>
+<translation id="2108475813351458355">Bezpečné pripojenie k doméne {<ph name="DOMAIN"/></translation>
+<translation id="942671148946453043">Otvorili ste utajené okno. Stránky, ktoré otvoríte v tomto okne, sa nezobrazia vo vašej histórii.</translation>
+<translation id="6996505290426962909">&amp;Importovať záložky a nastavenia...</translation>
+<translation id="6165508094623778733">Ďalšie informácie</translation>
+<translation id="4745438305783437565">Počet minút: <ph name="NUMBER_FEW"/></translation>
+<translation id="2649911884196340328">Bezpečnostný certifikát servera obsahuje chyby!</translation>
+<translation id="1963692530539281474">Počet zvyšných dní: <ph name="NUMBER_DEFAULT"/></translation>
+<translation id="668171684555832681">Iný...</translation>
+<translation id="3108416241300843963">Požiadavka zlyhala pre neplatný certifikát servera.</translation>
+<translation id="116506693382293616">Niektoré prvky na tejto stránke sa získali cez bezpečné pripojenie, ale vyskytli sa chyby protokolu SSL.</translation>
+<translation id="7887455386323777409">Nútene ukončiť doplnkový modul</translation>
+<translation id="3761000923495507277">Zobraziť tlačidlo Home na paneli s nástrojmi</translation>
+<translation id="8709969075297564489">Overiť stav zrušenia certifikátu servera</translation>
+<translation id="8698171900303917290">Problémy pri inštalácii?</translation>
+<translation id="2552545117464357659">Novšie</translation>
+<translation id="5869522115854928033">Uložené heslá</translation>
+<translation id="1709220265083931213">Pod kapotou</translation>
+<translation id="4771973620359291008">Vyskytla sa neznáma chyba.</translation>
+<translation id="8155798677707647270">Inštaluje sa nová verzia...</translation>
+<translation id="6886871292305414135">Otvoriť odkaz na novej &amp;karte</translation>
+<translation id="6308937455967653460">Uložiť &amp;odkaz ako...</translation>
+<translation id="5421136146218899937">Vymazať údaje z prehliadania...</translation>
+<translation id="3943582379552582368">&amp;Naspäť</translation>
+<translation id="7607002721634913082">Pozastavené</translation>
+<translation id="480990236307250886">Otvoriť domovskú stránku</translation>
+<translation id="5906719743126878045">Počet zvyšných hodín: <ph name="NUMBER_TWO"/></translation>
+<translation id="5040262127954254034">Súkromie</translation>
+<translation id="1908748899139377733">Zobraziť informácie o &amp;ráme</translation>
+<translation id="8400147561352026160">Shift+<ph name="KEY_COMBO_NAME"/></translation>
+<translation id="3366404380928138336">Požiadavka s externým protokolom</translation>
+<translation id="566920818739465183">Túto webovú stránku ste prvýkrát navštívili <ph name="VISIT_DATE"/>.</translation>
+<translation id="2961695502793809356">Kliknutím prejdete dopredu. Pri dlhšom stlačení sa zobrazí história.</translation>
+<translation id="8421864404045570940">Počet sekúnd: <ph name="NUMBER_DEFAULT"/></translation>
+<translation id="8689341121182997459">Koniec platnosti:</translation>
+<translation id="1857842694030005096">Ďalšie informácie o tejto chybe</translation>
+<translation id="4880827082731008257">História hľadania</translation>
+<translation id="4197700912384709145">Počet sekúnd: <ph name="NUMBER_ZERO"/></translation>
+<translation id="8609465669617005112">Presunúť nahor</translation>
+<translation id="1702534956030472451">Západné</translation>
+<translation id="9141716082071217089">Nedá sa overiť, či je certifikát servera zrušený.</translation>
+<translation id="4304224509867189079">Prihlásiť</translation>
+<translation id="4492190037599258964">Výsledky vyhľadávania pre dopyt „<ph name="SEARCH_STRING"/>“</translation>
+<translation id="988159990683914416">Zostavenie pre vývojárov</translation>
+<translation id="3705722231355495246">-</translation>
+<translation id="4268574628540273656">Adresa URL:</translation>
+<translation id="7481312909269577407">Dopredu</translation>
+<translation id="3759876923365568382">Počet zvyšných dní: <ph name="NUMBER_FEW"/></translation>
+<translation id="1664314758578115406">Pridať stránku...</translation>
+<translation id="4084682180776658562">Záložka</translation>
+<translation id="4381091992796011497">Meno používateľa:</translation>
+<translation id="7669151579173473971">Nové okno v &amp;profile</translation>
+<translation id="5822838715583768518">Spustiť aplikáciu</translation>
+<translation id="6756161853376828318">Nastaviť prehliadač <ph name="PRODUCT_NAME"/> ako predvolený</translation>
+<translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
+<translation id="9147392381910171771">&amp;Možnosti</translation>
+<translation id="6264485186158353794">Naspäť do bezpečného režimu</translation>
+<translation id="3807747707162121253">&amp;Zrušiť</translation>
+<translation id="7447718177945067973">Server sa nenašiel.</translation>
+<translation id="715468010956678290">Otvoriť rám v &amp;utajenom okne</translation>
+<translation id="7755167023778553803">Táto stránka však obsahuje zdroje z iných webových stránok, ktorých identita sa nedá overiť.</translation>
+<translation id="1273291576878293349">Otvoriť všetky záložky v okne inkognito</translation>
+<translation id="3455546154539383562">Pokúšate sa otvoriť doménu &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ale server poskytol certifikát, ktorý je zrušený jeho vydavateľom. Znamená to, že v žiadnom prípade by ste nemali dôverovať informáciám o zabezpečení servera. Je možné, že komunikujete s útočníkom. Nemali by ste pokračovať.</translation>
+<translation id="1177437665183591855">Neznáma chyba spôsobená certifikátom servera</translation>
+<translation id="3819800052061700452">&amp;Celá obrazovka</translation>
+<translation id="3737554291183722650">Názov stránky:</translation>
+<translation id="4726901538158498735">Predvolené vyhľadávanie:</translation>
+<translation id="5101042277149003567">Otvoriť všetky záložky</translation>
+<translation id="6349678711452810642">Nastaviť ako predvolenú hodnotu</translation>
+<translation id="3741375896128849698">Certifikát servera ešte nie je platný</translation>
+<translation id="3435738964857648380">Bezpečnosť</translation>
+<translation id="2231233239095101917">Skript na stránke zabral príliš veľa pamäte. Ak chcete znova povoliť skripty, znova načítajte stránku.</translation>
+<translation id="5119173345047096771">Mozilla Firefox</translation>
+<translation id="385051799172605136">Naspäť</translation>
+<translation id="1208126399996836490">Nevynulovať</translation>
+<translation id="806812017500012252">Zoradiť podľa názvu</translation>
+<translation id="2960316970329790041">Zastaviť import</translation>
+<translation id="1731911755844941020">Posielanie požiadavky...</translation>
+<translation id="1038842779957582377">neznámy názov</translation>
+<translation id="5327248766486351172">Názov</translation>
+<translation id="8989148748219918422"><ph name="ORGANIZATION"/> [<ph name="COUNTRY"/>]</translation>
+<translation id="3037605927509011580">Základy</translation>
+<translation id="1918141783557917887">&amp;Menší</translation>
+<translation id="4065006016613364460">K&amp;opírovať adresu URL obrázka</translation>
+<translation id="6965382102122355670">OK</translation>
+<translation id="8542113417382134668">Písmo Serif:</translation>
+<translation id="2149973817440762519">Upraviť záložku</translation>
+<translation id="430831869130657585">Prípony</translation>
+<translation id="4057041477816018958"><ph name="SPEED"/> – <ph name="RECEIVED_AMOUNT"/></translation>
+<translation id="4759238208242260848">Preberanie</translation>
+<translation id="1178581264944972037">Pozastaviť</translation>
+<translation id="6314919950468685344">Písmo s pevnou šírkou:</translation>
+<translation id="5233231016133573565">Identifikátor procesu</translation>
+<translation id="5941711191222866238">Minimalizovať</translation>
+<translation id="7167486101654761064">&amp;Vždy otvoriť súbory tohto typu</translation>
+<translation id="6053401458108962351">&amp;Vymazať údaje prehliadania...</translation>
+<translation id="2339641773402824483">Hľadajú sa aktualizácie...</translation>
+<translation id="2766006623206032690">Vl&amp;ožiť a otvoriť</translation>
+<translation id="9071050381089585305">Skript nereaguje</translation>
+<translation id="969892804517981540">Oficiálne zostavenie</translation>
+<translation id="724208122063442954">Vybrali ste automatické otváranie niektorých typov súborov po ich prevzatí. Tieto nastavenia môžete zmeniť, aby sa prevzaté súbory automaticky neotvárali.</translation>
+<translation id="4477534650265381513">Ak si záložky umiestnite na tento panel so záložkami, môžete k nim pristupovať rýchlejšie.</translation>
+<translation id="8328145009876646418">Ľavý okraj</translation>
+<translation id="406259880812417922">(Kľúčové slovo: <ph name="KEYWORD"/>)</translation>
+<translation id="2437750561138919253">Ladiaci program jazyka JavaScript – Spustený</translation>
+</translationbundle>

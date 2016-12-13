@@ -1,0 +1,9 @@
+; npapi_host_control.def : Declares the module parameters.
+
+LIBRARY      "o3d_host.DLL"
+
+EXPORTS
+    DllCanUnloadNow     PRIVATE
+    DllGetClassObject   PRIVATE
+    DllRegisterServer   PRIVATE
+    DllUnregisterServer PRIVATE

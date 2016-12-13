@@ -1,0 +1,327 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+%[
+  A CurveKey prepresents a key on an Curve.
+%]
+[nocpp, include="core/cross/curve.h"]
+class CurveKey : ObjectBase {
+
+  %[
+    The input of this key.
+  %]
+  [getter, setter, userglue_setter] float input;
+
+  %[
+    The output of this key.
+  %]
+  [getter, setter, userglue_setter] float output;
+
+  %[
+     Destroys this key, removing it from its owner.
+  %]
+  void Destroy();
+
+  [verbatim=cpp_glue] %{
+    void userglue_setter_input(o3d::CurveKey* self, float value) {
+      self->SetInput(value);
+    }
+    void userglue_setter_output(o3d::CurveKey* self, float value) {
+      self->SetOutput(value);
+    }
+  %}
+};  // CurveKey
+
+typedef CurveKey[] CurveKeyArray;
+
+%[
+  An CurveKey that holds its output (is not interpolated between this key
+  and the next.)
+%]
+[nocpp, include="core/cross/curve.h"]
+class StepCurveKey : CurveKey {
+};
+
+%[
+  An CurveKey that linearly interpolates between this key and the next key.
+%]
+[nocpp, include="core/cross/curve.h"]
+class LinearCurveKey : CurveKey {
+};
+
+%[
+  An CurveKey that uses a bezier curve for interpolation between this key
+  and the next.
+%]
+[nocpp, include="core/cross/curve.h"]
+class BezierCurveKey : CurveKey {
+  %[
+    The in tangent for this key.
+  %]
+  [setter, getter, userglue_setter] Float2 in_tangent;
+
+  %[
+    The out tangent for this key.
+  %]
+  [setter, getter, userglue_setter] Float2 out_tangent;
+
+  [verbatim=cpp_glue] %{
+    void userglue_setter_in_tangent(o3d::BezierCurveKey* self,
+                                    const o3d::Float2& tangent) {
+      self->SetInTangent(tangent);
+    }
+    void userglue_setter_out_tangent(o3d::BezierCurveKey* self,
+                                     const o3d::Float2& tangent) {
+      self->SetOutTangent(tangent);
+    }
+  %}
+};
+
+%[
+  A Curve stores a bunch of CurveKeys and given a value
+  representing an input point on a curve returns the output of the curve for
+  that input. Curve is data only. It is used by 1 or more
+  FunctionEval objects or by direct use from javascript.
+%]
+[nocpp, include="core/cross/curve.h"]
+class Curve : Function {
+  %[
+  enum Infinity {
+    \li CONSTANT, Uses the output value of the first or last animation key.
+    \li LINEAR, Takes the distance between the closest animation key
+        input value and the evaluation time. Multiplies this
+        distance against the instant slope at the closest
+        animation key and offsets the result with the closest
+        animation key output value.
+    \li CYCLE, Cycles over the first and last keys using
+        input = (input - first) % (last - first) + first;
+        Note that in CYCLE mode you can never get the end output
+        because a cycle goes from start to end exclusive of end.
+    \li CYCLE_RELATIVE,  Same as cycle except the offset of the entire
+        cycle is added to each consecutive cycle.
+    \li OSCILLATE, Ping Pongs between the first and last keys.
+  };
+  %]
+  enum Infinity {
+    CONSTANT,
+    LINEAR,
+    CYCLE,
+    CYCLE_RELATIVE,
+    OSCILLATE
+  };
+
+  %[
+    The behavior of the curve before the first key.
+  %]
+  [getter, setter] Infinity pre_infinity;
+
+  %[
+    The behavior of the curve after the last key.
+  %]
+  [getter, setter] Infinity post_infinity;
+
+  %[
+    Whether or not a cache is used to speed up evaluation of this Curve
+    \sa SetSampleRate
+  %]
+  [getter, setter] bool use_cache;
+
+  %[
+    Gets the sample rate for the cache.  By default Animation data is
+    cached so that using the animation is fast. To do this the keys that
+    represent the animation are sampled. The higher the frequency of the
+    samples the closer the cache will match the actual keys.
+    The default is 1/30 (30hz). You can set it anywhere from 1/240th (240hz) to
+    any larger value. Note: Setting the sample rate has the side effect of
+    invalidating the cache thereby causing it to get rebuilt.
+    Must be 1/240 or greater. Default = 1/30
+  %]
+  [getter, setter, userglue_setter] float sample_rate;
+
+  %[
+    Returns whether or not the curve is discontinuous. A discontinuous curve
+    takes more time to evaluate.
+    \return True if the curve is discontinuous.
+  %]
+  [const] bool IsDiscontinuous();
+
+  %[
+    The keys for this curve.
+  %]
+  [const, getter, userglue_getter] CurveKeyArray keys;
+
+  %[
+    Adds 1 or more StepKeys to this Curve.
+
+    Example:
+    \code
+    // Creates 2 keys.
+    // 1 key at 0 with an output of 10
+    // 1 key at 20 with an output of 30
+    curve.addStepKeys([0,10,20,30]);
+    \endcode.
+
+    \param keys Array of input, output pairs.
+  %]
+  [userglue] void AddStepKeys(NumberArray keys);
+
+  %[
+    Adds 1 or more LinearKeys to this Curve.
+
+    Example:
+    \code
+    // Creates 2 keys.
+    // 1 key at 0 with an output of 10
+    // 1 key at 20 with an output of 30
+    curve.addLinearKeys([0,10,20,30]);
+    \endcode.
+
+    \param keys Array of input, output pairs.
+  %]
+  [userglue] void AddLinearKeys(NumberArray keys);
+
+  %[
+    Adds 1 or more BezierKeys to this Curve.
+
+    Example:
+    \code
+    // Creates 2 keys.
+    // 1 key at 0 with an output of 10, in tangent of 1,9, out tangent 9,0.5
+    // 1 key at 20 with an output of 30, in tangent of 30, 3, out tangent 4, 28
+    curve.addBezierKeys([0,10,1,9,9,0.5,2,30,3,4,28]);
+    \endcode.
+
+    \param keys Array of input, output pairs.
+  %]
+  [userglue] void AddBezierKeys(NumberArray keys);
+
+  %[
+    Creates a new key for this curve.
+    \param key_type name of key class to create. Valid type names are:
+        \li 'o3d.StepCurveKey',
+        \li 'o3d.LinearCurveKey',
+        \li 'o3d.BezierCurveKey',
+    \return The created key.
+  %]
+  [userglue] CurveKey CreateKey(String key_type);
+
+  %[
+    Deserializes from the curve data given a RawData object.
+
+    \param raw_data contains curve data
+    \param offset is a byte offset from the start of raw_data
+    \param length is the byte length of the data to set
+    \return True if operation was successful.
+  %]
+  bool Set(o3d::RawData raw_data,
+           size_t offset,
+           size_t length);
+
+  %[
+    Deserializes from the curve data given a RawData object.
+    \param raw_data entire contents contains curve data
+    \return True if operation was successful.
+  %]
+  bool Set(o3d::RawData raw_data);
+
+  [verbatim=cpp_glue] %{
+    void userglue_setter_sample_rate(o3d::Curve* self, float rate) {
+      self->SetSampleRate(rate);
+    }
+    o3d::CurveKey* userglue_method_CreateKey(o3d::Curve* self,
+                                                  o3d::String& key_type) {
+      return self->CreateKeyByClassName(key_type);
+    }
+    void userglue_method_AddStepKeys(o3d::Curve* self,
+                                     const std::vector<float>& values) {
+      const int kNumStepKeyValues = 2;
+      if (values.size() % kNumStepKeyValues != 0) {
+        O3D_ERROR(self->service_locator())
+            << "expected multiple of 2 values got " << values.size();
+      } else {
+        for (unsigned ii = 0; ii < values.size(); ii += kNumStepKeyValues) {
+          o3d::StepCurveKey* key = self->Create<o3d::StepCurveKey>();
+          key->SetInput(values[ii]);
+          key->SetOutput(values[ii + 1]);
+        }
+      }
+    }
+    void userglue_method_AddLinearKeys(o3d::Curve* self,
+                                       const std::vector<float>& values) {
+      const int kNumLinearKeyValues = 2;
+      if (values.size() % kNumLinearKeyValues != 0) {
+        O3D_ERROR(self->service_locator())
+            << "expected multiple of 2 values got " << values.size();
+      } else {
+        for (unsigned ii = 0; ii < values.size(); ii += kNumLinearKeyValues) {
+          o3d::LinearCurveKey* key =
+              self->Create<o3d::LinearCurveKey>();
+          key->SetInput(values[ii]);
+          key->SetOutput(values[ii + 1]);
+        }
+      }
+    }
+    void userglue_method_AddBezierKeys(o3d::Curve* self,
+                                       const std::vector<float>& values) {
+      const int kNumBezierKeyValues = 6;
+      if (values.size() % kNumBezierKeyValues != 0) {
+        O3D_ERROR(self->service_locator())
+            << "expected multiple of 6 values got " << values.size();
+      } else {
+        for (unsigned ii = 0; ii < values.size(); ii += kNumBezierKeyValues) {
+          o3d::BezierCurveKey* key =
+              self->Create<o3d::BezierCurveKey>();
+          key->SetInput(values[ii]);
+          key->SetOutput(values[ii + 1]);
+          key->SetInTangent(o3d::Float2(values[ii + 2],
+                                             values[ii + 3]));
+          key->SetOutTangent(o3d::Float2(values[ii + 4],
+                                              values[ii + 5]));
+        }
+      }
+    }
+    o3d::CurveKeyArray userglue_getter_keys(o3d::Curve* self) {
+      const o3d::CurveKeyRefArray& source_keys = self->keys();
+      o3d::CurveKeyArray keys;
+      keys.reserve(source_keys.size());
+      for (unsigned ii = 0; ii < source_keys.size(); ++ii) {
+        keys.push_back(source_keys[ii].Get());
+      }
+      return keys;
+    }
+  %}
+};  // Curve
+
+}  // namespace o3d
+
+

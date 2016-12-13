@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="hu">
+<translation id="4420062214988137980">A plugin telepítése nem sikerült</translation>
+<translation id="1235745349614807883">Friss keresések törlése</translation>
+<translation id="3825324228893189080">További plugin szükséges</translation>
+<translation id="2965480764085142436">A(z) <ph name="PLUGIN"/> plugin nem lett telepítve</translation>
+<translation id="5048533449481078685">listajelölő</translation>
+<translation id="4202807286478387388">Mehet</translation>
+<translation id="4611115858363067980"><ph name="FILENAME"/><ph name="WIDTH"/>×<ph name="HEIGHT"/></translation>
+<translation id="4317653869502688143">Kérjük, erősítse meg, hogy telepíteni szeretné a(z) <ph name="PLUGIN"/> plugint. Csak azokat a plugineket telepítse, amelyekben megbízik.</translation>
+<translation id="7658239707568436148">Mégse</translation>
+<translation id="795667975304826397">Nem lett fájl kiválasztva</translation>
+<translation id="1275511093094545429"><ph name="PLUGIN"/> plugin szükséges</translation>
+<translation id="8662565117025751661">Plugin letöltése...</translation>
+<translation id="8141602879876242471">Ez egy kereshető index. Írjon be keresési kulcsszavakat:</translation>
+<translation id="6845533974506654842">Gomb lenyomása</translation>
+<translation id="8244226242650769279">képtérkép</translation>
+<translation id="1383141426028388991">A plugin telepítése nem sikerült a következő helyről: <ph name="URL"/></translation>
+<translation id="2548326553472216322">Nincsenek friss keresések</translation>
+<translation id="5944544982112848342">2048 (magasfokú)</translation>
+<translation id="3040011195152428237">link</translation>
+<translation id="8281246460978372009">A plugin telepítését követően ide kattintson a frissítéshez</translation>
+<translation id="7364796246159120393">Fájl kiválasztása</translation>
+<translation id="8964020114565522021">Húzza át ide a fájlt</translation>
+<translation id="838869780401515933">Megjelölés</translation>
+<translation id="2846343701378493991">1024 (Közepes)</translation>
+<translation id="5476505524087279545">Megjelölés eltávolítása</translation>
+<translation id="679352192834563463">Nincs elérhető plugin a tartalom megjelenítéséhez</translation>
+<translation id="3789841737615482174">Telepítés</translation>
+<translation id="6663448176199120256">Friss keresések</translation>
+<translation id="3600343118165084788">Ha ide kattint, letöltheti a plugint</translation>
+<translation id="6807599807928161586">internetes terület</translation>
+<translation id="5939518447894949180">Visszaállítás</translation>
+<translation id="3771786644471114952">Plugin beszerzése</translation>
+<translation id="1842960171412779397">Kiválasztás</translation>
+<translation id="6119846243427417423">Aktiválás</translation>
+<translation id="3926627843712816530">Kérjük, erősítse meg, hogy telepíteni szeretné ezt a plugint. Csak azokat a plugineket telepítse, amelyekben megbízik.</translation>
+<translation id="4838490908464673667">A szükséges plugin nem lett telepítve</translation>
+<translation id="8597182159515967513">fejléc</translation>
+<translation id="2653659639078652383">Elküldés</translation>
+</translationbundle>

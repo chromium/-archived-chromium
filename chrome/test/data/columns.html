@@ -1,0 +1,23 @@
+<html><head><title>Column test</title></head><body>
+<h1>Column test</h1>
+
+<p>This tests that we do multi-column layout and don't crash. The issue is
+that WebKit creates a NULL platform graphics context pointer, and expects
+GraphicsContext to work with it, disabling paint.</p>
+
+<div style="border: 2px solid rgb(34, 136, 17); -webkit-column-count: 2;
+-moz-column-count: 2; -webkit-column-rule: 2px solid rgb(34, 136, 17);
+-moz-column-rule: 4px solid rgb(34, 136, 17)">WebKit now has some very basic
+support for multiple columns from CSS3.  In fact, if you&#8217;re reading this
+blog entry, you will see that it has been broken up into two columns in the
+latest WebKit nightly and in Firefox.<br />
+
+<div style="margin: 1em 0">The properties supported at this time are columns,
+column-gap, column-count and column-width.  Column rules are not yet supported
+and neither are column breaks.</div> At this time any stacking context children
+like relative positioned content or content that uses opacity will position
+impoperly (as though the column didn&#8217;t exist.  If you decide to use this
+feature, watch out for that.<br /> <div style="margin-top:1em"><b>Update</b>:
+Column rules are now supported.  This blog entry now has one!</div>
+
+</body></html>

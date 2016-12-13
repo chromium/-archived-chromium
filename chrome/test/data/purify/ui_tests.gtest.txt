@@ -1,0 +1,15 @@
+# These tests seem to stall out and not complete. Adjusting various timeouts
+# didn't seem to help, but more investigation is needed.
+# Bug: http://crbug.com/6492
+UnloadTest.BrowserCloseBeforeUnloadOK
+UnloadTest.BrowserCloseBeforeUnloadCancel
+
+# These tests stall out, more investigation needed.
+# Bug: http://crbug.com/6493
+NPAPITester.ManyPlugins
+
+# Bug: http://crbug.com/6584
+SSLUITest.*
+
+# Bug: http://crbug.com/8675
+SessionRestoreUITest.RestoresCrossSiteForwardAndBackwardNavs

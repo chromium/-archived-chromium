@@ -1,0 +1,6 @@
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html;charset=utf-8,<body>%D0%9F%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%BA%D0%B0</body> from frame with URL data-url-encoding-html.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 10: Uncaught TypeError: Cannot read property 'body' of undefined
+Test that non-ASCII data: URLs are handled correctly.
+
+  

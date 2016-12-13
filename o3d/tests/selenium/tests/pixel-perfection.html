@@ -1,0 +1,337 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+O3D Pixel Perfection Test
+
+This test generates some shapes that should be able to be rendered
+identically on all the platforms that we support.  It tests fill
+coverage, zbuffer coverage, blending and color and brightness fidelity.
+
+It purposly does not test things like anti-aliasing and texture
+sampling, because those vary too much from vendor to vendor, and
+because they are tested adequately in other tests.
+
+TODO: Anti-aliasing should be turned off for this test, when
+we have a way to do that.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Pixel Perfection
+</title>
+<script type="text/javascript" src="../../../samples/o3djs/base.js"></script>
+<script type="text/javascript">
+o3djs.require('o3djs.effect');
+o3djs.require('o3djs.material');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.util');
+
+// global variables
+var g_o3dElement;
+var g_client;
+var g_o3d;
+var g_math;
+var g_pack;
+var g_viewInfo;
+
+var g_vertexShaderMaterial;
+var g_lightPosition = [0, 0, 12];
+var g_eyePosition = [0, 0, 12];
+
+/**
+ * Creates the client area.
+ */
+function initClient() {
+  window.g_finished = false;  // for selenium testing.
+
+  // Runs the sample in V8. Comment out this line to run it in the browser
+  // JavaScript engine, for example if you want to debug it.
+  o3djs.util.setMainEngine(o3djs.util.Engine.V8);
+
+  o3djs.util.makeClients(main, 'NotAntiAliased');
+}
+
+/**
+ * Initializes global variables, positions camera, draws shapes.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function main(clientElements) {
+  // Init global variables.
+  initGlobals(clientElements);
+
+  // Set up the view and projection transformations.
+  initContext();
+
+  // Add the shapes to the transform heirarchy.
+  createShapes();
+
+  window.g_testResult = true;  // for selenium testing.
+}
+
+/**
+ * Initializes global variables and libraries.
+ */
+function initGlobals(clientElements) {
+  g_o3dElement = clientElements[0];
+  window.g_client = g_client = g_o3dElement.client;
+  g_o3d = g_o3dElement.o3d;
+  g_math = o3djs.math;
+
+  // Create a pack to manage the objects created.
+  g_pack = g_client.createPack();
+
+  // Create the render graph for a view.
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Set the background color to white for more contrast.
+  g_viewInfo.clearBuffer.clearColor = [1, 1, 1, 1];
+
+  // Create and load the effect.
+  var effect = g_pack.createObject('Effect');
+  var vertexShaderString = o3djs.util.getElementContentById('vertexShader');
+  effect.loadFromFXString(vertexShaderString);
+  // Create a material for it.
+  g_vertexShaderMaterial = g_pack.createObject('Material');
+
+  // Set the material's drawList
+  g_vertexShaderMaterial.drawList = g_viewInfo.performanceDrawList;
+
+  // Apply our effect to this material. The effect tells the 3D hardware
+  // which shader to use.
+  g_vertexShaderMaterial.effect = effect;
+
+  // Create the parameters the effect needs on the material.
+  effect.createUniformParameters(g_vertexShaderMaterial);
+}
+
+/**
+ * Sets up reasonable view and projection matrices.
+ */
+function initContext() {
+  // Set up a perspective transformation for the projection.
+  g_viewInfo.drawContext.projection = g_math.matrix4.perspective(
+      g_math.degToRad(30), // 30 degree frustum.
+      g_o3dElement.clientWidth / g_o3dElement.clientHeight, // Aspect ratio.
+      1,                  // Near plane.
+      5000);              // Far plane.
+
+  // Set up our view transformation to look towards the world origin where the
+  // primitives are located.
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      g_eyePosition,   // eye
+      [0, 0, 0],    // target
+      [0, 1, 0]);  // up
+}
+
+/**
+ * Creates a phong material based on the given single color.
+ * @param {Array} baseColor An array with 4 entries, the R,G,B, and A components
+ *   of a color.
+ * @return {Material} A phong material whose overall pigment is baseColor.
+ */
+function createMaterial(baseColor) {
+  // Create a material.
+  var material = o3djs.material.createBasicMaterial(
+      g_pack,
+      g_viewInfo,
+      baseColor,
+      baseColor[3] != 1.0);
+
+  return material;
+}
+
+/**
+ * Creates shapes using the primitives utility library, and adds them to the
+ * transform graph at the root node.
+ */
+function createShapes() {
+  var cube = o3djs.primitives.createRainbowCube(
+      g_pack,
+      g_vertexShaderMaterial,
+      Math.sqrt(2));
+
+  var sphere = o3djs.primitives.createSphere(
+      g_pack,
+      createMaterial([1, 0, 0, 1]),
+      1.0,   // Radius of the sphere.
+      30,    // Number of meridians.
+      20);    // Number of parallels.
+
+  var plane1 = o3djs.primitives.createPlane(
+      g_pack,
+      createMaterial([0, 1, 1, 1]),
+      2.5,      // Width.
+      2.5,      // Depth.
+      3,      // Horizontal subdivisions.
+      3);     // Vertical subdivisions.
+
+  var plane2 = o3djs.primitives.createPlane(
+      g_pack,
+      createMaterial([0, .5, 0, 1]),
+      2.5,      // Width.
+      2.5,  // Depth.
+      3,      // Horizontal subdivisions.
+      3);     // Vertical subdivisions.
+
+  var transPlane1 = o3djs.primitives.createPlane(
+      g_pack,
+      createMaterial([0, 1, 1, .1]),
+      2.5,      // Width.
+      2.5,      // Depth.
+      3,      // Horizontal subdivisions.
+      3);     // Vertical subdivisions.
+
+  var transPlane2 = o3djs.primitives.createPlane(
+      g_pack,
+      createMaterial([0, .5, 0, .1]),
+      2.5,      // Width.
+      2.5,  // Depth.
+      3,      // Horizontal subdivisions.
+      3);     // Vertical subdivisions.
+
+  var disc1 = o3djs.primitives.createDisc(
+      g_pack,
+      createMaterial([0, 0, 0, 0.25]),
+      1,   // Radius.
+      50,   // Divisions.
+      2,   // Stacks.
+      1,   // Start Stack.
+      1);  // Stack Power.
+
+  var disc2 = o3djs.primitives.createDisc(
+      g_pack,
+      createMaterial([0, 0, 0, 1]),
+      1,   // Radius.
+      50,   // Divisions.
+      2,   // Stacks.
+      1,   // Start Stack.
+      1);  // Stack Power.
+
+  // Add the shapes to the transforms.
+  var transformTable = [
+    {shape: cube, translation: [-2, 1, 0],
+     rotation: [Math.PI / 4, Math.PI / 4, 0]},
+    {shape: sphere, translation: [0, 1, 0], rotation: [0, 0, 0]},
+    {shape: plane1, translation: [2, 1, 0],
+     rotation: [0.99 * Math.PI / 2, 0, 0]},
+    {shape: plane2, translation: [2, 1, 0], rotation: [Math.PI / 2, 0, 0]},
+    {shape: transPlane1, translation: [-2, -1, -0.1],
+     rotation: [0.99 * Math.PI / 2, 0, 0]},
+    {shape: transPlane2, translation: [-2, -1, -0.1],
+     rotation: [Math.PI / 2, 0, 0]},
+    {shape: disc1, translation: [0, -1, 0], rotation: [Math.PI / 2, 0, 0]},
+    {shape: disc2, translation: [2, -1, 0], rotation: [Math.PI / 2, 0, 0]}
+  ];
+
+  for (var tt = 0; tt < transformTable.length; ++tt) {
+    var transform = g_pack.createObject('Transform');
+    transform.addShape(transformTable[tt].shape);
+    transform.translate(transformTable[tt].translation);
+    transform.rotateX(transformTable[tt].rotation[0]);
+    transform.rotateY(transformTable[tt].rotation[1]);
+    transform.rotateZ(transformTable[tt].rotation[2]);
+    transform.parent = g_client.root;
+  }
+}
+
+
+</script>
+</head>
+<body onload="initClient()">
+<h1>Pixel Perfection</h1>
+<p>This test generates some shapes that should be able to be rendered
+identically on all the platforms that we support.  It tests things
+like fill coverage, zbuffer coverage, blending and color/brightness
+fidelity.</p>
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 600px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+<!-- Start of effect -->
+<textarea id="vertexShader" name="vertexShader" cols="80" rows="20"
+       style="display: none;">
+// The 4x4 world view projection matrix.
+float4x4 worldViewProjection : WORLDVIEWPROJECTION;
+
+// input parameters for our vertex shader
+struct PixelShaderInput {
+  float4 position : POSITION;
+  float4 color : COLOR;
+};
+
+// input parameters for our pixel shader
+// also the output parameters for our vertex shader
+struct VertexShaderInput {
+  float4 position : POSITION;
+  float4 color: COLOR;
+};
+
+/**
+ * Vertex Shader - our vertex shader
+ */
+PixelShaderInput vertexShaderFunction(VertexShaderInput input) {
+  /**
+   * Our vertex shader projects the vertices onto the screen.
+   * We return its color unchanged.
+   */
+  PixelShaderInput output;
+
+  output.position = mul(input.position, worldViewProjection);
+  output.color = input.color;
+  return output;
+}
+
+/**
+ * pixel shader does nothing but return whatever color it was given.
+ */
+float4 pixelShaderFunction(PixelShaderInput input): COLOR {
+  return input.color;
+}
+
+// Here we tell our effect file the functions
+// which specify our vertex and pixel shaders.
+
+// #o3d VertexShaderEntryPoint vertexShaderFunction
+// #o3d PixelShaderEntryPoint pixelShaderFunction
+// #o3d MatrixLoadOrder RowMajor
+</textarea>
+<!-- End of effect -->
+</body>
+</html>

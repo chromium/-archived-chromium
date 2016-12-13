@@ -1,0 +1,690 @@
+<!DOCTYPE HTML>
+
+<!--
+about:memory template page
+-->
+<html id="t">
+  <head>
+    <title>About Memory</title>
+
+<style>
+body {
+  font-size: 84%;
+  font-family: Arial, Helvetica, sans-serif;
+  padding: 0.75em;
+  margin: 0;
+  min-width: 45em;
+}
+
+h1 {
+  font-size: 110%;
+  font-weight: bold;
+  color: #4a8ee6;
+  letter-spacing: -1px;
+  padding: 0;
+  margin: 0;
+}
+h2 {
+  font-size: 110%;
+  letter-spacing: -1px;
+  font-weight: normal;
+  color: #4a8ee6;
+  padding: 0;
+  margin: 0;
+  padding: 0.5em 1em;
+  color: #3a75bd;
+  margin-left: -38px;
+  padding-left: 38px;
+
+  border-top: 1px solid #3a75bd;
+  padding-top: 0.5em;
+
+}
+h2:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+span.th {
+  padding-left: 0.35em;
+}
+a {
+  color: black;
+}
+
+div#header {
+  padding: 0.75em 1em;
+  padding-top: 0.6em;
+  padding-left: 0;
+  margin-bottom: 0.75em;
+  position: relative;
+  overflow: hidden;
+  background: #5296de;
+  -webkit-background-size: 100%;
+  border: 1px solid #3a75bd;
+  -webkit-border-radius: 6px;
+  color: white;
+  text-shadow: 0 0 2px black;
+}
+div#header h1 {
+  padding-left: 37px;
+  margin: 0;
+  display: inline;
+  background: url('gear.png') 12px 60% no-repeat;
+  color: white;
+}
+div#header p {
+  font-size: 84%;
+  font-style: italic;
+  padding: 0;
+  margin: 0;
+  color: white;
+  padding-left: 0.4em;
+  display: inline;
+}
+div#header div.navigation {
+  position: absolute;
+  top: 0;
+  right: 1em;
+  line-height: 3.5em;
+  font-size: 92%;
+}
+div#header select {
+  font-size: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  border: 1px solid #3a75bd;
+  line-height: 140%;
+  color: #315d94;
+}
+div#header select option {
+  padding: 0 0.2em;
+}
+
+div#sidebar {
+  display: none;
+  float: left;
+  margin-left: 26px;
+  width: 45em;
+  min-height: 20em;
+  padding: 0.75em;
+  padding-top: 0;
+
+  border-right: 1px solid #cfcfcf;
+}
+div#content {
+  margin-left: 0px;
+}
+
+div.viewOptions {
+  float: right;
+  font-size: 92%;
+  color: #5f5f5f;
+  margin-top: 1em;
+}
+hr {
+  visibility: hidden;
+  display: inline;
+  padding: 0 0.5em;
+}
+div.viewOptions input {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 100%;
+  border: 1px solid #b5b5b5;
+  -webkit-border-radius: 6px;
+  padding: 0.3em 0.4em;
+}
+div.viewOptions input:focus {
+  border-color: white;
+}
+
+.k {
+  opacity: 0.4;
+  font-weight: normal;
+  padding-left: 0.1em;
+}
+
+.legend {
+  font-size: 84%;
+  padding: 0;
+  padding-top: 0.4em;
+  margin-top: 2em;
+  text-align: right;
+  line-height: 140%;
+  color: #7f7f7f;
+}
+.legend h3 {
+  padding: 0;
+  padding-right: 0.5em;
+  margin: 0;
+  font-weight: normal;
+  color: black;
+  display: inline;
+  font-size: 100%;
+}
+.legend .swatch {
+  opacity: 0.66;
+  padding: 0 0.5em;
+  display: inline-block;
+  margin-right: 0.2em;
+  height: 0.9em;
+}
+.legend .swatch.heavyUse {
+  background: #cc0000;
+}
+
+table.list {
+  width: 100%;
+  line-height: 200%;
+  border-collapse: collapse;
+  font-size: 84%;
+  table-layout: fixed;
+}
+table.list:not([class*='filtered']) tr:nth-child(odd) td {
+  background: #eff3ff;
+}
+.hidden {
+  display: none;
+}
+table.list th {
+  padding: 0 0.5em;
+  vertical-align: top;
+  font-weight: bold;
+  color: #315d94;
+  color: black;
+  white-space: nowrap;
+}
+table.list .firstRow th {
+  text-align: left;
+  line-height: 100%;
+}
+table.list .secondRow * {
+  text-align: left;
+  border-bottom: 1px solid #b5c6de;
+}
+table.list td {
+  padding: 0 0.5em;
+  vertical-align: top;
+  line-height: 1.4em;
+  padding-top: 0.35em;
+}
+table.list tr td:nth-last-child(1),
+table.list tr th:nth-last-child(1) {
+  padding-right: 1em;
+}
+table.list:not([class*='filtered']) .tab .name {
+  padding-left: 1.5em;
+}
+
+table.list .name {
+  width: 100%;
+}
+
+table.list .name div {
+  height: 1.6em;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+table.list .pid {
+  width: 4em;
+  text-align: right;
+}
+table.list .pid .th {
+  padding: 0;
+}
+table.list .type {
+  width: 5em;
+}
+table.list .number {
+  width: 7em;
+  text-align: right;
+}
+table.list .total {
+  font-weight: bold;
+}
+table.list .total .name {
+  color: #315d94;
+  text-align: right;
+}
+table.list .total td {
+  border-top: 1px solid #b5c6de;
+  background: white !important;
+}
+table.list .noResults {
+  display: none;
+}
+table.list.noResults .noResults {
+  display: table-row;
+}
+table.list .noResults td {
+  text-align: center;
+  padding: 3em 0;
+  color: #3f3f3f;
+}
+
+.heavyUse {
+  color: #cc0000;
+  font-weight: bold;
+}
+
+table.list#memoryDetails tr:not([class*='firstRow']) > *:nth-child(2),
+table.list#memoryDetails tr:not([class*='firstRow']) > *:nth-child(5),
+table.list#memoryDetails tr.firstRow th:nth-child(2),
+table.list#memoryDetails tr.firstRow th:nth-child(3) {
+  border-right: 1px solid #b5c6de;
+}
+
+table.list#browserComparison tr:not([class*='firstRow']) > *:nth-child(1),
+table.list#browserComparison tr:not([class*='firstRow']) > *:nth-child(4),
+table.list#browserComparison tr.firstRow th:nth-child(1),
+table.list#browserComparison tr.firstRow th:nth-child(2) {
+  border-right: 1px solid #b5c6de;
+}
+table.list#browserComparison .name {
+  padding-left: 25px;
+  background-position: 5px center;
+  background-repeat: no-repeat;
+}
+
+div.help {
+  display: inline-block;
+  width: 14px;
+  margin: -1px 0;
+  height: 14px;
+  background: url('help.gif') center bottom no-repeat;
+  opacity: 0.33;
+}
+div.help:hover {
+  opacity: 1;
+}
+div.help div {
+  display: none;
+}
+#helpTooltip {
+  z-index: 1000;
+  position: absolute;
+  background: #d6e8ff;
+  padding: 0.3em 0.8em;
+  max-width: 30em;
+  -webkit-box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.33);
+  border: 1px solid #a8cfff;
+  -webkit-border-radius: 0;
+  line-height: 140%;
+  font-size: 92%;
+}
+#helpTooltip p {
+  margin: 0.6em 0;
+}
+div.otherbrowsers {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 84%;
+  width: 100%;
+  text-align: center;
+}
+</style>
+<script>
+function reload() {
+  if (document.getElementById('helpTooltip'))
+    return;
+  history.go(0);
+}
+
+function formatNumber(str) {
+  str += '';
+  if (str == '0') {
+    return 'N/A ';
+  }
+  var x = str.split('.');
+  var x1 = x[0];
+  var x2 = x.length > 1 ? '.' + x[1] : '';
+  var regex = /(\d+)(\d{3})/;
+  while (regex.test(x1)) {
+    x1 = x1.replace(regex, '$1' + ',' + '$2');
+  }
+  return x1;
+}
+
+function addToSum(id, value) {
+  var target = document.getElementById(id);
+  var sum = parseInt(target.innerHTML);
+  sum += parseInt(value);
+  target.innerHTML = sum;
+}
+
+function handleHelpTooltipMouseOver(event) {
+  var el = document.createElement('div');
+  el.id = 'helpTooltip';
+  el.innerHTML = event.toElement.getElementsByTagName('div')[0].innerHTML;
+  el.style.top = 0;
+  el.style.left = 0;
+  el.style.visibility = 'hidden';
+  document.body.appendChild(el);
+
+  var width = el.offsetWidth;
+  var height = el.offsetHeight;
+
+  if (event.pageX - width - 50 + document.body.scrollLeft >= 0 ) {
+    el.style.left = (event.pageX - width - 20) + 'px';
+  } else {
+    el.style.left = (event.pageX + 20) + 'px';
+  }
+
+
+  if (event.pageY - height - 50 + document.body.scrollTop >= 0) {
+    el.style.top = (event.pageY - height - 20) + 'px';
+  } else {
+    el.style.top = (event.pageY + 20) + 'px';
+  }
+
+  el.style.visibility = 'visible';
+}
+
+function handleHelpTooltipMouseOut(event) {
+  var el = document.getElementById('helpTooltip');
+  el.parentNode.removeChild(el);
+}
+
+function enableHelpTooltips() {
+  var helpEls = document.getElementsByClassName('help');
+
+  for (var i = 0, helpEl; helpEl = helpEls[i]; i++) {
+    helpEl.onmouseover = handleHelpTooltipMouseOver;
+    helpEl.onmouseout = handleHelpTooltipMouseOut;
+  }
+}
+
+//setInterval("reload()", 10000);
+</script>
+</head>
+<body>
+    <div id='header'>
+      <h1>
+        About memory
+      </h1>
+      <p>
+        Measuring memory usage in a multi-process browser
+      </p>
+    </div>
+
+    <div id='content'>
+      <h2>
+        Summary
+        <div class='help'>
+          <div>
+            <p>
+		Summary of memory used by currently active browsers.
+		For browsers which use multiple processes, memory reflects
+		aggregate memory used across all browser processes.<p>
+		For Chromium, processes used to to display diagnostics
+		information (such as this "about:memory") are excluded.
+            </p>
+          </div>
+        </div>
+      </h2>
+
+      <table class='list' id='browserComparison'>
+        <colgroup>
+          <col class='name' />
+          <col class='number' />
+          <col class='number' />
+          <col class='number' />
+          <col class='number' />
+          <col class='number' />
+        </colgroup>
+        <tr class='firstRow doNotFilter'>
+          <th>
+          </th>
+          <th colspan='3'>
+            Memory
+            <div class='help'>
+              <div>
+                <p>
+                  <strong>Memory</strong>
+                </p>
+                <p>
+                  <strong>Private:</strong>
+                  Resident memory size that is not shared with any other process.
+                  This is the best indicator of browser memory resource usage.
+                </p>
+                <p>
+                  <strong>Shared:</strong>
+                  Resident memory size that is currently shared with 2 or more processes.
+                  Note: For browsers using multiple processes, if we simply added the shared memory
+                  of each individual process, this value would be inflated. Therefore, this value
+                  is computed as an approximate value for shared memory in each of the browser's
+                  processes. Note also that shared memory varies depending on what other processes
+                  are running on the system, and may be difficult to measure reproducibly.
+                </p>
+                <p>
+                  <strong>Total:</strong>
+                  The sum of the private + shared resident memory sizes.
+                </p>
+              </div>
+            </div>
+          </th>
+          <th colspan='2'>
+            Virtual memory
+            <div class='help'>
+              <div>
+                <p>
+                  <strong>Virtual memory</strong>
+                </p>
+                <p>
+                  <strong>Private:</strong>
+                  The resident and paged bytes committed for use by only this process.
+                </p>
+                <p>
+                  <strong>Mapped:</strong>
+                  Total bytes allocated by this process that are mapped into the
+                  view of a section, backed by either system pagefile or file system. This
+                  is primarily memory-mapped files.
+                </p>
+              </div>
+            </div>
+          </th>
+        </tr>
+        <tr class='secondRow doNotFilter'>
+          <th class='name'>
+            Browser
+          </th>
+          <th class='name'>
+            Private
+          </th>
+          </th>
+          <th class='number'>
+            Shared
+          </th>
+          <th class='number'>
+            Total
+          </th>
+          <th class='number'>
+            Private
+          </th>
+          <th class='number'>
+            Mapped
+          </th>
+        </tr>
+        <tr jsselect="browsers">
+          <td class='name'>
+            <div>
+              <strong jscontent="name"></strong> <span jscontent="version"></span>
+            </div>
+          </td>
+          <td class='number'>
+            <span class='th' jscontent="formatNumber(ws_priv + ws_shareable - ws_shared)"></span><span class='k'>k</span>
+          </td>
+          <td class='number'>
+            <span class='th' jscontent="formatNumber(ws_shared / processes)"></span><span class='k'>k</span>
+          </td>
+          <td class='number'>
+            <span class='th' jscontent="formatNumber(ws_priv + ws_shareable - ws_shared + (ws_shared / processes))"></span><span class='k'>k</span>
+          </td>
+          <td class='number'>
+            <span class='th' jscontent="formatNumber(comm_priv)"></span><span class='k'>k</span>
+          </td>
+          <td class='number'>
+            <span class='th' jscontent="formatNumber(comm_map)"></span><span class='k'>k</span>
+          </td>
+        </tr>
+      </table>
+      <div class=otherbrowsers jsdisplay="browsers.length == 1">
+        Note: If other browsers (e.g. IE, Firefox, Safari) are running,
+        I'll show their memory details here.
+      </div>
+
+      <br /><br /><br />
+
+      <h2>
+        Processes
+        <div class='help'>
+          <div>
+            <p>
+		Details of memory usage for each of Chromium's processes.
+            </p>
+          </div>
+        </div>
+      </h2>
+
+      <table class='list' id='memoryDetails'>
+        <colgroup>
+          <col class='pid' />
+          <col class='name' />
+          <col class='number' />
+          <col class='number' />
+          <col class='number' />
+          <col class='number' />
+          <col class='number' />
+        </colgroup>
+        <tr class='firstRow doNotFilter'>
+          <th>
+          </th>
+          <th>
+          </th>
+          <th colspan='3'>
+            Memory
+          </th>
+          <th colspan='2'>
+            Virtual memory
+          </th>
+
+        </tr>
+        <tr class='secondRow doNotFilter'>
+          <th class='pid'>
+            PID
+          </th>
+          <th class='name'>
+            Name
+          </th>
+          <th class='number'>
+            Private
+          </th>
+          <th class='number'>
+            Shared
+          </th>
+          <th class='number'>
+            Total
+          </th>
+          <th class='number'>
+            Private
+          </th>
+          <th class='number'>
+            Mapped
+          </th>
+        </tr>
+
+        <tr jsselect="browzr_data">
+          <td class='pid'>
+            <span class='th' jscontent="pid"></span>
+          </td>
+          <td class='name'>
+            <div>
+              Browser
+            </div>
+          </td>
+          <td class='number'>
+            <span class='th' jseval="addToSum('tot_ws_priv', $this.ws_priv + $this.ws_shareable - $this.ws_shared)" jscontent="ws_priv + ws_shareable - ws_shared"></span><span class='k'>k</span>
+          </td>
+          <td class='number'>
+            <span class='th' jscontent="ws_shared"></span><span class='k'>k</span>
+          </td>
+          <td class='number'>
+            <span class='th' jseval="addToSum('tot_ws_tot', $this.ws_priv + $this.ws_shareable)" jscontent="ws_priv + ws_shareable"></span><span class='k'>k</span>
+          </td>
+          <td class='number'>
+            <span class='th' jseval="addToSum('tot_comm_priv', $this.comm_priv)" jscontent="comm_priv"></span><span class='k'>k</span>
+          </td>
+          <td class='number'>
+            <span class='th' jseval="addToSum('tot_comm_map', $this.comm_map)" jscontent="comm_map"></span><span class='k'>k</span>
+          </td>
+        </tr>
+        <tr jsselect="child_data">
+          <td class='pid'>
+            <span class='th' jscontent="pid"></span>
+          </td>
+          <td class='name'>
+            <div jscontent="child_name"></div>
+            <div jsselect="titles">
+              <span jscontent="$this"></span><br>
+            </div>
+          </td>
+          <td class='number'>
+            <span class='th' jseval="addToSum('tot_ws_priv', $this.ws_priv + $this.ws_shareable - $this.ws_shared)" jscontent="ws_priv + ws_shareable - ws_shared"></span><span class='k'>k</span>
+          </td>
+          <td class='number'>
+            <span class='th' jscontent="ws_shared"></span><span class='k'>k</span>
+          </td>
+          <td class='number'>
+            <span class='th' jseval="addToSum('tot_ws_tot', $this.ws_priv + $this.ws_shareable)" jscontent="ws_priv + ws_shareable"></span><span class='k'>k</span>
+          </td>
+          <td class='number'>
+            <span class='th' jseval="addToSum('tot_comm_priv', $this.comm_priv)" jscontent="comm_priv"></span><span class='k'>k</span>
+          </td>
+          <td class='number'>
+            <span class='th' jseval="addToSum('tot_comm_map', $this.comm_map)" jscontent="comm_map"></span><span class='k'>k</span>
+          </td>
+        </tr>
+        <tr class='total doNotFilter'>
+          <td class='pid'>
+          </td>
+          <td class='name'>
+            &Sigma;
+          </td>
+          <td class='number'>
+            <span class='th' id="tot_ws_priv">0</span><span class='k'>k</span>
+          </td>
+          <td class='number'>
+          </td>
+          <td class='number'>
+            <span class='th' id="tot_ws_tot">0</span><span class='k'>k</span>
+          </td>
+          <td class='number'>
+            <span class='th' id="tot_comm_priv">0</span><span class='k'>k</span>
+          </td>
+          <td class='number'>
+            <div class='help'>
+              <div>
+                <p>
+                  This is an approximation. Conceptually, this is the total
+                  amount of in-memory pages for the entire logical Chromium
+                  application, without double counting shared pages (e.g.
+                  mapped
+                  DLLs, SharedMemory bitmaps, etc.) across the browser and
+                  renderers.
+                </p>
+              </div>
+            </div>
+            <span class='th' id="tot_comm_map">0</span><span class='k'>k</span>
+          </td>
+        </tr>
+
+        <tr class='noResults'>
+          <td colspan='99'>
+            No results found.
+          </td>
+        </tr>
+      </table>
+    </div>
+</body>
+<script>
+  enableHelpTooltips();
+</script>
+</html>

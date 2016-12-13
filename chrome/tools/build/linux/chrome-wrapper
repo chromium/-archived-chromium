@@ -1,0 +1,62 @@
+#!/bin/sh
+
+# Copyright (c) 2006-2009 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Running Chromium via this script makes it possible to set Chromium as the
+# default browser directly out of a compile, without needing to package it.
+
+DESKTOP="chromium-browser"
+TITLE="Chromium"
+
+# Check to see if there is a desktop file of the given name
+exists_desktop_file() {
+    # Build a search list from $XDG_DATA_HOME and $XDG_DATA_DIRS, the latter
+    # of which can itself be a colon-separated list of directories to search.
+    search="${XDG_DATA_HOME:-$HOME/.local/share}:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
+    IFS=:
+    for dir in $search; do
+        unset IFS
+        [ "$dir" -a -d "$dir/applications" ] || continue
+        [ -r "$dir/applications/$DESKTOP.desktop" ] && return
+    done
+    # Didn't find it in the search path
+    return 1
+}
+
+# Generate a desktop file that will run this script
+generate_desktop_file() {
+    apps="${XDG_DATA_HOME:-$HOME/.local/share}/applications"
+    cat > "$apps/$DESKTOP.desktop" << EOF
+[Desktop Entry]
+Version=1.0
+Encoding=UTF-8
+Name=$TITLE
+Exec=$CHROME_WRAPPER %U
+Terminal=false
+Icon=$HERE/product_logo_48.png
+Type=Application
+Categories=Application;Network;WebBrowser;
+MimeType=text/html;text/xml;application/xhtml_xml;
+EOF
+}
+
+# Let the wrapped binary know that it has been run through the wrapper
+export CHROME_WRAPPER="`readlink -f "$0"`"
+
+HERE="`dirname "$CHROME_WRAPPER"`"
+
+case ":$PATH:" in
+  *:$HERE:*)
+    # $PATH already contains $HERE
+    ;;
+  *)
+    # Append $HERE to $PATH
+    export PATH="$PATH:$HERE"
+    ;;
+esac
+
+exists_desktop_file || generate_desktop_file
+
+exec "$HERE/chrome" "$@"

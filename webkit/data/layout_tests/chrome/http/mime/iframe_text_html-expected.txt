@@ -1,0 +1,240 @@
+layer at (0,0) size 785x5152
+  RenderView at (0,0) size 785x600
+layer at (0,0) size 785x5152
+  RenderBlock {HTML} at (0,0) size 785x5152
+    RenderBody {BODY} at (8,8) size 769x5136
+      RenderText {#text} at (0,0) size 765x36
+        text run at (0,0) width 765: "This HTML is used to test HTTP content-type \"text/html\" by having multiple iframes render different types of content for"
+        text run at (0,18) width 236: "the same HTTP content-type header. "
+      RenderText {#text} at (0,0) size 0x0
+      RenderText {#text} at (0,0) size 0x0
+      RenderText {#text} at (0,0) size 0x0
+      RenderBR {BR} at (0,0) size 0x0
+      RenderText {#text} at (0,36) size 162x18
+        text run at (0,36) width 162: "Well here are the frames !"
+      RenderBR {BR} at (162,50) size 0x0
+      RenderBR {BR} at (0,54) size 0x18
+      RenderBR {BR} at (0,72) size 0x18
+      RenderText {#text} at (0,90) size 698x18
+        text run at (0,90) width 698: "This frame tests loading of a HTML page with a GIF image when the HTTP content-type is set to \"text/html\" ."
+      RenderBR {BR} at (698,104) size 0x0
+      RenderText {#text} at (0,108) size 459x18
+        text run at (0,108) width 459: "Expected : This iframe should have been RENDERED CORRECTLY ."
+      RenderBR {BR} at (459,122) size 0x0
+      RenderPartObject {IFRAME} at (0,126) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,416) size 4x18
+        text run at (504,416) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,434) size 0x18
+      RenderText {#text} at (0,452) size 706x18
+        text run at (0,452) width 706: "This frame tests loading of a HTML page with a BMP image when the HTTP content-type is set to \"text/html\" ."
+      RenderBR {BR} at (706,466) size 0x0
+      RenderText {#text} at (0,470) size 476x18
+        text run at (0,470) width 476: "Expected : This iframe should have been RENDERED INCORRECTLY ."
+      RenderBR {BR} at (476,484) size 0x0
+      RenderPartObject {IFRAME} at (0,488) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,778) size 4x18
+        text run at (504,778) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,796) size 0x18
+      RenderText {#text} at (0,814) size 696x18
+        text run at (0,814) width 696: "This frame tests loading of a HTML page with a TIF image when the HTTP content-type is set to \"text/html\" ."
+      RenderBR {BR} at (696,828) size 0x0
+      RenderText {#text} at (0,832) size 476x18
+        text run at (0,832) width 476: "Expected : This iframe should have been RENDERED INCORRECTLY ."
+      RenderBR {BR} at (476,846) size 0x0
+      RenderPartObject {IFRAME} at (0,850) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,1140) size 4x18
+        text run at (504,1140) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,1158) size 0x18
+      RenderText {#text} at (0,1176) size 705x18
+        text run at (0,1176) width 705: "This frame tests loading of a HTML page with a PNG image when the HTTP content-type is set to \"text/html\" ."
+      RenderBR {BR} at (705,1190) size 0x0
+      RenderText {#text} at (0,1194) size 459x18
+        text run at (0,1194) width 459: "Expected : This iframe should have been RENDERED CORRECTLY ."
+      RenderBR {BR} at (459,1208) size 0x0
+      RenderPartObject {IFRAME} at (0,1212) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,1502) size 4x18
+        text run at (504,1502) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,1520) size 0x18
+      RenderText {#text} at (0,1538) size 709x18
+        text run at (0,1538) width 709: "This frame tests loading of a HTML page with a JPEG image when the HTTP content-type is set to \"text/html\" ."
+      RenderBR {BR} at (709,1552) size 0x0
+      RenderText {#text} at (0,1556) size 459x18
+        text run at (0,1556) width 459: "Expected : This iframe should have been RENDERED CORRECTLY ."
+      RenderBR {BR} at (459,1570) size 0x0
+      RenderPartObject {IFRAME} at (0,1574) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,1864) size 4x18
+        text run at (504,1864) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,1882) size 0x18
+      RenderText {#text} at (0,1900) size 583x18
+        text run at (0,1900) width 583: "This frame tests loading of a HTML page when the HTTP content-type is set to \"text/html\" ."
+      RenderBR {BR} at (583,1914) size 0x0
+      RenderText {#text} at (0,1918) size 476x18
+        text run at (0,1918) width 476: "Expected : This iframe should have been RENDERED INCORRECTLY ."
+      RenderBR {BR} at (476,1932) size 0x0
+      RenderPartObject {IFRAME} at (0,1936) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,2226) size 4x18
+        text run at (504,2226) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,2244) size 0x18
+      RenderText {#text} at (0,2262) size 743x18
+        text run at (0,2262) width 743: "This frame tests loading of a an HTML page with a FLASH object when the HTTP content-type is set to \"text/html\" ."
+      RenderBR {BR} at (743,2276) size 0x0
+      RenderText {#text} at (0,2280) size 459x18
+        text run at (0,2280) width 459: "Expected : This iframe should have been RENDERED CORRECTLY ."
+      RenderBR {BR} at (459,2294) size 0x0
+      RenderPartObject {IFRAME} at (0,2298) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,2588) size 4x18
+        text run at (504,2588) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,2606) size 0x18
+      RenderText {#text} at (0,2624) size 668x18
+        text run at (0,2624) width 668: "This frame tests loading of a GIF image and no HTML when the HTTP content-type is set to \"text/html\" ."
+      RenderBR {BR} at (668,2638) size 0x0
+      RenderText {#text} at (0,2642) size 322x18
+        text run at (0,2642) width 322: "Expected : This iframe should have simple TEXT ."
+      RenderBR {BR} at (322,2656) size 0x0
+      RenderPartObject {IFRAME} at (0,2660) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,2950) size 4x18
+        text run at (504,2950) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,2968) size 0x18
+      RenderText {#text} at (0,2986) size 676x18
+        text run at (0,2986) width 676: "This frame tests loading of a BMP image and no HTML when the HTTP content-type is set to \"text/html\" ."
+      RenderBR {BR} at (676,3000) size 0x0
+      RenderText {#text} at (0,3004) size 322x18
+        text run at (0,3004) width 322: "Expected : This iframe should have simple TEXT ."
+      RenderBR {BR} at (322,3018) size 0x0
+      RenderPartObject {IFRAME} at (0,3022) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,3312) size 4x18
+        text run at (504,3312) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,3330) size 0x18
+      RenderText {#text} at (0,3348) size 666x18
+        text run at (0,3348) width 666: "This frame tests loading of a TIF image and no HTML when the HTTP content-type is set to \"text/html\" ."
+      RenderBR {BR} at (666,3362) size 0x0
+      RenderText {#text} at (0,3366) size 322x18
+        text run at (0,3366) width 322: "Expected : This iframe should have simple TEXT ."
+      RenderBR {BR} at (322,3380) size 0x0
+      RenderPartObject {IFRAME} at (0,3384) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,3674) size 4x18
+        text run at (504,3674) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,3692) size 0x18
+      RenderText {#text} at (0,3710) size 675x18
+        text run at (0,3710) width 675: "This frame tests loading of a PNG image and no HTML when the HTTP content-type is set to \"text/html\" ."
+      RenderBR {BR} at (675,3724) size 0x0
+      RenderText {#text} at (0,3728) size 322x18
+        text run at (0,3728) width 322: "Expected : This iframe should have simple TEXT ."
+      RenderBR {BR} at (322,3742) size 0x0
+      RenderPartObject {IFRAME} at (0,3746) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,4036) size 4x18
+        text run at (504,4036) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,4054) size 0x18
+      RenderText {#text} at (0,4072) size 679x18
+        text run at (0,4072) width 679: "This frame tests loading of a JPEG image and no HTML when the HTTP content-type is set to \"text/html\" ."
+      RenderBR {BR} at (679,4086) size 0x0
+      RenderText {#text} at (0,4090) size 322x18
+        text run at (0,4090) width 322: "Expected : This iframe should have simple TEXT ."
+      RenderBR {BR} at (322,4104) size 0x0
+      RenderPartObject {IFRAME} at (0,4108) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,4398) size 4x18
+        text run at (504,4398) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,4416) size 0x18
+      RenderText {#text} at (0,4434) size 687x18
+        text run at (0,4434) width 687: "This frame tests loading of a simple TEXT and no HTML when the HTTP content-type is set to \"text/html\" ."
+      RenderBR {BR} at (687,4448) size 0x0
+      RenderText {#text} at (0,4452) size 322x18
+        text run at (0,4452) width 322: "Expected : This iframe should have simple TEXT ."
+      RenderBR {BR} at (322,4466) size 0x0
+      RenderPartObject {IFRAME} at (0,4470) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (504,4760) size 4x18
+        text run at (504,4760) width 4: " "
+      RenderBR {BR} at (0,0) size 0x0
+      RenderBR {BR} at (0,4778) size 0x18
+      RenderText {#text} at (0,4796) size 694x18
+        text run at (0,4796) width 694: "This frame tests loading of a FLASH object and no HTML when the HTTP content-type is set to \"text/html\" ."
+      RenderBR {BR} at (694,4810) size 0x0
+      RenderText {#text} at (0,4814) size 322x18
+        text run at (0,4814) width 322: "Expected : This iframe should have simple TEXT ."
+      RenderBR {BR} at (322,4828) size 0x0
+      RenderPartObject {IFRAME} at (0,4832) size 504x304 [border: (2px inset #000000)]
+        layer at (0,0) size 500x300
+          RenderView at (0,0) size 500x300
+        layer at (0,0) size 500x300
+          RenderBlock {HTML} at (0,0) size 500x300
+            RenderBody {BODY} at (8,8) size 484x284
+      RenderText {#text} at (0,0) size 0x0
+      RenderText {#text} at (0,0) size 0x0
+      RenderText {#text} at (0,0) size 0x0

@@ -1,0 +1,10 @@
+This directory contains a stock lcov-1.7 available from
+http://ltp.sourceforge.net/coverage/lcov.php with the following
+changes:
+
+- Added bin/mcov, an assembly script derived from lcov which is
+ particularly useful for dealing with Mac XCode build paths.
+- Added LICENSE file pulled from the top of bin/lcov.
+
+
+

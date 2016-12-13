@@ -1,0 +1,6 @@
+{
+  "key": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCsaVmPYFjlYABY7y8sEVB5i3/stDIXU8i3bBeQYeaXOg+Jr1vEhaSgKTy3zMY4m3+cnKI7Z/bMpYohS4pQTcwIXS1kEB6taCUUWgm2315zxSH+gUFRyfzBDlS8LZ9tRirFGj8o0R2YQobHgSPyf04Phq4AeMmGSygEJkfGO+Wt8wIDAQAB",
+  "version": "1.0.0.0",
+  "name": "ApiCall Test Extension",
+  "description": "An extension for an extension UITest."
+}

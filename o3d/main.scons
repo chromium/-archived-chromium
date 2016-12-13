@@ -1,0 +1,842 @@
+# Copyright 2009, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+
+import os
+import sys
+
+
+# Underlay everything from the o3d directory.
+Dir('tests').addRepository(Dir('#/'))
+
+def GetDotVersion(version):
+  return '%d.%d.%d.%d' % version
+
+def GetCommaVersion(version):
+  return '%d,%d,%d,%d' % version
+
+# This name is used by Javascript to find the plugin therefore it must
+# not change. If you change this you must change the name in
+# samples/o3djs/util.js but be aware, changing the name
+# will break all apps that use o3d on the web.
+plugin_name = 'O3D Plugin'
+
+# Get version string from o3d_version.py
+o3d_version_vars = {}
+if int(ARGUMENTS.get('MAC_KILLSWITCH', 0)):
+  execfile(str(File('installer/win/o3d_kill_version.py')), o3d_version_vars)
+else:
+  execfile(str(File('installer/win/o3d_version.py')), o3d_version_vars)
+plugin_version = o3d_version_vars['plugin_version']
+sdk_version = o3d_version_vars['sdk_version']
+
+# --------------------------------------------------------------------
+
+
+# List of environment leaves
+environment_list = []
+
+base_env = Environment(
+    tools = ['component_setup'],
+    O3D_PLUGIN_NAME = plugin_name,
+    O3D_PLUGIN_VERSION = GetDotVersion(plugin_version),
+    O3D_PLUGIN_VERSION_COMMAS = GetCommaVersion(plugin_version),
+    O3D_SDK_VERSION = GetDotVersion(sdk_version),
+    O3D_SDK_VERSION_COMMAS = GetCommaVersion(sdk_version),
+
+    # TODO: this will be the default, but is set for now
+    COMPONENT_STATIC = True,
+
+    COVERAGE_TARGETS = ['unit_tests', 'system_tests'],
+    MSVS_USE_MFC_DIRS=1,
+)
+
+base_env.ApplySConscript(['svn_paths.scons'])
+
+base_env.Append(
+    # Some derived paths
+    NACL_NRD_XFER_SOURCE_DIR = '$NACL_DIR/src/trusted/desc',
+    NACL_PLUGIN_SOURCE_DIR = '$NACL_DIR/npapi_plugin',
+    DOCS_DIR = '$DESTINATION_ROOT/docs',
+
+    CPPPATH = [
+        # The internal dir is first so that headers in internal can replace
+        # those in external.
+        '$INTERNAL_DIR',
+        '$SCONSTRUCT_DIR/..',
+        '$SCONSTRUCT_DIR',
+        '$CHROME_SRC_DIR',
+        '$GTEST_DIR/include',
+        '$EXPERIMENTAL_O3D_DIR',
+        '$NACL_DIR/..',
+    ],
+    LIBPATH = '$LIBS_DIR',
+    RENDERER_INCLUDE_PATH = [
+        '$ZLIB_DIR',
+        '$JPEG_DIR',
+        '$PNG_DIR',
+      ],
+    RENDERER_LIB_PATH = [
+    ],
+    RENDERER_LIBS = [
+        'libjpeg',
+        'libpng',
+        'zlib',
+        ],
+
+    CPPDEFINES = [
+        ['O3D_VERSION_NUMBER', '$O3D_PLUGIN_VERSION'],
+        'UNICODE',
+    ],
+    ICU_LIBS = ['icu'],
+)
+
+
+# If you change this argument, you'll need to clean the whole project before
+# rebuilding.
+if ARGUMENTS.get('PROFILE_GLUE', ''):
+  base_env.Append(
+      CPPDEFINES = [
+        'PROFILE_GLUE',
+        'PROFILE_CLIENT',
+      ])
+
+# Define O3D_ENABLE_BREAKPAD if Pulse passes in:
+# O3D_ENABLE_BREAKPAD=1
+if int(ARGUMENTS.get('O3D_ENABLE_BREAKPAD', 0)):
+  base_env.Append(CPPDEFINES = 'O3D_ENABLE_BREAKPAD')
+
+# Returns a list of objects built from a third-party directory.
+def MakeObjects(env, stems, dir, extension):
+  return [env.ComponentObject(stem, '%s/%s.%s' % (dir, stem, extension))
+          for stem in stems]
+base_env.AddMethod(MakeObjects)
+
+def Python(env, args):
+  """Returns an action that executes python with the given args, specifying
+  PYTHONPATH from the scons environment"""
+  sep = ':'
+  if env.Bit('host_windows'):
+    sep = ';'
+  # Add PYTHONPATH from the scons environment to the OS environment.
+  # NOTE: Ideally that would be delay-evaluated, but I can't figure out
+  # how to do that in scons.
+  env['ENV']['PYTHONPATH'] = env.subst(sep.join(env['PYTHONPATH']))
+  return Action(' '.join(['$PYTHON'] + args))
+
+base_env.AddMethod(Python)
+
+# The base NaCl IMC lib.
+nacl_imc_lib = 'google_nacl_imc'
+
+# All the libs required for IMC layer on the host.
+nacl_imc_all_libs = [
+  nacl_imc_lib,
+  'google_nacl_imc_c',
+  ]
+
+# All the libs required for HTP layer on the host.
+nacl_htp_all_libs = [
+  nacl_imc_lib,
+  'google_nacl_imc_c',
+  'nrd_xfer',
+  'gio',
+  'naclthread',
+  ]
+
+binaries_env = base_env.Clone()
+binaries_env.Append(
+    BUILD_COMPONENTS = [
+        'base',
+        'bitmap',
+        'compiler/antlr',
+        'compiler/technique',
+        'converter',
+        'core',
+        'import',
+        'plugin',
+        'samples',
+        'serializer',
+        'skia',
+        'tests',
+        'tests/common',
+        'utils',
+        'v8',
+    ],
+    # TODO: this is ugly, should all be rolling into builder.
+    NACL_OBJ_ROOT = '$NACL_DIR/scons-out/$NACL_VARIANT/obj',
+    NACL_LIB_DIR = '$NACL_DIR/scons-out/$NACL_VARIANT/lib',
+    NACL_HTP_LIBS = nacl_htp_all_libs,
+)
+
+# This function adds a path to a windows environment variable like PATH,
+# INCLUDE, or LIB.
+def AddPathToWindowsEnv(env_dict, var, path):
+  try:
+    src = env_dict[var]
+  except KeyError:
+    src = ''
+  if not src:
+    env_dict[var] = path
+  else:
+    env_dict[var] = '%s;%s' % (src, path)
+
+# This function builds the native client IMC or HTP libraries by
+# calling hammer to do a NaCl build.  It should handle dependencies
+# correctly and will not rebuild unless necessary.
+def AddNaclBuildCommand(env, variant, platforms):
+  if sys.platform not in platforms: return
+
+  nacl_os_env = dict(os.environ)
+  if sys.platform in ['win32', 'cygwin']:
+    script_suffix = '.bat'
+    # We want native client to use the same Platform SDK as ours. Pass it
+    # through INCLUDE and LIB.
+    AddPathToWindowsEnv(nacl_os_env, 'INCLUDE',
+                        env.subst('$PLATFORM_SDK_VISTA_6_0_DIR/Include'))
+    AddPathToWindowsEnv(nacl_os_env, 'LIB',
+                        env.subst('$PLATFORM_SDK_VISTA_6_0_DIR/Lib'))
+  else:
+    script_suffix = '.sh'
+
+  build_libs = nacl_htp_all_libs
+
+  targets = ['$NACL_LIB_DIR/${LIBPREFIX}' + f + '${LIBSUFFIX}'
+             for f in build_libs]
+  nacl_build_tool = '$PYTHON $SCONS_DIR/scons.py'
+  env.Command(targets,
+              ['$NACL_NRD_XFER_SOURCE_DIR', '$NACL_PLUGIN_SOURCE_DIR'],
+              nacl_build_tool + ' '
+              'MODE=$NACL_VARIANT '
+              'naclsdk_validate=0 '
+              'sdl=none '
+              '--verbose '
+              '--file=SConstruct '
+              '$DEBUG_OPTS '
+              '-C $NACL_DIR '
+              '$NACL_TARGETS',
+              source_scanner = DirScanner,
+              ENV = nacl_os_env,
+              # TODO: figure out why these can't be absolute paths
+              # when run on some flavors of linux. For now we can pass in the
+              # library name, which at least works everywhere.
+              NACL_TARGETS = build_libs,
+              NACL_VARIANT = variant,
+              DEBUG_OPTS = ['--debug=%s' % item for item in GetOption('debug')],
+  )
+
+# TODO: This is really not the ideal way to do this -- for
+# instance, the output goes into the NaCl scons-out directory instead
+# of ours.
+
+# Add in the two variants of NACL.
+win_platforms = ['win32', 'cygwin']
+mac_platforms = ['darwin']
+linux_platforms = ['linux', 'linux2']
+all_platforms = win_platforms + mac_platforms + linux_platforms
+AddNaclBuildCommand(binaries_env, 'dbg-win', win_platforms)
+AddNaclBuildCommand(binaries_env, 'opt-win', win_platforms)
+AddNaclBuildCommand(binaries_env, 'dbg-mac', mac_platforms)
+AddNaclBuildCommand(binaries_env, 'opt-mac', mac_platforms)
+AddNaclBuildCommand(binaries_env, 'dbg-linux', linux_platforms)
+AddNaclBuildCommand(binaries_env, 'opt-linux', linux_platforms)
+AddNaclBuildCommand(binaries_env, 'nacl', all_platforms)
+
+def AddTestingFlags(env):
+  env.Append(
+      CPPDEFINES = ['TESTING'],
+      SELENIUM_EXTRA_FLAGS = [
+          '--screenshots']
+  )
+
+# Windows ------------------------------------------------------------------
+
+app_data_dir = ""
+try:
+  app_data_dir = os.environ["APPDATA"]
+except KeyError:
+  pass  # This fails messily on mac + linux, so just ignore it.
+
+windows_env = binaries_env.Clone(
+    tools = [
+        'target_platform_windows',
+        'directx_9_18_944_0_partial',
+        'atlmfc_vc80',
+        'midl',
+    ],
+    CG_DIR = '$CG_BASE_DIR/win',
+    FIREFOX_PLUGIN_DIR = os.path.join(
+      app_data_dir, 'Mozilla', 'plugins'),
+    IE_PLUGIN_DIR = os.path.join(
+      app_data_dir, 'Google', 'O3D'),
+
+    # Turn off manifest generation, since we don't use that.
+    MANIFEST_FILE=False,
+
+    # Use MIDL compiler from the platform sdk, since
+    # we're including headers from there.
+    MIDL = '"$PLATFORM_SDK_VISTA_6_0_DIR/Bin/Midl.exe"',
+    MIDLFLAGS=['"/I$PLATFORM_SDK_VISTA_6_0_DIR/Include"'],
+)
+
+windows_env.Append(
+    CPPPATH = [
+        '$PLATFORM_SDK_VISTA_6_0_DIR/Include',
+        '$SWIFTSHADER_DIR',
+    ],
+    LIBPATH = [
+        '$PLATFORM_SDK_VISTA_6_0_DIR/Lib',
+    ],
+    CPPDEFINES = [
+        '_UNICODE', # turn on unicode
+        'WIN32',
+        '_WINDOWS',
+        'WIN32_LEAN_AND_MEAN',
+        'NOMINMAX',
+        '_WIN32_WINNT=0x0600',
+        '_CRT_SECURE_NO_WARNINGS',
+        'NACL_WINDOWS=1',
+        'SK_BUILD_FOR_WIN32',
+    ],
+    CCFLAGS = [
+        '/Z7', # put debug info in obj files
+        '/EHsc',
+        '/wd4018',  # comparison between signed and unsigned
+        '/wd4355',  # using this in a constructor
+        '/wd4305',  # truncating double to float
+    ],
+    LINKFLAGS = [
+        '/DEBUG'  # Always generate PDBs.
+    ],
+    LIBS = [
+        'user32',
+        'gdi32',
+        'shell32',
+        'ws2_32',
+        'rpcrt4',
+        'kernel32',
+        'advapi32',
+        'psapi',
+        'winmm',  # For V8
+        'ws2_32', # For V8
+    ],
+    BUILD_COMPONENTS = [
+        'breakpad',
+        'installer/win',
+        'google_update',
+        'plugin/npapi_host_control',
+        'statsreport',
+        'statsreport/common',
+        'nbguidgen',
+    ],
+    COVERAGE_TARGETS = ['selenium'],
+)
+windows_env.FilterOut(CPPDEFINES=['OS_WINDOWS=OS_WINDOWS'])
+
+windows_d3d_env = windows_env.Clone()
+windows_d3d_env.Append(
+    CPPDEFINES = ['RENDERER_D3D9'],
+    RENDERER_INCLUDE_PATH = [],
+    RENDERER_LIB_PATH = [],
+    RENDERER_LIBS = ['d3d9', 'dxerr9'],
+)
+
+
+
+windows_gl_env = windows_env.Clone()
+windows_gl_env.Append(
+    RENDERER_INCLUDE_PATH = [
+        '$GLEW_DIR/include',
+        '$CG_DIR/include',
+    ],
+    RENDERER_LIB_PATH = [
+        '$CG_DIR/lib',
+        '$GLEW_DIR/lib',
+    ],
+    RENDERER_LIBS = [
+        'OpenGL32',
+        'glew32',
+        'cg',
+        'cgGL',
+    ],
+    CPPDEFINES = [
+        'RENDERER_GL'
+    ]
+)
+
+
+def AddWindowsDebugSettings(env):
+   env.Append(
+       CCFLAGS = [
+           '/Od',       # no optimizations at all
+           '/MTd',      # multi-threaded, staticly linked crt, with debugging
+           '/RTCsu',    # complain about using un-inited (u),
+                        # do more stack checks (s)
+       ],
+       CPPDEFINES = [
+           '_DEBUG',    # we are in debug mode
+       ],
+       LINKFLAGS = [
+           '/FIXED:no'  # Put in .reloc sections, to make Purify happy.
+       ],
+   )
+   env.Replace(
+       DEBUG = True,
+       NACL_VARIANT = 'dbg-win',
+   )
+
+
+def AddWindowsOptimizedSettings(env):
+   env.Append(
+       CCFLAGS = [
+           '/O1', # optimize for size
+           '/MT', # multi-threaded, staticly linked crt, release
+       ],
+       CPPDEFINES = [
+           'NDEBUG',  # we are in release mode
+           'ANTLR3_NODEBUGGER',  # turn off remote ANTLR debugging
+       ],
+   )
+   env.Replace(
+       DEBUG = False,
+       NACL_VARIANT = 'opt-win',
+   )
+
+
+windows_d3d_debug_env = windows_d3d_env.Clone(
+    BUILD_TYPE = 'dbg-d3d',
+    BUILD_TYPE_DESCRIPTION = 'Windows DirectX debug build',
+)
+windows_d3d_debug_env.Append(BUILD_GROUPS = ['default', 'most'])
+windows_d3d_debug_env.Append(CPPDEFINES = ['D3D_DEBUG_INFO'])
+AddWindowsDebugSettings(windows_d3d_debug_env)
+environment_list.append(windows_d3d_debug_env)
+
+
+windows_d3d_optimized_env = windows_d3d_env.Clone(
+    BUILD_TYPE = 'opt-d3d',
+    BUILD_TYPE_DESCRIPTION = 'Windows DirectX optimized build',
+)
+windows_d3d_optimized_env.Append(BUILD_GROUPS = ['most'])
+AddWindowsOptimizedSettings(windows_d3d_optimized_env)
+environment_list.append(windows_d3d_optimized_env)
+
+windows_d3d_test_debug_env = windows_d3d_env.Clone(
+    BUILD_TYPE = 'test-dbg-d3d',
+    BUILD_TYPE_DESCRIPTION = 'Windows DirectX debug build for testing',
+)
+AddWindowsDebugSettings(windows_d3d_test_debug_env)
+AddTestingFlags(windows_d3d_test_debug_env)
+environment_list.append(windows_d3d_test_debug_env)
+
+windows_d3d_test_optimized_env = windows_d3d_env.Clone(
+    BUILD_TYPE = 'test-opt-d3d',
+    BUILD_TYPE_DESCRIPTION = 'Windows DirectX optimized build for testing',
+)
+AddWindowsOptimizedSettings(windows_d3d_test_optimized_env)
+AddTestingFlags(windows_d3d_test_optimized_env)
+environment_list.append(windows_d3d_test_optimized_env)
+
+windows_gl_debug_env = windows_gl_env.Clone(
+    BUILD_TYPE = 'dbg-gl',
+    BUILD_TYPE_DESCRIPTION = 'Windows OpenGL debug build',
+)
+windows_gl_debug_env.Append(BUILD_GROUPS = ['most'])
+AddWindowsDebugSettings(windows_gl_debug_env)
+environment_list.append(windows_gl_debug_env)
+
+
+windows_gl_optimized_env = windows_gl_env.Clone(
+    BUILD_TYPE = 'opt-gl',
+    BUILD_TYPE_DESCRIPTION = 'Windows OpenGL optimized build',
+)
+windows_gl_optimized_env.Append(BUILD_GROUPS = ['most'])
+AddWindowsOptimizedSettings(windows_gl_optimized_env)
+environment_list.append(windows_gl_optimized_env)
+
+
+windows_cb_env = windows_env.Clone()
+windows_cb_env.Append(
+    CPPDEFINES = ['RENDERER_CB'],
+    BUILD_COMPONENTS = [
+      'command_buffer/common',
+      'command_buffer/service',
+      'command_buffer/client'
+      ],
+    RENDERER_INCLUDE_PATH = [],
+    RENDERER_LIB_PATH = [
+      'command_buffer/common',
+      'command_buffer/service',
+      'command_buffer/client',
+    ],
+    # TODO: remove link-time dependency on d3dx9, using dynamic loading
+    # instead.
+    RENDERER_LIBS = [
+      'o3dCmdBuf_service',
+      'o3dCmdBuf_client',
+      'o3dCmdBuf_common',
+      'd3d9', 'dxerr', 'd3dx9'
+    ] + nacl_htp_all_libs
+)
+
+windows_cb_debug_env = windows_cb_env.Clone(
+    BUILD_TYPE = 'dbg-cb',
+    BUILD_TYPE_DESCRIPTION = 'Windows Command Buffer debug build',
+)
+
+AddWindowsDebugSettings(windows_cb_debug_env)
+environment_list.append(windows_cb_debug_env)
+
+windows_cb_optimized_env = windows_cb_env.Clone(
+    BUILD_TYPE = 'opt-cb',
+    BUILD_TYPE_DESCRIPTION = 'Windows Command Buffer optimized build',
+)
+
+AddWindowsOptimizedSettings(windows_cb_optimized_env)
+environment_list.append(windows_cb_optimized_env)
+
+# These configs are highly very experimental, and just including them
+# necessitate downloading the nacl sdk even if they are not active. So include
+# them only when a specific flag is passed on the command line.
+if ARGUMENTS.get('enable-nacl', ''):
+  nacl_env = binaries_env.Clone(
+      tools = ['naclsdk'],
+      BUILD_COMPONENTS = [
+        'command_buffer/common',
+        'command_buffer/client',
+        'command_buffer/samples',
+        ],
+      # This should be set by hammer but is not...
+      TARGET_PLATFORM = 'NACL',
+      # Only the base IMC lib is necessary in nacl
+      NACL_HTP_LIBS = [nacl_imc_lib],
+      CCFLAGS = ['-Wstrict-aliasing'],
+      NACL_VARIANT = 'nacl',
+  )
+  nacl_env.Append(
+      CPPDEFINES = ['RENDERER_CB'],
+      RENDERER_INCLUDE_PATH = [],
+      RENDERER_LIB_PATH = [
+        'command_buffer/common',
+        'command_buffer/client',
+      ],
+      RENDERER_LIBS = [
+        'o3dCmdBuf_client',
+        'o3dCmdBuf_common',
+        nacl_imc_lib,
+      ],
+  )
+  nacl_dbg_env = nacl_env.Clone(
+      BUILD_TYPE = 'dbg-nacl',
+      BUILD_TYPE_DESCRIPTION = 'NaCl debug build',
+  )
+  nacl_dbg_env.Append(
+      CCFLAGS = ['-g'],
+  )
+  environment_list.append(nacl_dbg_env)
+  nacl_opt_env = nacl_env.Clone(
+      BUILD_TYPE = 'opt-nacl',
+      BUILD_TYPE_DESCRIPTION = 'NaCl debug build',
+  )
+  nacl_opt_env.Append(
+      CCFLAGS = ['-O3'],
+      CPPDEFINES = ['NDEBUG'],
+  )
+  environment_list.append(nacl_opt_env)
+
+# MacOS ------------------------------------------------------------------
+
+mac_env = binaries_env.Clone(
+    tools = ['target_platform_mac'],
+    FIREFOX_PLUGIN_DIR = '/Library/Internet Plug-Ins',
+    GL_DIR = '/System/Library/Frameworks/OpenGL.framework/Versions/A',
+    CG_DIR = '$CG_BASE_DIR/mac',
+    CCFLAGS = [
+      '-Wstrict-aliasing',
+      '-gstabs+',
+      '-fno-eliminate-unused-debug-symbols',
+    ],
+)
+mac_env.FilterOut(CPPDEFINES = ['OS_MACOSX=OS_MACOSX'])
+
+mac_env.Append(CPPDEFINES = ['RENDERER_GL',
+                             'GTEST_NOT_MAC_FRAMEWORK_MODE',
+                             ['NACL_OSX', '1'],
+                             ['MAC_OS_X_VERSION_MIN_REQUIRED', 'MAC_OS_X_VERSION_10_4'],
+                             'SK_BUILD_FOR_MAC'
+                            ],
+               RENDERER_INCLUDE_PATH = [
+                 '$CG_DIR/include',
+                 '$GLEW_DIR/include',
+                 ],
+               RENDERER_LIB_PATH =  [
+                 '$GLEW_DIR/lib',
+                 ],
+               RENDERER_LIBS = [
+                 'MacStaticGLEW',
+                 ],
+               CXXFLAGS = [
+                 '-Wno-deprecated',
+                 ],
+               CCFLAGS = [
+                 '-mmacosx-version-min=10.4'
+                 ],
+               BUILD_COMPONENTS = [
+                 'statsreport',
+                 'statsreport/common',
+                 ],
+
+)
+
+
+mac_debug_env = mac_env.Clone(
+    BUILD_TYPE = 'dbg-mac',
+    BUILD_TYPE_DESCRIPTION = 'MacOS debug build',
+    DEBUG = True,
+    NACL_VARIANT = 'dbg-mac',
+)
+
+mac_debug_env.Append(CCFLAGS = ['-g'], CPPDEFINES = ['_DEBUG'])
+
+mac_debug_env.Append(BUILD_GROUPS = ['default', 'most'])
+
+environment_list.append(mac_debug_env)
+
+
+mac_optimized_env = mac_env.Clone(
+    BUILD_TYPE = 'opt-mac',
+    BUILD_TYPE_DESCRIPTION = 'MacOS optimized build',
+    DEBUG = False,
+    NACL_VARIANT = 'opt-mac',
+)
+
+mac_optimized_env.Append(
+    BUILD_GROUPS = ['most'],
+    CCFLAGS = ['-O3'],
+    CPPDEFINES = ['-DNDEBUG', '-DANTLR3_NO_DEBUGGER'],
+)
+
+environment_list.append(mac_optimized_env)
+
+mac_test_optimized_env = mac_optimized_env.Clone(
+    BUILD_TYPE = 'test-opt-mac',
+    BUILD_TYPE_DESCRIPTION = 'MacOS optimized build for testing',
+)
+AddTestingFlags(mac_test_optimized_env)
+environment_list.append(mac_test_optimized_env)
+
+# Linux ------------------------------------------------------------------
+
+linux_env = binaries_env.Clone(
+    tools = ['target_platform_linux'],
+    FIREFOX_PLUGIN_DIR = '/home/$USER/.mozilla/plugins',
+    CG_DIR = '$CG_BASE_DIR/linux',
+)
+linux_env.FilterOut(CPPDEFINES = ['OS_LINUX=OS_LINUX'])
+if base_env.Bit('host_linux'):
+  linux_env.ParseConfig('pkg-config --cflags --libs gtk+-2.0')
+
+linux_env.Append(
+    RENDERER_INCLUDE_PATH = [
+        '$GLEW_DIR/include',
+        '$CG_DIR/include',
+    ],
+    RENDERER_LIB_PATH = [
+        '$CG_DIR/lib',
+        '$GLEW_DIR/lib',
+    ],
+    RENDERER_LIBS = [
+        'GL',
+        'GLEW',
+        'Cg',
+        'CgGL',
+    ],
+    CPPDEFINES = [
+        'RENDERER_GL',
+        'LINUX',
+        ['NACL_LINUX', '1'],
+        'SK_BUILD_FOR_UNIX'
+    ],
+    CCFLAGS = ['-Wstrict-aliasing', '-m32'],
+    LINKFLAGS = ['-m32'],
+    LIBS = ['pthread', 'rt', 'dl'],
+    NACL_HTP_LIBS = ['ssl', 'crypto'],
+    BUILD_COMPONENTS = [
+        'installer/linux'
+    ],
+)
+
+linux_cg_dir = ARGUMENTS.get('linux-cg-dir', 'hermetic')
+if linux_cg_dir != 'hermetic':
+  linux_cg_dir = linux_cg_dir or '/usr'
+  linux_env['CG_DIR'] = linux_cg_dir
+linux_glew_dir = ARGUMENTS.get('linux-glew-dir', 'hermetic')
+if linux_glew_dir != 'hermetic':
+  linux_glew_dir = linux_glew_dir or '/usr'
+  linux_env['GLEW_DIR'] = linux_glew_dir
+
+
+linux_debug_env = linux_env.Clone(
+    BUILD_TYPE = 'dbg-linux',
+    BUILD_TYPE_DESCRIPTION = 'Linux debug build',
+    DEBUG = True,
+    NACL_VARIANT = 'dbg-linux',
+)
+linux_debug_env.Append(
+    CCFLAGS = ['-g'],
+    BUILD_GROUPS = ['default']
+)
+environment_list.append(linux_debug_env)
+
+
+linux_optimized_env = linux_env.Clone(
+    BUILD_TYPE = 'opt-linux',
+    BUILD_TYPE_DESCRIPTION = 'Linux optimized build',
+    DEBUG = False,
+    NACL_VARIANT = 'opt-linux',
+)
+linux_optimized_env.Append(
+    CCFLAGS = ['-O3'],
+    CPPDEFINES = ['-DNDEBUG', '-DANTLR3_NO_DEBUGGER'],
+)
+environment_list.append(linux_optimized_env)
+
+linux_cb_env = linux_env.Clone()
+linux_cb_env.FilterOut(CPPDEFINES = ['RENDERER_GL'])
+linux_cb_env.Append(
+    CPPDEFINES = ['RENDERER_CB'],
+    BUILD_COMPONENTS = [
+      'command_buffer/common',
+      'command_buffer/service',
+      'command_buffer/client'
+      ],
+    RENDERER_INCLUDE_PATH = [],
+    RENDERER_LIB_PATH = [
+      'command_buffer/common',
+      'command_buffer/service',
+      'command_buffer/client',
+    ],
+    RENDERER_LIBS = [
+      'o3dCmdBuf_service',
+      'o3dCmdBuf_client',
+      'o3dCmdBuf_common',
+      'GL',
+      'GLEW',
+      'Cg',
+      'CgGL',
+    ] + linux_cb_env['NACL_HTP_LIBS'],
+)
+
+linux_cb_debug_env = linux_cb_env.Clone(
+    BUILD_TYPE = 'dbg-linux-cb',
+    BUILD_TYPE_DESCRIPTION = 'Linux Command Buffer debug build',
+    DEBUG = True,
+    NACL_VARIANT = 'dbg-linux',
+)
+linux_cb_debug_env.Append(
+    CCFLAGS = ['-g'],
+)
+environment_list.append(linux_cb_debug_env)
+
+linux_cb_optimized_env = linux_cb_env.Clone(
+    BUILD_TYPE = 'opt-linux-cb',
+    BUILD_TYPE_DESCRIPTION = 'Linux Command Buffer optimized build',
+    DEBUG = False,
+    NACL_VARIANT = 'opt-linux',
+)
+linux_cb_optimized_env.Append(
+    CCFLAGS = ['-O3'],
+    CPPDEFINES = ['-DNDEBUG'],
+)
+environment_list.append(linux_cb_optimized_env)
+
+# Documentation -------------------------------------------------------------
+
+docs_env = base_env.Clone(
+    BUILD_TYPE = 'docs',
+    BUILD_TYPE_DESCRIPTION = 'Documentation for all platforms',
+    HOST_PLATFORMS = ['WINDOWS', 'LINUX', 'MAC'],
+    BUILD_COMPONENTS = ['documentation'],
+)
+docs_env.Append(BUILD_GROUPS = ['default', 'most'])
+environment_list.append(docs_env)
+
+# Code Coverage -------------------------------------------------------------
+
+windows_d3d_coverage_env = windows_d3d_debug_env.Clone(
+    BUILD_TYPE = 'coverage-d3d',
+    BUILD_TYPE_DESCRIPTION = 'Windows DirectX code coverage build',
+    tools = ['code_coverage'],
+)
+windows_d3d_coverage_env.FilterOut(BUILD_GROUPS = ['default', 'most'])
+environment_list.append(windows_d3d_coverage_env)
+
+windows_gl_coverage_env = windows_gl_debug_env.Clone(
+    BUILD_TYPE = 'coverage-gl',
+    BUILD_TYPE_DESCRIPTION = 'Windows OpenGL code coverage build',
+    tools = ['code_coverage'],
+)
+windows_gl_coverage_env.FilterOut(BUILD_GROUPS = ['default', 'most'])
+environment_list.append(windows_gl_coverage_env)
+
+linux_coverage_env = linux_debug_env.Clone(
+    BUILD_TYPE = 'coverage-linux',
+    BUILD_TYPE_DESCRIPTION = 'Linux code coverage build',
+    tools = ['code_coverage'],
+)
+linux_coverage_env.FilterOut(BUILD_GROUPS = ['default', 'most'])
+environment_list.append(linux_coverage_env)
+
+mac_coverage_env = mac_debug_env.Clone(
+    BUILD_TYPE = 'coverage-mac',
+    BUILD_TYPE_DESCRIPTION = 'Mac code coverage build',
+    tools = ['code_coverage'],
+)
+mac_coverage_env.FilterOut(BUILD_GROUPS = ['default', 'most'])
+environment_list.append(mac_coverage_env)
+
+
+# Build the world.
+BuildComponents(environment_list)
+
+
+# Generate a solution, defer to the end.
+solution_env = base_env.Clone(tools = ['visual_studio_solution'])
+solution = solution_env.Solution(
+    'o3d', environment_list,
+    exclude_pattern = '.*third_party.*',
+    extra_build_targets = {
+        'Firefox': 'c:/Program Files/Mozilla FireFox/firefox.exe',
+        'unit_tests': '$ARTIFACTS_DIR/unit_tests.exe',
+        'system_tests': '$ARTIFACTS_DIR/system_tests.exe',
+        'converter': '$ARTIFACTS_DIR/o3dConverter.exe',
+    },
+)
+solution_env.Alias('solution', solution)

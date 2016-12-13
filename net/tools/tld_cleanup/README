@@ -1,0 +1,3 @@
+When updating src/net/base/effective_tld_names.dat, re-run tld_cleanup which
+will re-generate src/net/base/effective_tld_names.cc.  Check in the updated
+effective_tld_names.dat and effective_tld_names.cc together.

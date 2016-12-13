@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="release_impl_official"
+	InheritedPropertySheets=".\release_defaults.vsprops"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+                PreprocessorDefinitions="OFFICIAL_BUILD"
+		Optimization="3"
+		InlineFunctionExpansion="2"
+		EnableIntrinsicFunctions="true"
+		FavorSizeOrSpeed="2"
+		OmitFramePointers="true"
+		EnableFiberSafeOptimizations="true"
+		WholeProgramOptimization="true"
+	/>
+	<Tool
+		Name="VCLibrarianTool"
+		AdditionalOptions="/ltcg"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		LinkTimeCodeGeneration="1"
+	/>
+</VisualStudioPropertySheet>

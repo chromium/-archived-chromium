@@ -1,0 +1,27 @@
+<!-- ============================== header ================================= -->
+<!-- begin static/header.html -->
+{+include("static/header.html")+}
+<!-- end static/header.html -->
+
+<div id="doxygen-ref">
+<!-- Genreated by jsdoctoolkit 2.1.0 -->
+<div class="navigation" id="top">
+</div>
+
+<h1>Module List</h1>
+Here are the modules with brief descriptions:
+
+<table>
+  {! var allClasses = data.filter(function($){return $.isNamespace}).sort(makeSortby("alias")); !}
+  <for each="thisClass" in="allClasses">
+  <tr><td class="indexkey"><a class="el" href="{+getLinkToClassByAlias(thisClass.alias)+}">{+thisClass.alias+}</a></td><td class="indexvalue"></td></tr>
+  </for>
+</table>
+
+</div><!-- end contents -->
+</div><!-- end doxygen-ref -->
+
+<!-- ============================== footer ================================= -->
+<!-- begin static/footer.html -->
+{+include("static/footer.html")+}
+<!-- end static/footer.html -->

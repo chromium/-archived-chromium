@@ -1,0 +1,6 @@
+Test that iframe shims can be used to overlay HTML above a windowed plugin. The red squares should be hidden by the blue flash plugin, and the green squares should appear over it. To test interactively, click over the buttons on the squares. You should not be able to reach the red squares' buttons.
+
+Prints "SUCCESS" on success, "FAILURE" on failure.
+
+SUCCESS
+ 

@@ -1,0 +1,8 @@
+include_rules = [
+  "+chrome/browser/worker_host",  # For UI test.
+  "+chrome/renderer",
+  "+chrome/worker",
+  "+sandbox/src",
+  "+webkit/glue",
+]
+

@@ -1,0 +1,347 @@
+# There are three kinds of suppressions in this file:
+# 1. Third party stuff we have no control over.
+#
+# 2. Intentional unit test errors, stuff that is somehow a false positive
+# in our own code, or stuff that is so trivial it's not worth fixing.
+#
+# 3. Suppressions for real chromium bugs that are not yet fixed.
+# These should all be in chromium's bug tracking system.
+# Periodically we should sweep this file and the bug tracker clean by
+# running overnight and removing outdated bugs/suppressions.
+#-----------------------------------------------------------------------
+
+# 1. Third party stuff we have no control over.
+{
+   # See http://code.google.com/p/chromium/issues/detail?id=9565
+   # This should have been handled by platform-specific suppression.
+   # Remove this when https://bugs.kde.org/show_bug.cgi?id=188572 is fixed
+   setenv() leaks on Mac intentionally.
+   Memcheck:Leak
+   ...
+   fun:__setenv
+   fun:setenv$UNIX2003
+}
+{
+   # syslog needs a system suppression on the mac.
+   # See https://bugs.kde.org/show_bug.cgi?id=191192
+   valgrind_bug_191192
+   Memcheck:Param
+   socketcall.sendto(msg)
+   fun:sendto$NOCANCEL$UNIX2003
+   fun:vsyslog
+}
+{
+   # mac ati drivers seem to have problems
+   bug_11280
+   Memcheck:Cond
+   obj:/System/Library/Extensions/ATIRadeonX2000GLDriver.bundle/Contents/MacOS/ATIRadeonX2000GLDriver
+}
+{
+   FIXME mac kevent libevent probably needs valgrind hooks
+   Memcheck:Param
+   kevent(changelist)
+   fun:kevent
+   fun:event_base_new
+}
+{
+   # Mac system library leak?  Only suppress in tests for now.
+   mac_init_appleevents_leak
+   Memcheck:Leak
+   fun:_Znwm
+   fun:sendSimpleEventToSelf
+   fun:aeInitializeFromHIToolbox
+   fun:INIT_AppleEvents
+   fun:_FirstEventTime
+   ...
+   fun:_ZN7testing4Test3RunEv
+}
+{
+   # Mac system library bug?  See http://crbug.com/11327
+   bug_11327
+   Memcheck:Cond
+   fun:_ZN19AudioConverterChain5ResetEv
+   fun:AudioConverterReset
+   obj:/System/Library/Components/CoreAudio.component/Contents/MacOS/CoreAudio
+}
+{
+   # Mac system library bug?  See http://crbug.com/11327
+   bug_11327b
+   Memcheck:Cond
+   fun:AUNetSendEntry
+   fun:AUNetSendEntry
+   obj:/System/Library/Components/CoreAudio.component/Contents/MacOS/CoreAudio
+}
+{
+   # CoreAudio leak.  See http://crbug.com/9351
+   bug_9351
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN12HALCADClient19AddPropertyListenerEmPK26AudioObjectPropertyAddressPFlmmS2_PvES3_
+   fun:_ZN16HALDefaultDevice22InstallServerListenersEv
+   fun:_ZN16HALDefaultDevice10InitializeEv
+   fun:_ZN9HALSystem16CheckOutInstanceEv
+   fun:AudioHardwareGetProperty
+   fun:_ZN15AudioManagerMac15HasAudioDevicesEv
+}
+{
+   # Filed with Apple as rdar://6915060; see http://crbug.com/11270
+   bug_11270
+   Memcheck:Leak
+   fun:calloc
+   fun:CMSSetLabCLUT
+}
+{
+   # ATI driver bug?  See http://crbug.com/11271
+   bug_11271
+   Memcheck:Leak
+   fun:calloc
+   fun:gldCreateBuffer
+   fun:gldPageoffBuffer
+   fun:gldGetString
+   fun:gldGetString
+   fun:gldGetString
+   fun:gldInitDispatch
+   fun:gldGetQueryInfo
+   fun:gldUpdateDispatch
+   fun:gldInitDispatch
+   fun:gliSetCurrentPluginDispatchTable
+   fun:gliAttachDrawableWithOptions
+   fun:cglSetContextScreen
+   fun:cglSetAnyDrawable
+   fun:CGLSetSurface
+   fun:view_draw
+   fun:view_display_link
+   fun:link_callback
+   fun:_ZN13CVDisplayLink9performIOEP11CVTimeStamp
+   fun:_ZN13CVDisplayLink11runIOThreadEv
+}
+{
+   # Mac leak in CMOpenOrNewAccess in unit_tests PlatformCanvas_SkLayer_Test,
+   # ToolbarControllerTest_FocusLocation_Test. See http://crbug.com/11333.
+   bug_11333
+   Memcheck:Leak
+   fun:malloc
+   fun:stdSmartNewPtr
+   fun:stdSmartNewHandle
+   fun:IOCreateAndOpen
+   fun:ScratchInit
+   fun:CMOpenOrNewAccess
+}
+{
+   # Mac unit_tests.  See http://crbug.com/11271
+   bug_12640a
+   Memcheck:Cond
+   fun:png_write_find_filter
+   fun:webkit_png_write_row
+   fun:_ZN10PNGEncoder6EncodeEPKhNS_11ColorFormatEiiibPSt6vectorIhSaIhEE
+   ...
+   fun:_ZN24ExtensionsServiceBackend24InstallOrUpdateExtensionERK8FilePathRKSsb
+}
+{
+   # OpenGL.framework init; filed with Apple as rdar://6986771
+   opengl_init_rdar_6986771
+   Memcheck:Cond
+   ...
+   fun:gl_context_init_client_state
+}
+{
+   # Reproducible just launching and quitting TextEdit; filed with Apple as rdar://7004347
+   tsm_leak_rdar_7004347
+   Memcheck:Leak
+   fun:malloc_zone_malloc
+   fun:_CFRuntimeCreateInstance
+   fun:__CFDictionaryInit
+   fun:utOpenActivateAllSelectedIMInDoc
+   fun:MyActivateTSMDocument
+   fun:ActivateTSMDocument
+}
+{
+   # Looks like an Apple bug; has no visual impact.
+   unitialized_rect_allocated_on_stack_when_reparenting_window_content_views
+   Memcheck:Cond
+   fun:NSRectClip
+   fun:-[NSThemeFrame drawOverlayRect:]
+   ...
+   fun:-[NSWindow makeKeyAndOrderFront:]
+   fun:-[BrowserWindowController setFullscreen:]
+   ...
+   fun:main
+}
+{
+   # Tiny one-time leak, widely seen by valgind users; everyone suppresses this.
+   # See related discussion at http://gcc.gnu.org/bugzilla/show_bug.cgi?id=39366
+   plugin_bundle_global_leak
+   Memcheck:Leak
+   fun:malloc
+   fun:__cxa_get_globals
+   fun:__cxa_allocate_exception
+   fun:_ZN4dyld4loadEPKcRKNS_11LoadContextE
+   fun:dlopen
+   fun:dlopen
+   fun:_CFBundleDlfcnCheckLoaded
+}
+
+# 2. Intentional unit test errors, stuff that is somehow a false positive
+# in our own code, or stuff that is so trivial it's not worth fixing.
+
+# 3. Suppressions for real chromium bugs that are not yet fixed.
+{
+   # Mac test_shell_tests, see http://crbug.com/9561
+   bug_9561
+   Memcheck:Leak
+   fun:malloc_zone_malloc
+   fun:ripc_GetClipState
+   fun:ripc_GetRenderingState
+   fun:ripc_DrawRects
+   fun:CGContextFillRects
+   fun:CGContextFillRect
+   fun:_ZN7WebCore15GraphicsContext8fillRectERKNS_9FloatRectERKNS_5ColorE
+}
+{
+   # Mac test_shell_tests; skia leak?  See http://crbug.com/9563
+   bug_9563
+   Memcheck:Leak
+   fun:malloc_zone_malloc
+   fun:_CFRuntimeCreateInstance
+   fun:CGTypeCreateInstanceWithAllocator
+   fun:CGTypeCreateInstance
+   fun:CGContextCreateWithDelegate
+   fun:CGContextCreate
+   fun:createBitmapContext
+   fun:CGBitmapContextCreate
+   fun:_ZN4skia23BitmapPlatformDeviceMac6CreateEP9CGContextiib
+}
+{
+   # Mac test_shell_tests; skia leak?   See http://crbug.com/9563
+   bug_9563b
+   Memcheck:Leak
+   fun:malloc_zone_calloc
+   fun:ripc_Initialize
+   fun:__CGBitmapContextDelegateCreate
+   fun:__CGBitmapContextDelegateCreate
+   fun:createBitmapContext
+   fun:CGBitmapContextCreate
+   fun:_ZN4skia23BitmapPlatformDeviceMac6CreateEP9CGContextiib
+}
+{
+   # Mac test_shell_tests.  See http://crbug.com/9563
+   bug_9563d
+   Memcheck:Leak
+   fun:malloc_zone_calloc
+   fun:ripc_Initialize
+   fun:__CGWindowContextDelegateCreate
+   fun:CGWindowContextCreate
+   ...
+   fun:_ZN13TestShellTest5SetUpEv
+}
+{
+   # Mac test_shell_tests.  See http://crbug.com/11134
+   bug_11134
+   Memcheck:Value4
+   fun:vCMMVectorConvert8BitRGBToRGB
+   fun:_ZNK15CMMConvRGBToRGB7ConvertER8CMM8BitsP14CMMRuntimeInfomm
+}
+{
+   bug_12525
+   Memcheck:Cond
+   ...
+   fun:gldGetTextureLevel
+   fun:gldUpdateDispatch
+   fun:glBegin_Exec
+   fun:fe_gl_begin
+   fun:fe_tree_render_apply_1
+   fun:apply_tile_callback
+   fun:fe_gl_texture_tile_map
+   fun:image_buffer_texture_tile_map
+   fun:fe_texture_tile_map
+}
+{
+   # Jump on uninitialized value in OpenGL.framework's GLEngine.bundle
+   bug_12528
+   Memcheck:Cond
+   ...
+   fun:ripc_DrawShading
+   fun:CGContextDrawShading
+}
+{
+   bug_12640b
+   Memcheck:Value4
+   ...
+   fun:png_write_find_filter
+   fun:webkit_png_write_row
+   fun:_ZN10PNGEncoder6EncodeEPKhNS_11ColorFormatEiiibPSt6vectorIhSaIhEE
+   ...
+   fun:_ZN24ExtensionsServiceBackend24InstallOrUpdateExtensionERK8FilePathRKSsb
+}
+{
+   bug_12640c
+   Memcheck:Param
+   write(buf)
+   fun:write$UNIX2003
+   fun:_ZN24ExtensionsServiceBackend19OnExtensionUnpackedERK8FilePathS2_SsbRK15DictionaryValueRKSt6vectorI6Tuple2I8SkBitmapS0_ESaIS9_EE
+}
+{
+   bug_12640d
+   Memcheck:Cond
+   fun:_ZN10PNGEncoder18EncodeBGRASkBitmapERK8SkBitmapbPSt6vectorIhSaIhEE
+   fun:_ZN24ExtensionsServiceBackend19OnExtensionUnpackedERK8FilePathS2_SsbRK15DictionaryValueRKSt6vectorI6Tuple2I8SkBitmapS0_ESaIS9_EE
+   fun:_ZN24ExtensionsServiceBackend14UnpackerClient30OnUnpackExtensionSucceededImplERK15DictionaryValueRKSt6vectorI6Tuple2I8SkBitmap8FilePathESaIS8_EE
+}
+{
+   bug_15762
+   Memcheck:Cond
+   fun:_ZN7testing8internal11CmpHelperEQIjjEENS_15AssertionResultEPKcS4_RKT_RKT0_
+   fun:_ZN7testing8internal8EqHelperILb0EE7CompareIjjEENS_15AssertionResultEPKcS6_RKT_RKT0_
+   fun:_ZN39ImageOperations_CreateMaskedBitmap_Test8TestBodyEv
+   fun:_ZN7testing4Test3RunEv
+   fun:_ZN7testing8internal12TestInfoImpl3RunEv
+   fun:_ZN7testing8internal12TestInfoImpl7RunTestEPNS_8TestInfoE
+   fun:_ZNK7testing8internal4ListIPNS_8TestInfoEE7ForEachIPFvS3_EEEvT_
+   fun:_ZN7testing8TestCase3RunEv
+   fun:_ZN7testing8TestCase11RunTestCaseEPS0_
+   fun:_ZNK7testing8internal4ListIPNS_8TestCaseEE7ForEachIPFvS3_EEEvT_
+   fun:_ZN7testing8internal12UnitTestImpl11RunAllTestsEv
+   fun:_ZN7testing8UnitTest3RunEv
+   fun:main
+}
+{
+   bug_15819a
+   Memcheck:Cond
+   fun:_ZNK10CMMMtxOnly10ConvertMinE10CMM3x3Type10CMM3x1TypeR12CMMMinBuffermm
+   ...
+   fun:CGContextDrawImage
+   fun:_ZN3gfx17CGImageToSkBitmapEP7CGImage
+}
+{
+   bug_15819b
+   Memcheck:Value4
+   fun:_ZNK10CMMConvLut7ConvertER10CMMMinBitsP14CMMRuntimeInfomm
+   ...
+   fun:CGContextDrawImage
+   fun:_ZN3gfx17CGImageToSkBitmapEP7CGImage
+}
+{
+   bug_16209
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN18RenderWidgetHelper17AllocTransportDIBEmPN4base14FileDescriptorE
+   fun:_ZN21ResourceMessageFilter19OnAllocTransportDIBEmPN4base14FileDescriptorE
+   fun:_Z16DispatchToMethodI21ResourceMessageFilterMS0_FvmPN4base14FileDescriptorEEmS2_EvPT_T0_RK6Tuple1IT1_EPS9_IT2_E
+   fun:_ZN3IPC16MessageWithReplyI6Tuple1ImES1_IRN4base14FileDescriptorEEE8DispatchI21ResourceMessageFilterMS9_FvmPS4_EEEbPKNS_7MessageEPT_T0_
+   fun:_ZN21ResourceMessageFilter17OnMessageReceivedERKN3IPC7MessageE
+   fun:_ZN3IPC12ChannelProxy7Context10TryFiltersERKNS_7MessageE
+   fun:_ZN3IPC11SyncChannel11SyncContext17OnMessageReceivedERKNS_7MessageE
+}
+{
+   bug_16210
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN3IPC11SyncChannelC1ERKSsNS_7Channel4ModeEPNS3_8ListenerEPNS_12ChannelProxy13MessageFilterEP11MessageLoopbPN4base13WaitableEventE
+   fun:_ZN11ChildThread4InitEv
+   fun:_ZN12RenderThread4InitEv
+   fun:_ZN4base6Thread10ThreadMainEv
+   fun:_ZL10ThreadFuncPv
+   fun:_pthread_start
+   fun:thread_start
+}
+

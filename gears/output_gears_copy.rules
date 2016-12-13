@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VisualStudioToolFile
+	Name="Output Gears copy"
+	Version="8.00"
+	>
+	<Rules>
+		<CustomBuildRule
+			Name="Output Gears copy"
+			CommandLine="xcopy /R /C /Y $(InputPath) $(OutDir)"
+			Outputs="$(OutDir)\$(InputFileName)"
+			FileExtensions="*.dll;*.pdb"
+			>
+			<Properties>
+			</Properties>
+		</CustomBuildRule>
+	</Rules>
+</VisualStudioToolFile>

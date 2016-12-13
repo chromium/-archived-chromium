@@ -1,0 +1,31 @@
+// Copyright (c) 2008 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+ALWAYS_SEARCH_USER_PATHS = NO
+GCC_C_LANGUAGE_STANDARD = c99
+GCC_CW_ASM_SYNTAX = NO
+GCC_DYNAMIC_NO_PIC = YES
+GCC_ENABLE_PASCAL_STRINGS = NO
+GCC_INLINES_ARE_PRIVATE_EXTERN = YES
+GCC_PRECOMPILE_PREFIX_HEADER = YES
+GCC_SYMBOLS_PRIVATE_EXTERN = YES
+GCC_TREAT_WARNINGS_AS_ERRORS = YES
+GCC_VERSION = 4.2
+GCC_WARN_ABOUT_MISSING_NEWLINE = YES
+OTHER_LDFLAGS = $(OTHER_LDFLAGS) $(CODECOVERAGE_OTHER_LDFLAGS)
+PREBINDING = NO
+
+// We're only supporting 10.5 and later
+SDKROOT = $(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk
+MACOSX_DEPLOYMENT_TARGET = 10.5
+
+// Each project file must set XCODEPROJ_DEPTH as a project-wide setting.  It
+// should contain a relative path to reach the src directory from the
+// directory containing the project.  For example, src/base/base.xcodeproj
+// should set XCODEPROJ_DEPTH = ../.. .  This is used to redirect all build
+// output to a single common directory.
+SYMROOT = $(XCODEPROJ_DEPTH)/xcodebuild
+
+USE_HEADERMAP = NO
+WARNING_CFLAGS = $(WARNING_CFLAGS) -Wall -Wendif-labels

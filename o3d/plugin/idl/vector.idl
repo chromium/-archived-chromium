@@ -1,0 +1,216 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+[include="plugin/cross/marshaling_utils.h"] %{
+%}
+
+namespace Vectormath {
+namespace Aos {
+
+%[
+  A data type representing a 3d direction. A Vector3 is represented in
+  JavaScript by an array containing 3 numbers: [x, y, z].
+%]
+[binding_model=by_value, marshaled, nocpp, include=
+    "third_party/vectormath/files/vectormathlibrary/include/vectormath/scalar/cpp/vectormath_aos.h"]
+class Vector3 {
+  [plugin_data, userglue_getter, userglue_setter, getter, setter, nodocs]
+  float[] marshaled;
+
+  [verbatim=cpp_glue] %{
+    void userglue_setter_marshaled(
+        void* plugin_data,
+        Vectormath::Aos::Vector3* self,
+        const std::vector<float>& dynamicValue) {
+      *self = o3d::VectorToType<Vectormath::Aos::Vector3, 3>(
+          plugin_data, dynamicValue);
+    }
+
+    std::vector<float> userglue_getter_marshaled(
+        void* plugin_data,
+        const Vectormath::Aos::Vector3& self) {
+      return
+          o3d::VectorFromType<Vectormath::Aos::Vector3, 3>(self);
+    }
+  %}
+};
+
+%[
+  A data type representing a 3d point. A Point3 is represented in
+  JavaScript by an array containing 3 numbers: [x, y, z].
+%]
+[binding_model=by_value, marshaled, nocpp, include=
+    "third_party/vectormath/files/vectormathlibrary/include/vectormath/scalar/cpp/vectormath_aos.h"]
+class Point3 {
+  [plugin_data, userglue_getter, userglue_setter, getter, setter, nodocs]
+  float[] marshaled;
+
+  [verbatim=cpp_glue] %{
+    void userglue_setter_marshaled(
+        void* plugin_data,
+        Vectormath::Aos::Point3* self,
+        const std::vector<float>& dynamicValue) {
+      *self = o3d::VectorToType<Vectormath::Aos::Point3, 3>(
+          plugin_data, dynamicValue);
+    }
+
+    std::vector<float> userglue_getter_marshaled(
+        void* plugin_data,
+        const Vectormath::Aos::Point3& self) {
+      return o3d::VectorFromType<Vectormath::Aos::Point3, 3>(self);
+    }
+  %}
+};
+
+%[
+  A data type representing a 4 value Vector. A Vector4 is represented in
+  JavaScript by an array containing 4 numbers: [x, y, z, w].
+%]
+[binding_model=by_value, marshaled, nocpp, include=
+    "third_party/vectormath/files/vectormathlibrary/include/vectormath/scalar/cpp/vectormath_aos.h"]
+class Vector4 {
+  [plugin_data, userglue_getter, userglue_setter, getter, setter, nodocs]
+  float[] marshaled;
+
+  [verbatim=cpp_glue] %{
+    void userglue_setter_marshaled(
+        void* plugin_data,
+        Vectormath::Aos::Vector4* self,
+        const std::vector<float>& dynamicValue) {
+      *self = o3d::VectorToType<Vectormath::Aos::Vector4, 4>(
+          plugin_data, dynamicValue);
+    }
+
+    std::vector<float> userglue_getter_marshaled(
+        void* plugin_data,
+        const Vectormath::Aos::Vector4& self) {
+      return
+          o3d::VectorFromType<Vectormath::Aos::Vector4, 4>(self);
+    }
+  %}
+};
+
+%[
+  A data type representing a 3x3 Matrix. A Matrix3 is represented in JavaScript
+  by an array containing 3 arrays of 3 numbers each:
+  \code
+  [[x0, y0, z0],
+   [x1, y1, z1],
+   [x2, y2, z2]]
+  \endcode
+%]
+[binding_model=by_value, marshaled, nocpp, include=
+    "third_party/vectormath/files/vectormathlibrary/include/vectormath/scalar/cpp/vectormath_aos.h"]
+class Matrix3 {
+  [plugin_data, userglue_getter, userglue_setter, getter, setter, nodocs]
+  float[][] marshaled;
+
+  [verbatim=cpp_glue] %{
+    void userglue_setter_marshaled(
+        void* plugin_data,
+        Vectormath::Aos::Matrix3* self,
+        const std::vector<std::vector<float> >& dynamicValue) {
+      *self = o3d::VectorOfVectorToType<Vectormath::Aos::Matrix3, 3, 3>(
+          plugin_data, dynamicValue);
+    }
+
+    std::vector<std::vector<float> > userglue_getter_marshaled(
+        void* plugin_data,
+        const Vectormath::Aos::Matrix3& self) {
+      return o3d::VectorOfVectorFromType<Vectormath::Aos::Matrix3, 3, 3>(
+          self);
+    }
+  %}
+};
+
+%[
+  A data type representing a 4x4 Matrix. A Matrix4 is represented in JavaScript
+  by an array containing 4 arrays of 4 numbers each:
+  \code
+  [[x0, y0, z0, w0],
+   [x1, y1, z1, w1],
+   [x2, y2, z2, w2],
+   [x3, y3, z3, w3]]
+  \endcode
+%]
+[binding_model=by_value, marshaled, nocpp, include=
+    "third_party/vectormath/files/vectormathlibrary/include/vectormath/scalar/cpp/vectormath_aos.h"]
+class Matrix4 {
+  [plugin_data, userglue_getter, userglue_setter, getter, setter, nodocs]
+  float[][] marshaled;
+
+  [verbatim=cpp_glue] %{
+    void userglue_setter_marshaled(
+        void* plugin_data,
+        Vectormath::Aos::Matrix4* self,
+        const std::vector<std::vector<float> >& dynamicValue) {
+      *self = o3d::VectorOfVectorToType<Vectormath::Aos::Matrix4, 4, 4>(
+          plugin_data, dynamicValue);
+    }
+
+    std::vector<std::vector<float> > userglue_getter_marshaled(
+        void* plugin_data,
+        const Vectormath::Aos::Matrix4& self) {
+      return o3d::VectorOfVectorFromType<Vectormath::Aos::Matrix4, 4, 4>(
+          self);
+    }
+  %}
+};
+
+%[
+  A data type representing a Quaterion. A Quat is represented in JavaScript
+  by an array containing 4 numbers: [x, y, z, w]
+%]
+[binding_model=by_value, marshaled, nocpp, include=
+    "third_party/vectormath/files/vectormathlibrary/include/vectormath/scalar/cpp/vectormath_aos.h"]
+class Quat {
+  [plugin_data, userglue_getter, userglue_setter, getter, setter, nodocs]
+  float[] marshaled;
+
+  [verbatim=cpp_glue] %{
+    void userglue_setter_marshaled(
+        void* plugin_data,
+        Vectormath::Aos::Quat* self,
+        const std::vector<float>& dynamicValue) {
+      *self = o3d::VectorToType<Vectormath::Aos::Quat, 4>(
+          plugin_data, dynamicValue);
+    }
+
+    std::vector<float> userglue_getter_marshaled(
+        void* plugin_data,
+        const Vectormath::Aos::Quat& self) {
+      return o3d::VectorFromType<Vectormath::Aos::Quat, 4>(self);
+    }
+  %}
+};
+
+}
+}

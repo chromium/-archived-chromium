@@ -1,0 +1,245 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+O3D Primitives
+
+This sample shows how to use the functions in the primitives utility library
+to make various shapes.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Primitives
+</title>
+<script type="text/javascript" src="o3djs/base.js"></script>
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.effect');
+
+// global variables
+var g_o3dElement;
+var g_client;
+var g_o3d;
+var g_math;
+var g_pack;
+var g_viewInfo;
+
+var g_lightPosition = [5, 5, 7];
+var g_eyePosition = [1, 3, 12];
+
+/**
+ * Creates the client area.
+ */
+function initClient() {
+  window.g_finished = false;  // for selenium testing.
+
+  // Runs the sample in V8. Comment out this line to run it in the browser
+  // JavaScript engine, for example if you want to debug it.
+  o3djs.util.setMainEngine(o3djs.util.Engine.V8);
+
+  o3djs.util.makeClients(main);
+}
+
+/**
+ * Initializes global variables, positions camera, draws shapes.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function main(clientElements) {
+  // Init global variables.
+  initGlobals(clientElements);
+
+  // Set up the view and projection transformations.
+  initContext();
+
+  // Add the shapes to the transform heirarchy.
+  createShapes();
+
+  window.g_finished = true;  // for selenium testing.
+}
+
+/**
+ * Initializes global variables and libraries.
+ */
+function initGlobals(clientElements) {
+  g_o3dElement = clientElements[0];
+  window.g_client = g_client = g_o3dElement.client;
+  g_o3d = g_o3dElement.o3d;
+  g_math = o3djs.math;
+
+  // Create a pack to manage the objects created.
+  g_pack = g_client.createPack();
+
+  // Create the render graph for a view.
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+}
+
+/**
+ * Sets up reasonable view and projection matrices.
+ */
+function initContext() {
+  // Set up a perspective transformation for the projection.
+  g_viewInfo.drawContext.projection = g_math.matrix4.perspective(
+      g_math.degToRad(30), // 30 degree frustum.
+      g_o3dElement.clientWidth / g_o3dElement.clientHeight, // Aspect ratio.
+      1,                  // Near plane.
+      5000);              // Far plane.
+
+  // Set up our view transformation to look towards the world origin where the
+  // primitives are located.
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      g_eyePosition,   // eye
+      [0, 0, 0],    // target
+      [0, 1, 0]);  // up
+}
+
+/**
+ * Creates a phong material based on the given single color.
+ * @param {Array} baseColor An array with 4 entries, the R,G,B, and A components
+ *   of a color.
+ * @return {Material} A phong material whose overall pigment is baseColor.
+ */
+function createPhongMaterial(baseColor) {
+  // Create a new, empty Material object.
+  var material = g_pack.createObject('Material');
+
+  o3djs.effect.attachStandardShader(
+      g_pack, material, g_lightPosition, 'phong');
+
+  material.drawList = g_viewInfo.performanceDrawList;
+
+  // Assign parameters to the phong material.
+  material.getParam('emissive').value = [0, 0, 0, 1];
+  material.getParam('ambient').value = g_math.mulScalarVector(0.1, baseColor);
+  material.getParam('diffuse').value = g_math.mulScalarVector(0.9, baseColor);
+  material.getParam('specular').value = [.2, .2, .2, 1];
+  material.getParam('shininess').value = 20;
+
+  return material;
+}
+
+/**
+ * Creates shapes using the primitives utility library, and adds them to the
+ * transform graph at the root node.
+ */
+function createShapes() {
+  var cube = o3djs.primitives.createCube(
+      g_pack,
+      createPhongMaterial([0,1,0,1]), // A green phong-shaded material.
+      Math.sqrt(2));                  // The length of each side of the cube.
+
+  var sphere = o3djs.primitives.createSphere(
+      g_pack,
+      createPhongMaterial([1,0,0,1]),
+      1.0,   // Radius of the sphere.
+      30,    // Number of meridians.
+      20);    // Number of parallels.
+
+  var cylinder = o3djs.primitives.createCylinder(
+      g_pack,
+      createPhongMaterial([1,0,1,1]),
+      0.5,   // Radius.
+      1.5,   // Depth.
+      20,    // Number of radial subdivisions.
+      20);   // Number of vertical subdivisions.
+
+  var plane = o3djs.primitives.createPlane(
+      g_pack,
+      createPhongMaterial([0,1,1,1]),
+      1,      // Width.
+      1.618,  // Depth.
+      3,      // Horizontal subdivisions.
+      3);     // Vertical subdivisions.
+
+  // Make a polygon to extrude for the prism.
+  var polygon = [];
+  var n = 10;
+  for (var i = 0; i < n; ++i) {
+    var theta = 2.0 * i * Math.PI / n;
+    var radius = (i % 2) ? 1 : 0.382;
+    polygon.push([radius * Math.cos(theta), radius * Math.sin(theta)]);
+  }
+
+  var prism = o3djs.primitives.createPrism(
+      g_pack,
+      createPhongMaterial([1,1,0,1]),
+      polygon,  // The profile polygon to be extruded.
+      1);       // The depth of the extrusion.
+
+  var disc = o3djs.primitives.createDisc(
+      g_pack,
+      createPhongMaterial([1,0,0,1]),
+      1,   // Radius.
+      7,   // Divisions.
+      2,   // Stacks (optional).
+      0,   // Start Stack (optional).
+      2);  // Stack Power (optional).
+
+  // Add the shapes to the transforms.
+  var transformTable = [
+    {shape: cube, translation: [-2, 1, 0]},
+    {shape: sphere, translation: [0, 1, 0]},
+    {shape: cylinder, translation: [2, 1, 0]},
+    {shape: plane, translation: [-2, -1, 0]},
+    {shape: prism, translation: [0, -1, 0]},
+    {shape: disc, translation: [2, -1, 0]}
+  ];
+
+  for (var tt = 0; tt < transformTable.length; ++tt) {
+    var transform = g_pack.createObject('Transform');
+    transform.addShape(transformTable[tt].shape);
+    transform.translate(transformTable[tt].translation);
+    transform.parent = g_client.root;
+  }
+}
+
+
+</script>
+</head>
+<body onload="initClient()">
+<h1>Primitives</h1>
+This example shows how to use the primitives utility library to make various
+shapes.
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 600px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+</body>
+</html>

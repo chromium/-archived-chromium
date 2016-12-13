@@ -1,0 +1,12 @@
+<script>
+function showFrame(show) {
+  frame = document.getElementById("the_iframe");
+  frame.style.visibility = show ? "" : "hidden";
+}
+
+function showPlugin(show) {
+  iframe = document.getElementById("the_iframe").contentDocument;
+  iframe.getElementById("1").style.visibility = show ? "" : "hidden";
+}
+</script>
+<iframe id='the_iframe' src='plugin_visibility_iframe.html'></iframe>

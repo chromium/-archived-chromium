@@ -1,0 +1,72 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="ca">
+<translation id="6676384891291319759">Accedeix a Internet</translation>
+<translation id="8579274574697852281">Google Chrome requereix Windows Vista o Windows XP amb SP1 o superior.</translation>
+<translation id="698670068493841342">Ja s'ha instal·lat Google Chrome per a aquest usuari. Si el programari no funciona, desinstal·la Google Chrome i baixa'l de nou.</translation>
+<translation id="7400722733683201933">Quant a Google Chrome</translation>
+<translation id="7101265395643981223">Inicieu Google Chrome</translation>
+<translation id="1549918799472947005">Chrome utilitza el teu motor de cerca predeterminat, que actualment és <ph name="PAGE_TITLE"/>. Vols mantenir el motor de cerca predeterminat?</translation>
+<translation id="2370289711218562573">En aquests moments, Google Chrome està important els favorits o les adreces d'interès.</translation>
+<translation id="8970027151245482499">Google Chrome no s'ha instal·lat o bé no ha pogut trobar el directori d'instal·lació. Torna a baixar Google Chrome.</translation>
+<translation id="7958215378280655655">Quan restabliu les opcions de Google Chrome, qualsevol canvi que hagueu fet se substituirà per la configuració predeterminada. Voleu restablir les opcions de Chrome?</translation>
+<translation id="4281844954008187215">Condicions d'ús</translation>
+<translation id="2197898401230534722">Suprimeix totes les dades del perfil</translation>
+<translation id="1137776625614346046">L'àrea &quot;Els més visitats&quot; mostra els llocs web que utilitzeu més sovint. Després d'utilitzar Google Chrome durant un temps, veureu els llocs web més visitats cada vegada que obriu una pestanya nova. Podeu obtenir més informació sobre aquesta i altres funcions a la <ph name="BEGIN_LINK"/>pàgina Introducció<ph name="END_LINK"/>.</translation>
+<translation id="4728575227883772061">S'ha produït un error no especificat durant la instal·lació. Si Google Chrome s'està executant en aquests moments, tanca'l i torna-ho a provar.</translation>
+<translation id="4149882025268051530">L'instal·lador no ha pogut descomprimir el fitxer. Torna a baixar Google Chrome.</translation>
+<translation id="4343226815564935778">Sembla que s'està utilitzant el directori d'instal·lació de Google Chrome. Reinicieu l'equip i torneu-ho a provar.</translation>
+<translation id="4506896920521131223">Copyright © 2006-2009 Google Inc. Tots els drets reservats.</translation>
+<translation id="6817660909204164466">Per ajudar-nos a millorar Google Chrome, envia automàticament estadístiques d'ús i informes d'errors a Google</translation>
+<translation id="8227755444512189073">Google Chrome ha d'iniciar una aplicació externa per gestionar els enllaços <ph name="SCHEME"/>. L'enllaç sol·licitat és <ph name="PROTOLINK"/>.</translation>
+<translation id="1281036569101707544"><ph name="TERMS_OF_SERVICE_LINK"/> de Google Chrome</translation>
+<translation id="8815061062167142136">Vaja! S'ha produït una fallada a Google Chrome. Voleu reiniciar ara?</translation>
+<translation id="5016204670686360703">Si cancel·les ara, no s'importaran tots els elements. Pots tornar a importar més endavant, des del menú de Chrome.</translation>
+<translation id="7241541963706135274">Google Chrome durà a terme aquestes tasques:</translation>
+<translation id="8446794773162156990">Google Chrome té un comportament estrany.</translation>
+<translation id="3889417619312448367">Desinstal·la Google Chrome</translation>
+<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
+<translation id="8810218179782551669">L'idioma de Google Chrome:</translation>
+<translation id="3940866277504106378">Google Chrome pot utilitzar serveis web per millorar la teva experiència de navegació, tot i que pots desactivar aquests serveis si ho desitges.</translation>
+<translation id="7001386529596391893">Crea dreceres de Google Chrome en aquestes ubicacions:</translation>
+<translation id="6134282421960734039">Vols que Chrome desi la teva contrasenya?</translation>
+<translation id="1195935957447623558">Google Chrome no es va tancar correctament. Per tornar a accedir a les pàgines que teníeu obertes, feu clic a &quot;Restaura&quot;.</translation>
+<translation id="2499193704281978000">Google Chrome no és responsable d'aquests actes. Voleu reiniciar ara?</translation>
+<translation id="7747138024166251722">L'instal·lador no ha pogut crear un directori temporal. Comprova que hi ha espai lliure al disc i que tens permís per instal·lar el programari.</translation>
+<translation id="6009537148180854585">Heu intentat accedir a &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, però el certificat que ha presentat el servidor conté errors. Google Chrome no pot utilitzar un certificat amb errors i no pot validar la identitat del lloc al qual heu intentat connectar-vos. La connexió no és segura i no hauríeu de continuar.</translation>
+<translation id="3324235665723428530">El vostre perfil no es pot utilitzar perquè es va crear amb una versió més recent de Google Chrome.\n\nÉs possible que algunes funcions no estiguin disponibles. Especifiqueu un altre directori de perfil o feu servir una versió actualitzada de Google Chrome.</translation>
+<translation id="1759842336958782510">Chrome</translation>
+<translation id="2044287590254833138">Barra d'eines de Google Chrome</translation>
+<translation id="6481075104394517441">Heu intentat accedir a &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, però el servidor ha presentat un certificat que encara no és vàlid. No hi ha informació disponible que indiqui si es pot confiar en el certificat o no. Google Chrome no pot garantir amb fiabilitat que us esteu comunicant amb &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; i no amb un atacant. Hauríeu d'assegurar-vos que el rellotge i el fus horari estan configurats correctament al vostre equip. Si no ho estan, hauríeu de corregir els problemes i actualitzar aquesta pàgina. Si són correctes, no hauríeu de continuar.</translation>
+<translation id="8862326446509486874">No tens els permisos adequats per instal·lar aplicacions al sistema. Prova d'executar l'instal·lador de nou com a Administrador.</translation>
+<translation id="2874156562296220396">Google Chrome ha estat possible gràcies al projecte de codi obert <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> i altres <ph name="BEGIN_LINK_OSS"/>programes de codi obert<ph name="END_LINK_OSS"/>.</translation>
+<translation id="6921913858457830952">Google Chrome està a punt per dur a terme la instal·lació.</translation>
+<translation id="7100330187273168372">Google Chrome no pot llegir ni escriure al seu directori de dades:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">Esteu segur que voleu desinstal·lar Google Chrome?</translation>
+<translation id="5941830788786076944">Estableix Google Chrome com el navegador per defecte</translation>
+<translation id="4127951844153999091">En aquest cas, l'adreça que s'indica al certificat no coincideix amb l'adreça del lloc web al qual heu intentat accedir el navegador. Un possible motiu és que les vostres comunicacions les està interceptant un atacant que presenta un certificat per a un lloc web diferent, cosa que podria provocar un error de concordança. Un altre motiu possible és que el servidor estigui configurat per tornar el mateix certificat per a diversos llocs web, inclòs aquest que intenteu visitar, encara que el certificat no sigui vàlid per a tots aquests llocs web. Google Chrome pot garantir que heu accedit a &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, però no pot verificar que sigui el mateix lloc que &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; , que volíeu visitar. Si continueu, Chrome no comprovarà cap altre error de nom. En general, és millor no continuar més enllà d'aquest punt.</translation>
+<translation id="2712549016134575851">S'ha detectat un conflicte amb una altra aplicació instal·lada.</translation>
+<translation id="7161904924553537242">Us donem la benvinguda a Google Chrome.</translation>
+<translation id="8236873504073475138">Google Chrome no és compatible amb Windows 2000. És possible que algunes funcions no estiguin disponibles.</translation>
+<translation id="5046764976540625289">Surt de Chrome</translation>
+<translation id="8865765905101981392">Navegador d'Internet</translation>
+<translation id="582763753075639530">Tanca totes les finestres de Chrome i reinicia el programa perquè aquest canvi tingui efecte.</translation>
+<translation id="8776515774046280928">Google Chrome ja s'ha instal·lat i està disponible per a tots els usuaris d'aquest equip. Si vols instal·lar Google Chrome per als usuaris, primer hauràs de desinstal·lar la versió del sistema que va instal·lar un administrador.</translation>
+<translation id="3335672657969596251">Google Chrome no és compatible amb <ph name="OS_NAME"/>.</translation>
+<translation id="3636771339108070045">Aquest equip ja disposa d'una versió més recent de Google Chrome. Si el programari no funciona, desinstal·la Google Chrome i baixa'l de nou.</translation>
+<translation id="3396666154568987767">Google Chrome per a <ph name="PROFILE_NAME"/></translation>
+<translation id="1964682833763362793">Tanca totes les finestres de Chrome i torna-ho a provar.</translation>
+<translation id="1001534784610492198">El fitxer d'instal·lació està malmès o no és vàlid. Torna a baixar Google Chrome.</translation>
+<translation id="6626317981028933585">Lamentablement, la vostra configuració de Mozilla Firefox no estarà disponible mentre aquest navegador s'estigui executant. Per importar aquesta configuració a Google Chrome, deseu la feina que hagueu fet i tanqueu totes les finestres de Firefox. Seguidament, feu clic a &quot;Continua&quot;.</translation>
+<translation id="8540666473246803645">Google Chrome</translation>
+<translation id="6049075767726609708">Un administrador ha instal·lat Google Chrome en aquest sistema i ja està disponible per a tots els usuaris. Ara substituirem la instal·lació de Google Chrome en l'àmbit del sistema per la instal·lació en l'àmbit dels usuaris.</translation>
+<translation id="3870154837782082782">Google Inc.</translation>
+<translation id="1446473746922165495">Canvieu l'idioma utilitzat als menús, quadres de diàleg i indicadors de funció de Google Chrome.</translation>
+<translation id="9189723490960700326">Heu intentat accedir a &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, però el servidor ha presentat un certificat caducat. No hi ha informació disponible que indiqui si aquest certificat ha estat interceptat des que va caducar. Això significa que Google Chrome no pot garantir que us esteu comunicant amb &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; i no amb un atacant. No hauríeu de continuar.</translation>
+<translation id="7106741999175697885">Gestor de tasques - Google Chrome</translation>
+<translation id="8449380764213232436">En aquests moments, Google Chrome està important els elements següents de <ph name="BROWSER_COMPONENT"/>:</translation>
+<translation id="3396977131400919238">S'ha produït un error en el sistema operatiu durant la instal·lació. Torna a baixar Google Chrome.</translation>
+<translation id="2618799103663374905">Afegiu les dreceres de Google Chrome al vostre escriptori, a la barra d'inici ràpid i al menú &quot;Inici&quot;.</translation>
+<translation id="1144950271450340860">Heu intentat accedir a &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, però el servidor ha presentat un certificat emès per una entitat que el sistema operatiu del vostre equip no considera fiable. Això podria voler dir que el servidor ha generat les seves pròpies credencials de seguretat, en les quals Google Chrome no confia pel que fa a la informació d'identitat, o que un atacant pot estar intentant interceptar les vostres comunicacions. 
+No hauríeu de continuar, &lt;strong&gt;sobretot&lt;/strong&gt; si és la primera vegada que veieu aquesta advertència en aquest lloc.</translation>
+</translationbundle>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="mini_installer"
+	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		EnableIntrinsicFunctions="true"
+		BasicRuntimeChecks="0"
+		BufferSecurityCheck="false"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		AdditionalDependencies="&quot;$(VCInstallDir)crt\src\intel\mt_lib\memset.obj&quot; &quot;$(VCInstallDir)crt\src\intel\mt_lib\P4_memset.obj&quot; shlwapi.lib"
+		IgnoreAllDefaultLibraries="true"
+		GenerateMapFile="true"
+		SubSystem="2"
+		OptimizeForWindows98="1"
+		EntryPointSymbol="MainEntryPoint"
+	/>
+	<Tool
+		Name="VCResourceCompilerTool"
+		AdditionalIncludeDirectories="$(OutDir);$(IntDir)"
+	/>
+	<Tool
+		Name="VCManifestTool"
+		AdditionalManifestFiles="$(SolutionDir)installer\mini_installer\mini_installer.exe.manifest"
+	/>
+</VisualStudioPropertySheet>

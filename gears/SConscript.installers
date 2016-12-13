@@ -1,0 +1,391 @@
+# Copyright (c) 2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import fnmatch
+import os
+import re
+import shutil
+import subprocess
+import utils
+import SCons.Node
+
+Import('env')
+
+env = env.Clone()
+
+if env['OS'] in ['win32', 'wince']:
+  env.Append(DATE = 'echo %DATE%.%TIME%')
+else:
+  env.Append(DATE = 'date')
+
+def GetInputs(var): return utils.GetInputs(var, env)
+
+def Shell(cmd):
+  """Execute a shell command and return the output."""
+  cmd[0] = env.Entry(cmd[0]).abspath
+  cmd = env.subst(cmd)
+  return subprocess.Popen(
+      cmd, shell=True, stdout=subprocess.PIPE).communicate()[0]
+
+if env['OS'] == 'win32':
+  def GGUIDGen(value):
+    """Generate a GGUID for the given value."""
+    return Shell(['$GGUIDGEN', '$NAMESPACE_GUID', value + '-$VERSION'])
+  env.Replace(
+      GGUIDGEN = '#/$OPEN_DIR/tools/gguidgen.exe',
+      NAMESPACE_GUID = '36F65206-5D4E-4752-9D52-27708E10DA79',
+# MSI version numbers must have the form <major>.<minor>.<build>. To meet this,
+# we combine our build and patch version numbers like so:
+# MSI_VERSION = <major>.<minor>.<BUILD * 100 + PATCH>.
+# Note: This assumes that the BUILD and PATCH variables adhere to the range
+# requirements in version.mk. See comments in version.mk for more details.
+      MSI_BUILD = eval(env.subst('$BUILD * 100 + $PATCH')),
+      MSI_VERSION = '${MAJOR}.${MINOR}.${MSI_BUILD}',
+  )
+
+  # Building wxiobjs with candle
+  env.Replace(
+      CANDLEDEFPREFIX = '-d',
+      CANDLEDEFSUFFIX = '',
+      _CANDLEDEFFLAGS = ('${_defines(CANDLEDEFPREFIX, CANDLEDEFINES, '
+                         'CANDLEDEFSUFFIX, __env__)}'),
+      CANDLECOM = 'candle.exe -out $TARGET $SOURCE ${_CANDLEDEFFLAGS}',
+  )
+  env.Append(
+# Note: Since light.exe is run from $OPEN_DIR, candle.exe must generate
+# output with paths relative to that dir.
+      SCONS_DIR = '..',  # the scons dir relative to OPEN_DIR
+# You can change the names of ProductId vars, but NEVER change their values!
+      CANDLEDEFINES = [
+          ('OurWin32ProductId',
+            GGUIDGen('OUR_PRODUCT_ID')),
+          ('OurComponentGUID_FFComponentsDirFiles',
+            GGUIDGen('OUR_COMPONENT_GUID_FF_COMPONENTS_DIR_FILES')),
+          ('OurComponentGUID_FFContentDirFiles',
+            GGUIDGen('OUR_COMPONENT_GUID_FF_CONTENT_DIR_FILES')),
+          ('OurComponentGUID_FFDirFiles',
+            GGUIDGen('OUR_COMPONENT_GUID_FF_DIR_FILES')),
+          ('OurComponentGUID_FFLibDirFiles',
+            GGUIDGen('OUR_COMPONENT_GUID_FF_LIB_DIR_FILES')),
+          ('OurComponentGUID_FFRegistry',
+            GGUIDGen('OUR_COMPONENT_GUID_FF_REGISTRY')),
+          ('OurComponentGUID_IEFiles',
+            GGUIDGen('OUR_COMPONENT_GUID_IE_FILES')),
+          ('OurComponentGUID_IERegistry',
+            GGUIDGen('OUR_COMPONENT_GUID_IE_REGISTRY')),
+          ('OurComponentGUID_SharedFiles',
+            GGUIDGen('OUR_COMPONENT_GUID_SHARED_FILES')),
+          ('OurComponentGUID_SharedVersionedFiles',
+            GGUIDGen('OUR_COMPONENT_GUID_SHARED_VERSIONED_FILES')),
+          ('OurComponentGUID_SharedRegistry',
+            GGUIDGen('OUR_COMPONENT_GUID_SHARED_REGISTRY')),
+          ('OurNpapiProductId',
+            GGUIDGen('OUR_2ND_PRODUCT_ID')),
+          ('OurComponentGUID_NpapiFiles',
+            GGUIDGen('OUR_COMPONENT_GUID_NPAPI_FILES')),
+          ('OurComponentGUID_NpapiRegistry',
+            GGUIDGen('OUR_COMPONENT_GUID_NPAPI_REGISTRY')),
+          ('OurMsiVersion', '$MSI_VERSION'),
+          ('OurCommonPath', '$COMMON_OUTDIR'),
+          ('OurIEPath', '$IE_OUTDIR'),
+          ('OurIpcTestPath', '$COMMON_OUTDIR'),
+          ('OurFFPath', '$INSTALLER_OUTDIR/$INSTALLER_BASENAME'),
+          ('OurNpapiPath', '$NPAPI_OUTDIR'),
+      ]
+  )
+  wix_langs = [re.sub('-', '_', lang) for lang in env['I18N_LANGS']]
+  env.Append(
+      CANDLEDEFINES =
+        [('OurComponentGUID_FFLang' + lang + 'DirFiles',
+           GGUIDGen('OUR_COMPONENT_GUID_FF_' + lang + '_DIR_FILES'))
+         for lang in wix_langs],
+  )
+
+def SafeMkdir(dir):
+  """Like the builtin Mkdir, but doesn't fail if the dir exists."""
+  def Func(target, source, env):
+    dir_subst = env.subst(dir, target=target)
+    if not os.path.exists(dir_subst):
+      os.makedirs(dir_subst)
+    return 0
+  return Action(Func, 'SafeMkdir("' + dir + '")')
+
+def RecursiveDelete(pattern):
+  """Recursively deletes directories matching a pattern."""
+  def Func(target, source, env):
+    # strip off '.dir' suffix
+    target_dir = env.subst('${TARGET.base}', target=target)
+    for root, dirs, files in os.walk(target_dir):
+      if fnmatch.fnmatch(os.path.normpath(root), pattern):
+        print 'Deleting', root
+        shutil.rmtree(root)
+    return 0
+  return Action(Func, 'RecursiveDelete("' + pattern + '")')
+
+def ToUnixPath(path):
+  """Converts windows-style \ to unix-style /."""
+  return re.sub(r'\\', r'/', path)
+
+def DirBuilder(env, dirtarget, dirsrcs):
+  """Builder that makes a directory tree by copying source files to
+  corresponding locations inside 'dirtarget'.  'dirsrcs' specifies the list of
+  mappings from source file/directory to the target location.  It's formatted
+  like:
+    (<target file or dir>, <list of source files>)
+
+  Note: source files that come from an output directory must be explicitly
+  specified relative to the toplevel dir '#'.
+  Note: as shorthand, if the target ends with a '/', then the sources will
+  be placed into that dir.  Otherwise, source is renamed into the target.
+  """
+
+  srcs = []
+  actions = [Delete('${TARGET.base}')]
+  for target, sources in dirsrcs:
+    target_is_dir = target.endswith('/')
+    if target_is_dir:
+      actions.append(SafeMkdir('${TARGET.base}/' + target))
+    else:
+      actions.append(SafeMkdir('${TARGET.base}/' + os.path.dirname(target)))
+    for source in env.Flatten(sources):
+      source = env.subst(source, conv=lambda x:x)
+      srcs.append(source)
+
+      # Special-case for Nodes and Node lists: use their absolute paths for
+      # the Copy() action, otherwise it will be relative to our variant dir
+      # (not what Copy expects).
+      if isinstance(source, list): source = source[0]
+      if isinstance(source, SCons.Node.Node): source = source.abspath
+
+      # HACK: Compensate for the workaround below.  We want the .dir file
+      # to be the dependency to the Command() builder, but we want to copy
+      # the actual directory - so strip the extension here.
+      if source.endswith('.dir'):
+        source = source[:-4]
+
+      if target_is_dir:
+        actions.append(
+            Copy('${TARGET.base}/' + target + os.path.basename(source),
+                 source))
+      else:
+        actions.append(Copy('${TARGET.base}/' + target, source))
+
+  # Remove any .svn directories that were copied.
+  actions.append(RecursiveDelete('*/.svn'))
+
+  # HACK: Workaround for bug in scons where directories aren't checked for
+  # dependency changes.  Instead, we make a temp file the target, and ensure
+  # that that file changes everytime we execute these actions.
+  # See http://scons.tigris.org/issues/show_bug.cgi?id=2261
+  actions += ['$DATE > ${TARGET}']
+  return env.Command(env.subst(dirtarget) + '.dir', srcs, actions)
+env.AddMethod(DirBuilder)
+
+def FirefoxInstaller():
+  dirsrcs = [
+      ('/', ['$FF3_OUTDIR/genfiles/install.rdf',
+             '$FF3_OUTDIR/genfiles/chrome.manifest']),
+      ('lib/', ['$OPEN_DIR/base/firefox/static_files/lib/updater.js']),
+      ('chrome/chromeFiles/content/',
+          GetInputs('$FF3_RESOURCES $COMMON_RESOURCES')),
+      ('chrome/chromeFiles/locale', ['$FF3_OUTDIR/genfiles/i18n']),
+      ('components/',
+          ['$FF3_MODULE_TYPELIB',
+           '$OPEN_DIR/base/firefox/static_files/components/bootstrap.js']),
+      ('components/${SHLIBPREFIX}gears${SHLIBSUFFIX}', ['$FF2_MODULE']),
+      ('components/${SHLIBPREFIX}gears_ff2${SHLIBSUFFIX}', ['$FF3_MODULE']),
+  ]
+
+  if env['USING_CCTESTS']:
+    dirsrcs += [
+        ('components/', ['$IPC_TEST_EXE']),
+    ]
+  if env['OS'] != 'win32':
+    # TODO(playmobil): Inspector should be located in extensions dir on win32.
+    dirsrcs += [
+        ('resources/inspector', [env.Dir('#/$OPEN_DIR/inspector')]),
+        ('resources/inspector/common/', ['$OPEN_DIR/sdk/gears_init.js',
+                                         '$OPEN_DIR/sdk/samples/sample.js']),
+    ]
+  if env['MODE'] == 'dbg' and env['OS'] in ['win32', 'wince']:
+    dirsrcs += [
+        ('components/gears_ff2.pdb', ['$FF2_MODULE_PDB']),
+        ('components/gears.pdb', ['$FF3_MODULE_PDB']),
+    ]
+  if env['OS'] == 'osx':
+    dirsrcs += [
+        ('resources/', ['$OSX_LAUNCHURL_EXE']),
+    ]
+
+  dir = env.DirBuilder('$INSTALLER_OUTDIR/$INSTALLER_BASENAME', dirsrcs)
+  actions = [
+      # Mark files writeable to allow .xpi rebuilds
+      'chmod -R 777 ${SOURCE.base}',
+      '(cd ${SOURCE.base} && zip -r ../${TARGET.file} .)'
+  ]
+
+  return env.Command('$FF_XPI', dir, actions)
+firefox_installer = FirefoxInstaller()
+
+def Win32Installer():
+  wxiobj = env.Command(
+      '$COMMON_GENFILES_DIR/win32_msi.wxiobj',
+      '$COMMON_GENFILES_DIR/win32_msi.wxs',
+      '$CANDLECOM')
+  # TODO(mpcomplete): remove this if/when the notifier goes away.  This
+  # creates fake targets to satisfy the installer build.
+  notifier = env.Command(
+      [
+          '$COMMON_OUTDIR/notifier.exe',
+          '$COMMON_OUTDIR/notifier.dll',
+          '$COMMON_OUTDIR/notifier_test.exe'
+      ], [],
+      'touch $TARGETS')
+  # light.exe must be run from $OPEN_DIR
+  msi = env.Command(
+      '$WIN32_INSTALLER_MSI',
+      [wxiobj, notifier, firefox_installer, '$IE_MODULE', '$NPAPI_MODULE'],
+      'cd $OPEN_DIR && light.exe -out ${TARGET.abspath} ${SOURCES[0].abspath}')
+  return msi
+win32_installer = Win32Installer()
+
+def WinCEInstaller():
+  env['ToUnixPath'] = ToUnixPath
+  inf_outdir = ToUnixPath(env.subst('$IE_OUTDIR'))
+  inf = env.Command(
+      '$COMMON_GENFILES_DIR/wince_cab_fixed.inf',
+      '$COMMON_GENFILES_DIR/wince_cab_ie.inf',
+      'sed -e "s#bin-....wince-arm.ie.#' + inf_outdir + '#g" $SOURCE > $TARGET')
+  cab = env.Command(
+      '$WINCE_INSTALLER_CAB',
+      [inf, '$IE_MODULE', '$IE_WINCE_SETUP_DLL'],
+      ['cabwiz ${ToUnixPath(str(SOURCE))} /compress'
+       ' /err ${SOURCES[0].base}.log',
+       Copy('$TARGET', '${SOURCE.base}.CAB')])
+  return cab
+wince_installer = WinCEInstaller()
+
+def SafariPluginBundle():
+  """This is the actual gears plugin bundle for Safari."""
+  dirsrcs = [
+      ('Contents/', ['$SF_OUTDIR/genfiles/Info.plist']),
+      ('Contents/Resources/English.lproj/InfoPlist.strings',
+          ['$OPEN_DIR/tools/osx/English.lproj/InfoPlist.strings']),
+      ('Contents/Resources/', env.Glob('#/$OPEN_DIR/ui/safari/*.nib')),
+      ('Contents/Resources/', ['$CRASH_SENDER_EXE']),
+      ('Contents/Resources/', ['$OSX_CRASH_INSPECTOR_EXE']),
+      ('Contents/Resources/', ['$OSX_LAUNCHURL_EXE']),
+      ('Contents/MacOS/', ['$SF_MODULE']), 
+  ]
+
+  if env['USING_CCTESTS']:
+    dirsrcs += [
+        ('Contents/Resources/', ['$IPC_TEST_EXE']),
+    ]
+
+  return env.DirBuilder('$SF_PLUGIN_BUNDLE', dirsrcs)
+safari_plugin_bundle = SafariPluginBundle()
+
+def SafariPluginProxyBundle():
+  """This is a proxy plugin which simply loads gears into Safari and keeps
+  it in memory. It exists so that gears doesn't unload when Safari wants us
+  to, since that causes crashes."""
+  dirsrcs = [
+      ('Contents/', ['$SF_OUTDIR/genfiles/Info.plist']),
+      ('Contents/MacOS/${SHLIBPREFIX}gears${SHLIBSUFFIX}', ['$SF_PROXY_DLL']),
+      ('Contents/Resources/', [safari_plugin_bundle]),
+      ('Contents/Resources/', ['$OPEN_DIR/tools/osx/uninstall.command']),
+  ]
+
+  return env.DirBuilder('$SF_PLUGIN_PROXY_BUNDLE', dirsrcs)
+safari_plugin_proxy_bundle = SafariPluginProxyBundle()
+
+def SafariInstallerPluginBundle():
+  dirsrcs = [
+      ('Contents/Info.plist',
+          ['$OPEN_DIR/base/safari/advanced_stats_sheet.plist']),
+      ('Contents/MacOS/InstallerPlugin', ['$SF_INSTALLER_PLUGIN_EXE']),
+      ('Contents/Resources/AdvancedStatsSheet.nib',
+          [env.Dir('#/$OPEN_DIR/base/safari/advanced_stats_sheet.nib')]),
+  ]
+
+  return env.DirBuilder('$SF_INSTALLER_PLUGIN_BUNDLE', dirsrcs)
+safari_installer_plugin_bundle = SafariInstallerPluginBundle()
+
+def SafariInputManagerBundle():
+  info = env.Command('$SF_OUTDIR/genfiles/Enabler-Info.plist',
+      '$OPEN_DIR/tools/osx/Enabler-Info.plist',
+      'cat $SOURCE |'
+      'sed \'s/$${EXECUTABLE_NAME}/GearsEnabler/\' |'
+      'sed \'s/$${PRODUCT_NAME}/GearsEnabler/\' > $TARGET')
+  dirsrcs = [
+      ('GearsEnabler.bundle/Contents/Info.plist', [info]),
+      ('GearsEnabler.bundle/Contents/MacOS/', ['$SF_INPUTMANAGER_EXE']),
+      ('GearsEnabler.bundle/Contents/Resources/English.lproj/',
+          ['$OPEN_DIR/tools/osx/English.lproj/InfoPlist.strings']),
+      ('Info', ['$OPEN_DIR/tools/osx/Info']),
+  ]
+
+  return env.DirBuilder('$SF_INPUTMANAGER_BUNDLE', dirsrcs)
+safari_input_manager_bundle = SafariInputManagerBundle()
+
+def SafariInstallerPackage():
+  pkg = env.Iceberg(env.Dir('${SF_INSTALLER_PKG}'),
+      [
+          '$SF_OUTDIR/genfiles/installer.packproj',
+          safari_plugin_proxy_bundle,
+          safari_input_manager_bundle,
+      ])
+  return pkg
+safari_installer_package = SafariInstallerPackage()
+
+def SafariKeystoneInstaller():
+  if not os.path.exists(env.Dir('#/$PRIVATE_DIR').abspath):
+    print 'Skipping Safari Keystone installer. Required sources are not public.'
+    return []
+
+  env.Append(CREATE_DISK_IMAGE =
+      "/usr/bin/hdiutil create -ov -imagekey zlib-level=9 -fs HFS+"
+      " -format UDZO -volname '$FRIENDLY_NAME ${VERSION}'"
+      " -srcfolder '${INSTALLER_OUTDIR}/Safari/dmg/' -scrub"
+      " -nocrossdev '${SF_KEYSTONE_INSTALLER_DMG}'"
+  )
+
+  pkg = env.Iceberg(env.Dir('${SF_KEYSTONE_INSTALLER_MPKG}'),
+      ['$SF_OUTDIR/genfiles/keystone_installer.packproj'])
+  env.Depends(pkg, GetInputs('$SF_M4S'))
+  env.Depends(pkg, safari_installer_package)
+
+  dirsrcs = [
+      ('/', [pkg]),
+      ('/.keystone_install',
+          ['$PRIVATE_DIR/tools/osx/installer/keystone_install']),
+  ]
+  dmg = env.DirBuilder('$INSTALLER_OUTDIR/Safari/dmg', dirsrcs)
+  env.AddPostAction(dmg, 'chmod +x ${TARGET.base}/.keystone_install')
+  # hdiutil is crashy under leopard, so try twice.
+  env.AddPostAction(dmg, '$CREATE_DISK_IMAGE || $CREATE_DISK_IMAGE')
+
+  return dmg
+safari_keystone_installer = SafariKeystoneInstaller()
+
+installers = []
+if 'FF3' in env['VALID_BROWSERS']:
+  installers += firefox_installer
+if 'SF' in env['VALID_BROWSERS']:
+  installers += [
+      safari_input_manager_bundle,
+      safari_plugin_bundle,
+      safari_plugin_proxy_bundle,
+      safari_installer_plugin_bundle,
+      safari_installer_package,
+      safari_input_manager_bundle,
+      safari_keystone_installer,
+  ]
+if env['OS'] == 'win32':
+  installers += win32_installer
+if env['OS'] == 'wince':
+  installers += wince_installer
+
+env.Alias('gears-installers', installers)

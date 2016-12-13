@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="th">
+<translation id="4420062214988137980">การติดตั้งปลั๊กอินล้มเหลว</translation>
+<translation id="1235745349614807883">ลบการค้นหาล่าสุด</translation>
+<translation id="3825324228893189080">ต้องการปลั๊กอินเพิ่มเติม</translation>
+<translation id="2965480764085142436"><ph name="PLUGIN"/> ไม่ได้ติดตั้งปลั๊กอิน</translation>
+<translation id="5048533449481078685">ผู้สร้างรายการ</translation>
+<translation id="4202807286478387388">ข้าม</translation>
+<translation id="4611115858363067980"><ph name="FILENAME"/><ph name="WIDTH"/>×<ph name="HEIGHT"/></translation>
+<translation id="4317653869502688143">โปรดยืนยันว่าคุณต้องการที่จะติดตั้ง <ph name="PLUGIN"/> ปลั๊กอิน คุณควรติดตั้งปลั๊กอินที่คุณเชื่อถือเท่านั้น</translation>
+<translation id="7658239707568436148">ยกเลิก</translation>
+<translation id="795667975304826397">ไม่ได้เลือกไฟล์ใด</translation>
+<translation id="1275511093094545429">ต้องใช้ปลั๊กอิน <ph name="PLUGIN"/></translation>
+<translation id="8662565117025751661">กำลังดาวน์โหลดปลั๊กอิน...</translation>
+<translation id="8141602879876242471">นี่คือดัชนีที่สามารถค้นหาได้ ป้อนคำหลักในการค้นหา:</translation>
+<translation id="6845533974506654842">กด</translation>
+<translation id="8244226242650769279">แผนที่รูปภาพ</translation>
+<translation id="1383141426028388991">การติดตั้งปลั๊กอินจาก <ph name="URL"/> ล้มเหลว</translation>
+<translation id="2548326553472216322">ไม่พบการค้นหาล่าสุด</translation>
+<translation id="5944544982112848342">2048 (เกรดสูง)</translation>
+<translation id="3040011195152428237">ลิงก์</translation>
+<translation id="8281246460978372009">หลังจากติดตั้งปลั๊กอิน คลิกที่นี่เพื่อรีเฟรซ</translation>
+<translation id="7364796246159120393">ปิดไฟล์</translation>
+<translation id="8964020114565522021">ลากไฟล์มาที่นี่</translation>
+<translation id="838869780401515933">ทำเครื่องหมาย</translation>
+<translation id="2846343701378493991">1024 (เกรดปานกลาง)</translation>
+<translation id="5476505524087279545">ยกเลิกการทำเครื่องหมาย</translation>
+<translation id="679352192834563463">ไม่มีปลั๊กอินที่จะแสดงเนื้อหานี้</translation>
+<translation id="3789841737615482174">ติดตั้ง</translation>
+<translation id="6663448176199120256">การค้นหาล่าสุด</translation>
+<translation id="3600343118165084788">คลิกที่นี่เพื่อดาวน์โหลดปลั๊กอิน</translation>
+<translation id="6807599807928161586">พื้นที่เว็บ</translation>
+<translation id="5939518447894949180">ตั้งค่าใหม่</translation>
+<translation id="3771786644471114952">ติดตั้งปลั๊กอิน</translation>
+<translation id="1842960171412779397">เลือก</translation>
+<translation id="6119846243427417423">เปิดใช้งาน</translation>
+<translation id="3926627843712816530">โปรดยืนยันว่าคุณต้องการติดตั้งปลั๊กอินนี้ คุณควรติดตั้งปลั๊กอินที่คุณเชื่อถือเท่านั้น</translation>
+<translation id="4838490908464673667">ไม่ได้ติดตั้งปลั๊กอินที่จำเป็น</translation>
+<translation id="8597182159515967513">ส่วนหัว</translation>
+<translation id="2653659639078652383">ส่ง</translation>
+</translationbundle>

@@ -1,0 +1,24 @@
+# buganizer 1178136
+ImporterTest.Firefox3Importer
+
+# issue 2468
+URLFetcherBadHTTPSTest.BadHTTPSTest
+SafeBrowsingProtocolParsingTest.TestSubChunk
+
+# testing to see if this gets rid of intermittent leaks
+IPCSyncChannelTest.SendWithTimeout*
+
+# issue 7891
+FindInPageControllerTest.FindInPageFrames
+
+# Takes 10 minutes to run.
+IPCSyncChannelTest.ChattyServer
+
+# issue 9897
+ExtensionContentScriptInjectTest.Simple
+
+# issue 12661
+ExtensionsServiceTest.InstallExtension
+
+# issue 15276
+CompactLangDetTest.*

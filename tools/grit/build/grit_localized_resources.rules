@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VisualStudioToolFile
+	Name="GRIT localized resources"
+	Version="8.00"
+	>
+	<Rules>
+		<CustomBuildRule
+			Name="GRIT Generated Localized Resources"
+			DisplayName="GRIT Generated Localized Resources"
+			CommandLine="$(SolutionDir)..\tools\grit\build\grit_resource_file.bat [inputs] &quot;$(SolutionDir)&quot; &quot;$(OutDir)\obj\global_intermediate\chrome&quot; [AllOptions]"
+			Outputs="$(OutDir)\obj\global_intermediate\chrome\$(InputName)_en-US.pak"
+			AdditionalDependencies="$(SolutionDir)..\tools\grit\build\grit_resource_file.bat;$(SolutionDir)..\tools\grit\grit.py;
+			  resources\$(InputName)_ar.xtb;
+			  resources\$(InputName)_bg.xtb;
+			  resources\$(InputName)_bn.xtb;
+			  resources\$(InputName)_ca.xtb;
+			  resources\$(InputName)_cs.xtb;
+			  resources\$(InputName)_da.xtb;
+			  resources\$(InputName)_de.xtb;
+			  resources\$(InputName)_el.xtb;
+			  resources\$(InputName)_en-GB.xtb;
+			  resources\$(InputName)_es.xtb;
+			  resources\$(InputName)_es-419.xtb;
+			  resources\$(InputName)_et.xtb;
+			  resources\$(InputName)_fi.xtb;
+			  resources\$(InputName)_fil.xtb;
+			  resources\$(InputName)_fr.xtb;
+			  resources\$(InputName)_gu.xtb;
+			  resources\$(InputName)_he.xtb;
+			  resources\$(InputName)_hi.xtb;
+			  resources\$(InputName)_hr.xtb;
+			  resources\$(InputName)_hu.xtb;
+			  resources\$(InputName)_id.xtb;
+			  resources\$(InputName)_it.xtb;
+			  resources\$(InputName)_ja.xtb;
+			  resources\$(InputName)_kn.xtb;
+			  resources\$(InputName)_ko.xtb;
+			  resources\$(InputName)_lt.xtb;
+			  resources\$(InputName)_lv.xtb;
+			  resources\$(InputName)_ml.xtb;
+			  resources\$(InputName)_mr.xtb;
+			  resources\$(InputName)_nl.xtb;
+			  resources\$(InputName)_no.xtb;
+			  resources\$(InputName)_or.xtb;
+			  resources\$(InputName)_pl.xtb;
+			  resources\$(InputName)_pt-BR.xtb;
+			  resources\$(InputName)_pt-PT.xtb;
+			  resources\$(InputName)_ro.xtb;
+			  resources\$(InputName)_ru.xtb;
+			  resources\$(InputName)_sk.xtb;
+			  resources\$(InputName)_sl.xtb;
+			  resources\$(InputName)_sr.xtb;
+			  resources\$(InputName)_sv.xtb;
+			  resources\$(InputName)_ta.xtb;
+			  resources\$(InputName)_te.xtb;
+			  resources\$(InputName)_th.xtb;
+			  resources\$(InputName)_tr.xtb;
+			  resources\$(InputName)_uk.xtb;
+			  resources\$(InputName)_vi.xtb;
+			  resources\$(InputName)_zh-CN.xtb;
+			  resources\$(InputName)_zh-TW.xtb;"
+			FileExtensions="*.grd"
+			ExecutionDescription="Generating resources..."
+			>
+			<Properties>
+			  <StringProperty
+			    Name="PreprocessorDefinitions"
+			    DisplayName="Preprocessor Definitions"
+			    Description="Defines a text macro with the given name."
+			    Switch="&quot;[value]&quot;"
+			    Delimited="true"
+			    Inheritable="true"
+        />
+			</Properties>
+		</CustomBuildRule>
+	</Rules>
+</VisualStudioToolFile>

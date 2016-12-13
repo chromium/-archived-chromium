@@ -1,0 +1,106 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
+// This file defines the public interface for the RenderEvent class.
+
+namespace o3d {
+
+%[
+  This class is used to pass infomation to a registered onrender callback.
+%]
+[binding_model=by_value, include="core/cross/render_event.h",
+    nocpp,glue_iface] class RenderEvent {
+  %[
+    The elapsed time in seconds since the last frame was rendered.
+  %]
+  [getter] float elapsed_time_;
+
+  %[
+    The time it took to render.
+  %]
+  [getter] float render_time_;
+
+  %[
+    The time it took to render and process tick callbacks, render callbacks,
+    counter callbacks.
+  %]
+  [getter] float active_time_;
+
+  %[
+    The number of transforms processed last frame.
+
+    This is the number of transforms the renderer considered for traversing.
+    A Transform may not be considered for traversing either because it is not in
+    one of the subtrees the TreeTraversals are setup to traverse or because it
+    one of its parents was culled or set to visible = false.
+  %]
+  [getter] int transforms_processed_;
+
+  %[
+    The number of transforms that were culled last frame directly.
+
+    Of the transforms processed, how many were culled.
+  %]
+  [getter] int transforms_culled_;
+
+  %[
+    The number of draw elements processed last frame.
+
+    This is the number of draw elements the renderer considered for rendering.
+    If a transform is not traversed either because it is not in one of the
+    subtrees the TreeTraversals are setup to traverse or because it is marked
+    as visible = false then any draw elements in that part of the transform
+    graph are not processed.
+  %]
+  [getter] int draw_elements_processed_;
+
+  %[
+    The number of draw elements that were culled last frame directly.
+    (vs culled hierarchically)
+  %]
+  [getter] int draw_elements_culled_;
+
+  %[
+    The number of draw elements rendered last frame. Note: a draw element can
+    be rendered more than once per frame based on how many transforms it is
+    under and how many DrawPasses use the DrawLists it is put on.
+  %]
+  [getter] int draw_elements_rendered_;
+
+  %[
+    The number of low-level primitives rendered last frame. This is the sum of
+    the number primitives (triangles, lines) submitted to the renderer.
+  %]
+  [getter] int primitives_rendered_;
+};
+
+}  // namespace o3d

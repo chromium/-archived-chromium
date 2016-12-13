@@ -1,0 +1,201 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Box2DJS in 3D</title>
+
+        <!--=============================-->
+        <!-- Copy this part to your app. -->
+        <!-- START                       -->
+        <!--=============================-->
+        <!-- libs -->
+    <script type="text/javascript" src="third_party/prototype-1.6.0.2.js"></script>
+
+        <!-- box2djs -->
+    <script type="text/javascript" src='third_party/box2d/common/b2Settings.js'></script>
+    <script type="text/javascript" src='third_party/box2d/common/math/b2Vec2.js'></script>
+    <script type="text/javascript" src='third_party/box2d/common/math/b2Mat22.js'></script>
+    <script type="text/javascript" src='third_party/box2d/common/math/b2Math.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/b2AABB.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/b2Bound.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/b2BoundValues.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/b2Pair.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/b2PairCallback.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/b2BufferedPair.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/b2PairManager.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/b2BroadPhase.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/b2Collision.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/Features.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/b2ContactID.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/b2ContactPoint.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/b2Distance.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/b2Manifold.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/b2OBB.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/b2Proxy.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/ClipVertex.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/shapes/b2Shape.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/shapes/b2ShapeDef.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/shapes/b2BoxDef.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/shapes/b2CircleDef.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/shapes/b2CircleShape.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/shapes/b2MassData.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/shapes/b2PolyDef.js'></script>
+    <script type="text/javascript" src='third_party/box2d/collision/shapes/b2PolyShape.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/b2Body.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/b2BodyDef.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/b2CollisionFilter.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/b2Island.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/b2TimeStep.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/contacts/b2ContactNode.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/contacts/b2Contact.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/contacts/b2ContactConstraint.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/contacts/b2ContactConstraintPoint.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/contacts/b2ContactRegister.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/contacts/b2ContactSolver.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/contacts/b2CircleContact.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/contacts/b2Conservative.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/contacts/b2NullContact.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/contacts/b2PolyAndCircleContact.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/contacts/b2PolyContact.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/b2ContactManager.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/b2World.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/b2WorldListener.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/joints/b2JointNode.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/joints/b2Joint.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/joints/b2JointDef.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/joints/b2DistanceJoint.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/joints/b2DistanceJointDef.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/joints/b2Jacobian.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/joints/b2GearJoint.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/joints/b2GearJointDef.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/joints/b2MouseJoint.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/joints/b2MouseJointDef.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/joints/b2PrismaticJoint.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/joints/b2PrismaticJointDef.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/joints/b2PulleyJoint.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/joints/b2PulleyJointDef.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/joints/b2RevoluteJoint.js'></script>
+    <script type="text/javascript" src='third_party/box2d/dynamics/joints/b2RevoluteJointDef.js'></script>
+        <!--=============================-->
+        <!-- Copy this part to your app. -->
+        <!-- END                         -->
+        <!--=============================-->
+<script type="text/javascript" src="../o3djs/base.js"></script>
+
+        <!-- demos -->
+    <script src='demos/manager.js'></script>
+    <script src='demos/draw_world.js'></script>
+    <script src='demos/demo_base.js'></script>
+    <script src='demos/top.js'></script>
+    <script src='demos/stack.js'></script>
+    <script src='demos/compound.js'></script>
+    <script src='demos/pendulum.js'></script>
+    <script src='demos/crank.js'></script>
+    <script src='demos/demos.js'></script>
+    <style type="text/css">
+      html, body {
+        border: 0;
+        margin: 0;
+        height: 100%;
+      }
+    </style>
+  </head>
+<body onload="init()" onunload="uninit()">
+<table style="width: 100%; height: 100%;"><tr valign="top" style="height: 50px;"><td>
+<h1>Box2DJS in 3D</h1>
+<p>Based on <a href="http://box2d-js.sourceforge.net/">box2d-js</a>.<br/>
+Left Click to create a new object.<br/>
+Right Click (shift-click on OSX) to switch to the next demo.
+</p>
+</td></tr>
+<tr style="height: 100%;"><td>
+<div id="o3d" style="width: 100%; height: 100%;"></div>
+</td></tr></table>
+<div style="display:none;">
+<textarea id="shader">
+uniform float4x4 worldViewProj : WorldViewProjection;
+uniform float3 lightWorldPos;
+uniform float4 lightColor;
+uniform float4x4 world : World;
+uniform float4x4 view : View;
+uniform float4x4 worldIT : WorldInverseTranspose;
+uniform float4 emissive;
+uniform float4 ambient;
+uniform float4 colorMult;
+sampler2D diffuseSampler;
+uniform float4 specular;
+uniform float shininess;
+
+struct InVertex {
+  float4 position : POSITION;
+  float4 normal : NORMAL;
+  float2 diffuseUV : TEXCOORD0;
+};
+
+struct OutVertex {
+  float4 position : POSITION;
+  float2 diffuseUV : TEXCOORD0;
+  float3 n : TEXCOORD1;
+  float3 l : TEXCOORD2;
+  float3 v : TEXCOORD3;
+};
+
+OutVertex vs(InVertex IN) {
+  OutVertex OUT;
+  OUT.position = mul(IN.position, worldViewProj);
+  OUT.diffuseUV = IN.diffuseUV;
+  OUT.n = mul(IN.normal, worldIT).xyz;
+  OUT.l = lightWorldPos - mul(IN.position, world).xyz;
+  OUT.v = (view[3] - mul(IN.position, world)).xyz;
+  return OUT;
+}
+
+float4 ps(OutVertex IN) : COLOR {
+  float4 diffuse = tex2D(diffuseSampler, IN.diffuseUV) * colorMult;
+  float3 l = normalize(IN.l); float3 n = normalize(IN.n);
+  float3 r = normalize(reflect(n, l));
+  float3 v = normalize(IN.v);
+  float4 litR = lit(dot(n, l), dot(r, v), shininess);
+  return float4((emissive + lightColor *
+                 (ambient + diffuse * litR.y + specular * litR.z)).rgb,
+                diffuse.a);
+}
+
+// #o3d VertexShaderEntryPoint vs
+// #o3d PixelShaderEntryPoint ps
+// #o3d MatrixLoadOrder RowMajor
+</textarea>
+</div>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<html>
+<head>
+<script>
+  // The Page Action ID.
+  var pageActionId = "RssPageAction";
+
+  // The icons to use. These correspond to the icons listed in the manifest.
+  var subscribeId = 0;
+  var alreadySubscribedId = 1;
+
+  // The window this Page Action is associated with.
+  var windowId = -1;
+
+  // The TabId this Page Action is associated with.
+  var tabId = -1;
+
+  // The URL of the page that contains the feed.
+  var pageUrl = "";
+
+  // The feed URL found on the page.
+  var feedUrl = "";
+
+  // The URL to use to check if user is subscribed already.
+  var subscribedUrl = "http://www.google.com/reader/api/0/subscribed?s=feed%2F";
+
+  // The XMLHttpRequest object that checks if you are already subscribed.
+  var req;
+
+  // The status of whether you have already subscribed to this feed or not.
+  var alreadySubscribed = false;
+
+  function EnableIcon(subscribed) {
+    alreadySubscribed = subscribed;
+    if (!alreadySubscribed) {
+      chrome.pageActions.enableForTab(
+        pageActionId, {tabId: tabId,
+                       url: pageUrl,
+                       title: "Click to subscribe...",
+                       iconId: subscribeId});
+    } else {
+      chrome.pageActions.enableForTab(
+        pageActionId, {tabId: tabId,
+                       url: pageUrl,
+                       title: "You are already subscribed to this feed",
+                       iconId: alreadySubscribedId});
+    }
+  }
+
+  chrome.self.onConnect.addListener(function(port) {
+    windowId = port.tab.windowId;
+    tabId = port.tab.id;
+    pageUrl = port.tab.url;
+
+    // This will get called from the content script using PostMessage.
+    // |feedUrls| is a list of URL feeds found on the page. We only need 1 to
+    // enable the PageAction icon in the Omnibox.
+    port.onMessage.addListener(function(feedUrls) {
+      feedUrl = feedUrls[0];
+      // Let Chrome know that the PageAction needs to be enabled for this tabId
+      // and for the url of this page.
+      if (feedUrl) {
+        EnableIcon(false);  // Not subscribed (as far as we know, might change).
+
+        // But also check the server to see if we have already subscribed so
+        // that we can update the status.
+        feedUrl = encodeURIComponent(feedUrl);
+        req = new XMLHttpRequest();
+        req.onload = handleResponse;
+        req.open("GET", subscribedUrl + feedUrl, false);
+        req.send(null);
+      }
+    });
+  });
+
+  function handleResponse() {
+    if (req.responseText == "true")
+      EnableIcon(true);  // true == Already suscribed.
+  }
+
+  // Chrome will call into us when the user clicks on the icon in the OmniBox.
+  chrome.pageActions.onExecute.addListener(function(reply) {
+    chrome.windows.getCurrent(function(window) {
+      chrome.tabs.get(reply.data.tabId, function(tab) {
+        if (!alreadySubscribed && window.focused) {
+          // We need to know if we are the active window, because the tab may
+          // have moved to another window and we don't want to execute this
+          // action multiple times.
+          if (reply.pageActionId == pageActionId &&
+              reply.data.tabUrl == pageUrl) {
+            // Create a new tab showing the subscription page with the right
+            // feed URL.
+            chrome.tabs.create({url: "subscribe.html?" + feedUrl,
+                               windowId: windowId});
+          } else {
+            console.log("Ignoring execute event.");
+            console.log("PageActionId: " + reply.pageActionId + " == " +
+                                           pageActionId);
+            console.log("TabUrl      : " + reply.data.tabUrl + " == " +
+                                           pageUrl);
+          }
+        }
+      });
+    });
+  });
+</script>
+</head>
+</html>

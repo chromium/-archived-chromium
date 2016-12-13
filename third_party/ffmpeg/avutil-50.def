@@ -1,0 +1,5 @@
+LIBRARY avutil-50
+EXPORTS
+  av_free
+  av_malloc
+  av_rescale_q

@@ -1,0 +1,6 @@
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:image/svg+xml;charset=utf-8,<svg xmlns=%22http://www.w3.org/2000/svg%22 test='%D0%9F%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%BA%D0%B0'></svg> from frame with URL data-url-encoding-svg.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 8: Uncaught TypeError: Cannot read property 'documentElement' of undefined
+Test that non-ASCII data: URLs are handled correctly.
+
+  

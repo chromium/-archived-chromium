@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="port"
+	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;..\webkit_common.vsprops"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="&quot;..\..\port\platform\image-decoders&quot;;&quot;..\..\port\platform\image-decoders\bmp&quot;;&quot;..\..\port\platform\image-decoders\gif&quot;;&quot;..\..\port\platform\image-decoders\ico&quot;;&quot;..\..\port\platform\image-decoders\jpeg&quot;;&quot;..\..\port\platform\image-decoders\png&quot;;&quot;..\..\port\platform\image-decoders\xbm&quot;"
+		DisableSpecificWarnings="4244; 4291; 4345; 4521"
+	/>
+</VisualStudioPropertySheet>

@@ -1,0 +1,10 @@
+This contains a part of LZMA SDK 4.49.
+
+Only the C code required to open 7z archive files and uncompress LZMA
+compression has been included. The project files have been rewritten to use
+proper file paths and generate a static lib.
+
+The original source and license are available from
+http://www.7-zip.org/sdk.html. 
+
+See the table in src/third_party/README.google for more details.

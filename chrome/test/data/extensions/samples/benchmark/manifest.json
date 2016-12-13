@@ -1,0 +1,14 @@
+{
+  "name": "Page Benchmarker",
+  "version": "1.0",
+  "description": "Chromium Page Benchmarker.",
+  "toolstrips": [
+    "toolstrip.html"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["http://*/*"],
+      "js": ["script.js"]
+    }
+  ]
+}

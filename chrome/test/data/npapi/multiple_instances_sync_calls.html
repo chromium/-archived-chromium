@@ -1,0 +1,38 @@
+<html>
+  <head>
+    <script src="npapi.js"></script>
+    <script>
+      function TestCallback() {
+        onSuccess("multiple_instances_sync_calls", 1);
+      }
+    </script>
+  </head>
+  <body>
+    <div id="statusPanel" style="border: 1px solid red; width: 100%">
+      Test running....
+    </div>
+
+    NPObject Proxy Test<p>
+
+    Tests the case that involves two plugin instances with second
+    instance making sync calls to the renderer while the first one
+    is still servicing an incoming sync request
+
+    <DIV ID="plugin">
+    <embed type="application/vnd.npapi-test" 
+      src="foo"
+      name="multiple_instances_sync_calls"
+      id="1"
+      width="100"
+      height="100"
+      mode="np_embed"></embed>
+    <embed type="application/vnd.npapi-test" 
+      src="foo"
+      name="multiple_instances_sync_calls"
+      id="2"
+      width="100"
+      height="100"
+      mode="np_embed"></embed>
+    </DIV>
+  </body>
+</html>

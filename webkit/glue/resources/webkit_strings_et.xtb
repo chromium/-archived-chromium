@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="et">
+<translation id="4420062214988137980">Lisandmooduli install ebaõnnestus</translation>
+<translation id="1235745349614807883">Kustuta viimased otsingud</translation>
+<translation id="3825324228893189080">Vajalik täiendav lisandmoodul</translation>
+<translation id="2965480764085142436"><ph name="PLUGIN"/> lisandmoodulit ei installita</translation>
+<translation id="5048533449481078685">loendilooja</translation>
+<translation id="4202807286478387388">liigu</translation>
+<translation id="4611115858363067980"><ph name="FILENAME"/><ph name="WIDTH"/>×<ph name="HEIGHT"/></translation>
+<translation id="4317653869502688143">Palun kinnitage, et soovite installida selle lisandmooduli <ph name="PLUGIN"/>. Te peaksite installima lisandmooduleid, mida usaldate.</translation>
+<translation id="7658239707568436148">Loobu</translation>
+<translation id="795667975304826397">Ühtegi faili pole valitud</translation>
+<translation id="1275511093094545429"><ph name="PLUGIN"/> vajalik lisandmoodul</translation>
+<translation id="8662565117025751661">Lisandmooduli allalaadimine...</translation>
+<translation id="8141602879876242471">See on otsitav indeks. Sisestage otsingu jaoks märksõnad:</translation>
+<translation id="6845533974506654842">vajuta</translation>
+<translation id="8244226242650769279">hüperpilt</translation>
+<translation id="1383141426028388991">Lisandmooduli installimine aadressilt <ph name="URL"/> ebaõnnestus.</translation>
+<translation id="2548326553472216322">Pole viimaseid otsingud</translation>
+<translation id="5944544982112848342">2048 (kõrge)</translation>
+<translation id="3040011195152428237">link</translation>
+<translation id="8281246460978372009">Pärast lisandmooduli installimist klõpsake värskendamiseks siia</translation>
+<translation id="7364796246159120393">Vali fail</translation>
+<translation id="8964020114565522021">Lohistage fail siia</translation>
+<translation id="838869780401515933">mrgista</translation>
+<translation id="2846343701378493991">1024 (keskmine)</translation>
+<translation id="5476505524087279545">eemalda mrgistus</translation>
+<translation id="679352192834563463">Selle sisu kuvamiseks pole saadaval lisandmoodulit</translation>
+<translation id="3789841737615482174">Installi</translation>
+<translation id="6663448176199120256">Viimased otsingud</translation>
+<translation id="3600343118165084788">Lisandmooduli allalaadimiseks klõpsake siia.</translation>
+<translation id="6807599807928161586">veebiala</translation>
+<translation id="5939518447894949180">Lähtesta</translation>
+<translation id="3771786644471114952">Hangi lisandmoodul</translation>
+<translation id="1842960171412779397">vali</translation>
+<translation id="6119846243427417423">aktiveeri</translation>
+<translation id="3926627843712816530">Palun kinnitage, et soovite installida selle lisandmooduli. Te peaksite installima lisandmooduleid, mida usaldate.</translation>
+<translation id="4838490908464673667">Nõutav lisandmoodul pole installitud</translation>
+<translation id="8597182159515967513">pealkiri</translation>
+<translation id="2653659639078652383">Esita</translation>
+</translationbundle>

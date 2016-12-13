@@ -1,0 +1,212 @@
+Index: src/hunspell/affixmgr.cxx
+===================================================================
+--- src/hunspell/affixmgr.cxx	(revision 3811)
++++ src/hunspell/affixmgr.cxx	(working copy)
+@@ -25,7 +27,7 @@
+ #endif
+ #endif
+ 
+-AffixMgr::AffixMgr(const char * affpath, HashMgr* ptr) 
++AffixMgr::AffixMgr(FILE* aff_handle, HashMgr* ptr) 
+ {
+   // register hash manager and load affix data from aff file
+   pHMgr = ptr;
+@@ -104,8 +106,8 @@
+     contclasses[j] = 0;
+   }
+ 
+-  if (parse_file(affpath)) {
+-     HUNSPELL_WARNING(stderr, "Failure loading aff file %s\n",affpath);
++  if (parse_file(aff_handle)) {
++     HUNSPELL_WARNING(stderr, "Failure loading aff file\n");
+      wordchars = mystrdup("qwertzuiopasdfghjklyxcvbnmQWERTZUIOPASDFGHJKLYXCVBNM");
+   }
+   
+@@ -232,7 +234,7 @@
+ 
+ 
+ // read in aff file and build up prefix and suffix entry objects 
+-int  AffixMgr::parse_file(const char * affpath)
++int  AffixMgr::parse_file(FILE* aff_handle)
+ {
+ 
+   // io buffers
+@@ -250,11 +252,12 @@
+   
+   // open the affix file
+   FILE * afflst;
+-  afflst = fopen(affpath,"r");
++  afflst = _fdopen(_dup(_fileno(aff_handle)), "r");
+   if (!afflst) {
+-    HUNSPELL_WARNING(stderr, "error: could not open affix description file %s\n",affpath);
++    HUNSPELL_WARNING(stderr, "error: could not open affix description file\n");
+     return 1;
+   }
++  fseek(afflst, 0, SEEK_SET);
+ 
+   // step one is to parse the affix file building up the internal
+   // affix data structures
+Index: src/hunspell/affixmgr.hxx
+===================================================================
+--- src/hunspell/affixmgr.hxx	(revision 3811)
++++ src/hunspell/affixmgr.hxx	(working copy)
+@@ -93,7 +93,7 @@
+   
+ public:
+  
+-  AffixMgr(const char * affpath, HashMgr * ptr);
++  AffixMgr(FILE* aff_handle, HashMgr * ptr);
+   ~AffixMgr();
+   struct hentry *     affix_check(const char * word, int len,
+             const unsigned short needflag = (unsigned short) 0, char in_compound = IN_CPD_NOT);
+@@ -179,7 +179,7 @@
+   int                 get_checksharps(void);
+ 
+ private:
+-  int  parse_file(const char * affpath);
++  int  parse_file(FILE* aff_handle);
+ //  int  parse_string(char * line, char ** out, const char * name);
+   int  parse_flag(char * line, unsigned short * out, const char * name);
+   int  parse_num(char * line, int * out, const char * name);
+Index: src/hunspell/hashmgr.cxx
+===================================================================
+--- src/hunspell/hashmgr.cxx	(revision 3811)
++++ src/hunspell/hashmgr.cxx	(working copy)
+@@ -29,7 +31,7 @@
+ 
+ // build a hash table from a munched word list
+ 
+-HashMgr::HashMgr(const char * tpath, const char * apath)
++HashMgr::HashMgr(FILE* dic_handle, FILE* aff_handle)
+ {
+   tablesize = 0;
+   tableptr = NULL;
+@@ -43,8 +45,8 @@
+   aliasf = NULL;
+   numaliasm = 0;
+   aliasm = NULL;
+-  load_config(apath);  
+-  int ec = load_tables(tpath);
++  load_config(aff_handle);  
++  int ec = load_tables(dic_handle);
+   if (ec) {
+     /* error condition - what should we do here */
+     HUNSPELL_WARNING(stderr, "Hash Manager Error : %d\n",ec);
+@@ -240,7 +242,7 @@
+ }
+ 
+ // load a munched word list and build a hash table on the fly
+-int HashMgr::load_tables(const char * tpath)
++int HashMgr::load_tables(FILE* t_handle)
+ {
+   int wl, al;
+   char * ap;
+@@ -248,8 +250,9 @@
+   unsigned short * flags;
+ 
+   // raw dictionary - munched file
+-  FILE * rawdict = fopen(tpath, "r");
++  FILE * rawdict = _fdopen(_dup(_fileno(t_handle)), "r");
+   if (rawdict == NULL) return 1;
++  fseek(rawdict, 0, SEEK_SET);
+ 
+   // first read the first line of file to get hash table size */
+   char ts[MAXDELEN];
+@@ -442,7 +445,7 @@
+ }
+ 
+ // read in aff file and set flag mode
+-int  HashMgr::load_config(const char * affpath)
++int  HashMgr::load_config(FILE* aff_handle)
+ {
+   int firstline = 1;
+   
+@@ -451,11 +454,12 @@
+  
+   // open the affix file
+   FILE * afflst;
+-  afflst = fopen(affpath,"r");
++  afflst = _fdopen(_dup(_fileno(aff_handle)), "r");
+   if (!afflst) {
+-    HUNSPELL_WARNING(stderr, "Error - could not open affix description file %s\n",affpath);
++    HUNSPELL_WARNING(stderr, "Error - could not open affix description file\n");
+     return 1;
+   }
++  fseek(afflst, 0, SEEK_SET);
+ 
+     // read in each line ignoring any that do not
+     // start with a known line type indicator
+Index: src/hunspell/hashmgr.hxx
+===================================================================
+--- src/hunspell/hashmgr.hxx	(revision 3811)
++++ src/hunspell/hashmgr.hxx	(working copy)
+@@ -25,7 +25,7 @@
+ 
+ 
+ public:
+-  HashMgr(const char * tpath, const char * apath);
++  HashMgr(FILE* t_handle, FILE* a_handle);
+   ~HashMgr();
+ 
+   struct hentry * lookup(const char *) const;
+@@ -46,9 +46,9 @@
+ 
+   
+ private:
+-  int load_tables(const char * tpath);
++  int load_tables(FILE* t_handle);
+   int add_word(const char * word, int wl, unsigned short * ap, int al, const char * desc);
+-  int load_config(const char * affpath);
++  int load_config(FILE* aff_handle);
+   int parse_aliasf(char * line, FILE * af);
+ #ifdef HUNSPELL_EXPERIMENTAL
+   int parse_aliasm(char * line, FILE * af);
+Index: src/hunspell/hunspell.cxx
+===================================================================
+--- src/hunspell/hunspell.cxx	(revision 3811)
++++ src/hunspell/hunspell.cxx	(working copy)
+@@ -20,7 +20,7 @@
+ #endif
+ #endif
+ 
+-Hunspell::Hunspell(const char * affpath, const char * dpath)
++Hunspell::Hunspell(FILE* aff_handle, FILE* dic_handle)
+ {
+     encoding = NULL;
+     csconv = NULL;
+@@ -28,11 +28,11 @@
+     complexprefixes = 0;
+ 
+     /* first set up the hash manager */
+-    pHMgr = new HashMgr(dpath, affpath);
++    pHMgr = new HashMgr(dic_handle, aff_handle);
+ 
+     /* next set up the affix manager */
+     /* it needs access to the hash manager lookup methods */
+-    pAMgr = new AffixMgr(affpath,pHMgr);
++    pAMgr = new AffixMgr(aff_handle, pHMgr);
+ 
+     /* get the preferred try string and the dictionary */
+     /* encoding from the Affix Manager for that dictionary */
+@@ -1694,9 +1694,9 @@
+ 
+ #endif // END OF HUNSPELL_EXPERIMENTAL CODE
+ 
+-Hunhandle *Hunspell_create(const char * affpath, const char * dpath)
++Hunhandle *Hunspell_create(FILE* aff_handle, FILE* dic_handle)
+ {
+-        return (Hunhandle*)(new Hunspell(affpath, dpath));
++        return (Hunhandle*)(new Hunspell(aff_handle, dic_handle));
+ }
+ 
+ void Hunspell_destroy(Hunhandle *pHunspell)
+Index: src/hunspell/hunspell.hxx
+===================================================================
+--- src/hunspell/hunspell.hxx	(revision 3811)
++++ src/hunspell/hunspell.hxx	(working copy)
+@@ -48,7 +48,7 @@
+    * input: path of affix file and dictionary file
+    */
+   
+-  Hunspell(const char * affpath, const char * dpath);
++  Hunspell(FILE* aff_handle, FILE* dic_handle);

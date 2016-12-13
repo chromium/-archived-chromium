@@ -1,0 +1,188 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
+namespace o3d {
+
+%[
+  CanvasFontMetrics is used to return values, measured in pixels, describing
+  the properties of a font used by the CanvasPaint objects. All the properties
+  of CanvasFontMetrics are read-only.
+%]
+
+[binding_model=by_value, nocpp, include="core/cross/canvas_paint.h"]
+class CanvasFontMetrics {
+  %[
+    The greatest distance above the baseline for any glyph (will be <= 0)
+  %]
+  [getter] float top_;
+
+  %[
+    The recommended distance above the baseline (will be <= 0)
+  %]
+  [getter] float ascent_;
+
+  %[
+    The recommended distance below the baseline (will be >= 0)
+  %]
+  [getter] float descent_;
+
+  %[
+    The greatest distance below the baseline for any glyph (will be >= 0)
+  %]
+  [getter] float bottom_;
+
+  %[
+    The recommended distance to add between lines of text (will be >= 0)
+  %]
+  [getter] float leading_;
+};  // CanvasFontMetrics
+
+
+%[
+  The CanvasPaint class is used for specifying how to draw objects and text to
+  a canvas.
+%]
+
+[nocpp, include="core/cross/canvas_paint.h"]
+class CanvasPaint : ParamObject {
+  %[
+    \var Style
+    \li NORMAL,
+    \li BOLD,
+    \li ITALIC,
+    \li BOLD_ITALIC
+    Text styles
+  %]
+  enum Style {
+    NORMAL,
+    BOLD,
+    ITALIC,
+    BOLD_ITALIC
+  };
+
+  %[
+    \var TextAlign
+    \li LEFT,
+    \li CENTER,
+    \li RIGHT,
+    Text alignment options
+  %]
+  enum TextAlign {
+    LEFT,
+    CENTER,
+    RIGHT
+  };
+
+  %[
+    Sets the color and radius of an outline around the text.  Setting the
+    radius to 0 cancels the outline effect. The outline and shadow effects are
+    mutually exclusive.
+    \param radius Distance outward from object to draw the background
+    \param color Color of the outline
+  %]
+  void SetOutline(float radius, Float4 color);
+
+  %[
+    Create a blur shadow effect on this paint.  Setting the radius to 0 cancels
+    the shadow effect.
+    \param radius radius to blur the paint
+    \param offset_y offset of the blur in X
+    \param offset_x offset of the blur in Y
+    \param color color for the blur
+  %]
+  void SetShadow(float radius,
+                 float offset_x,
+                 float offset_y,
+                 Float4 color);
+
+  %[
+    Returns metrics describing the font currently set on this paint object.
+    \return The font metrics.
+  %]
+  CanvasFontMetrics GetFontMetrics();
+
+  %[
+    Returns the bounds of the given text string when rendered with this paint.
+    The bounds are returned as an array containing [left, top, right, bottom]
+    values relative to (0, 0).
+    \param text The string of text to be measured.
+    \return The bounds of text.
+  %]
+ Float4 MeasureText(String text);
+
+  %[
+    The color used for all the draw operations using this paint.
+  %]
+  [getter, setter] Float4 color;
+
+  %[
+    The size of the font used for drawing text.
+  %]
+  [getter, setter] float text_size;
+
+  %[
+    The font typeface used for drawing text.  Passing an empty string will
+    revert to the default font.
+  %]
+  [getter, setter] String text_typeface;
+
+  %[
+    The style applied to the text (e.g. italic, bold, etc)
+  %]
+  [getter, setter] Style text_style;
+
+  %[
+    The alignment mode used for drawing text.
+  %]
+  [getter, setter] TextAlign text_align;
+
+  %[
+    The 2D shader used by this paint. Set to null to stop using a shader.
+  %]
+  [getter, setter] CanvasShader? shader;
+
+  %[
+    Metrics of the current font used by the paint object.
+  %]
+  [userglue_getter, getter] CanvasFontMetrics font_metrics;
+
+  [verbatim=cpp_glue] %{
+    o3d::CanvasFontMetrics userglue_getter_font_metrics(
+        o3d::CanvasPaint* self) {
+      return self->GetFontMetrics();
+    }
+  %}
+
+};  // CanvasPaint
+
+}  // namespace o3d
+

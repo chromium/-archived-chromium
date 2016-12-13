@@ -1,0 +1,186 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
+// This file contains the public interface specification for the event object
+// passed to event handlers by the client.
+
+namespace o3d {
+
+%[
+  An Event object contains information describing a JavaScript event; it's used
+  as an argument to event handlers triggered by the plugin.%]
+
+[binding_model=by_value, nocpp, include="core/cross/event.h"]
+class Event {
+
+  %[
+    String identifiers for JavaScript events.
+    \var type
+    \li invalid
+    \li click
+    \li dblclick
+    \li mousedown
+    \li mousemove
+    \li mouseup
+    \li wheel
+    \li keydown
+    \li keypress
+    \li keyup
+    \li resize
+  %]
+  enum Type {
+    TYPE_INVALID,
+    TYPE_CLICK,
+    TYPE_DBLCLICK,
+    TYPE_MOUSEDOWN,
+    TYPE_MOUSEMOVE,
+    TYPE_MOUSEUP,
+    TYPE_WHEEL,
+    TYPE_KEYDOWN,
+    TYPE_KEYPRESS,
+    TYPE_KEYUP,
+    TYPE_RESIZE
+  };
+  %[
+    The type of event this object represents.
+    \var type
+    \li invalid
+    \li click
+    \li dblclick
+    \li keydown
+    \li keypress
+    \li keyup
+    \li mousedown
+    \li mousemove
+    \li mouseup
+    \li wheel
+    \li resize
+  %]
+  [userglue_getter, getter] String type;
+  %[
+    \var Button,
+    \li BUTTON_LEFT
+    \li BUTTON_RIGHT
+    \li BUTTON_MIDDLE
+    \li BUTTON_4
+    \li BUTTON_5
+    Constants used to identify mouse buttons.
+  %]
+  enum Button {
+    BUTTON_LEFT = 0,
+    BUTTON_MIDDLE = 1,
+    BUTTON_RIGHT = 2,
+    BUTTON_4 = 3,
+    BUTTON_5 = 4
+  };
+  %[
+    Which mouse button caused the event, in the case of mousedown, mouseup,
+    click, and dblclick events.  This uses the values in enum Button.
+  %]
+  [getter] int button;
+  %[
+    Whether the ctrl key was pressed at the time of the event.
+  %]
+  [getter] bool ctrl_key;
+  %[
+    Whether the alt [option, on OSX] key was pressed at the time of the event.
+  %]
+  [getter] bool alt_key;
+  %[
+    Whether the shift key was pressed at the time of the event.
+  %]
+  [getter] bool shift_key;
+  %[
+    Whether the meta [command, on OSX] key was pressed at the time of the event.
+  %]
+  [getter] bool meta_key;
+  %[
+    The key code of the key pressed or released.
+  %]
+  [getter] int key_code;
+  %[
+    The character created by a keypress event.
+  %]
+  [getter, property=r] int char_code;
+  %[
+    The x-coordinate in pixels from the left side of the plugin or fullscreen
+    display region.
+  %]
+  [getter] int x;
+  %[
+    The y-coordinate in pixels from the top of the plugin or fullscreen
+    display region.
+  %]
+  [getter] int y;
+  %[
+    The x-coordinate in pixels from the left side of the screen.
+  %]
+  [getter] int screen_x;
+  %[
+    The y-coordinate in pixels from the top of the screen.
+  %]
+  [getter] int screen_y;
+  %[
+    The horizontal scroll offset for wheel events, in arbitrary units.
+    Positive values mean right; negative mean left.
+  %]
+  [getter] int delta_x;
+  %[
+    The vertical scroll offset for wheel events, in arbitrary units.
+    Positive values mean up or away from the user; negative mean down or toward
+    the user.
+  %]
+  [getter] int delta_y;
+  %[
+    The width in pixels of the plugin or fullscreen display region as a result
+    of this event.
+  %]
+  [getter] int width;
+  %[
+    The height in pixels of the plugin or fullscreen display region as a result
+    of this event.
+  %]
+  [getter] int height;
+  %[
+    Whether we're currently displaying in fullscreen mode.
+  %]
+  [getter] bool fullscreen;
+
+  [verbatim=cpp_glue] %{
+    o3d::String userglue_getter_type(
+        const o3d::Event& self) {
+      return self.type_string();
+    }
+  %}
+};  // Event
+
+}  // namespace o3d

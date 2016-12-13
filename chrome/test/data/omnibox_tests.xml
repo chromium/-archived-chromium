@@ -1,0 +1,38 @@
+<omnibox_tests>
+  <test query="google.com">
+  </test>
+  <test query="www.yahoo.com">
+  </test>
+  <test query="http://myspace.com/">
+  </test>
+  <test query="youtube.com">
+  </test>
+  <test query="wikipedia.org/">
+  </test>
+  <test query="msn.com">
+  </test>
+  <test query="ebay.com">
+  </test>
+  <test query="http://live.com">
+  </test>
+  <test query="craigslist.org">
+  </test>
+  <test query="http://blogger.com/">
+  </test>
+  <test query="flickr.com">
+  </test>
+  <test query="nytimes.com">
+  </test>
+  <test query="cnn.com/">
+  </test>
+  <test query="digg.com">
+  </test>
+  <test query="rapidshare.com">
+  </test>
+  <test query="orkut.com/">
+  </test>
+  <test query="http://download.com">
+  </test>
+  <test query="photobucket.com/">
+  </test>
+</omnibox_tests>

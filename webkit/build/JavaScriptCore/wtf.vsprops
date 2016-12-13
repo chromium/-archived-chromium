@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="wtf"
+	InheritedPropertySheets="$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\build\common.vsprops;..\webkit_common_defines.vsprops;$(SolutionDir)..\build\external_code.vsprops"
+	DeleteExtensionsOnClean="*.obj;*.ilk;*.tlb;*.tli;*.tlh;*.tmp;*.rsp;*.pgc;*.pgd;$(TargetPath)"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="$(ProjectDir);&quot;$(IntDir)&quot;;&quot;../../../third_party/WebKit/JavaScriptCore&quot;;&quot;../../../third_party/WebKit/JavaScriptCore/os-win32&quot;;&quot;../../../third_party/WebKit/JavaScriptCore/kjs&quot;;&quot;../../../third_party/WebKit/JavaScriptCore/wtf&quot;;&quot;../../../third_party/WebKit/JavaScriptCore/wtf/unicode&quot;;&quot;../../../third_party/WebKit/JavaScriptCore/API&quot;;&quot;../../../third_party/WebKit/JavaScriptCore/bindings&quot;;&quot;../../../third_party/WebKit/JavaScriptCore/bindings/c&quot;;&quot;../../../third_party/WebKit/JavaScriptCore/bindings/jni&quot;;../../pending;../../pending/wtf"
+		PreprocessorDefinitions="__STD_C;_SCL_SECURE_NO_DEPRECATE;_CRT_SECURE_NO_DEPRECATE;CRASH=__debugbreak"
+		DisableSpecificWarnings="4127; 4355; 4510; 4512; 4610; 4706"
+	/>
+</VisualStudioPropertySheet>

@@ -1,0 +1,89 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+typedef Element[] ElementArray;
+
+%[
+  The Shape represents a collection of Elements. The typical example is a
+  cube with 6 faces where each face uses a different material would be
+  represented as 1 Shape with 6 Elements, one for each material.
+%]
+
+[nocpp, include="core/cross/shape.h"] class Shape : ParamObject {
+  %[
+    The elements owned by this shape.
+
+    Each access to this field gets the entire list so it is best to get it
+    just once. For example:
+    \code
+    var elements = renderNode.elements;
+    for (var i = 0; i < elements.length; i++) {
+      var element = elements[i];
+    }
+    \endcode
+
+    Note that modifications to this array [e.g. push()] will not affect
+    the underlying Shape, while modifications to the array's members
+    <strong>will</strong> affect them.
+  %]
+  [userglue_getter, getter, userglue_setter, setter]
+  ElementArray elements_;
+
+  %[
+    Creates a DrawElement for each Element owned by this Shape.
+    If an Element already has a DrawElement that uses \a material a new
+    DrawElement will not be created.
+    \param pack pack used to manage created DrawElements.
+    \param material material to use for each DrawElement. If you pass null it
+        will use the material on the corresponding Element.
+        This allows you to easily setup the default (just draw as is) by passing
+        null or setup a shadow pass by passing in a shadow material.
+  %]
+  void CreateDrawElements(Pack pack,
+                          Material? material);
+
+  [verbatim=cpp_glue] %{
+
+    o3d::ElementArray userglue_getter_elements_(
+      o3d::Shape *self) {
+      return self->GetElements();
+    }
+    void userglue_setter_elements_(
+      o3d::Shape *_this,
+      const o3d::ElementArray& elements) {
+      _this->SetElements(elements);
+    }
+  %}
+};  // Shape
+
+}  // namespace o3d

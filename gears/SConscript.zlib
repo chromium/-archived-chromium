@@ -1,0 +1,48 @@
+# Copyright (c) 2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Ripped and modded from chrome.
+
+Import('env')
+
+env = env.Clone(
+)
+
+env.Replace(
+    ZLIB_DIR = '$THIRD_PARTY_DIR/zlib',
+    CPPPATH = [
+        '$ZLIB_DIR',
+        '$VC80_CPPPATH',
+    ],
+)
+
+#env.Append(
+#    CPPDEFINES = [
+#    ],
+#)
+ 
+input_files = [
+    # Common Files
+    '$ZLIB_DIR/adler32.c',
+    '$ZLIB_DIR/zutil.c',
+    # Inflate Algorithm (use inflate or infback, but not both)
+    '$ZLIB_DIR/inflate.c',
+    '$ZLIB_DIR/inffast.c',
+    '$ZLIB_DIR/inftrees.c',
+]
+
+# The following files are not yet needed; exclude them to save size.
+if not env['OFFICIAL_BUILD']:
+  input_files += [
+      # Other Algorithms
+      '$ZLIB_DIR/compress.c',
+      '$ZLIB_DIR/deflate.c',
+      '$ZLIB_DIR/uncompr.c',
+      # Other Common Files
+      '$ZLIB_DIR/crc32.c',
+      '$ZLIB_DIR/gzio.c',
+      '$ZLIB_DIR/trees.c',
+  ]
+
+env.GearsStaticLibrary('zlib-gears', input_files)

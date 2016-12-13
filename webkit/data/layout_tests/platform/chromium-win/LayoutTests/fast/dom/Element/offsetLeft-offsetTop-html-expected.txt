@@ -1,0 +1,5 @@
+CONSOLE MESSAGE: line 1: Unsafe JavaScript attempt to access frame with URL data:text/html,        <html id="target"></html> from frame with URL offsetLeft-offsetTop-html.html. Domains, protocols and ports must match.
+
+CONSOLE MESSAGE: line 13: Uncaught TypeError: Cannot call method 'getElementById' of undefined
+ 
+ 

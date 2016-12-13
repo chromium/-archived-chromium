@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="testapi"
+	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\third_party\icu38\build\using_icu.vsprops;$(SolutionDir)..\build\external_code.vsprops"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="../../pending;../../pending/kjs;../../pending/wtf;../../../third_party/WebKit/JavaScriptCore;&quot;../../../third_party/WebKit/JavaScriptCore/os-win32&quot;;../../../third_party/WebKit/JavaScriptCore/pcre;../../../third_party/WebKit/JavaScriptCore/wtf"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		AdditionalDependencies="winmm.lib"
+		AdditionalLibraryDirectories="&quot;$(OutDir)\lib&quot;"
+	/>
+</VisualStudioPropertySheet>

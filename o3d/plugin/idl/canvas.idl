@@ -1,0 +1,182 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+
+namespace o3d {
+
+%[
+Canvas provides an interface for drawing text and 2D primitives on a 2D surface.
+The contents of the canvas surface can be transfered to a compatible Texture2D
+object via the copyToTexture() method.  Each Canvas object maintains
+a stack of 2D transformation matrices which allow fine control over
+the placement of drawable elements.  Both geometry and drawing coordinates
+provided to every draw call are transformed by the concatenation of
+all matrices in the stack.
+%]
+
+[nocpp, include="core/cross/canvas.h"]
+class Canvas : ParamObject {
+  %[
+    Sets the size of the bitmap area that the Canvas uses.
+    \param width The width of the bitmap.
+    \param height The height of the bitmap.
+    \return true if the Canvas surface was allocated successfully.
+  %]
+  bool SetSize(int width, int height);
+
+  %[
+    Clears the bitmap's pixels with the specified color.
+      \param color The color to clear the bitmap with, provided as an array of
+      four values [red, green, blue, alpha]. All values should be between 0.0
+      and 1.0.  For alpha values 0.0 is transparent and 1.0 opaque.
+  %]
+  [userglue] void Clear(Float4 color);
+
+  %[
+    Draws the specified rectangle using the specified paint. The rectangle will
+    be filled based on the color and shader in the paint.
+    \param left The left side of the rectangle to be drawn
+    \param top The top side of the rectangle to be drawn
+    \param right The right side of the rectangle to be drawn
+    \param bottom The bottom side of the rectangle to be drawn
+    \param paint The paint used to draw the rectangle
+  %]
+  void DrawRect(float left,
+                float top,
+                float right,
+                float bottom,
+                CanvasPaint paint);
+
+  %[
+    Draws the text, with origin at (x,y), using the specified paint. The origin
+    is interpreted based on the textAlign property in the paint.
+    \param text String of text to be drawn
+    \param x The x coordinate for the text origin
+    \param y The y coordinate for the text origin
+    \param paint The CanvasPaint object that specifies the text style, size, etc
+  %]
+  void DrawText(String text, float x, float y, CanvasPaint paint);
+
+  %[
+    Draws the text with its baseline along the
+    specified path. The paint's textAlign property determines where along the
+    path to start the text.  The path must contain at least two positions.
+    \param text String of text to be drawn
+    \param positions An array of x,y positions making up the path.
+    \param horizontalOffset The distance along the path to add to the text
+        starting position.
+    \param verticalOffset The distance above(-) or below(+) the path to position
+        the text.
+    \param paint The CanvasPaint object that specifies the text style, size,
+        etc.
+  %]
+  void DrawTextOnPath(String text,
+                      Float2[] positions,
+                      float horizontalOffset,
+                      float verticalOffset,
+                      CanvasPaint paint);
+
+  %[
+    Draws the contents of the specified texture onto the canvas surface.
+    The bottom left corner of the bitmap will be at (x, y) and transformed by
+    the current matrix.  Only ARGB8 and XRGB8 textures are supported.  For XRG8
+    textures, Alpha is assumed to be 1 (opaque).
+    \param texture The Texture2D object where the bitmap is extracted from.
+    \param left The position of the left side of the bitmap.
+    \param bottom The position of the bottom side of the bitmap.
+  %]
+  void DrawBitmap(Texture2D texture, float left, float bottom);
+
+  %[
+    This call saves the current matrix and pushes a
+    copy onto a private stack. Subsequent calls to translate, scale,
+    rotate all operate on this copy.
+    When the balancing call to restoreMatrix() is made, this copy is deleted and
+    the previous matrix is restored.
+  %]
+  void SaveMatrix();
+
+  %[
+    Balances a call to saveMatrix(), and removes modifications to matrix
+    since the last save call.  It is an error to call this more than
+    previous calls to saveMatrix().
+  %]
+  void RestoreMatrix();
+
+  %[
+    Adds a rotation to the current canvas matrix.
+    \param degrees The amount to rotate, in degrees
+  %]
+  void Rotate(float degrees);
+
+
+  %[
+    Adds a scale to the current canvas matrix.
+    \param sx The amount to scale in x
+    \param sy The amount to scale in y
+  %]
+  void Scale(float sx, float sy);
+
+  %[
+    Adds a translation to the current canvas matrix.
+    \param dx The amount to translate in x
+    \param dy The amount to translate in y
+  %]
+  void Translate(float dx, float dy);
+
+  %[
+    Copies the contents of the Canvas to a 2D texture object. The size of the
+    texture must match exactly the size of the Canvas set by the setSize() method.
+    The format of the texture must be set to either ARGB8 or XRGB8.
+    \param texture Texture to copy to.
+  %]
+  void CopyToTexture(Texture2D texture);
+
+  %[
+    The width of the bitmap used by the Canvas (read only).
+  %]
+  [getter] int width_;
+
+  %[
+    The height of the bitmap used by the Canvas (read only).
+  %]
+  [getter] int height_;
+
+  [verbatim=cpp_glue] %{
+    void userglue_method_Clear(o3d::Canvas* canvas,
+                               const o3d::Float4& color) {
+      canvas->Clear(color[0], color[1], color[2], color[3]);
+    }
+  %}
+
+};  // Canvas
+
+}  // namespace o3d

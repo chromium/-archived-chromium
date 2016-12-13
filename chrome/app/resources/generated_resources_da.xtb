@@ -1,0 +1,787 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="da">
+<translation id="6779164083355903755">&amp;Fjern</translation>
+<translation id="3581034179710640788">Sikkerhedscertifikatet for dette websted er udløbet!</translation>
+<translation id="8275038454117074363">Importer</translation>
+<translation id="8418445294933751433">&amp;Vis som fane</translation>
+<translation id="2160383474450212653">Skrifttyper og sprog</translation>
+<translation id="4405141258442788789">Der er opstået timeout for operationen</translation>
+<translation id="5048179823246820836">Nordisk</translation>
+<translation id="561349411957324076">Afsluttet</translation>
+<translation id="4610656722473172270">Google Toolbar</translation>
+<translation id="2088818908407967256">Denne side indeholder usikre elementer</translation>
+<translation id="1871244248791675517">Ins</translation>
+<translation id="2972581237482394796">&amp;Annuller fortryd</translation>
+<translation id="6135826906199951471">Del</translation>
+<translation id="528468243742722775">End</translation>
+<translation id="1723824996674794290">&amp;Nyt vindue</translation>
+<translation id="7567293639574541773">Vis detaljer om eleme&amp;ntet</translation>
+<translation id="8571213806525832805">Seneste 4 timer</translation>
+<translation id="6021004449668343960">Sans-Serif skrifttype:</translation>
+<translation id="4422428420715047158">Domæne:</translation>
+<translation id="4021918302616263355">Søg på <ph name="ENGINE"/> efter <ph name="SEARCH_TERMS"/></translation>
+<translation id="5376169624176189338">Klik for at gå tilbage. Hold knappen inde for at se historikken.</translation>
+<translation id="6310545596129886942"><ph name="NUMBER_FEW"/> sek. tilbage</translation>
+<translation id="9181716872983600413">Unicode</translation>
+<translation id="1383861834909034572">Åbnes, når afsluttet</translation>
+<translation id="4211171103079968550">Aktiver Java</translation>
+<translation id="1076818208934827215">Microsoft Internet Explorer</translation>
+<translation id="9154072353677278078">Serveren <ph name="DOMAIN"/> på <ph name="REALM"/> kræver et brugernavn og en adgangskode.</translation>
+<translation id="2193841602817119749">Webstedet på &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; er blevet registreret som et “phishing”-websted. Phishing-websteder narrer brugere til at opgive personlige eller finansielle oplysninger. Det foregår gerne ved, at man udgiver sig for at repræsentere velkendte institutioner som banker.</translation>
+<translation id="8178665534778830238">Indhold:</translation>
+<translation id="1379170046778889619">Sikkerhedsoplysninger</translation>
+<translation id="1818606096021558659">Side</translation>
+<translation id="7982789257301363584">Netværk</translation>
+<translation id="4108206167095122329">Slet &amp;alle</translation>
+<translation id="7481475534986701730">Websider, du har besøgt for nylig</translation>
+<translation id="4565377596337484307">Skjul adgangskode</translation>
+<translation id="762917759028004464"><ph name="BROWSER_NAME"/> er i øjeblikket din standardbrowser.</translation>
+<translation id="9213479837033539041"><ph name="NUMBER_MANY"/> sek. tilbage</translation>
+<translation id="6391832066170725637">Filen eller mappen blev ikke fundet.</translation>
+<translation id="8256087479641463867">Tilpas dine indstillinger</translation>
+<translation id="7070442422749762650">Websiden &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt; har forårsaget         for mange omdirigeringer.  Du kan måske løse problemet ved at slette dine cookies for dette websted. Hvis        ikke, er det muligvis et problem med serverens konfiguration og har ikke noget med din computer at gøre.</translation>
+<translation id="7931071620596053769">Følgende side(r) svarer ikke. Du kan afvente svar fra dem eller afslutte dem.</translation>
+<translation id="1209866192426315618"><ph name="NUMBER_DEFAULT"/> minutter tilbage</translation>
+<translation id="2179052183774520942">Tilføj søgemaskine</translation>
+<translation id="2956948609882871496">Importer bogmærker...</translation>
+<translation id="1621207256975573490">Gem ramme &amp;som ...</translation>
+<translation id="2278562042389100163">Åbn browservindue</translation>
+<translation id="4589279373639964403">Eksporter bogmærker...</translation>
+<translation id="5463275305984126951">Indeks over <ph name="LOCATION"/></translation>
+<translation id="5154917547274118687">Hukommelse</translation>
+<translation id="873849583815421063">Afslutter ...</translation>
+<translation id="5819484510464120153">Opret &amp;programgenveje ...</translation>
+<translation id="1748246833559136615">Opgiv</translation>
+<translation id="8927064607636892008">Der skete en fejl, da denne webside skulle vises. Tryk på Genindlæs eller gå til en anden side.</translation>
+<translation id="5667293444945855280">Malware</translation>
+<translation id="5613020302032141669">Venstrepil</translation>
+<translation id="3433489605821183222">Serverens certifikat indeholder fejl</translation>
+<translation id="6479177161510354016">Underretning <ph name="SITE"/></translation>
+<translation id="6698381487523150993">Oprettet:</translation>
+<translation id="4684748086689879921">Spring import over</translation>
+<translation id="5516565854418269276">&amp;Vis altid bogmærkelinjen</translation>
+<translation id="6426222199977479699">SSL-Fejl</translation>
+<translation id="443008484043213881">Værktøjer</translation>
+<translation id="314605055819837597">Brugerdata</translation>
+<translation id="8534801226027872331">I det tilfælde har certifikatet, der vises for browseren, fejl og kan ikke forstås. Dette kan betyde, at vi ikke forstår oplysningerne om identitet i certifikatet eller andre oplysninger i certifikatet, der bruges til at sikre forbindelsen. Du bør ikke fortsætte herfra.</translation>
+<translation id="4422347585044846479">Rediger bogmærke for denne side</translation>
+<translation id="6370820475163108109"><ph name="ORGANIZATION_NAME"/> (<ph name="DOMAIN_NAME"/>)</translation>
+<translation id="8820817407110198400">Bogmærker</translation>
+<translation id="2994458892329442723">Aktiver plugins</translation>
+<translation id="1669397342410349095">Rapporter phishing-websted</translation>
+<translation id="1674989413181946727">SSL-indstillinger for hele computeren:</translation>
+<translation id="1773709998578631869">Du har <ph name="DOWNLOAD_COUNT"/> download(s) i gang. Hvis du lukker Google Chrome nu, annulleres disse downloads.</translation>
+<translation id="8703575177326907206">Din forbindelse til <ph name="DOMAIN"/> er ikke krypteret.</translation>
+<translation id="1644574205037202324">Historik</translation>
+<translation id="2518917559152314023">T&amp;ilføj ...</translation>
+<translation id="4510290974676570902">MIME-type</translation>
+<translation id="5565725983873655007">Når der findes blandet indhold på sikre (SSL) sider:</translation>
+<translation id="4419098590196511435">Der mangler noget</translation>
+<translation id="3512466011168167042">Vis forslag ved navigationsfejl</translation>
+<translation id="7767960058630128695">Adgangskoder:</translation>
+<translation id="6518014396551869914">Ko&amp;pier billede</translation>
+<translation id="4120898696391891645">Siden vil ikke indlæses</translation>
+<translation id="5584537427775243893">Importerer</translation>
+<translation id="4181841719683918333">Sprog</translation>
+<translation id="6451650035642342749">Nulstil indstillinger for automatisk åbning</translation>
+<translation id="7121570032414343252"><ph name="NUMBER_TWO"/> sek.</translation>
+<translation id="5098629044894065541">Hebraisk</translation>
+<translation id="7751559664766943798">Vis altid bogmærkelinjen</translation>
+<translation id="7511635910912978956"><ph name="NUMBER_FEW"/> timer tilbage</translation>
+<translation id="1720675772864601791">Tillad usikre billeder</translation>
+<translation id="2167276631610992935">Javascript</translation>
+<translation id="5233638681132016545">Ny fane</translation>
+<translation id="5210365745912300556">Luk fanen</translation>
+<translation id="8806796506533854282">Angiv et nyt profilnavn</translation>
+<translation id="5948410903763073882">Alt+<ph name="KEY_COMBO_NAME"/></translation>
+<translation id="8571852575982769756">Ingen installerede plugins</translation>
+<translation id="7925285046818567682">Venter på <ph name="HOST_NAME"/> ...</translation>
+<translation id="3280237271814976245">Gem &amp;som ...</translation>
+<translation id="5300471193642408424">Vis sider</translation>
+<translation id="7658239707568436148">Annuller</translation>
+<translation id="2154710561487035718">Kopier webadresse</translation>
+<translation id="4244236525807044920">Skift indstillinger for skrifttyper og sprog</translation>
+<translation id="2679629658858164554">Sidens webadresse:</translation>
+<translation id="6746124502594467657">Flyt ned</translation>
+<translation id="3383487468758466563">Skrifttyper og sprog:</translation>
+<translation id="6163363155248589649">&amp;Normal</translation>
+<translation id="7222373446505536781">F11</translation>
+<translation id="3873963583678942942">(Ikke-navngivet)</translation>
+<translation id="8725178340343806893">Foretrukne/Bogmærker</translation>
+<translation id="3605499851022050619">Diagnosticeringssiden for Beskyttet browsing</translation>
+<translation id="4307992518367153382">Grundlæggende valgmuligheder</translation>
+<translation id="5912378097832178659">&amp;Rediger søgemaskiner ...</translation>
+<translation id="4813345808229079766">Forbindelse</translation>
+<translation id="411666854932687641">Privat hukommelse</translation>
+<translation id="119944043368869598">Ryd alle</translation>
+<translation id="4200983522494130825">Ny &amp;fane</translation>
+<translation id="5455790498993699893"><ph name="ACTIVE_MATCH"/> af <ph name="TOTAL_MATCHCOUNT"/></translation>
+<translation id="2303544859777878640">Sprog:</translation>
+<translation id="2021921916539001817">Overfører fra <ph name="HOST_NAME"/> ...</translation>
+<translation id="6909042471249949473">Ryd data fra denne periode:</translation>
+<translation id="7615851733760445951">&lt;ingen cookie er valgt&gt;</translation>
+<translation id="3660179305079774227">Pil opad</translation>
+<translation id="7400418766976504921">Webadresse</translation>
+<translation id="5392041771307264501">Vælg en profil for at åbne et nyt vindue.</translation>
+<translation id="68541483639528434">Luk andre faner</translation>
+<translation id="2897878306272793870">Er du sikker på, at du vil åbne <ph name="TAB_COUNT"/> faner?</translation>
+<translation id="362276910939193118">Vis hele historikken</translation>
+<translation id="692135145298539227">slet</translation>
+<translation id="2663762871503078613">Importer:</translation>
+<translation id="1635247229519770914">Fortsæt installeringen</translation>
+<translation id="8945419807169257367">Serverens certifikat kan ikke kontrolleres</translation>
+<translation id="5872213955895293073">Debug JavaScript</translation>
+<translation id="1965338962645102116">Inden Toolbar-bogmærker kan importeres i Google Chrome, skal du være logget ind på din Google-konto. Log ind, og prøv at importere igen.</translation>
+<translation id="5903264686717710770">Titel:</translation>
+<translation id="8899851313684471736">Åbn link i nyt &amp;vindue</translation>
+<translation id="6686490380836145850">Luk fanerne til højre</translation>
+<translation id="5608669887400696928"><ph name="NUMBER_DEFAULT"/> timer</translation>
+<translation id="3990502903496589789">Højre kant</translation>
+<translation id="5303890401939113396">JavaScript-debugger - Pause</translation>
+<translation id="2423578206845792524">&amp;Gem billede som ...</translation>
+<translation id="9068931793451030927">Sti:</translation>
+<translation id="7052402604161570346">Denne type fil kan beskadige din computer. Er du sikker på, at du vil downloade <ph name="FILE_NAME"/>?</translation>
+<translation id="8642489171979176277">Importeret fra Google Toolbar</translation>
+<translation id="2011110593081822050">Webarbejdsfunktion: <ph name="WORKER_NAME"/></translation>
+<translation id="350069200438440499">Filnavn:</translation>
+<translation id="8494979374722910010">Forsøg på at oprette forbindelse til serveren mislykkedes.</translation>
+<translation id="8507996248087185956"><ph name="NUMBER_DEFAULT"/> minutter</translation>
+<translation id="5296476177639202243">Ingen bogmærker svarer til forespørgslen '<ph name="SEARCH_TEXT"/>'.</translation>
+<translation id="939736085109172342">Ny mappe</translation>
+<translation id="2009541932026160416">Klik på <ph name="CROSS_IMAGE"/> for at fjerne miniaturen</translation>
+<translation id="5641560969478423183">Serverens certifikat passer ikke til webadressen</translation>
+<translation id="121827551500866099">Vis alle downloads ...</translation>
+<translation id="3115147772012638511">Venter på cache ...</translation>
+<translation id="1426410128494586442">Ja</translation>
+<translation id="6513615899227776181">Plugin: <ph name="PLUGIN_NAME"/></translation>
+<translation id="3520476450377425184"><ph name="NUMBER_MANY"/> dage tilbage</translation>
+<translation id="1059307158073710225">Stavekontroller:</translation>
+<translation id="7643817847124207232">Forbindelsen til internettet er mistet.</translation>
+<translation id="758007724455091072">Opret en skrivebordsgenvej til denne profil</translation>
+<translation id="932327136139879170">Startside</translation>
+<translation id="5600907569873192868"><ph name="NUMBER_MANY"/> minutter tilbage</translation>
+<translation id="908263542783690259">Ryd browser-historik</translation>
+<translation id="7484645889979462775">Aldrig for dette websted</translation>
+<translation id="8666066831007952346"><ph name="NUMBER_TWO"/> dage tilbage</translation>
+<translation id="6390842777729054533"><ph name="NUMBER_ZERO"/> sek. tilbage</translation>
+<translation id="3909791450649380159">Kli&amp;p</translation>
+<translation id="2955913368246107853">Luk findlinjen</translation>
+<translation id="3122464029669770682">CPU</translation>
+<translation id="1684861821302948641">Afslut sider</translation>
+<translation id="5965640700983474726">Indtast for at søge</translation>
+<translation id="2142570832281562688">Angiv et profilnavn</translation>
+<translation id="5904714272463161824">&amp;Rapporter fejl eller ødelagt websted ...</translation>
+<translation id="1608306110678187802">Udsk&amp;riv ramme ...</translation>
+<translation id="4948468046837535074">Åbn følgende sider:</translation>
+<translation id="6978121630131642226">Søgemaskiner</translation>
+<translation id="7012108905414904806">Denne side omfatter midlertidig også andre ressourcer, som ikke er sikre. Disse ressourcer kan ses af andre under transporten, og de kan her ændres af en ondsindet part, så sidens udseende og opførsel kan bliver forvansket.</translation>
+<translation id="4515911410595374805">Nogle af elementerne på denne side kom fra en ikke-verificeret kilde og blev ikke vist.</translation>
+<translation id="1195447618553298278">Ukendt fejl.</translation>
+<translation id="1087119889335281750">&amp;Ingen forslag fra stavekontrol</translation>
+<translation id="5076340679995252485">&amp;Indsæt</translation>
+<translation id="14171126816530869">Identiteten for <ph name="ORGANIZATION"/> på <ph name="LOCALITY"/> er bekræftet af <ph name="ISSUER"/>.</translation>
+<translation id="1587275751631642843">&amp;JavaScript-konsol</translation>
+<translation id="5821894118254011366">Bloker fuldstændigt for tredjeparts-cookies</translation>
+<translation id="1134009406053225289">Åbn i inkognitovindue</translation>
+<translation id="3473105180351527598">Aktiver beskyttelse mod phishing og malware (skadevoldende programmer)</translation>
+<translation id="6151323131516309312">Tryk på <ph name="SEARCH_KEY"/> for at søge på <ph name="SITE_NAME"/></translation>
+<translation id="2342959293776168129">Ryd download-historik</translation>
+<translation id="2503522102815150840">Nedbrud i browser ... kaput</translation>
+<translation id="6786747875388722282">Udvidelser</translation>
+<translation id="2815500128677761940">Bogmærkelinje</translation>
+<translation id="8041183585493091279">Forslag om tjeneste-webadresse:</translation>
+<translation id="9189691339671500905">Angiv søgemaskine, der bruges i omnifeltet.</translation>
+<translation id="4571852245489094179">Importer bogmærker og indstillinger</translation>
+<translation id="6514771739083339959">Startside:</translation>
+<translation id="4421917670248123270">Luk, og annuller downloads</translation>
+<translation id="5605623530403479164">Andre søgemaskiner</translation>
+<translation id="5710435578057952990">Dette websteds identitet er ikke blevet bekræftet.</translation>
+<translation id="5287240709317226393">Vis cookies</translation>
+<translation id="333371639341676808">Undgå, at denne side laver nye dialogbokse.</translation>
+<translation id="5844183150118566785"><ph name="PRODUCT_NAME"/> er opdateret (<ph name="VERSION"/>)</translation>
+<translation id="7791543448312431591">Tilføj</translation>
+<translation id="772440777491435074">Certifikatsinformation</translation>
+<translation id="2869459179306435079">Importer indstillinger fra:</translation>
+<translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
+<translation id="3369624026883419694">Identificer vært ...</translation>
+<translation id="3967132639560659870">Der er flere SSL-fejl på denne side:</translation>
+<translation id="175196451752279553">G&amp;enåbn lukkede faner</translation>
+<translation id="5039804452771397117">Tillad</translation>
+<translation id="2266011376676382776">Siden svarer ikke</translation>
+<translation id="1805966933547717780">http://www.google.com/chrome/help/</translation>
+<translation id="5782620817391526544">Bogmærkelinje</translation>
+<translation id="3493653833301553455">Formular til autoudfyldning:</translation>
+<translation id="644038709730536388">Flere oplysninger om, hvordan du beskytter dig mod skadelig software på nettet.</translation>
+<translation id="4172706149171596436">Skift indstillinger for proxy</translation>
+<translation id="5650551054760837876">Ingen søgeresultater fundet.</translation>
+<translation id="3234408098842461169">Pil nedad</translation>
+<translation id="825608351287166772">Certifikater har en gyldighedsperiode ganske som de andre former for identifikation (eksempelvis et pas), du har. Sikkerhedscertifikatet, som blev vist for browseren, er endnu ikke gyldigt! Når et certifikat har overskredet sin gyldighedsperiode, er der visse oplysninger om certifikatets status (om det er blevet tilbagetrukket og dermed ikke længere er troværdigt) som ikke længere skal vedligeholdes. Derfor er det ikke muligt at bekræfte, om dette certifikat er troværdigt. Du bør ikke fortsætte herfra.</translation>
+<translation id="2742457360514408037">Blokerede popupvinduer: <ph name="COUNT"/></translation>
+<translation id="4874539263382920044">Titlen skal bestå af mindst et tegn</translation>
+<translation id="3549657413697417275">Søg i din historik</translation>
+<translation id="4250680216510889253">Nej</translation>
+<translation id="7905536804357499080">Brug aktuelle</translation>
+<translation id="7378810950367401542">/</translation>
+<translation id="3087734570205094154">Bund</translation>
+<translation id="1871540228654219948">Webstedet ved &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; indeholder elementer fra websteder, som ser ud til at hoste malware – software, som kan beskadige din computer, eller på anden måde foretage handlinger, du ikke har accepteret. Alene det, at du besøger et websted, der indeholder malware, kan inficere din computer.</translation>
+<translation id="8899388739470541164">Vietnamesisk</translation>
+<translation id="4089663545127310568">Ryd gemte adgangskoder</translation>
+<translation id="6500444002471948304">Tilføj mappe ...</translation>
+<translation id="2794293857160098038">Standardvalgmuligheder for søgning</translation>
+<translation id="5935630983280450497"><ph name="NUMBER_ONE"/> minutter tilbage</translation>
+<translation id="5496587651328244253">Organiser</translation>
+<translation id="5568069709869097550">Kan ikke logge ind</translation>
+<translation id="4181898366589410653">Der blev ikke fundet nogen funktion til tilbagekaldelse i serverens certifikat.</translation>
+<translation id="6364916375976753737">Scroll Left</translation>
+<translation id="1665770420914915777">Brug siden Ny fane</translation>
+<translation id="7789175495288668515">Skift standardvalgmuligheder for installation.</translation>
+<translation id="347250956943431997">Serverens certifikat er blevet tilbagekaldt</translation>
+<translation id="9087164549070846958">Hvis du imidlertid arbejder i en organisation, der genererer sine egne certifikater, og du er ved at oprette forbindelse til et internt websted i den organisation med et sådant certifikat, kan du muligvis løse dette problem på forsvarlig vis. Du kan importere din organisations rodcertifikater som et &quot;rodcertifikater&quot;, og derefter vil certifikater, der udstedes eller bekræftes af din organisation, være troværdige. Næste gang du forsøger at oprette forbindelse til et internt websted, vil du så ikke opleve denne fejl igen. Kontakt det tekniske personale i din organisation for at få hjælp til at tilføje et nyt rodcertifikat til Windows.</translation>
+<translation id="7977590112176369853">&lt;indtast forespørgsel&gt;</translation>
+<translation id="5155632014218747366">Besøg Googles <ph name="DIAGNOSTIC_PAGE"/> for domænet <ph name="DOMAIN"/> for at få flere oplysninger om problemerne med dette websted.</translation>
+<translation id="1120026268649657149">Søgeord skal være blankt eller entydigt</translation>
+<translation id="5317780077021120954">Gem</translation>
+<translation id="358344266898797651">Keltisk</translation>
+<translation id="5055518462594137986">Husk mine valg for alle links af denne type.</translation>
+<translation id="2870560284913253234">Websted</translation>
+<translation id="4164507027399414915">Gendan alle fjernede miniaturer</translation>
+<translation id="7543025879977230179"><ph name="PRODUCT_NAME"/> – Valgmuligheder</translation>
+<translation id="2648845569394238430">Søg:</translation>
+<translation id="2175607476662778685">Hurtig start</translation>
+<translation id="6434309073475700221">Kasser</translation>
+<translation id="1425127764082410430">&amp;Søg på <ph name="SEARCH_ENGINE"/> efter '<ph name="SEARCH_TERMS"/>'</translation>
+<translation id="877010697526426622">Websiden på &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt; kan midlertidigt være nede, eller også er den permanent flyttet til en ny webadresse.</translation>
+<translation id="4378551569595875038">Opretter forbindelse ...</translation>
+<translation id="7029809446516969842">Adgangskoder</translation>
+<translation id="8211437954284917092">Angiv en forespørgsel i tekstfeltet ovenfor for at søge i dine bogmærker.</translation>
+<translation id="5958418293370246440"><ph name="SAVED_FILES"/> / <ph name="TOTAL_FILES"/> filer</translation>
+<translation id="6805291412499505360">Begræns, hvordan tredjeparts-cookies kan bruges</translation>
+<translation id="1201402288615127009">Næste</translation>
+<translation id="370665806235115550">Indlæser ...</translation>
+<translation id="6592392877063354583">Siden ved <ph name="SECURE_PAGE_URL"/> indeholder usikkert indhold fra <ph name="INSECURE_RESOURCE_URL"/>.</translation>
+<translation id="3810973564298564668">Valgmuligheder</translation>
+<translation id="254416073296957292">&amp;Sprogindstillinger...</translation>
+<translation id="4222982218026733335">Ugyldigt servercertifikat</translation>
+<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Du er nu inkognito<ph name="END_BOLD"/>. Sider, du ser i dette vindue, vil ikke fremgå af din browserhistorik eller søgehistorik, og de vil ikke efterlade andre spor, som f.eks. cookies, på din computer, efter du har lukket inkognitovinduet. Alle filer, du downloader, eller bogmærker, du opretter, vil dog blive bevaret.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Når du vælger at være inkognito, påvirker det ikke andre mennesker, servere eller software. Vær forsigtig med:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>websteder, der indsamler eller videregiver oplysninger om dig<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>internetudbydere og arbejdsgivere, der sporer, hvilke sider du besøger<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>ondsindet software, der sporer dine tasteanslag i bytte for gratis smileys<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>hemmelige agenter, der overvåger dig<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>mennesker, der kigger dig over skulderen<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Få flere oplysninger<ph name="END_LINK"/> om inkognitobrowsing.</translation>
+<translation id="4439241094464540230">&lt;Ny profil&gt; ...</translation>
+<translation id="1813414402673211292">Ryd browserdata</translation>
+<translation id="2356762928523809690">Server til opdatering er ikke tilgængelig (fejl: <ph name="ERROR_NUMBER"/>)</translation>
+<translation id="5436510242972373446">Søg på <ph name="SITE_NAME"/>:</translation>
+<translation id="8730621377337864115">Udført</translation>
+<translation id="2953767478223974804"><ph name="NUMBER_ONE"/> min.</translation>
+<translation id="8210608804940886430">Page Down</translation>
+<translation id="5015344424288992913">Identificer proxy ...</translation>
+<translation id="2398703750948514961">Annulleret</translation>
+<translation id="3675321783533846350">Konfigurer en proxyserver for at oprette forbindelse til netværket.</translation>
+<translation id="1572103024875503863"><ph name="NUMBER_MANY"/> dage</translation>
+<translation id="8453184121293348016">Der blev ikke fundet nogen funktion til tilbagekaldelse</translation>
+<translation id="7163503212501929773"><ph name="NUMBER_MANY"/> timer tilbage</translation>
+<translation id="3283719377675052581">ukendt</translation>
+<translation id="374530189620960299">Sikkerhedscertifikatet for dette websted er ikke troværdigt!</translation>
+<translation id="5048040498971143039">Søgeresultater for '<ph name="SEARCH_STRING"/>'</translation>
+<translation id="5453632173748266363">Kyrillisk</translation>
+<translation id="5329858601952122676">&amp;Slet</translation>
+<translation id="6100736666660498114">Startmenu</translation>
+<translation id="1120098871254928930">Tillad indlæsning af alt indhold</translation>
+<translation id="3994878504415702912">&amp;Zoom</translation>
+<translation id="5602600725402519729">Gen&amp;indlæs</translation>
+<translation id="9010612682952491200">Ny fane [<ph name="PROFILE_NAME"/>]</translation>
+<translation id="7965010376480416255">Delt hukommelse</translation>
+<translation id="6248988683584659830">Søgeindstillinger</translation>
+<translation id="8887733174653581061">Altid øverst</translation>
+<translation id="610886263749567451">JavaScript-advarsel</translation>
+<translation id="8413126021676339697">Vis hele historikken</translation>
+<translation id="8860923508273563464">Vent på, at igangværende downloads afsluttes</translation>
+<translation id="1823768272150895732">Skrifttype</translation>
+<translation id="4475552974751346499">Søg i downloads</translation>
+<translation id="1111153019813902504">Seneste bogmærker</translation>
+<translation id="3786934874263773074">&amp;Find på side</translation>
+<translation id="6295228342562451544">Når du forbinder til et sikkert websted, vil serveren, der hoster dette websted, præsentere dig for noget kaldet et &quot;certifikat&quot;, som bekræfter dets identitet. Dette certifikat indeholder oplysninger om identitet, såsom webstedets adresse, som bekræftes af en tredjepart, din computer har tillid til. Ved at kontrollere at adressen i certifikatet passer med webstedets adresse, er det muligt at bekræfte, at du har en sikker forbindelse med det ønskede websted, og ikke med en tredjepart (som eksempelvis en indtrænger på dit netværk).</translation>
+<translation id="5502500733115278303">Importeret fra Firefox</translation>
+<translation id="569109051430110155">Find automatisk</translation>
+<translation id="4408599188496843485">H&amp;jælp</translation>
+<translation id="2800662284745373504">Servercertifikatet er ugyldigt</translation>
+<translation id="2681441671465314329">Tøm cache</translation>
+<translation id="6222380584850953107">Vis gemte adgangskoder</translation>
+<translation id="1521442365706402292">Administrer certifikater</translation>
+<translation id="7887998671651498201">Følgende plugins svarer ikke: <ph name="PLUGIN_NAME"/>Vil du stoppe det?</translation>
+<translation id="8088823334188264070"><ph name="NUMBER_MANY"/> sek.</translation>
+<translation id="3712897371525859903">Gem side &amp;som ...</translation>
+<translation id="3433151241941574321">Tilføj side</translation>
+<translation id="7910768399700579500">&amp;Ny mappe</translation>
+<translation id="6883611015375728278">Bloker alle cookies</translation>
+<translation id="3819791248093819058">Ingen webside fundet på webadressen: &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;</translation>
+<translation id="8942948210663084792">Ryd data:</translation>
+<translation id="6710213216561001401">Forrige</translation>
+<translation id="583281660410589416">Ukendt</translation>
+<translation id="5528368756083817449">Bogmærkeadministrator</translation>
+<translation id="1560991001553749272">Bogmærke tilføjet!</translation>
+<translation id="3966072572894326936">Vælg en anden mappe ...</translation>
+<translation id="7781829728241885113">I går</translation>
+<translation id="7596288230018319236">Alle de sider, du besøger, vil ses her, medmindre du åbner dem i et inkognitovindue. Du kan bruge søgeknappen på denne side til at søge i alle siderne i din historik.</translation>
+<translation id="2665163749053788434">Besøg historik</translation>
+<translation id="7434509671034404296">Udvikler</translation>
+<translation id="6447842834002726250">Cookies</translation>
+<translation id="5170568018924773124">Vis i mappe</translation>
+<translation id="2674170444375937751">Er du sikker på, at du vil slette disse sider fra din historik?</translation>
+<translation id="7334704644505105275">JavaScript-debugger - Optaget</translation>
+<translation id="7629827748548208700">Fane: <ph name="TAB_NAME"/></translation>
+<translation id="8028993641010258682">Størrelse</translation>
+<translation id="1383876407941801731">Søg</translation>
+<translation id="8398877366907290961">Fortsæt uanset</translation>
+<translation id="290414493736480793">Kvitteringer</translation>
+<translation id="6449085810994685586">&amp;Stavekontroller dette felt</translation>
+<translation id="50960180632766478"><ph name="NUMBER_FEW"/> minutter tilbage</translation>
+<translation id="8664389313780386848">&amp;Vis kildetekst</translation>
+<translation id="3089982169226026948">Vælg en profil</translation>
+<translation id="57646104491463491">Dato for ændring</translation>
+<translation id="3867260226944967367">Denne webside kan ikke findes.</translation>
+<translation id="6507969014813375884">Kinesisk, forenklet</translation>
+<translation id="1767991048059195456">Send rapport</translation>
+<translation id="5646376287012673985">Placering</translation>
+<translation id="1110155001042129815">Vent</translation>
+<translation id="7071586181848220801">Ukendt plugin</translation>
+<translation id="8235325155053717782">Fejl <ph name="ERROR_NUMBER"/> (<ph name="ERROR_NAME"/>): <ph name="ERROR_TEXT"/></translation>
+<translation id="1084824384139382525">Kopier linkadr&amp;esse</translation>
+<translation id="5042992464904238023">Webindhold</translation>
+<translation id="1181037720776840403">Slet</translation>
+<translation id="59174027418879706">Aktiveret</translation>
+<translation id="8141503649579618569"><ph name="DOWNLOAD_RECEIVED"/> af <ph name="DOWNLOAD_TOTAL"/>, <ph name="TIME_LEFT"/></translation>
+<translation id="2534091581909016888"><ph name="SITE"/></translation>
+<translation id="6659594942844771486">Fane</translation>
+<translation id="5452592754878692665">Skift indstillinger for Google Gears</translation>
+<translation id="5316814419223884568">Søg direkte herfra</translation>
+<translation id="965674096648379287">Denne webside kræver data, du tidligere har indtastet, for at den kan vises ordentligt. Du kan afsende disse data en gang til, men derved skal du gentage enhver handling, der tidligere er foretaget på denne side. Tryk på Genindlæs for at sende disse data igen og vise denne side.</translation>
+<translation id="43742617823094120">I det tilfælde er certifikatet, der vises for browseren, blevet tilbagekaldt af udstederen. Det betyder almindeligvis, at certifikatets integritet er lækket til uautoriserede brugere, og at man ikke kan have tillid til certifikatet. Du bør absolut ikke fortsætte herfra.</translation>
+<translation id="2065985942032347596">Godkendelse påkrævet</translation>
+<translation id="1175364870820465910">&amp;Udskriv ...</translation>
+<translation id="3866249974567520381">Beskrivelse</translation>
+<translation id="5552632479093547648">Malware og phishing registreret!</translation>
+<translation id="9118804773997839291">Nedenfor findes en liste over alle usikre elementer på siden. Klik på linket Diagnosticering for at få flere oplysninger om tråden til et specifikt element.</translation>
+<translation id="7754704193130578113">Spørg, hvor hver enkelt fil skal gemmes, inden download begynder</translation>
+<translation id="2497284189126895209">Alle filer</translation>
+<translation id="435463392378565996">Små justeringer</translation>
+<translation id="5360606537916580043">Seneste døgn</translation>
+<translation id="6589689504565594563">Slet cookies</translation>
+<translation id="6833901631330113163">Sydeuropæisk</translation>
+<translation id="5256138355144269748">Blokeret popup</translation>
+<translation id="2820806154655529776"><ph name="NUMBER_ONE"/> sek.</translation>
+<translation id="3122496702278727796">Oprettelsen af datamappe mislykkedes</translation>
+<translation id="8446970197849314122">Du kan importere dine bogmærker og indstillinger fra andre browsere og brugerkonti på denne computer.</translation>
+<translation id="6281636957902664775">Gå til <ph name="URL"/></translation>
+<translation id="630065524203833229">Af&amp;slut</translation>
+<translation id="2649204054376361687"><ph name="CITY"/>, <ph name="COUNTRY"/></translation>
+<translation id="5264618369089706215">Søgninger</translation>
+<translation id="1168020859489941584">Åbner i <ph name="TIME_REMAINING"/> ...</translation>
+<translation id="7814458197256864873">&amp;Kopier</translation>
+<translation id="4692623383562244444">Søgemaskiner</translation>
+<translation id="2526590354069164005">Skrivebord</translation>
+<translation id="4890284164788142455">Thai</translation>
+<translation id="3889424535448813030">Højrepil</translation>
+<translation id="5435666907653217300">Andet
+ problem</translation>
+<translation id="8382913212082956454">Kopier &amp;e-mail-adresse</translation>
+<translation id="6419902127459849040">Centraleuropæisk</translation>
+<translation id="1714078437629572290">Åbn startsiden</translation>
+<translation id="2544782972264605588"><ph name="NUMBER_DEFAULT"/> sek. tilbage</translation>
+<translation id="2454247629720664989">Søgeord</translation>
+<translation id="614298788004369532">Denne side indeholder usikre elementer</translation>
+<translation id="1628736721748648976">Kodning</translation>
+<translation id="6521850982405273806">Rapporter en fejl</translation>
+<translation id="8503813439785031346">Brugernavn</translation>
+<translation id="290555789621781773"><ph name="NUMBER_TWO"/> minutter</translation>
+<translation id="7073704676847768330">Dette er formentlig ikke det websted du leder efter!</translation>
+<translation id="7642109201157405070">Fortsæt import</translation>
+<translation id="6463795194797719782">&amp;Rediger</translation>
+<translation id="4188026131102273494">Søgeord:</translation>
+<translation id="2290414052248371705">Vis alt indhold</translation>
+<translation id="6434892175081553796">Luk faner, der åbnet af denne fane</translation>
+<translation id="3268761268932257769">Indlæs automatisk billeder</translation>
+<translation id="7227780179130368205">Skadevoldende programmer registreret!</translation>
+<translation id="3942946088478181888">Hjælp mig med at forstå dette</translation>
+<translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (Standard)</translation>
+<translation id="111844081046043029">Er du sikker på, at du vil forlade denne side?</translation>
+<translation id="4497415007571823067">Du har forsøgt på at kontakte &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, men i stedet har du fået kontakt med en server, der identificerer sig som &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Det kan skyldes en konfigurationsfejl på serveren eller noget andet og mere alvorligt. Det kan være en ondsindet part på dit netværk, som forsøger at få dig til at besøge en forfalsket (og potentielt skadelig) udgave af &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt;. Du bør ikke fortsætte herfra.</translation>
+<translation id="3202578601642193415">Nyeste</translation>
+<translation id="8112886015144590373"><ph name="NUMBER_FEW"/> timer</translation>
+<translation id="8739589585766515812">Slet dagens historik</translation>
+<translation id="1398853756734560583">Maksimer</translation>
+<translation id="3340262871848042885">Serverens certifikat er udløbet</translation>
+<translation id="8978540966440585844">Br&amp;owse ...</translation>
+<translation id="6690744523875189208"><ph name="NUMBER_TWO"/> timer</translation>
+<translation id="3577682619813191010">Kopier &amp;fil</translation>
+<translation id="5260878308685146029"><ph name="NUMBER_TWO"/> minutter tilbage</translation>
+<translation id="2192505247865591433">Fra:</translation>
+<translation id="5921544176073914576">Phishing-side</translation>
+<translation id="6192792657125177640">Undtagelser</translation>
+<translation id="2822650824848709219">Bloker alt usikkert indhold</translation>
+<translation id="1901303067676059328">Vælg &amp;alle</translation>
+<translation id="2168039046890040389">Page Up</translation>
+<translation id="1559333154119355392"><ph name="DOWNLOAD_SIZE"/>, Færdigt</translation>
+<translation id="2435457462613246316">Vis adgangskode</translation>
+<translation id="394984172568887996">Importeret fra IE</translation>
+<translation id="5315873049536339193">Identitet</translation>
+<translation id="6144890426075165477"><ph name="PRODUCT_NAME"/> er i øjeblikket ikke din standardbrowser.</translation>
+<translation id="9107059250669762581"><ph name="NUMBER_DEFAULT"/> dage</translation>
+<translation id="872451400847464257">Rediger søgemaskine</translation>
+<translation id="6463061331681402734"><ph name="NUMBER_MANY"/> minutter</translation>
+<translation id="8717266507183354698">Se alle sider i historik, som indeholder <ph name="SEARCH_TERMS"/></translation>
+<translation id="5645845270586517071">Sikkerhedsfejl</translation>
+<translation id="8695758493354644945">Se de seneste <ph name="NUM_MATCHES"/> sider i historikken, der indeholder <ph name="SEARCH_TERMS"/></translation>
+<translation id="8186012393692847636">Gør brug af forslag til udfyldning af søgninger og webadresser, som indtastes i adresselinjen</translation>
+<translation id="4711094779914110278">Tyrkisk</translation>
+<translation id="4002066346123236978">Titel</translation>
+<translation id="9015241028623917394">Handlinger for aktuel side</translation>
+<translation id="7861215335140947162">&amp;Downloads</translation>
+<translation id="5460429403253574028">Fjern miniaturer</translation>
+<translation id="2505402373176859469"><ph name="RECEIVED_AMOUNT"/> af <ph name="TOTAL_SIZE"/></translation>
+<translation id="6644512095122093795">Få tilbudt at gemme adgangskoder</translation>
+<translation id="5384051050210890146">Vælg troværdige SSL-certifikater.</translation>
+<translation id="6865323153634004209">Tilpas disse indstillinger</translation>
+<translation id="154603084978752493">Tilføj som søge&amp;maskine ...</translation>
+<translation id="3254409185687681395">Føj et bogmærke til denne side</translation>
+<translation id="1384616079544830839">Dette websteds identitet er bekræftet af <ph name="ISSUER"/>.</translation>
+<translation id="1800035677272595847">Phishing</translation>
+<translation id="4610637590575890427">Ville du gå til <ph name="SITE"/>?</translation>
+<translation id="8349305172487531364">Bogmærkelinje</translation>
+<translation id="7208899522964477531">Søg på <ph name="SITE_NAME"/> efter <ph name="SEARCH_TERMS"/></translation>
+<translation id="8004582292198964060">Browser</translation>
+<translation id="2224551243087462610">Rediger mappenavn</translation>
+<translation id="5433207235435438329">Sprog for stavekontrol:</translation>
+<translation id="3183922693828471536">Scroll hertil</translation>
+<translation id="2527167509808613699">Enhver form for forbindelse</translation>
+<translation id="1234466194727942574">Fanelinje</translation>
+<translation id="4035758313003622889">&amp;Jobliste</translation>
+<translation id="558442360746014982">Herunder ses den oprindelige fejlmeddelelse</translation>
+<translation id="1768211415369530011">Følgende program bliver startet, hvis du accepterer denne anmodning:\n\n <ph name="APPLICATION"/></translation>
+<translation id="4552416320897244156">PgDwn</translation>
+<translation id="8986267729801483565">Download-placering:</translation>
+<translation id="8318945219881683434">Kontrol af tilbagekaldelse mislykkedes.</translation>
+<translation id="3191701650141760424">Afslut installering</translation>
+<translation id="3745810751851099214">Send ved:</translation>
+<translation id="8877448029301136595">[parent directory]</translation>
+<translation id="1963227389609234879">Slet alle</translation>
+<translation id="7052633198403197513">F1</translation>
+<translation id="2496180316473517155">Browser-historik</translation>
+<translation id="602251597322198729">Dette websted forsøger at downloade flere filer. Vil du tillade dette?</translation>
+<translation id="2052389551707911401"><ph name="NUMBER_MANY"/> timer</translation>
+<translation id="6691936601825168937">&amp;Frem</translation>
+<translation id="7736284018483078792">Skift sprog for stavekontrollens ordbog.</translation>
+<translation id="2148716181193084225">I dag</translation>
+<translation id="3574305903863751447"><ph name="CITY"/>, <ph name="STATE"/> <ph name="COUNTRY"/></translation>
+<translation id="4756388243121344051">&amp;Historik</translation>
+<translation id="4789872672210757069">Om &amp;<ph name="PRODUCT_NAME"/></translation>
+<translation id="1017280919048282932">&amp;Tilføj til ordbog</translation>
+<translation id="1829244130665387512">Find på side</translation>
+<translation id="4115153316875436289"><ph name="NUMBER_TWO"/> dage</translation>
+<translation id="5107325588313356747">For at skjule adgang til dette program, er du nødt til at afinstallere det med \n<ph name="CONTROL_PANEL_APPLET_NAME"/> i Kontrolpanelet.\n\nVil du gerne begynde <ph name="CONTROL_PANEL_APPLET_NAME"/>?</translation>
+<translation id="8627795981664801467">Kun sikre forbindelser</translation>
+<translation id="2190355936436201913">(tom)</translation>
+<translation id="5868426874618963178">Send den aktuelle sides kildekode</translation>
+<translation id="5818003990515275822">Koreansk</translation>
+<translation id="4182252350869425879">Advarsel: Mistanke om phishing-websted!</translation>
+<translation id="1164369517022005061"><ph name="NUMBER_DEFAULT"/> timer tilbage</translation>
+<translation id="2214283295778284209"><ph name="SITE"/> er ikke tilgængelig</translation>
+<translation id="7552620667503495646">Åbn ramme i ny fane</translation>
+<translation id="8755376271068075440">&amp;Større</translation>
+<translation id="8187473050234053012">Sikkerhedscertifikatet for dette websted er tilbagekaldt!</translation>
+<translation id="152482086482215392"><ph name="NUMBER_ONE"/> sek. tilbage</translation>
+<translation id="8447116497070723931">PgUp</translation>
+<translation id="1970746430676306437">Vis &amp;info om side</translation>
+<translation id="4588090240171750605">Scroll til højre</translation>
+<translation id="8940262601983387853">Cookie-navn</translation>
+<translation id="8053959338015477773">Det er nødvendigt med et ekstra plugin for at kunne vise visse elementer på denne side.</translation>
+<translation id="4666192354592784528">Denne side hentes ikke i sin helhed via en sikker forbindelse. Den indeholder elementer, som hentes over usikre forbindelser.</translation>
+<translation id="7414887922320653780"><ph name="NUMBER_ONE"/> timer tilbage</translation>
+<translation id="399179161741278232">Importeret</translation>
+<translation id="3927932062596804919">Afvis</translation>
+<translation id="6484929352454160200">Der findes en ny version af <ph name="PRODUCT_NAME"/></translation>
+<translation id="7035824132811506448">Tilføjet for nylig</translation>
+<translation id="2371076942591664043">Åbn når &amp;færdigt</translation>
+<translation id="6069278982995177296">Dublet</translation>
+<translation id="2979639724566107830">Åbn i nyt vindue</translation>
+<translation id="2822854841007275488">Arabisk</translation>
+<translation id="2815448242176260024">Gem aldrig adgangskoder</translation>
+<translation id="2666092431469916601">Top</translation>
+<translation id="4047498523333824092">Gendan de sider, der sidst var åbne</translation>
+<translation id="6503077044568424649">Mest besøgte</translation>
+<translation id="1040471547130882189">Plugin svarer ikke</translation>
+<translation id="790025292736025802"><ph name="URL"/> blev ikke fundet</translation>
+<translation id="895347679606913382">Begynder ...</translation>
+<translation id="3319048459796106952">Nyt &amp;inkognito-vindue</translation>
+<translation id="4195643157523330669">Åbn i ny fane</translation>
+<translation id="4178055285485194276">Ved opstart:</translation>
+<translation id="1154228249304313899">Åbn denne side:</translation>
+<translation id="3627588569887975815">Åbn link i inkognitovindue</translation>
+<translation id="5578327870501192725">Din forbindelse til <ph name="DOMAIN"/> er krypteret med <ph name="BIT_COUNT"/>-bit kryptering.</translation>
+<translation id="7079333361293827276">Serverens certifikatet er ikke troværdigt</translation>
+<translation id="8331626408530291785">Scroll Up</translation>
+<translation id="1526560967942511387">Ikke-navngivet dokument</translation>
+<translation id="5538307496474303926">Rydder ...</translation>
+<translation id="6783679543387074885">Rapporter fejl eller ødelagt websted</translation>
+<translation id="5285267187067365830">Installer plugin ...</translation>
+<translation id="8015746205953933323">Denne webside er ikke tilgængelig.</translation>
+<translation id="8520668773617044689">Firefox</translation>
+<translation id="8434177709403049435">&amp;Kodning</translation>
+<translation id="7895330511272068835">Om plugins</translation>
+<translation id="9012607008263791152">Jeg forstår, at hvis jeg besøger dette websted, kan det medføre skader på min computer.</translation>
+<translation id="6004539838376062211">&amp;Indstillinger af stavekontrol</translation>
+<translation id="7887334752153342268">Dupliker</translation>
+<translation id="703748601351783580">Åbn alle bogmærker i nyt vindue</translation>
+<translation id="1293699935367580298">Esc</translation>
+<translation id="8502249598105294518">Tilpasning og handlinger for <ph name="PRODUCT_NAME"/></translation>
+<translation id="815598010540052116">Scroll Down</translation>
+<translation id="5291303148298143069">Giv mig besked, når en popup bliver blokeret</translation>
+<translation id="2115926821277323019">Skal være en gyldig webadresse</translation>
+<translation id="7397054681783221164">Vælg at rydde følgende:</translation>
+<translation id="4891251785049117953">Slet gemte formulardata</translation>
+<translation id="5230516054153933099">Vindue</translation>
+<translation id="7554791636758816595">Ny fane</translation>
+<translation id="4400697530699263877">Brug forudhentning af DNS for at kunne indlæse sider hurtigere</translation>
+<translation id="1086613338090581534">Det gælder for et certifikat, der ikke er udløbet, at udstederen af dette certifikat er ansvarlig for at opretholde noget, der kaldes en &quot;liste med certifikattilbagekaldelse&quot;. Hvis et certifikat nogensinde bliver lækket til uautoriserede brugere, kan udstederen tilbagekalde det ved at tilføje det på tilbagekaldelseslisten, og derefter har din browser ikke længere tillid til certifikatet. Der er ikke krav om at opretholde tilbagekaldelsesstatus for certifikater, der er udløbet. Så selv om dette certifikat tidligere var gyldigt for det websted, du besøger, er det ikke i øjeblikket muligt at fastslå om certifikatet har været lækket til uautoriserede brugere og efterfølgende er tilbagekaldt, eller om det er forblevet sikkert. På denne måde er det umuligt at anslå, om de kommunikerer med det legitime websted, eller om certifikatet har været lækket til uautoriserede brugere og nu er i hænderne på en ondsindet part, som du nu kommunikerer med. Du bør ikke fortsætte herfra.</translation>
+<translation id="3157931365184549694">Gendan</translation>
+<translation id="6059232451013891645">Mappe:</translation>
+<translation id="8182985032676093812">Kilde for <ph name="PAGE_URL"/></translation>
+<translation id="7042418530779813870">Indsæt og søg</translation>
+<translation id="1570242578492689919">Skrifttyper og kodning</translation>
+<translation id="3031557471081358569">Vælg at importere følgende:</translation>
+<translation id="3031433885594348982">Din forbindelse til <ph name="DOMAIN"/> er krypteret med svag kryptering.</translation>
+<translation id="4047345532928475040">N/A</translation>
+<translation id="5657156137487675418">Tillad alle cookies</translation>
+<translation id="3228279582454007836">Du har ikke besøgt dette websted før i dag.</translation>
+<translation id="4890855023395992542">Tjeneste-webadresse:</translation>
+<translation id="2814489978934728345">Stop indlæsning af denne side</translation>
+<translation id="2354001756790975382">Andre bogmærker</translation>
+<translation id="8561574028787046517"><ph name="PRODUCT_NAME"/> er opdateret</translation>
+<translation id="641480858134062906"><ph name="URL"/> indlæsningen mislykkedes</translation>
+<translation id="3693415264595406141">Adgangskode:</translation>
+<translation id="74568296546932365">Behold <ph name="PAGE_TITLE"/> som standardsøgemaskine</translation>
+<translation id="6181769708911894002">Advarsel: Besøg på dette websted kan medføre skader på din computer!</translation>
+<translation id="8299269255470343364">Japansk</translation>
+<translation id="5204993535447683655">&lt;a jsvalues=&quot;href:reloadUrl&quot;&gt;Genindlæs&lt;/a&gt; denne webside senere.</translation>
+<translation id="3635774677705394651">Webstedet på &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; synes at hoste malware (skadevoldende programmer) – software, der kan beskadige din computer eller på anden måde foretage handlinger, du ikke har accepteret. Bare det at besøge et websted, der hoster skadevoldende programmer, kan inficere din egen computer.</translation>
+<translation id="7280343984261969618">Kører plugins i en sandkasse uden privilegier. Får visse plugins til at fungere dårligt</translation>
+<translation id="50030952220075532"><ph name="NUMBER_ONE"/> dage tilbage</translation>
+<translation id="2359808026110333948">Fortsæt</translation>
+<translation id="1618661679583408047">Sikkerhedscertifikatet for dette websted er endnu ikke gyldigt!</translation>
+<translation id="9040508646567685134">Et script, der kører på denne side, er meget laaaang tid om at afvikles. Ønsker du at vente på, om scriptet bliver færdigt, eller opgiver du det?</translation>
+<translation id="3065140616557457172">Tast for at søge, eller angiv en webadresse for at navigere – det hele virker.</translation>
+<translation id="5986279928654338866">Serveren <ph name="DOMAIN"/> kræver et brugernavn og en adgangskode.</translation>
+<translation id="7056713340842386352">Mest besøgte [<ph name="PROFILE_NAME"/>]</translation>
+<translation id="5765780083710877561">Beskrivelse:</translation>
+<translation id="7221869452894271364">Genindlæs denne side</translation>
+<translation id="8646430701497924396">Brug SSL 2.0</translation>
+<translation id="8179976553408161302">Indtast</translation>
+<translation id="8261506727792406068">Slet</translation>
+<translation id="345693547134384690">Åbn &amp;billede i ny fane</translation>
+<translation id="1375198122581997741">Om version</translation>
+<translation id="1474307029659222435">Åbn ramme i nyt vindue</translation>
+<translation id="3527085408025491307">Mappe</translation>
+<translation id="3169621169201401257">Du kan få detaljerede oplysninger om problemerne med disse elementer ved at besøge Googles <ph name="DIAGNOSTIC_PAGE"/> for <ph name="DOMAIN"/>.</translation>
+<translation id="2559292239863842334">De søgefelter, du oftest anvender på andre websteder, vil blive vist her.</translation>
+<translation id="770015031906360009">Græsk</translation>
+<translation id="4474796446011988286">Følgende cookies er gemt på din computer:</translation>
+<translation id="884923133447025588">Der blev ikke fundet nogen funktion til tilbagekaldelse.</translation>
+<translation id="9170848237812810038">&amp;Fortryd</translation>
+<translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/>K</translation>
+<translation id="4444364671565852729"><ph name="PRODUCT_NAME"/> er blevet opdateret til <ph name="VERSION"/></translation>
+<translation id="6483805311199035658">Åbner <ph name="FILE"/> ...</translation>
+<translation id="9154176715500758432">Bliv på denne side</translation>
+<translation id="5875565123733157100">Fejltype:</translation>
+<translation id="2440604414813129000">Vis &amp;kilde</translation>
+<translation id="8200772114523450471">Genoptag</translation>
+<translation id="3009731429620355204">Sessioner</translation>
+<translation id="3473034187222004855">Kopier fil&amp;sti</translation>
+<translation id="6325525973963619867">Mislykket</translation>
+<translation id="1676388805288306495">Skift standard-skrifttype og -sprog for websider.</translation>
+<translation id="4701488924964507374"><ph name="SENTENCE1"/> <ph name="SENTENCE2"/></translation>
+<translation id="1163931534039071049">&amp;Vis rammens kildetekst</translation>
+<translation id="7564847347806291057">Afslut proces</translation>
+<translation id="7851589172948533362">Bekræftet af <ph name="ISSUER"/></translation>
+<translation id="5501358408399407103">Webside, kun HTML\0*.htm\0Webside, Komplet\0*.htm</translation>
+<translation id="7063412606254013905">Læs mere om bedragerier via phishing</translation>
+<translation id="307767688111441685">Siden ser underlig ud</translation>
+<translation id="5295309862264981122">Bekræft navigation</translation>
+<translation id="6847541693235449912">Start</translation>
+<translation id="5333374927882515515">Import af bogmærker, adgangskoder og andre indstillinger fra <ph name="DEF_BROWSER"/></translation>
+<translation id="4239831617079978238">Udløb af session</translation>
+<translation id="7377249249140280793"><ph name="RELATIVE_DATE"/> - <ph name="FULL_DATE"/></translation>
+<translation id="8954894007019320973">(Forts.)</translation>
+<translation id="3748412725338508953">Der var for mange omdirigeringer.</translation>
+<translation id="8929159553808058020">Tilføj de sprog, du bruger til læsning af websteder, i prioriteret rækkefølge. Tilføj kun dem, du har brug for, da nogle tegn kan benyttes til at efterligne websteder på andre sprog.</translation>
+<translation id="8831104962952173133">Phishing registreret!</translation>
+<translation id="2614223168876839822">Ryd browserdata på denne computer. Du skal være opmærksom på, at dette kan påvirke indholdet på siden Ny fane.</translation>
+<translation id="4745142959976410383">Har du ikke selv startet denne anmodning, kan det være et forsøg udefra på angreb på dit system. Med mindre du er sikker på selv at have startet denne anmodning, bør du trykke på Annuller.</translation>
+<translation id="1897258631034940238">Webstedet ved &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; indeholder elementer fra websteder, der er blevet rapporteret som &quot;phishing&quot;-websteder. Phishing-websteder narrer brugere til at opgive personlige eller finansielle oplysninger. Det foregår gerne ved, at man udgiver sig for at repræsentere velkendte institutioner som banker.</translation>
+<translation id="8288345061925649502">Skift søgemaskine</translation>
+<translation id="1095623615273566396"><ph name="NUMBER_FEW"/> sek.</translation>
+<translation id="5139955368427980650">&amp;Åbn</translation>
+<translation id="7088615885725309056">Ældre</translation>
+<translation id="746319800473277382">Gå til dette websteds startside:</translation>
+<translation id="8562413501751825163">Luk Firefox inden import</translation>
+<translation id="5034259512732355072">Vælg en anden mappe ...</translation>
+<translation id="5074322878757699801">Importer data ...</translation>
+<translation id="5706242308519462060">Standardkodning:</translation>
+<translation id="5280833172404792470">Afslut fuld skærm (<ph name="ACCELERATOR"/>)</translation>
+<translation id="129553762522093515">Senest lukkede</translation>
+<translation id="8355915647418390920"><ph name="NUMBER_FEW"/> dage</translation>
+<translation id="3702416240431471861">Google Gears:</translation>
+<translation id="3891357445869647828">Aktiver JavaScript</translation>
+<translation id="6451458296329894277">Bekræft genindsendelse af formular</translation>
+<translation id="3218545474413654570"><ph name="URL"/> - <ph name="WINDOW_TITLE"/></translation>
+<translation id="5116333507878097773"><ph name="NUMBER_ONE"/> time</translation>
+<translation id="1851266746056575977">Opdater nu</translation>
+<translation id="19901320010520290">Webstedet ved &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; indeholder elementer fra websteder, som ser ud til at hoste malware – software, som kan beskadige din computer, eller på anden måde foretage handlinger, du ikke har accepteret. Alene det, at du besøger et websted, der indeholder malware, kan inficere din computer. Webstedet hoster også indhold fra websteder, der er blevet rapporteret som &quot;phishing&quot;-websteder. Phishing-websteder narrer brugere til at opgive personlige eller finansielle oplysninger. Det foregår gerne ved, at man udgiver sig for at repræsentere velkendte institutioner som banker.</translation>
+<translation id="9065203028668620118">Rediger</translation>
+<translation id="4867297348137739678">Sidste uge</translation>
+<translation id="4881695831933465202">Åbn</translation>
+<translation id="5981759340456370804">Detaljeret statistik</translation>
+<translation id="6644971472240498405"><ph name="NUMBER_ONE"/>dag</translation>
+<translation id="6512448926095770873">Forlad denne side</translation>
+<translation id="5607455023223000189">Installerede plugins</translation>
+<translation id="7009102566764819240">Nedenfor findes en liste over alle usikre elementer på siden. Klik på linket Diagnosticering for at få flere oplysninger i malware-tråden til et specifikt element. Hvis du kender en ressource, der er blevet fejlagtigt rapporteret som phishing, skal du klikke på linket 'Rapporter fejl'.</translation>
+<translation id="494645311413743213"><ph name="NUMBER_TWO"/> sek. tilbage</translation>
+<translation id="1485146213770915382">Indsæt <ph name="SEARCH_TERMS_LITERAL"/> i webadressen, der hvor søgetermer skal stå.</translation>
+<translation id="5626134646977739690">Navn:</translation>
+<translation id="7125953501962311360">Standardbrowser:</translation>
+<translation id="721197778055552897"><ph name="BEGIN_LINK"/>Få flere oplysninger<ph name="END_LINK"/> om dette problem.</translation>
+<translation id="7774607445702416100">Internet Explorer</translation>
+<translation id="146000042969587795">Denne ramme blev blokeret, da den indeholder usikkert indhold.</translation>
+<translation id="8112223930265703044">Ryd alt</translation>
+<translation id="1983108933174595844">Send skærmbillede af aktuel side</translation>
+<translation id="436869212180315161">Tryk</translation>
+<translation id="8241707690549784388">Siden, du søger, benyttede oplysninger, du har indtastet. Vender du tilbage til denne side kan det betyde, at enhver handling, du har foretaget, skal gentages. Vil du fortsætte?</translation>
+<translation id="486595306984036763">Åbn phishing-rapport</translation>
+<translation id="1568162916422682473">Følgende plugin er brudt ned: <ph name="PLUGIN_NAME"/></translation>
+<translation id="2441719842399509963">Gendan standardindstillinger</translation>
+<translation id="170407012880898501">Gem tekst fra formularer for at gøre det nemmere at udfylde dem</translation>
+<translation id="8116972784401310538">&amp;Bogmærkeadministrator</translation>
+<translation id="6040143037577758943">Luk</translation>
+<translation id="4943872375798546930">Ingen resultater</translation>
+<translation id="4910619056351738551">Her er nogle forslag:</translation>
+<translation id="7451556917824271099">Webstedet ved &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; indeholder elementer fra webstedet &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt;, som ser ud til at hoste malware – software, som kan beskadige din computer, eller på anden måde foretage handlinger, du ikke har accepteret. Bare det at besøge et websted, der indeholder skadevoldende programmer, kan inficere din egen computer.</translation>
+<translation id="1232569758102978740">Ikke-navngivet</translation>
+<translation id="9149866541089851383">Rediger ...</translation>
+<translation id="7000311294523403548">Ikke-navngivet webside</translation>
+<translation id="7649070708921625228">Hjælp</translation>
+<translation id="7442246004212327644">&amp;Ryd</translation>
+<translation id="9002707937526687073">Udsk&amp;riv ...</translation>
+<translation id="5556459405103347317">Genindlæs</translation>
+<translation id="7727721885715384408">Omdøb ...</translation>
+<translation id="5508407262627860757">Annuller alligevel</translation>
+<translation id="7587108133605326224">Baltisk</translation>
+<translation id="8598751847679122414">Denne webside har et loop ved omdirigering.</translation>
+<translation id="5271549068863921519">Gem adgangskode</translation>
+<translation id="2987775926667433828">Kinesisk, traditionelt</translation>
+<translation id="6227291405321948850">Ikke-navngivet Webbillede</translation>
+<translation id="1684248949164455892">I dette tilfælde er certifikatet ikke bekræftet af den tredjepart, som din computer stoler på. Enhver kan oprette et certifikat, som hæver at komme fra et hvilken som helst websted. Derfor skal det bekræftes af en troværdig tredjepart. Uden denne bekræftelse er certifikatets oplysninger om identitet værdiløse. Det er derfor umuligt at bekræfte, om du kommunikerer med &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; i stedet for med en ondsindet part, der har oprettet sit eget certifikat og udgiver sig for at være &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Du bør ikke fortsætte herfra.</translation>
+<translation id="8045462269890919536">Rumænsk</translation>
+<translation id="3927097095400773697"><ph name="DOWNLOAD_SIZE"/>, Annulleret</translation>
+<translation id="2927657246008729253">Skift ...</translation>
+<translation id="3478477629095836699">Indstillinger for cookies:</translation>
+<translation id="2108475813351458355">Sikker forbindelse til <ph name="DOMAIN"/></translation>
+<translation id="942671148946453043">Du har nu åbnet et inkognitovindue. Sider, som du åbner i dette vindue, vil ikke indgå i din historik.</translation>
+<translation id="6996505290426962909">&amp;Importer bogmærker og indstillinger ...</translation>
+<translation id="6165508094623778733">Flere oplysninger</translation>
+<translation id="4745438305783437565"><ph name="NUMBER_FEW"/> minutter</translation>
+<translation id="2649911884196340328">Serverens sikkerhedscertifikatet har fejl!</translation>
+<translation id="1963692530539281474"><ph name="NUMBER_DEFAULT"/> dage tilbage</translation>
+<translation id="668171684555832681">Andre ...</translation>
+<translation id="3108416241300843963">En anmodning mislykkedes, da serverens certifikat var ugyldigt.</translation>
+<translation id="116506693382293616">Nogle elementer på denne side er hentet over en forbindelse med SSL-fejl.</translation>
+<translation id="7887455386323777409">Afslut plugin</translation>
+<translation id="3761000923495507277">Vis knap til startsiden på værktøjslinjen</translation>
+<translation id="8709969075297564489">Kontroller for tilbagekaldt servercertifikat</translation>
+<translation id="8698171900303917290">Problemer med installation?</translation>
+<translation id="2552545117464357659">Nyere</translation>
+<translation id="5869522115854928033">Gemte adgangskoder</translation>
+<translation id="1709220265083931213">Avancerede valgmuligheder</translation>
+<translation id="4771973620359291008">Der er opstået en ukendt fejl.</translation>
+<translation id="8155798677707647270">Installerer ny version ...</translation>
+<translation id="6886871292305414135">Åbn link i ny &amp;fane</translation>
+<translation id="6308937455967653460">Gem lin&amp;k som ...</translation>
+<translation id="5421136146218899937">Ryd browserdata ...</translation>
+<translation id="3943582379552582368">&amp;Tilbage</translation>
+<translation id="7607002721634913082">Midlertidigt standset</translation>
+<translation id="480990236307250886">Åbn startsiden</translation>
+<translation id="5906719743126878045"><ph name="NUMBER_TWO"/> timer tilbage</translation>
+<translation id="5040262127954254034">Beskyttelse af personlige oplysninger</translation>
+<translation id="1908748899139377733">Vis &amp;info om ramme</translation>
+<translation id="8400147561352026160">Skift+<ph name="KEY_COMBO_NAME"/></translation>
+<translation id="3366404380928138336">Anmodning om ekstern protokol</translation>
+<translation id="566920818739465183">Du besøgte første gang dette websted den <ph name="VISIT_DATE"/>.</translation>
+<translation id="2961695502793809356">Klik for at gå frem. Hold knappen inde for at se historikken.</translation>
+<translation id="8421864404045570940"><ph name="NUMBER_DEFAULT"/> sek.</translation>
+<translation id="8689341121182997459">Udløber:</translation>
+<translation id="1857842694030005096">Flere oplysninger om denne fejl</translation>
+<translation id="4880827082731008257">Søg i historikken</translation>
+<translation id="4197700912384709145"><ph name="NUMBER_ZERO"/> sek.</translation>
+<translation id="8609465669617005112">Flyt op</translation>
+<translation id="1702534956030472451">Vestlig</translation>
+<translation id="9141716082071217089">Kan ikke kontrollere, om serverens certifikat er tilbagekaldt.</translation>
+<translation id="4304224509867189079">Log ind</translation>
+<translation id="4492190037599258964">Søgeresultater for '<ph name="SEARCH_STRING"/>'</translation>
+<translation id="988159990683914416">Udviklerversion</translation>
+<translation id="3705722231355495246">-</translation>
+<translation id="4268574628540273656">Webadresse:</translation>
+<translation id="7481312909269577407">Frem</translation>
+<translation id="3759876923365568382"><ph name="NUMBER_FEW"/> dage tilbage</translation>
+<translation id="1664314758578115406">Tilføj side ...</translation>
+<translation id="4084682180776658562">Bogmærke</translation>
+<translation id="4381091992796011497">Brugernavn:</translation>
+<translation id="7669151579173473971">Nyt vindue i &amp;profile</translation>
+<translation id="5822838715583768518">Start program</translation>
+<translation id="6756161853376828318">Gør <ph name="PRODUCT_NAME"/> til min standardbrowser</translation>
+<translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
+<translation id="9147392381910171771">&amp;Valgmuligheder</translation>
+<translation id="6264485186158353794">Tilbage til sikkerhed</translation>
+<translation id="3807747707162121253">&amp;Annuller</translation>
+<translation id="7447718177945067973">Serveren blev ikke fundet.</translation>
+<translation id="715468010956678290">Åbn ramme i inko&amp;gnito-vindue</translation>
+<translation id="7755167023778553803">Men denne side omfatter ressourcer fra andre websteder, hvis identitet ikke kan bekræftes.</translation>
+<translation id="1273291576878293349">Åbn alle bogmærker i inkognitovindue</translation>
+<translation id="3455546154539383562">Du har forsøgt at kontakte &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, men det certifikat, denne server viser, er blevet tilbagekaldt af udstederen. Det betyder, at de sikkerhedsoplysninger, serveren viste, absolut ikke er troværdige. Det er muligt, at du kommunikerer med en ondsindet part. Du bør ikke fortsætte herfra.</translation>
+<translation id="1177437665183591855">Ukendt fejl i certifikat på server</translation>
+<translation id="3819800052061700452">&amp;Fuld skærm</translation>
+<translation id="3737554291183722650">Sidetitel:</translation>
+<translation id="4726901538158498735">Standardsøgning:</translation>
+<translation id="5101042277149003567">Åbn alle bogmærker</translation>
+<translation id="6349678711452810642">Gør til standard</translation>
+<translation id="3741375896128849698">Serverens certifikatet er endnu ikke gyldigt.</translation>
+<translation id="3435738964857648380">Sikkerhed</translation>
+<translation id="2231233239095101917">Scriptet på siden bruger for meget hukommelse. Genindlæs for at aktivere scripts igen.</translation>
+<translation id="5119173345047096771">Mozilla Firefox</translation>
+<translation id="385051799172605136">Tilbage</translation>
+<translation id="1208126399996836490">Afhold dig fra at nulstille.</translation>
+<translation id="806812017500012252">Omorganiser efter titel</translation>
+<translation id="2960316970329790041">Stop import</translation>
+<translation id="1731911755844941020">Sender anmodning ...</translation>
+<translation id="1038842779957582377">ukendt navn</translation>
+<translation id="5327248766486351172">Navn</translation>
+<translation id="8989148748219918422"><ph name="ORGANIZATION"/> [<ph name="COUNTRY"/>]</translation>
+<translation id="3037605927509011580">Øv, surt!</translation>
+<translation id="1918141783557917887">&amp;Mindre</translation>
+<translation id="4065006016613364460">Kopier billedets webadresse</translation>
+<translation id="6965382102122355670">OK</translation>
+<translation id="8542113417382134668">Serif skrifttype:</translation>
+<translation id="2149973817440762519">Rediger bogmærker</translation>
+<translation id="430831869130657585">Endelser</translation>
+<translation id="4057041477816018958"><ph name="SPEED"/> - <ph name="RECEIVED_AMOUNT"/></translation>
+<translation id="4759238208242260848">Downloads</translation>
+<translation id="1178581264944972037">Pause</translation>
+<translation id="6314919950468685344">Skrifttype med fast bredde:</translation>
+<translation id="5233231016133573565">Behandling af ID</translation>
+<translation id="5941711191222866238">Minimer</translation>
+<translation id="7167486101654761064">&amp;Åbn altid filer af denne type</translation>
+<translation id="6053401458108962351">&amp;Slet browsingdata ...</translation>
+<translation id="2339641773402824483">Kontrollerer for opdateringer ...</translation>
+<translation id="2766006623206032690">Indsæt og fortsæt</translation>
+<translation id="9071050381089585305">Scriptet svarer ikke</translation>
+<translation id="969892804517981540">Officiel version</translation>
+<translation id="724208122063442954">Du har valgt, at visse filtyper automatisk skal åbnes efter download. Du kan slette disse indstillinger, så filer, der er downloadet, ikke automatisk åbnes.</translation>
+<translation id="4477534650265381513">Placer dine bogmærker her i bogmærkelinjen for at få hurtig adgang til dem.</translation>
+<translation id="8328145009876646418">Venstre kant</translation>
+<translation id="406259880812417922">(Søgeord: <ph name="KEYWORD"/>)</translation>
+<translation id="2437750561138919253">JavaScript-debugger - Kører</translation>
+</translationbundle>

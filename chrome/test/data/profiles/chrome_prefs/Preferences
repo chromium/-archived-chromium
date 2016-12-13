@@ -1,0 +1,15 @@
+{
+   "intl": {
+      "charset_default": "utf8"
+   },
+   "webkit": {
+      "webprefs": {
+         "default_font_size": 20,
+         "text_areas_are_resizable": false,
+         "uses_universal_detector": true,
+
+         "foo": "bar",
+         "standard_font_family": true
+      }
+   }
+}

@@ -1,0 +1,53 @@
+# Copyright (c) 2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Ripped and modded from chrome.
+
+Import('env')
+
+env = env.Clone(
+)
+
+env.Replace(
+    LIBPNG_DIR = '$THIRD_PARTY_DIR/libpng',
+    CPPPATH = [
+        '$LIBPNG_DIR',
+        '$THIRD_PARTY_DIR/zlib',
+        '$VC80_CPPPATH',
+    ],
+)
+
+env.Append(
+    CPPDEFINES = [
+    ],
+)
+ 
+input_files = [
+    # Common Files
+    '$LIBPNG_DIR/png.c',
+    '$LIBPNG_DIR/pngerror.c',
+    '$LIBPNG_DIR/pngget.c',
+    '$LIBPNG_DIR/pngmem.c',
+    '$LIBPNG_DIR/pngset.c',
+    '$LIBPNG_DIR/pngtrans.c',
+
+    # Reading PNGs
+    '$LIBPNG_DIR/pngpread.c',
+    '$LIBPNG_DIR/pngread.c',
+    '$LIBPNG_DIR/pngrio.c',
+    '$LIBPNG_DIR/pngrtran.c',
+    '$LIBPNG_DIR/pngrutil.c',
+]
+
+# The following files are not yet needed; exclude them to save size.
+if not env['OFFICIAL_BUILD']:
+  input_files += [
+      # Writing PNGs
+      '$LIBPNG_DIR/pngwio.c',
+      '$LIBPNG_DIR/pngwrite.c',
+      '$LIBPNG_DIR/pngwtran.c',
+      '$LIBPNG_DIR/pngwutil.c',
+  ]
+
+env.GearsStaticLibrary('png-gears', input_files)

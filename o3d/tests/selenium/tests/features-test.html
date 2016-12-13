@@ -1,0 +1,157 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+Features Test
+
+Make sure when features are not requested you can not use them and when
+they are requested you can use them.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Features Test.
+</title>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="../../../samples/o3djs/base.js"></script>
+
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.rendergraph');
+
+// Events
+// init() once the page has finished loading.
+// unload() when the page is unloaded.
+window.onload = init;
+
+// Events
+// init() once the page has finished loading.
+window.onload = init;
+
+// global variables
+var g_client;
+var g_pack;
+var g_testResult;
+
+/**
+ * Checks the client.lastError is empty or not after calling a function.
+ * @param {!o3d.Client} client The client to use.
+ * @param {boolean} expectError True if we expect an error.
+ * @param {!function(): void} func Function to call.
+ * @return {boolean} True if error matched expectations.
+ */
+function checkForError(client, expectError, func) {
+  client.clearLastError();
+  func();
+  var haveError = client.lastError.length > 0;
+  return haveError == expectError;
+}
+
+/**
+ * Creates a buffer with the requested number of elements.
+ * @param {!o3d.Pack} pack Pack to create buffer in.
+ * @param {number} numElements Number of elements to create.
+ */
+function createBuffer(pack, numElements) {
+  var buffer = pack.createObject('VertexBuffer');
+  var field = buffer.createField('FloatField', 1);
+  buffer.allocateElements(numElements);
+}
+
+/**
+ * Checks that features error or are available based on if they were requested.
+ *
+ * @param {!Element} o3dElement The o3dElement for the O3D object.
+ * @param {boolean} expectError True if we expect errors when using the
+ *     features.
+ * @return {boolean} True if checks succeeded.
+ */
+function checkFeatures(o3dElement, expectError) {
+  var o3d = o3dElement.o3d;
+  var client = o3dElement.client;
+  client.clearErrorCallback();
+  var pack = client.createPack();
+  // A list of functions that each create something that require a feature.
+  var functions = [
+    function() { pack.createTexture2D(32, 32, o3d.Texture.R32F, 1, false); },
+    function() { pack.createTexture2D(32, 32, o3d.Texture.ABGR16F, 1, false); },
+    function() { pack.createTexture2D(32, 32, o3d.Texture.ABGR32F, 1, false); },
+    function() { createBuffer(pack, 65535); }
+  ];
+
+  for (var ii = 0; ii < functions.length; ++ii) {
+    if (!checkForError(client, expectError, functions[ii])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Creates the client areas.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);  // no features requested.
+}
+
+/**
+ * Initializes O3D and loads the model into the transform graph.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  g_testResult = checkFeatures(clientElements[0], true) &&
+                 checkFeatures(clientElements[1], false);
+
+  document.getElementById('result').innerHTML = g_testResult ?
+      '<font color="green">success</font>' :
+      '<font color="red">failure</font>';
+}
+</script>
+</head>
+<body>
+<h1>Features Test</h1>
+Make sure when features are not requested you can not use them and when
+they are requested you can use them.
+<br/>
+<br/>
+<div>Result: <span id="result"></span></div>
+<!-- Start of O3D plugin -->
+<div id="o3d1" style="width: 100px; height: 100px;"></div>
+<br/>
+<div id="o3d2" o3d_features="FloatingPointTextures,LargeGeometry" style="width: 100px; height: 100px;"></div>
+<!-- End of O3D plugin -->
+</body>
+</html>

@@ -1,0 +1,52 @@
+<html>
+<div id="button" class="toolstrip-button">
+  <img id="icon" src="icon_disabled.png"><span>Subscribe</span>
+</div>
+
+<script>
+  var icon = document.getElementById("icon");
+  var button = document.getElementById("button");
+  var enabled = false;
+  var feedUrl, req;
+
+  button.onclick = handleClick;
+
+  chrome.self.onConnect.addListener(function(port) {
+    port.onMessage.addListener(function(feedUrls) {
+      // TODO(aa): When we have the ability to display drop downs, we should let
+      // the user pick which feed to subscribe. Right now, we just pick the
+      // first.
+      feedUrl = feedUrls[0];
+      if (!feedUrl) {
+        icon.src = "icon_disabled.png";
+        enabled = false;
+      } else {
+        icon.src = "icon.png";
+        enabled = true;
+
+        feedUrl = encodeURIComponent(feedUrl);
+        req = new XMLHttpRequest();
+        req.onload = handleResponse;
+        req.open("GET",
+                 "http://www.google.com/reader/api/0/subscribed?s=feed%2F" + feedUrl,
+                 false);
+        req.send(null);
+      }
+    });
+  });
+
+  function handleResponse() {
+    if (req.responseText == "true") {
+      icon.src =  "icon_subscribed.png";
+      enabled = false;
+    }
+  }
+
+  function handleClick() {
+    if (enabled) {
+      var url = "http://www.google.com/reader/view/feed/" + feedUrl;
+      chrome.tabs.create({url: url});
+    }
+  }
+</script>
+</html>

@@ -1,0 +1,10 @@
+body {
+  font-size: 18px;
+}
+
+.strong {
+  background-color: red;
+}
+.weak {
+  color: pink;
+}

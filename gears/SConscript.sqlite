@@ -1,0 +1,166 @@
+# Copyright (c) 2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Ripped and modded from chrome.
+
+Import('env')
+
+env = env.Clone(
+)
+
+env.Replace(
+    SQLITE_DIR = '$THIRD_PARTY_DIR/sqlite_google',
+    CPPPATH = [
+# from Chrome
+#        '$ICU38_DIR/public/common',
+#        '$ICU38_DIR/public/i18n',
+
+	'$SQLITE_DIR/src',
+	'$SQLITE_DIR/preprocessed',
+        '$VC80_CPPPATH',
+    ],
+)
+
+env.Append(
+# from Chrome
+#    CPPDEFINES = [
+#        'U_STATIC_IMPLEMENTATION',
+#        'SQLITE_ENABLE_FTS2',
+#        'SQLITE_ENABLE_BROKEN_FTS2',
+#        'SQLITE_ENABLE_ICU',
+#        'SQLITE_SECURE_DELETE',
+#        'THREADSAFE',
+#        ['_HAS_EXCEPTIONS', '0'],
+#    ],
+
+    CPPDEFINES = [
+        'SQLITE_CORE',
+        'SQLITE_ENABLE_FTS1',
+        'SQLITE_ENABLE_BROKEN_FTS1',
+        'SQLITE_ENABLE_FTS2',
+        'SQLITE_ENABLE_BROKEN_FTS2',
+        'THREADSAFE=1',
+        'SQLITE_DEFAULT_FILE_PERMISSIONS=0600',
+        'SQLITE_OMIT_LOAD_EXTENSION=1',
+        'SQLITE_TRANSACTION_DEFAULT_IMMEDIATE=1',
+        'SQLITE_GEARS_DISABLE_SHELL_ICU',
+    ],
+)
+
+if env['OS'] in ['win32', 'wince']:
+  env.Append(
+      CPPFLAGS = [
+          # from Chrome
+          '/TC',
+          '/wd4800',
+          '/wd4244',
+
+          # from Gears
+          '/wd4018',
+          '/wd4146',
+      ],
+  )
+  env.Append(CPPFLAGS = ['/wd4146'])
+elif env['OS'] == 'linux':
+  env.Append(
+      CPPFLAGS = [
+          '-Wno-uninitialized',
+          '-Wno-unused-value',
+      ],
+      CPPDEFINES = [
+          'HAVE_USLEEP=1',
+      ],
+  )
+elif env['OS'] == 'osx':
+  env.Append(
+      CCFLAGS = [
+          '-Wno-uninitialized',
+          '-Wno-pointer-sign',
+      ],
+      CPPDEFINES = [
+          'HAVE_USLEEP=1',
+      ],
+  )
+
+input_files = [
+    '$SQLITE_DIR/src/alter.c',
+    '$SQLITE_DIR/src/analyze.c',
+    '$SQLITE_DIR/src/attach.c',
+    '$SQLITE_DIR/src/auth.c',
+    '$SQLITE_DIR/src/bitvec.c',
+    '$SQLITE_DIR/src/btree.c',
+    '$SQLITE_DIR/src/btmutex.c',
+    '$SQLITE_DIR/src/build.c',
+    '$SQLITE_DIR/src/callback.c',
+    '$SQLITE_DIR/src/complete.c',
+    '$SQLITE_DIR/src/date.c',
+    '$SQLITE_DIR/src/delete.c',
+    '$SQLITE_DIR/src/expr.c',
+    '$SQLITE_DIR/src/fault.c',
+    '$SQLITE_DIR/src/global.c',
+    '$SQLITE_DIR/src/journal.c',
+    '$SQLITE_DIR/ext/fts1/fts1.c',
+    '$SQLITE_DIR/ext/fts1/fts1_hash.c',
+#    '$SQLITE_DIR/ext/fts1/fts1_icu.c',
+    '$SQLITE_DIR/ext/fts1/fts1_porter.c',
+#    '$SQLITE_DIR/ext/fts1/fts1_tokenizer.c',
+    '$SQLITE_DIR/ext/fts1/fts1_tokenizer1.c',
+    '$SQLITE_DIR/ext/fts2/fts2.c',
+    '$SQLITE_DIR/ext/fts2/fts2_hash.c',
+#    '$SQLITE_DIR/ext/fts2/fts2_icu.c',
+    '$SQLITE_DIR/ext/fts2/fts2_porter.c',
+    '$SQLITE_DIR/ext/fts2/fts2_tokenizer.c',
+    '$SQLITE_DIR/ext/fts2/fts2_tokenizer1.c',
+    '$SQLITE_DIR/src/func.c',
+    '$SQLITE_DIR/src/hash.c',
+    '$SQLITE_DIR/src/insert.c',
+    '$SQLITE_DIR/src/legacy.c',
+    '$SQLITE_DIR/src/loadext.c',
+    '$SQLITE_DIR/src/main.c',
+    '$SQLITE_DIR/src/malloc.c',
+    '$SQLITE_DIR/src/mem1.c',
+    '$SQLITE_DIR/src/mem2.c',
+    '$SQLITE_DIR/src/mem3.c',
+    '$SQLITE_DIR/src/mem4.c',
+    '$SQLITE_DIR/src/mem5.c',
+    '$SQLITE_DIR/src/mem6.c',
+    '$SQLITE_DIR/src/sqlite_mutex.c',
+    '$SQLITE_DIR/src/mutex_os2.c',
+    '$SQLITE_DIR/src/mutex_unix.c',
+    '$SQLITE_DIR/src/mutex_w32.c',
+    '$SQLITE_DIR/preprocessed/opcodes.c',
+    '$SQLITE_DIR/src/os.c',
+    '$SQLITE_DIR/src/os_os2.c',
+    '$SQLITE_DIR/src/os_unix.c',
+    '$SQLITE_DIR/src/os_win.c',
+    '$SQLITE_DIR/src/pager.c',
+    '$SQLITE_DIR/preprocessed/parse.c',
+    '$SQLITE_DIR/src/pragma.c',
+    '$SQLITE_DIR/src/prepare.c',
+    '$SQLITE_DIR/src/printf.c',
+    '$SQLITE_DIR/src/random.c',
+    '$SQLITE_DIR/src/select.c',
+    '$SQLITE_DIR/src/status.c',
+#    '$SQLITE_DIR/src/shell.c',
+    '$SQLITE_DIR/src/table.c',
+    '$SQLITE_DIR/src/tokenize.c',
+    '$SQLITE_DIR/src/trigger.c',
+    '$SQLITE_DIR/src/update.c',
+    '$SQLITE_DIR/src/utf.c',
+    '$SQLITE_DIR/src/util.c',
+    '$SQLITE_DIR/src/vacuum.c',
+    '$SQLITE_DIR/src/vdbe.c',
+    '$SQLITE_DIR/src/vdbeapi.c',
+    '$SQLITE_DIR/src/vdbeaux.c',
+    '$SQLITE_DIR/src/vdbeblob.c',
+    '$SQLITE_DIR/src/vdbefifo.c',
+    '$SQLITE_DIR/src/vdbemem.c',
+    '$SQLITE_DIR/src/vtab.c',
+    '$SQLITE_DIR/src/where.c',
+]
+
+if env['OS'] == 'symbian':
+  input_files += ['os_symbian.cc']
+
+env.GearsStaticLibrary('sqlite-gears', input_files)

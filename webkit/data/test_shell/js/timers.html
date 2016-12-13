@@ -1,0 +1,61 @@
+<html>
+<head>
+<script language="javascript">
+var last = new Date();    // The last time we sampled the timer
+var total_value = 0;      // The sum of the intervals measured
+var total_count = 0;      // The count of the intervals measured
+var last_interval = 1;
+function fire() {
+
+  var current = new Date();
+  var ms = current - last;
+
+  total_value += ms;
+  total_count++;
+
+  // Display the interval output.
+  var output = document.getElementById('output');
+  output.innerHTML = ms + "ms";
+
+  // Display the average output.
+  var average = document.getElementById('average');
+  average.innerHTML = total_value / total_count + "ms";
+
+  // Get the new interval from the input.
+  var input = document.getElementById('input');
+
+  // If the interval has changed, reset our averages.
+  if (input.value != last_interval) {
+    total_value = 0;
+    total_count = 0;
+  }
+  last_interval = input.value;
+
+  last = new Date();
+  setTimeout(fire, last_interval);
+}
+</script>
+</head>
+
+<body onload='setTimeout("fire()", 1)'>
+
+<h1>Test JS setTimeout() speed</h1>
+
+This page tests the frequency of setTimeout() in the browser.
+Javascript applications use setTimeout() as a mechanism to 'yield'
+to the browser so that the browser can repaint.  Most browsers
+implement a 15ms setTimeout() minimum.  Use this to page to measure
+setTimeout() lag and discover your browser's minimum interval.<P>
+
+<hr>
+
+Desired ms to delay: <input id="input" type="text" value="1"><P>
+
+Measured delay:<br>
+<ul>
+instance: <div id="output"></div>
+average: <div id="average"></div>
+</ul>
+
+</body>
+</html>

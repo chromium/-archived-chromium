@@ -1,0 +1,211 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+// TODO: some how make this file conditionally compile different for C++
+//     vs Javascript like with #ifdef CPLUSPLUS etc..
+namespace o3d {
+
+%[
+  A BoundingBox represents an Axis Aligned Bounding Box.
+%]
+[binding_model=by_value, marshaled, nocpp, include="core/cross/bounding_box.h"]
+class BoundingBox {
+  %[
+    Creates BoundingBox from min_extent and max_extent
+    \param min_extent minimum extent of the box.
+    \param max_extent maximum extent of the box.
+  %]
+  BoundingBox(Vectormath::Aos::Point3 min_extent,
+              Vectormath::Aos::Point3 max_extent);
+
+  %[
+    Assigns a JavaScript array of arrays of numbers into a BoundingBox.
+    This property is implicitly invoked whenever such an array is assigned to
+    a BoundingBox property or such an array is passed as a BoundingBox method
+    parameter.
+  %]
+  [plugin_data, userglue, userglue_setter, setter, nodocs]
+  float[][] marshaled;
+
+  %[
+    True if this boundingbox has been initialized.
+  %]
+  [getter] bool valid_;
+
+  %[
+    The min extent of the box.
+  %]
+  [getter] Vectormath::Aos::Point3 min_extent;
+
+  %[
+    The max extent of the box.
+  %]
+  [getter] Vectormath::Aos::Point3 max_extent;
+
+  %[
+    Multiplies the bounding box by the given matrix returning a new bounding
+    box.
+    \param matrix The matrix to multiply by.
+    \return The new bounding box.
+  %]
+  [const, userglue] BoundingBox Mul(Vectormath::Aos::Matrix4 matrix);
+
+  %[
+    Adds a bounding box to this bounding box returning a bounding box that
+    encompases both.
+    \param box BoundingBox to add to this BoundingBox.
+    \return The new bounding box.
+  %]
+  [const, userglue] BoundingBox Add(BoundingBox box);
+
+  %[
+    Checks if a ray defined in same coordinate system as this box intersects
+    this bounding box.
+    \param start position of start of ray in local space.
+    \param end position of end of ray in local space.
+    \return RayIntersectionInfo. If result.value is false then something was
+          wrong like using this function with an uninitialized bounding box. If
+          result.intersected is true then the ray intersected the box
+          and result.position is the exact point of intersection.
+  %]
+  [const, userglue]
+  o3d::RayIntersectionInfo IntersectRay(Vectormath::Aos::Point3 start,
+                                        Vectormath::Aos::Point3 end);
+
+  %[
+    Checks if a ray defined in same coordinate system as this box intersects
+    this bounding box.
+    \param startX The x coordinate of start of ray in local space.
+    \param startY The y coordinate of start of ray in local space.
+    \param startZ The z coordinate of start of ray in local space.
+    \param endX The x coordinate of end of ray in local space.
+    \param endY The y coordinate of end of ray in local space.
+    \param endZ The z coordinate of end of ray in local space.
+    \return RayIntersectionInfo. If result.value is false then something was
+          wrong like using this function with an uninitialized bounding box. If
+          result.intersected is true then the ray intersected the box
+          and result.position is the exact point of intersection.
+  %]
+  [const, userglue]
+  o3d::RayIntersectionInfo IntersectRay(float startX,
+                                        float startY,
+                                        float startZ,
+                                        float endX,
+                                        float endY,
+                                        float endZ);
+
+  %[
+   Returns true if the bounding box is inside the frustum.
+   \param matrix Matrix to transform the box from its local space to view
+       frustum space.
+   \return True if the box is in the frustum.
+  %]
+  [const] bool InFrustum(Vectormath::Aos::Matrix4 matrix);
+
+  [verbatim=cpp_glue] %{
+    void userglue_setter_marshaled(
+        void* plugin_data,
+        o3d::BoundingBox* _this,
+        const std::vector<std::vector<float> >& values) {
+      if (values.size() == 0) {
+        *_this = o3d::BoundingBox();
+      } else if (values.size() != 2) {
+        o3d::ServiceLocator* service_locator =
+            static_cast<glue::_o3d::PluginObject*>(
+                plugin_data)->service_locator();
+        O3D_ERROR(service_locator)
+            << "BoundingBox: expected 2 values, got " << values.size();
+      } else {
+        for (std::vector<float>::size_type i = 0; i < values.size(); ++i) {
+          if (values[i].size() != 3) {
+            o3d::ServiceLocator* service_locator =
+                static_cast<glue::_o3d::PluginObject*>(
+                    plugin_data)->service_locator();
+            O3D_ERROR(service_locator)
+                << "BoundingBox: expected 3 values, got " << values.size();
+            return;
+          }
+        }
+        *_this = o3d::BoundingBox(
+            Vectormath::Aos::Point3(values[0][0], values[0][1], values[0][2]),
+            Vectormath::Aos::Point3(values[1][0], values[1][1], values[1][2]));
+      }
+    }
+    o3d::BoundingBox userglue_method_Mul(
+        o3d::BoundingBox* self,
+        const Vectormath::Aos::Matrix4 &matrix) {
+      o3d::BoundingBox bounding_box;
+      self->Mul(matrix, &bounding_box);
+      return bounding_box;
+    }
+    o3d::BoundingBox userglue_method_Add(
+        o3d::BoundingBox* self,
+        const o3d::BoundingBox& box) {
+      o3d::BoundingBox result;
+      self->Add(box, &result);
+      return result;
+    }
+    o3d::RayIntersectionInfo userglue_method_IntersectRay(
+      o3d::BoundingBox* self,
+      const Vectormath::Aos::Point3& start,
+      const Vectormath::Aos::Point3& end) {
+      o3d::RayIntersectionInfo ray_intersection_info;
+      self->IntersectRay(start, end, &ray_intersection_info);
+      return ray_intersection_info;
+    }
+    o3d::RayIntersectionInfo userglue_method_IntersectRay(
+        o3d::BoundingBox* self,
+        float startX,
+        float startY,
+        float startZ,
+        float endX,
+        float endY,
+        float endZ) {
+      o3d::RayIntersectionInfo ray_intersection_info;
+      self->IntersectRay(Vectormath::Aos::Point3(startX, startY, startZ),
+                          Vectormath::Aos::Point3(endX, endY, endZ),
+                          &ray_intersection_info);
+      return ray_intersection_info;
+    }
+  %}
+};  // BoundingBox
+
+%[
+  A Param which stores a BoundingBox.
+%]
+[nocpp, include="core/cross/param.h"] class ParamBoundingBox : Param {
+  %[
+    The BoundingBox stored by the Param.
+  %]
+  [getter, setter] BoundingBox value_;
+};
+
+}  // namespace o3d

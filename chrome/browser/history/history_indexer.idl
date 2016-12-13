@@ -1,0 +1,57 @@
+// Copyright (c) 2008 The Chromium Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+  object,
+  uuid(9C1100DD-51D4-4827-AE9F-3B8FAC4AED72),
+  oleautomation,
+  nonextensible,
+  pointer_default(unique)
+]
+interface IChromeHistoryIndexer : IUnknown {
+  // This is the method called by Chrome to send content and thumbnail of the
+  // page to be indexed. The html content and thumbnail for the same url
+  // are sent at different points in time. The thumbnail_format and
+  // thumbnail parameters will be NULL when sending only the content.
+  // |time| - The last time at which user visited the page. The time is in UTC.
+  // |url| - The url of the page being published for indexing.
+  // |html| - The html content of the page being published for indexing.
+  // |title| - The url of the page being published for indexing.
+  // |thumbnail_format| - The format of the thumbnail image. It is currently
+  //                      "image/jpeg", indicating that the thumbail is in jpeg
+  //                      format.
+  // |thumbnail| - This is an array of bytes that represents the thumbnail in
+  //               the format specified by the "thumbnail_format" parameter.
+  HRESULT SendPageData([in] VARIANT time,
+                       [in] BSTR url,
+                       [in] BSTR html,
+                       [in] BSTR title,
+                       [in] BSTR thumbnail_format,
+                       [in] VARIANT thumbnail);
+
+  // This method is called by Chrome when the users delete their history.
+  // |begin_time| - Represents the start time from which the history needs to be
+  //                deleted. It is given in UTC.
+  // |end_time| - Represents the end time until when the history needs to be
+  //                deleted. It is given in UTC
+  // If both begin_time and end_time are '0', full user history needs to be
+  // deleted.
+  HRESULT DeleteUserHistoryBetween([in] VARIANT begin_time,
+                                   [in] VARIANT end_time);
+};
+
+
+// This dummy library statement enforces the creation of a history_indexer.tlb.
+// This is necessary since MSVC assumes a .idl always creates a .tlb. Otherwise,
+// this .idl is always recompiled, giving many engs a headache.
+[
+  uuid(A5C5B8BE-E7E5-4cb9-A13B-B063361E7B6D),
+  helpstring("Dummy library")
+]
+library history_indexerLib
+{
+};

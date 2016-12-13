@@ -1,0 +1,132 @@
+# Copyright 2009, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import __builtin__
+import os
+import sys
+import SCons.Script.SConsOptions
+
+Import('env')
+
+try:
+  _ = __builtin__.v8_built
+  Return()
+except AttributeError:
+  __builtin__.v8_built = True
+
+
+if env.Bit('windows'):
+  script_suffix = '.bat'
+else:
+  script_suffix = '.sh'
+
+env = env.Clone(
+    V8_MODE = 'release',
+    V8_MODE_DIR = '$V8_SRC_DIR/obj/$V8_MODE',
+    V8_SCONS_COM = '$PYTHON $SCONS -C $V8_SRC_DIR -f SConstruct '
+                   '$DEBUG_OPTS mode=$V8_MODE importenv=INCLUDE,LIB',
+    SCONS = '$SCONS_DIR/scons.py',
+    DEBUG_OPTS = ['--debug=%s' % item for item in GetOption('debug')]
+)
+
+# Rather than build v8 with our own commands, we just shell out to v8's
+# own SCons-based build, since their build system is complicated.
+# This SConscript just declares dependencies on the outputs of that build.
+
+mksnapshot_exe = env.File('$V8_MODE_DIR/mksnapshot${PROGSUFFIX}')
+libraries_obj = env.File('$V8_MODE_DIR/libraries${OBJSUFFIX}')
+libraries_empty_obj = env.File('$V8_MODE_DIR/libraries-empty${OBJSUFFIX}')
+snapshot_obj = env.File('$V8_MODE_DIR/snapshot${OBJSUFFIX}')
+snapshot_empty_obj = env.File('$V8_MODE_DIR/snapshot-empty${OBJSUFFIX}')
+v8_bin = env.File('$V8_SRC_DIR/shell${PROGSUFFIX}')
+v8_lib = env.File('$V8_SRC_DIR/${LIBPREFIX}v8${LIBSUFFIX}'),
+
+v8_scons_targets_snapshot = [
+    libraries_empty_obj,
+    snapshot_obj,
+]
+
+v8_scons_targets_no_snapshot = [
+    mksnapshot_exe,
+    libraries_obj,
+    snapshot_empty_obj,
+    v8_bin,
+    v8_lib,
+]
+
+v8_env = env.Clone()
+
+if v8_env.Bit('windows'):
+  v8_env['ENV']['VSCOMNTOOLS'] = env.subst('$VC80_DIR/Common7/Tools')
+
+  # SCons crashes if USERPROFILE isn't defined, and it's not defined
+  # on Vista for some reason, so this is to make the Vista build work.
+  try:
+    v8_env['ENV']['USERPROFILE'] = os.environ['USERPROFILE']
+  except KeyError:
+    v8_env['ENV']['USERPROFILE'] = ""
+
+  include_path = ";".join(
+    [v8_env.subst("$PLATFORM_SDK_VISTA_6_0_DIR/Include"),
+     v8_env.subst("$INCLUDE")])
+
+  try:
+    v8_env['ENV']['INCLUDE'] = include_path + ";" + v8_env['ENV']['INCLUDE']
+  except KeyError:
+    v8_env['ENV']['INCLUDE'] = include_path
+
+  lib_path = ";".join(
+    [v8_env.subst("$PLATFORM_SDK_VISTA_6_0_DIR/Lib"),
+     v8_env.subst("$LIB")])
+
+  try:
+    v8_env['ENV']['LIB'] =  lib_path  + ";" + v8_env['ENV']['LIB']
+  except KeyError:
+    v8_env['ENV']['LIB'] = lib_path
+
+v8_no_snapshot = v8_env.Command(
+    v8_scons_targets_no_snapshot,
+    [],
+    ['$V8_SCONS_COM msvcltcg=off snapshot=off sample=shell'])
+
+v8_snapshot = v8_env.Command(
+    v8_scons_targets_snapshot,
+    [],
+    ['$V8_SCONS_COM msvcltcg=off snapshot=on'])
+
+v8_env.AlwaysBuild(v8_no_snapshot)
+v8_env.AlwaysBuild(v8_snapshot)
+
+# Tell our SCons invocation to *not* delete v8.lib and the other targets
+# before building them, so the subsidiary v8 SCons call doesn't always
+# rebuild them (thereby causing us to always rebuild their dependents).
+v8_env.Precious(v8_no_snapshot)
+v8_env.Precious(v8_snapshot)
+
+v8_env.Install('$LIB_DIR', v8_lib)

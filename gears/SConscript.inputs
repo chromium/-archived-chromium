@@ -1,0 +1,1072 @@
+# Copyright (c) 2008 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+Import('env')
+
+types = ['CPPSRCS', 'M4SRCS', 'HTML_M4SRCS', 'I18N_M4SRCS', 'STABSRCS',
+         'IDLSRCS', 'RESSRCS', 'LINKSRCS', 'SHLINKSRCS']
+
+# Set up aliases for shared inputs.
+for type in types:
+  env['FF2_' + type] = ['$FF3_' + type]
+  env['NPAPI_' + type] = ['$USING_NPAPI_' + type]
+  env['SF_' + type] = ['$USING_NPAPI_' + type]
+
+def InitBrowserInputs(env):
+  """Set up $BROWSER_XXXSRC = $${BROWSER}_XXXSRC.  Must be called by
+  SConscript.browser, when we have a BROWSER variable available."""
+  for type in types:
+    eval('env.Append(BROWSER_%s = ["$%s_%s"])' % (type, env['BROWSER'], type))
+env.AddMethod(InitBrowserInputs)
+
+
+#-----------------------------------------------------------------------------
+# crash_sender
+
+if env['OS'] == 'win32':
+  env.Append(CRASH_SENDER_CPPSRCS = [
+      '$OPEN_DIR/crash_sender/crash_sender_win32.cc',
+      '$THIRD_PARTY_DIR/breakpad/src/client/windows/sender/crash_report_sender.cc',
+      '$THIRD_PARTY_DIR/breakpad/src/common/windows/http_upload.cc',
+  ])
+elif env['OS'] == 'osx':
+  env.Append(CRASH_SENDER_CPPSRCS = [
+      '$OPEN_DIR/base/common/exception_handler_osx/nshost_macaddress.m',
+      '$OPEN_DIR/crash_sender/crash_sender_osx.m',
+      '$THIRD_PARTY_DIR/breakpad/src/common/mac/HTTPMultipartUpload.m',
+  ])
+
+  env.Append(OSX_CRASH_INSPECTOR_CPPSRCS = [
+      '$THIRD_PARTY_DIR/breakpad_osx/src/common/convert_UTF.c',
+      '$OPEN_DIR/base/common/exception_handler_osx/inspector.mm',
+      '$OPEN_DIR/base/common/exception_handler_osx/mach_ipc.mm',
+      '$OPEN_DIR/base/common/exception_handler_osx/on_demand_server.mm',
+      '$OPEN_DIR/base/common/exception_handler_osx/simple_string_dictionary.mm',
+  ])
+
+#-----------------------------------------------------------------------------
+# launch_url_with_browser
+
+env.Append(OSX_LAUNCHURL_CPPSRCS = [
+    '$OPEN_DIR/base/safari/launch_url_in_browser.cc',
+])
+
+#-----------------------------------------------------------------------------
+# ipc_test
+
+env.Append(COMMON_M4SRCS = [
+    '$OPEN_DIR/base/common/product_constants.h.m4',
+])
+
+env.Append(IPC_TEST_CPPSRCS = [
+    '$OPEN_DIR/base/common/event.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_linux.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_null.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test_linux.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test_win32.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_win32.cc',
+    '$OPEN_DIR/base/common/mutex.cc',
+    '$OPEN_DIR/base/common/mutex_posix.cc',
+    '$OPEN_DIR/base/common/mutex_win32.cc',
+    '$OPEN_DIR/base/common/serialization.cc',
+    '$OPEN_DIR/base/common/stopwatch.cc',
+    '$OPEN_DIR/base/common/stopwatch_posix.cc',
+    '$OPEN_DIR/base/common/stopwatch_win32.cc',
+    '$OPEN_DIR/base/common/string16.cc',
+    '$OPEN_DIR/base/common/string_utils.cc',
+    '$OPEN_DIR/base/common/string_utils_osx.cc',
+    '$OPEN_DIR/base/common/thread.cc',
+    '$OPEN_DIR/base/common/thread_posix.cc',
+    '$OPEN_DIR/base/common/thread_win32.cc',
+    '$OPEN_DIR/base/common/time_utils_win32.cc',
+])
+
+if env['OS'] == 'osx':
+  env.Append(IPC_TEST_CPPSRCS = [
+    '$OPEN_DIR/base/common/common_osx.mm',
+    '$OPEN_DIR/base/common/ipc_message_queue_test_osx.mm',
+  ])
+
+env.Append(IPC_TEST_CPPSRCS = [
+    '$THIRD_PARTY_DIR/convert_utf/ConvertUTF.c'
+])
+
+#-----------------------------------------------------------------------------
+# inspector
+
+if not env['OFFICIAL_BUILD']:
+  env.Append(COMMON_BINSRCS = [
+      '$OPEN_DIR/inspector/console.html',
+      '$OPEN_DIR/inspector/database.html',
+      '$OPEN_DIR/inspector/index.html',
+      '$OPEN_DIR/inspector/localserver.html',
+      '$OPEN_DIR/inspector/common/alert-35.png',
+      '$OPEN_DIR/inspector/common/database.gif',
+      '$OPEN_DIR/inspector/common/error-35.png',
+      '$OPEN_DIR/inspector/common/ie6hacks.css',
+      '$OPEN_DIR/inspector/common/inspector_links.js',
+      '$OPEN_DIR/inspector/common/lightbulb-35.png',
+      '$OPEN_DIR/inspector/common/localserver.gif',
+      '$OPEN_DIR/inspector/common/question-35.png',
+      '$OPEN_DIR/inspector/common/styles.css',
+      '$OPEN_DIR/inspector/common/workerpool.gif',
+      '$OPEN_DIR/sdk/gears_init.js',
+      '$OPEN_DIR/ui/common/base.js',
+      '$OPEN_DIR/ui/common/dom.js',
+      '$OPEN_DIR/ui/common/icon_32x32.png',
+  ])
+
+#-----------------------------------------------------------------------------
+# installer
+
+env.Append(COMMON_M4SRCS = [
+    '$OPEN_DIR/installer/npapi_msi.wxs.m4',
+    '$OPEN_DIR/installer/win32_msi.wxs.m4',
+    '$OPEN_DIR/installer/wince_cab_ie.inf.m4',
+    '$OPEN_DIR/installer/wince_cab_op.inf.m4',
+])
+
+#-----------------------------------------------------------------------------
+# installer/safari
+
+env.Append(SF_M4SRCS = [
+    '$OPEN_DIR/installer/safari/installer.packproj.m4',
+    '$OPEN_DIR/tools/osx/Info.plist.m4',
+])
+
+#-----------------------------------------------------------------------------
+# Keystone
+
+env.Append(SF_M4SRCS = [
+    '$PRIVATE_DIR/tools/osx/installer/InstallationCheck.strings.m4',
+    '$PRIVATE_DIR/tools/osx/installer/keystone_installer.packproj.m4',
+    '$PRIVATE_DIR/tools/osx/installer/postflight.sh.m4',
+])
+
+#-----------------------------------------------------------------------------
+# mozjs bindings
+
+mozjs_sources = [
+    '$MOZJS_DIR/gears_npapi_bindings/mozjs_npruntime.cc',
+    '$MOZJS_DIR/gears_npapi_bindings/mozjs_npruntime_utils.cc',
+    '$OPEN_DIR/base/common/js_standalone_engine_mozjs.cc',
+    '$MOZJS_DIR/gears_npapi_bindings/mozjs_npapi_storage.cc'
+]
+
+def MozjsSources(env):
+  return env.SharedObject(mozjs_sources,
+      CPPPATH = env['CPPPATH'] + env['MOZJS_INCLUDE_PATHS'])
+env['MozjsSources'] = MozjsSources
+
+env.Append(SF_LINKSRCS = '${MozjsSources(__env__)}')
+
+#-----------------------------------------------------------------------------
+# third_party/breakpad
+
+if env['OS'] == 'win32':
+  env.Append(NPAPI_CPPSRCS = [
+      '$THIRD_PARTY_DIR/breakpad/src/client/exception_handler_stub.cc',
+  ])
+
+  env.Append(IE_CPPSRCS = [
+      '$THIRD_PARTY_DIR/breakpad/src/client/windows/handler/exception_handler.cc',
+      '$THIRD_PARTY_DIR/breakpad/src/common/windows/guid_string.cc',
+      '$OPEN_DIR/base/common/exception_handler_win32.cc',
+  ])
+
+  env.Append(FF3_CPPSRCS = [
+      '$THIRD_PARTY_DIR/breakpad/src/client/windows/handler/exception_handler.cc',
+      '$THIRD_PARTY_DIR/breakpad/src/common/windows/guid_string.cc',
+      '$OPEN_DIR/base/common/exception_handler_win32.cc',
+  ])
+
+#-----------------------------------------------------------------------------
+# third_party/breakpad_osx
+
+env.Append(SF_CPPSRCS = [
+    '$OPEN_DIR/base/common/exception_handler_osx.mm',
+    '$OPEN_DIR/base/common/exception_handler_osx/google_breakpad.mm',
+    '$OPEN_DIR/base/common/exception_handler_osx/mach_ipc.mm',
+    '$OPEN_DIR/base/common/exception_handler_osx/on_demand_server.mm',
+    '$OPEN_DIR/base/common/exception_handler_osx/simple_string_dictionary.mm'
+])
+
+#-----------------------------------------------------------------------------
+# third_party/v8/bindings
+
+if env['OS'] == 'win32':
+  env.Append(NPAPI_CPPSRCS = [
+      '$THIRD_PARTY_DIR/v8/bindings_local/npruntime.cc',
+      '$THIRD_PARTY_DIR/v8/bindings_local/np_v8object.cc',
+      '$THIRD_PARTY_DIR/v8/bindings_local/v8_helpers.cc',
+      '$THIRD_PARTY_DIR/v8/bindings_local/v8_np_utils.cc',
+      '$THIRD_PARTY_DIR/v8/bindings_local/v8_npobject.cc',
+  ])
+
+#-----------------------------------------------------------------------------
+# third_party/convert_utf
+
+env.Append(BROWSER_CPPSRCS = [
+    '$THIRD_PARTY_DIR/convert_utf/ConvertUTF.c'
+])
+
+#-----------------------------------------------------------------------------
+# third_party/jsoncpp
+
+env.Append(BROWSER_CPPSRCS = [
+    '$THIRD_PARTY_DIR/jsoncpp/json_reader.cc',
+    '$THIRD_PARTY_DIR/jsoncpp/json_value.cc',
+    '$THIRD_PARTY_DIR/jsoncpp/json_writer.cc',
+])
+
+#-----------------------------------------------------------------------------
+# third_party/modp_b64
+
+env.Append(BROWSER_CPPSRCS = [
+    '$THIRD_PARTY_DIR/modp_b64/modp_b64.cc',
+])
+
+#-----------------------------------------------------------------------------
+# base/common
+
+env.Append(BROWSER_M4SRCS = [
+    '$OPEN_DIR/base/common/product_version.rc.m4'
+])
+
+env.Append(BROWSER_CPPSRCS = [
+    '$OPEN_DIR/base/common/async_router.cc',
+    '$OPEN_DIR/base/common/base_class.cc',
+    '$OPEN_DIR/base/common/base64.cc',
+    '$OPEN_DIR/base/common/byte_store.cc',
+    '$OPEN_DIR/base/common/byte_store_test.cc',
+    '$OPEN_DIR/base/common/circular_buffer_test.cc',
+    '$OPEN_DIR/base/common/common_np_android.cc',
+    '$OPEN_DIR/base/common/common_win32.cc',
+    '$OPEN_DIR/base/common/database_name_table.cc',
+    '$OPEN_DIR/base/common/event.cc',
+    '$OPEN_DIR/base/common/event_test.cc',
+    '$OPEN_DIR/base/common/file.cc',
+    '$OPEN_DIR/base/common/file_posix.cc',
+    '$OPEN_DIR/base/common/file_test.cc',
+    '$OPEN_DIR/base/common/file_win32.cc',
+    '$OPEN_DIR/base/common/file_wince.cc',
+    '$OPEN_DIR/base/common/html_event_monitor.cc',
+    '$OPEN_DIR/base/common/http_utils.cc',
+    '$OPEN_DIR/base/common/js_dom_element.cc',
+    '$OPEN_DIR/base/common/js_marshal.cc',
+    '$OPEN_DIR/base/common/js_runner_utils.cc',
+    '$OPEN_DIR/base/common/js_types.cc',
+    '$OPEN_DIR/base/common/leak_counter.cc',
+    '$OPEN_DIR/base/common/memory_buffer.cc',
+    '$OPEN_DIR/base/common/memory_buffer_test.cc',
+    '$OPEN_DIR/base/common/message_queue.cc',
+    '$OPEN_DIR/base/common/message_queue_android.cc',
+    '$OPEN_DIR/base/common/message_service.cc',
+    '$OPEN_DIR/base/common/message_service_test.cc',
+    '$OPEN_DIR/base/common/mime_detect.cc',
+    '$OPEN_DIR/base/common/mutex.cc',
+    '$OPEN_DIR/base/common/mutex_posix.cc',
+    '$OPEN_DIR/base/common/mutex_test.cc',
+    '$OPEN_DIR/base/common/mutex_win32.cc',
+    '$OPEN_DIR/base/common/name_value_table.cc',
+    '$OPEN_DIR/base/common/name_value_table_test.cc',
+    '$OPEN_DIR/base/common/paths.cc',
+    '$OPEN_DIR/base/common/paths_android.cc',
+    '$OPEN_DIR/base/common/permissions_db.cc',
+    '$OPEN_DIR/base/common/permissions_db_test.cc',
+    '$OPEN_DIR/base/common/permissions_manager.cc',
+    '$OPEN_DIR/base/common/position_table.cc',
+    '$OPEN_DIR/base/common/process_utils_win32.cc',
+    '$OPEN_DIR/base/common/png_utils.cc',
+    '$OPEN_DIR/base/common/scoped_refptr_test.cc',
+    '$OPEN_DIR/base/common/security_model.cc',
+    '$OPEN_DIR/base/common/security_model_test.cc',
+    '$OPEN_DIR/base/common/serialization.cc',
+    '$OPEN_DIR/base/common/serialization_test.cc',
+    '$OPEN_DIR/base/common/shortcut_table.cc',
+    '$OPEN_DIR/base/common/sqlite_wrapper.cc',
+    '$OPEN_DIR/base/common/sqlite_wrapper_test.cc',
+    '$OPEN_DIR/base/common/stopwatch.cc',
+    '$OPEN_DIR/base/common/stopwatch_posix.cc',
+    '$OPEN_DIR/base/common/stopwatch_win32.cc',
+    '$OPEN_DIR/base/common/string16.cc',
+    '$OPEN_DIR/base/common/string_utils.cc',
+    '$OPEN_DIR/base/common/string_utils_osx.cc',
+    '$OPEN_DIR/base/common/string_utils_test.cc',
+    '$OPEN_DIR/base/common/thread.cc',
+    '$OPEN_DIR/base/common/thread_locals.cc',
+    '$OPEN_DIR/base/common/thread_posix.cc',
+    '$OPEN_DIR/base/common/thread_win32.cc',
+    '$OPEN_DIR/base/common/timed_call.cc',
+    '$OPEN_DIR/base/common/timed_call_test.cc',
+    '$OPEN_DIR/base/common/time_utils_win32.cc',
+    '$OPEN_DIR/base/common/url_utils.cc',
+    '$OPEN_DIR/base/common/url_utils_test.cc',
+    '$OPEN_DIR/base/common/user_config.cc',
+    '$OPEN_DIR/base/common/vista_utils.cc',
+    '$OPEN_DIR/base/common/wince_compatibility.cc',
+])
+
+if env['OS'] == 'osx':
+  env.Append(BROWSER_CPPSRCS = [
+      '$OPEN_DIR/base/common/common_osx.mm',
+      '$OPEN_DIR/base/safari/nsstring_utils.mm',
+      '$OPEN_DIR/base/common/user_config_osx.cc',
+      '$OPEN_DIR/notifier/notifier_process_osx.mm',
+  ])
+
+#-----------------------------------------------------------------------------
+# base/firefox
+
+env.Append(FF3_M4SRCS = [
+    '$OPEN_DIR/base/firefox/install.rdf.m4',
+])
+
+env.Append(FF3_IDLSRCS = [
+    '$OPEN_DIR/base/firefox/interfaces.idl',
+])
+
+env.Append(FF3_CPPSRCS = [
+    '$OPEN_DIR/base/common/html_event_monitor_ff.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_linux.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_null.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test_linux.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test_win32.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_win32.cc',
+    '$OPEN_DIR/base/common/js_runner_ff.cc',
+    '$OPEN_DIR/base/common/js_runner_ff_marshaling.cc',
+    '$OPEN_DIR/base/common/message_queue_ff.cc',
+    '$OPEN_DIR/base/common/paths_ff.cc',
+    '$OPEN_DIR/base/firefox/dom_utils.cc',
+    '$OPEN_DIR/base/firefox/module.cc',
+    '$OPEN_DIR/base/firefox/ns_file_utils.cc',
+    '$OPEN_DIR/base/firefox/xpcom_dynamic_load.cc',
+])
+
+if env['OS'] == 'osx':
+  env.Append(FF3_CPPSRCS = [
+      '$OPEN_DIR/base/common/ipc_message_queue_test_osx.mm',
+  ])
+
+#-----------------------------------------------------------------------------
+# base/ie
+
+env.Append(IE_M4SRCS = [
+    '$OPEN_DIR/base/ie/bho.rgs.m4',
+    '$OPEN_DIR/base/ie/interfaces.idl.m4',
+    '$OPEN_DIR/base/ie/module.rgs.m4',
+])
+
+env.Append(IE_IDLSRCS = [
+    '$GENFILES_DIR/interfaces.idl',
+])
+
+env.Append(IE_CPPSRCS = [
+    '$OPEN_DIR/base/ie/activex_utils.cc',
+    '$OPEN_DIR/base/ie/bho.cc',
+    '$OPEN_DIR/base/common/detect_version_collision_win32.cc',
+    '$OPEN_DIR/base/ie/dispatcher_to_idispatch.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_null.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test_win32.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_win32.cc',
+    '$OPEN_DIR/base/common/js_runner_ie.cc',
+    '$OPEN_DIR/base/common/message_queue_win32.cc',
+    '$OPEN_DIR/base/ie/module.cc',
+    '$OPEN_DIR/base/ie/module_wrapper.cc',
+    '$OPEN_DIR/base/common/paths_ie.cc',
+])
+
+if env['OS'] == 'win32':
+  env.Append(IE_CPPSRCS = [
+      '$OPEN_DIR/base/common/html_event_monitor_ie.cc',
+      '$OPEN_DIR/base/ie/browser_listener.cc',
+      '$OPEN_DIR/base/ie/ie_version.cc',
+  ])
+elif env['OS'] == 'wince':
+  env.Append(IE_CPPSRCS = [
+      '$OPEN_DIR/base/common/html_event_monitor_iemobile.cc',
+  ])
+
+#-----------------------------------------------------------------------------
+# base/chrome + npapi
+
+env.Append(NPAPI_CPPSRCS = [
+    '$OPEN_DIR/base/common/html_event_monitor_np.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_linux.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_null.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test_linux.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test_win32.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_win32.cc',
+    '$OPEN_DIR/base/npapi/browser_utils.cc',
+    '$OPEN_DIR/base/npapi/module.cc',
+    '$OPEN_DIR/base/npapi/np_utils.cc',
+    '$OPEN_DIR/base/npapi/npn_bindings.cc',
+    '$OPEN_DIR/base/npapi/npp_bindings.cc',
+    '$OPEN_DIR/base/npapi/plugin.cc',
+])
+
+if env['OS'] == 'win32':
+  env.Append(NPAPI_CPPSRCS = [
+      '$OPEN_DIR/base/chrome/module_cr.cc',
+      '$OPEN_DIR/base/common/js_runner_cr.cc',
+      '$OPEN_DIR/base/common/paths_cr.cc',
+      '$OPEN_DIR/base/common/detect_version_collision_win32.cc',
+      '$OPEN_DIR/base/common/message_queue_cr.cc',
+      '$OPEN_DIR/base/ie/ie_version.cc',
+  ])
+
+#-----------------------------------------------------------------------------
+# base/safari
+env.Append(SF_CPPSRCS = [
+    '$OPEN_DIR/base/common/common_sf.mm',
+    '$OPEN_DIR/base/common/detect_version_collision_osx.cc',
+    '$OPEN_DIR/base/common/html_event_monitor_np.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_linux.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test.cc',
+    '$OPEN_DIR/base/common/ipc_message_queue_test_osx.mm',
+    '$OPEN_DIR/base/common/js_runner_np.cc',
+    '$OPEN_DIR/base/common/message_queue_sf.cc',
+    '$OPEN_DIR/base/common/paths_sf.mm',
+    '$OPEN_DIR/base/common/paths_sf_more.mm',
+    '$OPEN_DIR/base/npapi/browser_utils.cc',
+    '$OPEN_DIR/base/npapi/module.cc',
+    '$OPEN_DIR/base/npapi/np_utils.cc',
+    '$OPEN_DIR/base/npapi/npn_bindings.cc',
+    '$OPEN_DIR/base/npapi/npp_bindings.cc',
+    '$OPEN_DIR/base/npapi/plugin.cc',
+    '$OPEN_DIR/base/safari/browser_load_hook.mm',
+    '$OPEN_DIR/base/safari/browser_utils_sf.cc',
+    '$OPEN_DIR/base/safari/curl_downloader.mm',
+    '$OPEN_DIR/base/safari/messagebox.mm',
+    '$OPEN_DIR/base/safari/proxy_resolver_mac.cc',
+    '$OPEN_DIR/base/safari/safari_workarounds.m',
+])
+
+#-----------------------------------------------------------------------------
+# console
+
+env.Append(BROWSER_CPPSRCS = [
+    '$OPEN_DIR/console/console.cc',
+    '$OPEN_DIR/console/js_callback_logging_backend.cc',
+])
+
+#-----------------------------------------------------------------------------
+# canvas
+
+# The Canvas API is not yet enabled in official builds.
+if not env['OFFICIAL_BUILD'] and env['OS'] in ['win32', 'osx']:
+  env.Append(BROWSER_CPPSRCS = [
+      '$OPEN_DIR/canvas/blob_backed_skia_input_stream.cc',
+      '$OPEN_DIR/canvas/blob_backed_skia_output_stream.cc',
+      '$OPEN_DIR/canvas/canvas.cc',
+      '$OPEN_DIR/canvas/canvas_rendering_context_2d.cc',
+  ])
+
+#-----------------------------------------------------------------------------
+# database
+
+env.Append(BROWSER_CPPSRCS = [
+    '$OPEN_DIR/database/database.cc',
+    '$OPEN_DIR/database/database_utils.cc',
+    '$OPEN_DIR/database/database_utils_test.cc',
+    '$OPEN_DIR/database/result_set.cc',
+])
+
+#-----------------------------------------------------------------------------
+# database2
+
+env.Append(BROWSER_CPPSRCS = [
+    '$OPEN_DIR/database2/connection.cc',
+    '$OPEN_DIR/database2/commands.cc',
+    '$OPEN_DIR/database2/database2.cc',
+    '$OPEN_DIR/database2/database2_common.cc',
+    '$OPEN_DIR/database2/database2_metadata.cc',
+    '$OPEN_DIR/database2/interpreter.cc',
+    '$OPEN_DIR/database2/manager.cc',
+    '$OPEN_DIR/database2/result_set2.cc',
+    '$OPEN_DIR/database2/statement.cc',
+    '$OPEN_DIR/database2/transaction.cc',
+])
+
+#-----------------------------------------------------------------------------
+# desktop
+
+env.Append(BROWSER_CPPSRCS = [
+    '$OPEN_DIR/desktop/desktop.cc',
+    '$OPEN_DIR/desktop/desktop_android.cc',
+    '$OPEN_DIR/desktop/desktop_linux.cc',
+    '$OPEN_DIR/desktop/desktop_osx.cc',
+    '$OPEN_DIR/desktop/desktop_test.cc',
+    '$OPEN_DIR/desktop/desktop_win32.cc',
+    '$OPEN_DIR/desktop/dll_data_wince.cc',
+    '$OPEN_DIR/desktop/drop_target_base.cc',
+    '$OPEN_DIR/desktop/drop_target_registration.cc',
+    '$OPEN_DIR/desktop/notification_message_orderer.cc',
+    '$OPEN_DIR/desktop/shortcut_utils_win32.cc',
+])
+
+if env['OS'] == 'win32':
+  env.Append(NPAPI_CPPSRCS = [
+      '$OPEN_DIR/desktop/desktop_cr.cc',
+  ])
+
+env.Append(BROWSER_CPPSRCS = [
+    '$OPEN_DIR/desktop/file_dialog.cc',
+    '$OPEN_DIR/desktop/file_dialog_gtk.cc',
+    '$OPEN_DIR/desktop/file_dialog_osx.cc',
+    '$OPEN_DIR/desktop/file_dialog_win32.cc',
+    '$OPEN_DIR/desktop/file_dialog_android.cc',
+])
+
+# The browser module also needs these files, to communicate with the notifier.
+env.Append(BROWSER_CPPSRCS = [
+    '$OPEN_DIR/notifier/const_notifier.cc',
+    '$OPEN_DIR/notifier/notifier_process_linux.cc',
+    '$OPEN_DIR/notifier/notifier_process_posix.cc',
+    '$OPEN_DIR/notifier/notifier_process_win32.cc',
+    '$OPEN_DIR/notifier/notifier_proxy.cc',
+    '$OPEN_DIR/notifier/notifier_utils_win32.cc',
+    '$OPEN_DIR/notifier/notification.cc',
+])
+
+if not env['OFFICIAL_BUILD']:
+  # The Drag-and-Drop API has not been finalized for official builds.
+  env.Append(BROWSER_CPPSRCS = [
+      '$OPEN_DIR/desktop/drag_and_drop_utils_common.cc',
+  ])
+
+  env.Append(FF3_CPPSRCS = [
+      '$OPEN_DIR/desktop/drag_and_drop_utils_ff.cc',
+      '$OPEN_DIR/desktop/drop_target_ff.cc',
+  ])
+
+  env.Append(IE_CPPSRCS = [
+      '$OPEN_DIR/desktop/drag_and_drop_utils_ie.cc',
+      '$OPEN_DIR/desktop/drop_target_ie.cc',
+  ])
+
+  env.Append(SF_CPPSRCS = [
+      '$OPEN_DIR/desktop/drag_and_drop_utils_sf.mm',
+      '$OPEN_DIR/desktop/drop_target_sf.cc',
+  ])
+
+#-----------------------------------------------------------------------------
+# localserver/common
+
+env.Append(BROWSER_CPPSRCS = [
+    '$OPEN_DIR/localserver/common/async_task_test.cc',
+    '$OPEN_DIR/localserver/common/blob_store.cc',
+    '$OPEN_DIR/localserver/common/capture_task.cc',
+    '$OPEN_DIR/localserver/common/file_store.cc',
+    '$OPEN_DIR/localserver/common/http_constants.cc',
+    '$OPEN_DIR/localserver/common/localserver.cc',
+    '$OPEN_DIR/localserver/common/localserver_db.cc',
+    '$OPEN_DIR/localserver/common/localserver_perf_test.cc',
+    '$OPEN_DIR/localserver/common/managed_resource_store.cc',
+    '$OPEN_DIR/localserver/common/manifest.cc',
+    '$OPEN_DIR/localserver/common/progress_event.cc',
+    '$OPEN_DIR/localserver/common/resource_store.cc',
+    '$OPEN_DIR/localserver/common/safe_http_request.cc',
+    '$OPEN_DIR/localserver/common/update_task.cc',
+    '$OPEN_DIR/localserver/common/update_task_single_process.cc',
+    '$OPEN_DIR/localserver/file_submitter.cc',
+    '$OPEN_DIR/localserver/localserver_module.cc',
+    '$OPEN_DIR/localserver/managed_resource_store_module.cc',
+    '$OPEN_DIR/localserver/resource_store_module.cc',
+])
+
+env.Append(IE_CPPSRCS = [
+    '$OPEN_DIR/localserver/common/http_cookies.cc',
+])
+
+env.Append(FF3_CPPSRCS = [
+    '$OPEN_DIR/localserver/common/http_cookies.cc',
+])
+
+env.Append(SF_CPPSRCS = [
+    '$OPEN_DIR/localserver/common/http_cookies.cc',
+])
+
+#-----------------------------------------------------------------------------
+# localserver/chrome + npapi
+
+env.Append(NPAPI_CPPSRCS = [
+    '$OPEN_DIR/localserver/npapi/async_task_np.cc',
+])
+
+if env['OS'] == 'win32':
+  env.Append(NPAPI_CPPSRCS = [
+      '$OPEN_DIR/localserver/chrome/gears_protocol_handler.cc',
+      '$OPEN_DIR/localserver/chrome/network_intercept_cr.cc',
+      '$OPEN_DIR/localserver/chrome/http_cookies_cr.cc',
+      '$OPEN_DIR/localserver/chrome/http_request_cr.cc',
+      '$OPEN_DIR/localserver/chrome/update_task_cr.cc',
+  ])
+
+#-----------------------------------------------------------------------------
+# localserver/safari
+
+env.Append(SF_CPPSRCS = [
+    '$OPEN_DIR/localserver/safari/async_task_sf.mm',
+     '$OPEN_DIR/localserver/safari/http_cookies_sf.mm',
+     '$OPEN_DIR/localserver/safari/http_handler.mm',
+     '$OPEN_DIR/localserver/safari/http_request_delegate.mm',
+     '$OPEN_DIR/localserver/safari/http_request_sf.mm',
+     '$OPEN_DIR/localserver/safari/localserver_db_proxy.mm',
+     '$OPEN_DIR/localserver/safari/progress_input_stream.mm',
+     '$OPEN_DIR/localserver/safari/ui_thread.cc'
+])
+
+#-----------------------------------------------------------------------------
+# localserver/firefox
+
+env.Append(FF3_CPPSRCS = [
+    '$OPEN_DIR/localserver/firefox/async_task_ff.cc',
+    '$OPEN_DIR/localserver/firefox/cache_intercept.cc',
+    '$OPEN_DIR/localserver/firefox/http_request_ff.cc',
+    '$OPEN_DIR/localserver/firefox/progress_input_stream.cc',
+])
+
+#-----------------------------------------------------------------------------
+# localserver/ie
+
+env.Append(IE_CPPSRCS = [
+    '$OPEN_DIR/localserver/ie/async_task_ie.cc',
+    '$OPEN_DIR/localserver/ie/file_submit_behavior.cc',
+    '$OPEN_DIR/localserver/ie/http_handler_ie.cc',
+    '$OPEN_DIR/localserver/ie/http_request_ie.cc',
+    '$OPEN_DIR/localserver/ie/progress_input_stream.cc',
+    '$OPEN_DIR/localserver/ie/update_task_ie.cc',
+    '$OPEN_DIR/localserver/ie/urlmon_utils.cc',
+])
+
+#-----------------------------------------------------------------------------
+# dummy_module
+
+env.Append(BROWSER_CPPSRCS = [
+    '$OPEN_DIR/dummy/dummy_module.cc',
+])
+
+#-----------------------------------------------------------------------------
+# test
+
+env.Append(BROWSER_CPPSRCS = [
+    '$OPEN_DIR/cctests/test.cc',
+])
+
+#-----------------------------------------------------------------------------
+# ui/generated
+#
+# Anything with the _I18N suffix will be expanded for each language in
+# I18N_LANGS
+
+env.Append(BROWSER_HTML_M4SRCS = [
+    '$OPEN_DIR/ui/common/alert_dialog.html_m4',
+    '$OPEN_DIR/ui/common/permissions_dialog.html_m4',
+    '$OPEN_DIR/ui/common/settings_dialog.html_m4',
+    '$OPEN_DIR/ui/common/shortcuts_dialog.html_m4',
+])
+
+env.Append(FF3_I18N_M4SRCS = [
+    '$OPEN_DIR/ui/generated/' + lang + '/i18n.dtd.m4'
+    for lang in env['I18N_LANGS']
+])
+
+#-----------------------------------------------------------------------------
+# ui/common (built for all browsers)
+
+env.Append(BROWSER_CPPSRCS = [
+    '$OPEN_DIR/ui/common/alert_dialog.cc',
+    '$OPEN_DIR/ui/common/html_dialog.cc',
+    '$OPEN_DIR/ui/common/i18n_strings.cc',
+    '$OPEN_DIR/ui/common/permissions_dialog.cc',
+    '$OPEN_DIR/ui/common/window_utils.cc',
+])
+
+env.Append(IE_CPPSRCS = [
+    '$OPEN_DIR/ui/common/settings_dialog.cc',
+])
+
+env.Append(FF3_CPPSRCS = [
+    '$OPEN_DIR/ui/common/settings_dialog.cc',
+])
+
+env.Append(SF_CPPSRCS = [
+    '$OPEN_DIR/ui/common/settings_dialog.cc',
+])
+
+env.Append(BROWSER_STABSRCS = [
+    '$OPEN_DIR/ui/common/alert_dialog.js.stab',
+    '$OPEN_DIR/ui/common/permissions_dialog.js.stab',
+    '$OPEN_DIR/ui/common/settings_dialog.js.stab',
+    '$OPEN_DIR/ui/common/shortcuts_dialog.js.stab',
+])
+
+#-----------------------------------------------------------------------------
+# ui/npapi
+
+env.Append(NPAPI_M4SRCS = [
+    '$OPEN_DIR/ui/ie/ui_resources.rc.m4',
+])
+
+#-----------------------------------------------------------------------------
+# ui/chrome
+
+if env['OS'] == 'win32':
+  env.Append(NPAPI_CPPSRCS = [
+      '$OPEN_DIR/ui/chrome/settings_dialog_cr.cc',
+      '$OPEN_DIR/ui/chrome/html_dialog_cr.cc',
+  ])
+
+#-----------------------------------------------------------------------------
+# ui/safari
+
+env.Append(SF_CPPSRCS = [
+    '$OPEN_DIR/ui/safari/html_dialog_sf.mm',
+    '$OPEN_DIR/ui/safari/html_modeless_dialog_sf.mm',
+    '$OPEN_DIR/ui/safari/native_dialogs_osx.mm',
+    '$OPEN_DIR/ui/safari/settings_menu.mm',
+])
+
+#-----------------------------------------------------------------------------
+# ui/factory
+
+env.Append(FF3_M4SRCS = [
+    '$OPEN_DIR/ui/firefox/browser-overlay.js.m4',
+    '$OPEN_DIR/ui/firefox/browser-overlay.xul.m4',
+    '$OPEN_DIR/ui/firefox/chrome.manifest.m4',
+])
+
+env.Append(FF3_IDLSRCS = [
+    '$OPEN_DIR/ui/firefox/ui_utils.idl',
+])
+
+env.Append(FF3_CPPSRCS = [
+    '$OPEN_DIR/ui/firefox/html_dialog_ff.cc',
+    '$OPEN_DIR/ui/firefox/ui_utils.cc',
+])
+
+#-----------------------------------------------------------------------------
+# ui/ie
+
+env.Append(IE_M4SRCS = [
+    '$OPEN_DIR/ui/ie/tools_menu_item.rgs.m4',
+    '$OPEN_DIR/ui/ie/ui_resources.rc.m4',
+])
+
+env.Append(IE_IDLSRCS = [
+    '$OPEN_DIR/ui/ie/html_dialog_host.idl',
+])
+
+env.Append(IE_CPPSRCS = [
+    '$OPEN_DIR/ui/ie/html_dialog_ie.cc',
+    '$OPEN_DIR/ui/ie/tools_menu_item.cc',
+])
+
+env.Append(IE_STABSRCS = [
+    '$OPEN_DIR/ui/ie/string_table.rc.stab',
+])
+
+# Additional files specific to Win32 or WinCE.
+if env['OS'] == 'win32':
+  env.Append(IE_CPPSRCS = [
+      '$OPEN_DIR/ui/ie/html_dialog_host.cc',
+  ])
+elif env['OS'] == 'wince':
+  env.Append(IE_M4SRCS = [
+      '$OPEN_DIR/ui/ie/html_dialog_bridge_iemobile.rgs.m4',
+  ])
+
+  env.Append(IE_IDLSRCS = [
+      '$OPEN_DIR/ui/ie/html_dialog_host_iemobile.idl',
+      '$OPEN_DIR/ui/ie/html_dialog_bridge_iemobile.idl',
+  ])
+
+  env.Append(IE_CPPSRCS = [
+      '$OPEN_DIR/ui/ie/html_dialog_host_iemobile.cc',
+      '$OPEN_DIR/ui/ie/html_dialog_bridge_iemobile.cc',
+  ])
+
+#-----------------------------------------------------------------------------
+# workerpool/npapi
+
+env.Append(USING_NPAPI_CPPSRCS = [
+    '$OPEN_DIR/workerpool/common/workerpool_utils.cc',
+    '$OPEN_DIR/workerpool/npapi/pool_threads_manager.cc',
+    '$OPEN_DIR/workerpool/workerpool.cc',
+])
+
+#-----------------------------------------------------------------------------
+# workerpool/firefox
+
+env.Append(FF3_CPPSRCS = [
+    '$OPEN_DIR/workerpool/common/workerpool_utils.cc',
+    '$OPEN_DIR/workerpool/firefox/pool_threads_manager.cc',
+    '$OPEN_DIR/workerpool/workerpool.cc',
+])
+
+#-----------------------------------------------------------------------------
+# workerpool/ie
+
+env.Append(IE_CPPSRCS = [
+    '$OPEN_DIR/workerpool/common/workerpool_utils.cc',
+    '$OPEN_DIR/workerpool/ie/pool_threads_manager.cc',
+    '$OPEN_DIR/workerpool/workerpool.cc',
+])
+
+#-----------------------------------------------------------------------------
+# timer
+
+env.Append(BROWSER_CPPSRCS = [
+    '$OPEN_DIR/timer/timer.cc',
+])
+
+#-----------------------------------------------------------------------------
+# httprequest
+
+env.Append(BROWSER_CPPSRCS = [
+    '$OPEN_DIR/httprequest/httprequest.cc',
+    '$OPEN_DIR/httprequest/httprequest_upload.cc',
+])
+
+#-----------------------------------------------------------------------------
+# blob
+
+env.Append(BROWSER_CPPSRCS = [
+    '$OPEN_DIR/blob/blob.cc',
+    '$OPEN_DIR/blob/blob_builder.cc',
+    '$OPEN_DIR/blob/blob_builder_module.cc',
+    '$OPEN_DIR/blob/blob_interface.cc',
+    '$OPEN_DIR/blob/blob_test.cc',
+    '$OPEN_DIR/blob/blob_utils.cc',
+    '$OPEN_DIR/blob/buffer_blob.cc',
+    '$OPEN_DIR/blob/fail_blob.cc',
+    '$OPEN_DIR/blob/file_blob.cc',
+    '$OPEN_DIR/blob/join_blob.cc',
+    '$OPEN_DIR/blob/slice_blob.cc',
+])
+
+# TODO(bpm): Make this cross-browser, not Firefox- or Safari-specific.
+env.Append(FF3_CPPSRCS = [
+    '$OPEN_DIR/blob/blob_input_stream_ff.cc',
+    '$OPEN_DIR/blob/blob_input_stream_ff_test.cc',
+])
+
+env.Append(SF_CPPSRCS = [
+    '$OPEN_DIR/blob/blob_input_stream_sf.mm',
+    '$OPEN_DIR/blob/blob_input_stream_sf_test.mm',
+])
+
+#-----------------------------------------------------------------------------
+# inspector
+
+if not env['OFFICIAL_BUILD']:
+  env.Append(BROWSER_CPPSRCS = [
+      '$OPEN_DIR/inspector/inspector_resources.cc',
+  ])
+
+#-----------------------------------------------------------------------------
+# installer/wince
+
+if env['OS'] == 'wince':
+  env.Append(IE_CPPSRCS = [
+      '$OPEN_DIR/installer/common/cab_updater.cc',
+      '$OPEN_DIR/installer/common/download_task.cc',
+      '$OPEN_DIR/installer/common/installer_utils.cc',
+      '$OPEN_DIR/installer/common/periodic_checker.cc',
+      '$OPEN_DIR/installer/common/process_restarter.cc',
+  ])
+
+  env.Append(IE_STABSRCS = [
+      '$OPEN_DIR/installer/iemobile/setup.rc.stab',
+  ])
+
+  env.Append(WINCE_SETUP_CPPSRCS = [
+      '$OPEN_DIR/installer/common/process_restarter.cc',
+      '$OPEN_DIR/installer/iemobile/setup.cc',
+  ])
+
+  env.Append(WINCE_SETUP_RESSRCS = [
+      '$GENFILES_DIR/setup.rc',
+  ])
+
+#-----------------------------------------------------------------------------
+# image
+
+# The Image API is not yet enabled in official builds.
+if not env['OFFICIAL_BUILD'] and env['OS'] != 'wince':
+  env.Append(BROWSER_CPPSRCS = [
+      '$OPEN_DIR/image/backing_image.cc',
+      '$OPEN_DIR/image/image.cc',
+      '$OPEN_DIR/image/image_loader.cc',
+  ])
+
+#-----------------------------------------------------------------------------
+# factory/npapi
+
+env.Append(USING_NPAPI_CPPSRCS = [
+    '$OPEN_DIR/factory/factory_impl.cc',
+    '$OPEN_DIR/factory/factory_np.cc',
+    '$OPEN_DIR/factory/factory_utils.cc',
+])
+
+#-----------------------------------------------------------------------------
+# factory/firefox
+
+env.Append(FF3_CPPSRCS = [
+    '$OPEN_DIR/factory/factory_impl.cc',
+    '$OPEN_DIR/factory/factory_ff.cc',
+    '$OPEN_DIR/factory/factory_utils.cc',
+])
+
+#-----------------------------------------------------------------------------
+# factory/ie
+
+env.Append(IE_M4SRCS = [
+    '$OPEN_DIR/factory/factory_ie.rgs.m4',
+])
+
+env.Append(IE_CPPSRCS = [
+    '$OPEN_DIR/factory/factory_impl.cc',
+    '$OPEN_DIR/factory/factory_ie.cc',
+    '$OPEN_DIR/factory/factory_utils.cc',
+])
+
+#-----------------------------------------------------------------------------
+# geolocation
+
+env.Append(BROWSER_CPPSRCS = [
+    '$OPEN_DIR/geolocation/access_token_manager.cc',
+    '$OPEN_DIR/geolocation/backoff_manager.cc',
+    '$OPEN_DIR/geolocation/empty_device_data_provider.cc',
+    '$OPEN_DIR/geolocation/geolocation.cc',
+    '$OPEN_DIR/geolocation/geolocation_db.cc',
+    '$OPEN_DIR/geolocation/geolocation_db_test.cc',
+    '$OPEN_DIR/geolocation/geolocation_test.cc',
+    '$OPEN_DIR/geolocation/gps_device_android.cc',
+    '$OPEN_DIR/geolocation/gps_device_wince.cc',
+    '$OPEN_DIR/geolocation/gps_location_provider.cc',
+    '$OPEN_DIR/geolocation/location_provider.cc',
+    '$OPEN_DIR/geolocation/location_provider_pool.cc',
+    '$OPEN_DIR/geolocation/looper_thread_android.cc',
+    '$OPEN_DIR/geolocation/network_location_provider.cc',
+    '$OPEN_DIR/geolocation/network_location_request.cc',
+    '$OPEN_DIR/geolocation/radio_data_provider_android.cc',
+    '$OPEN_DIR/geolocation/radio_data_provider_wince.cc',
+    '$OPEN_DIR/geolocation/reverse_geocoder.cc',
+    '$OPEN_DIR/geolocation/timed_callback.cc',
+    '$OPEN_DIR/geolocation/wifi_data_provider_android.cc',
+    '$OPEN_DIR/geolocation/wifi_data_provider_common.cc',
+    '$OPEN_DIR/geolocation/wifi_data_provider_linux.cc',
+    '$OPEN_DIR/geolocation/wifi_data_provider_osx.cc',
+    '$OPEN_DIR/geolocation/wifi_data_provider_win32.cc',
+    '$OPEN_DIR/geolocation/wifi_data_provider_wince.cc',
+    '$OPEN_DIR/geolocation/wifi_data_provider_windows_common.cc',
+])
+
+#-----------------------------------------------------------------------------
+# vista_broker
+
+env.Append(VISTA_BROKER_CPPSRCS = [
+    '$OPEN_DIR/base/common/process_utils_win32.cc',
+    '$OPEN_DIR/base/common/string16.cc',
+    '$OPEN_DIR/base/common/string_utils.cc',
+    '$OPEN_DIR/desktop/shortcut_utils_win32.cc',
+    '$OPEN_DIR/vista_broker/vista_broker.cc',
+
+    '$THIRD_PARTY_DIR/convert_utf/ConvertUTF.c'
+])
+
+env.Append(VISTA_BROKER_RESSRCS = [
+    '$GENFILES_DIR/string_table.rc',
+    '$OPEN_DIR/vista_broker/vista_broker.rc',
+])
+
+#-----------------------------------------------------------------------------
+# Safari Installer Plugin
+
+env.Append(SF_INSTALLER_PLUGIN_CPPSRCS = [
+    '$OPEN_DIR/base/safari/advanced_stats_sheet.m',
+])
+
+#-----------------------------------------------------------------------------
+# Safari InputManager
+
+env.Append(SF_INPUTMANAGER_CPPSRCS = [
+    '$OPEN_DIR/base/safari/enabler.m',
+    '$OPEN_DIR/base/safari/loader.mm',
+])
+
+#-----------------------------------------------------------------------------
+# Safari Proxy DLL
+
+env.Append(SF_PROXY_DLL_CPPSRCS = [
+    '$OPEN_DIR/base/safari/plugin_proxy.mm',
+])
+
+#-----------------------------------------------------------------------------
+# resources
+
+env.Append(NPAPI_RESSRCS = [
+    '$GENFILES_DIR/ui_resources.rc',
+    '$OPEN_DIR/base/npapi/module.rc',
+])
+
+# The string table uses multiple languages, which are not supported by
+# LoadString on WinCE.
+if env['OS'] != 'wince':
+  env.Append(IE_RESSRCS = [
+      '$GENFILES_DIR/string_table.rc',
+  ])
+
+env.Append(IE_RESSRCS = [
+    '$GENFILES_DIR/ui_resources.rc',
+    '$OPEN_DIR/base/npapi/module.rc',
+])
+
+env.Append(FF3_RESOURCES = [
+    '$FF3_OUTDIR/genfiles/browser-overlay.js',
+    '$FF3_OUTDIR/genfiles/browser-overlay.xul',
+    '$FF3_OUTDIR/genfiles/permissions_dialog.html',
+    '$FF3_OUTDIR/genfiles/settings_dialog.html',
+    '$FF3_OUTDIR/genfiles/shortcuts_dialog.html',
+])
+
+env.Append(COMMON_RESOURCES = [
+    '$OPEN_DIR/ui/common/blank.gif',
+    '$OPEN_DIR/ui/common/button_bg.gif',
+    '$OPEN_DIR/ui/common/button_corner_black.gif',
+    '$OPEN_DIR/ui/common/button_corner_blue.gif',
+    '$OPEN_DIR/ui/common/button_corner_grey.gif',
+    '$OPEN_DIR/ui/common/icon_32x32.png',
+    '$OPEN_DIR/ui/common/local_data.png',
+    '$OPEN_DIR/ui/common/location_data.png',
+])
+
+#-----------------------------------------------------------------------------
+# libs
+
+if not env['OFFICIAL_BUILD'] and env['OS'] in ['win32', 'osx']:
+  env.Append(
+      LIBPATH = ['$THIRD_PARTY_DIR/skia'],
+      LIBS = ['${LIBPREFIX}skia-${MODE}-${OS}-${ARCH}${LIBSUFFIX}'],
+  )
+
+if env['OS'] == 'win32':
+  env.Append(NPAPI_SHLINKSRCS = [
+      '$THIRD_PARTY_DIR/v8/bin-${MODE}/v8_base.lib',
+      '$THIRD_PARTY_DIR/v8/bin-${MODE}/v8_snapshot.lib',
+  ])
+  env.Append(NPAPI_SHLINKSRCS = [
+      '$OPEN_DIR/base/chrome/module.def',
+  ])
+  env.Append(IE_SHLINKSRCS = [
+      '$OPEN_DIR/tools/mscom.def',
+  ])
+
+Return('env')

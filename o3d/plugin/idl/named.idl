@@ -1,0 +1,119 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+%[
+  The base class of most O3D run-time objects.
+%]
+
+[binding_model=o3d,include="core/cross/object_base.h"]
+class ObjectBase {
+  %[
+    Unique id of the object.
+
+    This id will be unique, even across multiple O3D clients in the same
+    page.
+  %]
+  [getter, userglue_getter] Id client_id;
+
+  [verbatim=cpp_header] %{
+  static Class *GetApparentClass() { return NULL; }
+  %}
+
+  %[
+  The concrete class name for an object derived from ObjectBase.
+
+  If you want to know if an object is of a certain type you should use
+  objectBase.isAClassName
+
+  \code
+  var t = pack.createObject('o3d.Transform');
+  t.className == 'o3d.Transform';  // true
+  \endcode
+  %]
+  [userglue_getter, getter] String class_name_;
+
+  %[
+  Takes the name of a class as an argument, and returns true if this object is
+  either an instance of that class or derives from that class.
+  \code
+  var t = pack.createObject('o3d.Transform');
+  t.isAClassName('o3d.Transform');    // true
+  t.isAClassName('o3d.ParamObject');  // true
+  t.isAClassName('o3d.Shape');        // false
+  \endcode
+  \param class_name Name of class to check for.
+  \return true if this object is a or is derived from the given class name.
+  %]
+  bool IsAClassName(String class_name);
+
+  [verbatim=cpp_glue] %{
+    o3d::Id userglue_getter_client_id(o3d::ObjectBase* self) {
+      return self->id();
+    }
+    o3d::String userglue_getter_class_name_(o3d::ObjectBase* self) {
+      return self->GetClassName();
+    }
+  %}
+};
+
+%[
+  Base class for all objects that are identifiable by a name.
+%]
+[binding_model=o3d, include="core/cross/named_object.h"]
+class NamedObjectBase: ObjectBase {
+  %[
+    The object's name.
+  %]
+  [getter] String name;
+
+};
+
+%[
+  Base class for all objects that can have their name set.
+%]
+[binding_model=o3d, include="core/cross/named_object.h"]
+class NamedObject: NamedObjectBase {
+  %[
+    The object's name.
+
+    Setting this has no meaning to O3D, but is useful for debugging and for
+    the functions Client.getObjects, Pack.getObject,
+    RenderNode.getRenderNodesByNameInTree and
+    RenderNode.getTransformsByNameInTree
+    which search for objects by name.
+  %]
+  // NOTE: I tried putting just setter here but nixysa can't handle that.
+  [getter, setter] String name;
+};
+
+}  // namespace o3d

@@ -1,0 +1,71 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="sk">
+<translation id="6676384891291319759">Prístup k internetu</translation>
+<translation id="8579274574697852281">Prehliadač Google Chrome vyžaduje systém Windows Vista alebo Windows XP s balíkom SP1 alebo vyšším.</translation>
+<translation id="698670068493841342">Prehliadač Google Chrome už bol pre tohto používateľa nainštalovaný. Ak softvér nefunguje, odinštalujte prehliadač Google Chrome a prevezmite ho znova.</translation>
+<translation id="7400722733683201933">Informácie o prehľadávači Google Chrome</translation>
+<translation id="7101265395643981223">Spustiť prehľadávač Google Chrome</translation>
+<translation id="1549918799472947005">Prehliadač Chrome používa váš predvolený vyhľadávací mechanizmus. Momentálne je nastavený mechanizmus <ph name="PAGE_TITLE"/>. Chcete zmeniť svoj predvolený vyhľadávací mechanizmus?</translation>
+<translation id="2370289711218562573">Prehliadač Google Chrome práve importuje Obľúbené položky/Záložky.</translation>
+<translation id="8970027151245482499">Prehliadač Google Chrome nie je nainštalovaný alebo nedokázal nájsť priečinok inštalácie. Prevezmite prehliadač Google Chrome znova.</translation>
+<translation id="7958215378280655655">Keď vynulujete možnosti prehľadávača Google Chrome, všetky vaše zmeny sa vrátia na štandardné nastavenia. Chcete vynulovať možnosti prehľadávača Chrome?</translation>
+<translation id="4281844954008187215">Zmluvné podmienky</translation>
+<translation id="2197898401230534722">Odstrániť všetky údaje profilu</translation>
+<translation id="1137776625614346046">Oblasť Najčastejšie navštevované zobrazuje webové stránky, ktoré najčastejšie používate. Keď budete prehliadač Google Chrome používať dlhšie, najčastejšie zobrazované stránky sa zobrazia pri každom otvorení novej karty. Viac informácií o tejto funkcii a o mnohých ďalších sa dozviete na stránke <ph name="BEGIN_LINK"/>Začíname<ph name="END_LINK"/>.</translation>
+<translation id="4728575227883772061">Inštalácia zlyhala kvôli neurčenej chybe. Ak je prehliadač Google Chrome momentálne spustený, zatvorte ho a skúste znova.</translation>
+<translation id="4149882025268051530">Inštalátor pri dekomprimovaní archívu zlyhal. Prevezmite prehliadač Google Chrome znova.</translation>
+<translation id="4343226815564935778">Inštalačný adresár aplikácie Google Chrome sa používa. Reštartujte počítač a skúste to znova.</translation>
+<translation id="4506896920521131223">Copyright © 2006-2009 Google Inc. Všetky práva vyhradené.</translation>
+<translation id="6817660909204164466">Pomôžte nám vylepšiť prehliadač Google Chrome aktivovaním automatického odosielania štatistických údajov o používaní prehliadača a prehľadov chýb spoločnosti Google</translation>
+<translation id="8227755444512189073">Prehľadávač Google Chrome potrebuje spustiť externú aplikáciu na spracovanie odkazov <ph name="SCHEME"/>. Požadovaný odkaz je <ph name="PROTOLINK"/>.</translation>
+<translation id="1281036569101707544">Google Chrome <ph name="TERMS_OF_SERVICE_LINK"/></translation>
+<translation id="8815061062167142136">Stop! Prehliadač Google Chrome zlyhal. Chcete ho reštartovať?</translation>
+<translation id="5016204670686360703">Ak teraz zrušíte operáciu, nenaimportujú sa žiadne položky. Import sa dá vykonať znova neskôr z ponuky prehliadača Chrome.</translation>
+<translation id="7241541963706135274">Prehľadávač Google Chrome vykoná tieto úlohy:</translation>
+<translation id="8446794773162156990">Prehľadávač Google Chrome má problém so svojou činnosťou</translation>
+<translation id="3889417619312448367">Odinštalovanie prehliadača Google Chrome</translation>
+<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
+<translation id="8810218179782551669">Jazyk prehľadávača Google Chrome:</translation>
+<translation id="3940866277504106378">Prehliadač Google Chrome môže používať webové služby na vylepšenie skúseností s prehliadaním - tieto služby môžete dobrovoľne zakázať.</translation>
+<translation id="7001386529596391893">Vytvoriť skratku pre prehľadávač Google Chrome na týchto miestach:</translation>
+<translation id="6134282421960734039">Chcete, aby prehliadač Chrome uložil vaše heslo?</translation>
+<translation id="1195935957447623558">Prehľadávač Google Chrome sa neukončil správne. Ak chcete otvoriť naposledy otvorené stránky, kliknite na tlačidlo Obnoviť.</translation>
+<translation id="2499193704281978000">Prehliadač Google Chrome neodpovedá. Chcete ho reštartovať?</translation>
+<translation id="7747138024166251722">Inštalátor nemohol vytvoriť dočasný priečinok. Skontrolujte úroveň zaplnenia disku a povolenie na inštaláciu softvéru.</translation>
+<translation id="6009537148180854585">Pokúšate sa otvoriť doménu &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ale server poskytol certifikát, ktorý obsahuje chyby. Prehľadávač Google Chrome nemôže použiť certifikát s chybami a nemôže overiť identitu stránky, ktorú sa pokúšate otvoriť. Vaše pripojenie nie je zabezpečené a nemali by ste pokračovať.</translation>
+<translation id="3324235665723428530">Váš profil nemožno použiť, pretože pochádza z novšej verzie prehľadávača Google Chrome.\n\nNiektoré funkcie nemusia byť k dispozícii. Špecifikujte iný adresár pre profil alebo použite novšiu verziu prehľadávača Chrome.</translation>
+<translation id="1759842336958782510">Chrome</translation>
+<translation id="2044287590254833138">Panel s nástrojmi Google Chrome</translation>
+<translation id="6481075104394517441">Pokúšate sa otvoriť doménu &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ale server poskytol certifikát, ktorý ešte nie je platný. Nie sú k dispozícii žiadne údaje na posúdenie dôveryhodnosti certifikátu. Prehľadávač Google Chrome nemôže spoľahlivo zaručiť, že komunikujete s doménou &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, a nie s útočníkom. Mali by ste skontrolovať, či vo svojom počítači máte správne nastavené hodiny a časovú zónu. Ak je nastavenie nesprávne, upravte ho a obnovte túto stránku. Ak je nastavenie správne, nemali by ste pokračovať.</translation>
+<translation id="8862326446509486874">Nemáte správne práva na inštaláciu na úrovni systému. Skúste znova spustiť inštalátor ako správca.</translation>
+<translation id="2874156562296220396">Vytvorenie prehliadača Google Chrome bolo umožnené prostredníctvom projektu otvoreného zdrojového kódu <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> a ďalšieho <ph name="BEGIN_LINK_OSS"/>softvéru s otvoreným zdrojovým kódom<ph name="END_LINK_OSS"/>.</translation>
+<translation id="6921913858457830952">Prehľadávač Google Chrome je pripravený dokončiť inštaláciu.</translation>
+<translation id="7100330187273168372">Prehľadávač Google Chrome nemôže čítať ani zapisovať do údajového adresára::\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">Naozaj chcete odinštalovať aplikáciu Google Chrome?</translation>
+<translation id="5941830788786076944">Nastaviť prehľadávač Google Chrome ako predvolený</translation>
+<translation id="4127951844153999091">V tomto prípade sa adresa v certifikáte nezhoduje s adresou webovej stránky, ktorú sa pokúša otvoriť váš prehľadávač. Jednou z možných príčin je sledovanie vašej komunikácie útočníkom, ktorý poskytuje certifikát pre inú webovú stránku, čím môže vzniknúť nezhoda v názvoch. Inou príčinou je konfigurácia servera, ktorý rovnaký certifikát poskytuje pre viaceré webové stránky, hoci tento certifikát je pre tieto webové stránky neplatný. Pokúšate sa otvoriť jednu z takýchto stránok. Prehľadávač Google Chrome môže s istotou tvrdiť, že ste otvorili doménu &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, ale nemôže overiť, či to je stránka &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ktorú ste chceli otvoriť. Ak budete pokračovať, prehľadávač Chrome už nebude kontrolovať nezhody v názvoch. Vo všeobecnosti je najlepšie nepokračovať ďalej.</translation>
+<translation id="2712549016134575851">Zistil sa konflikt s inou nainštalovanou aplikáciou.</translation>
+<translation id="7161904924553537242">Víta vás prehľadávač Google Chrome</translation>
+<translation id="8236873504073475138">Prehľadávač Google Chrome nepodporuje systém Windows 2000. Niektoré funkcie nemusia fungovať.</translation>
+<translation id="5046764976540625289">Ukončiť prehliadač Chrome</translation>
+<translation id="8865765905101981392">Internetový prehliadač</translation>
+<translation id="582763753075639530">Táto zmena nadobudne platnosť po zatvorení všetkých okien prehliadača Chrome a následnom spustení prehliadača.</translation>
+<translation id="8776515774046280928">Prehliadač Google Chrome je už nainštalovaný a k dispozícii pre všetkých používateľov tohto počítača. Ak chcete prehliadač Google Chrome nainštalovať na úrovni používateľa, musíte najskôr odinštalovať verziu na úrovni systému, ktorú nainštaloval správca.</translation>
+<translation id="3335672657969596251">Prehľadávač Google Chrome nepodporuje systém <ph name="OS_NAME"/>.</translation>
+<translation id="3636771339108070045">Tento počítač už obsahuje novšiu verziu prehliadača Google Chrome. Ak softvér nefunguje, odinštalujte prehliadač Google Chrome a prevezmite ho znova.</translation>
+<translation id="3396666154568987767">Google Chrome pre <ph name="PROFILE_NAME"/></translation>
+<translation id="1964682833763362793">Zatvorte všetky okná prehliadača Chrome a skúste to znova.</translation>
+<translation id="1001534784610492198">Archív inštalácie je poškodený alebo neplatný. Prevezmite prehliadač Google Chrome znova.</translation>
+<translation id="6626317981028933585">Ľutujeme, nastavenia prehľadávača Mozilla Firefox nie sú k dispozícii, kým je tento prehľadávač otvorený. Ak chcete importovať tieto nastavenia do prehľadávača Google Chrome, uložte svoju prácu a zatvorte všetky okná prehľadávača Firefox. Potom kliknite na tlačidlo Pokračovať.</translation>
+<translation id="8540666473246803645">Google Chrome</translation>
+<translation id="6049075767726609708">Správca nainštaloval v tomto systéme prehliadač Google Chrome a je k dispozícii pre všetkých používateľov. Prehliadač Google Chrome na úrovni systému teraz nahradí vašu inštaláciu na úrovni používateľa.</translation>
+<translation id="3870154837782082782">Spoločnosť Google Inc.</translation>
+<translation id="1446473746922165495">Zmeňte jazyk, ktorý sa používa pre ponuky, dialógové okná a popisy tlačidiel v prehľadávači Google Chrome.</translation>
+<translation id="9189723490960700326">Pokúšate sa otvoriť doménu &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ale server poskytol certifikát so skončenou platnosťou. Nie sú k dispozícii žiadne údaje na určenie, či po skončení platnosti certifikátu došlo k jeho kompromitácii. Prehľadávač Google Chrome nemôže zaručiť, že komunikujete s doménou &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, a nie s útočníkom. Nemali by ste pokračovať.</translation>
+<translation id="7106741999175697885">Správca úloh – Google Chrome</translation>
+<translation id="8449380764213232436">Prehľadávač Google Chrome teraz importuje nasledujúce položky z komponentu <ph name="BROWSER_COMPONENT"/>:</translation>
+<translation id="3396977131400919238">V priebehu inštalácie sa vyskytla chyba operačného systému. Prevezmite prehliadač Google Chrome znova.</translation>
+<translation id="2618799103663374905">Pridať skratky pre prehľadávač Google Chrome na pracovnú plochu, panel Rýchle spustenie a do ponuky Štart</translation>
+<translation id="1144950271450340860">Pokúšate sa otvoriť doménu &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ale server poskytol certifikát vydaný entitou, ktorej operačný systém vášho počítača nedôveruje. Môže to znamenať, že server vygeneroval vlastný certifikát a prehľadávač Google Chrome sa nemôže spoľahnúť na informácie o identite. Môže to tiež znamenať, že vašu komunikáciu sa snaží odhaliť útočník. Nemali by ste pokračovať, &lt;strong&gt;najmä&lt;/strong&gt; ak sa toto upozornenie pre túto stránku v minulosti nikdy nezobrazilo.</translation>
+</translationbundle>

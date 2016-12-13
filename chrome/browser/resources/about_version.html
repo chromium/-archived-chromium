@@ -1,0 +1,89 @@
+<!DOCTYPE HTML>
+
+<!--
+about:version template page
+-->
+
+<html id="t">
+  <head>
+    <title jscontent="title"></title>
+    <style>
+      body {
+        font-family:arial;
+        background-color:white;
+        color: black;
+        margin: 0px;
+      }
+      #outer {
+        text-align: left;
+        margin-top: 10px;
+        margin-left: auto;
+        margin-right: auto;
+        width: 800px;
+      }
+      #inner {
+        padding-top: 10px;
+        width: 550px;
+      }
+      .label {
+        font-weight: bold;
+        text-align: right;
+        width: 120px;
+        padding-right: 5px;
+        font-size: 0.9em;
+        border-right: 0px solid black;
+      }
+      .label:after {
+        content: ":";
+      }
+      #logo {
+        text-align: right;
+        float: right;
+        width: 180px;
+        margin-left: 40px;
+      }
+      #company {
+        text-align: right;
+        font-size: 0.7em;
+      }
+      #copyright {
+        text-align: right;
+        font-size: 0.7em;
+      }
+      #name {
+      }
+      #useragent {
+        font-family: monospace;
+      }
+      .version {
+        font-family: monospace;
+        padding-left: 5px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="outer">
+      <div id="logo">
+        <img src="../../app/theme/%DISTRIBUTION%/product_logo.png" />
+        <div id="company" jscontent="company"></div>
+        <div id="copyright" jscontent="copyright"></div>
+      </div>
+      <table id="inner" cellpadding="0" cellspacing="0" border="0">
+        <tr><td class="label" valign="top" id="name" jscontent="name"></td>
+            <td class="version" id="version"><span jscontent="version"></span> (<span jscontent="official"></span> <span jscontent="cl"></span>)</td>
+        </tr>
+        <tr><td class="label" valign="top">WebKit</td>
+            <td class="version" id="webkit_version" jscontent="webkit_version"></td>
+        </tr>
+        <tr><td class="label" valign="top" jscontent="js_engine"></td>
+            <td class="version" id="js_version" jscontent="js_version"></td>
+        </tr>
+        <tr><td class="label" valign="top">User Agent</td>
+            <td class="version" id="useragent" jscontent="useragent"></td>
+        </tr>
+      </table>
+    </div>
+  </body>
+
+</html>

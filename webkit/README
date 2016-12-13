@@ -1,0 +1,23 @@
+OVERVIEW
+
+  port/    - contains our fork of WebCore Windows-specific bits.
+
+  glue/    - contains our embedding API for WebCore, based loosely on WebKit's
+             COM API (but w/o any COM).
+
+  build/   - contains our vcproj files for WebKit source and port+glue
+
+  pending/ - contains cross-platform files from {Web,JavaScript}Core that we
+             have temporarily forked until the changes are incorporated into
+             webkit.org's repository.
+
+  activex_shim/ - contains a plugin shim to support ActiveX controls.
+  
+CODING STYLE
+
+  The contents of port/ should stick to WebKit coding conventions since they
+  may ultimately be contributed to webkit.org as an alternate Windows port.
+
+  The contents of glue/ should stick to Google coding conventions since they
+  are designed for use by Chrome and possibly other Google apps.
+

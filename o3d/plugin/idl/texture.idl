@@ -1,0 +1,431 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+%[
+  The Texture class is a base class for image data used in texture mapping.
+%]
+[include="core/cross/texture_base.h"] class Texture : ParamObject {
+  %[
+    \var Format,
+    \li UNKNOWN_FORMAT
+    \li XRGB8
+    \li ARGB8
+    \li ABGR16F
+    \li R32F
+    \li ABGR32F
+    \li DXT1
+    \li DXT3
+    \li DXT5
+
+    The in-memory format of the texture bitmap.
+
+    NOTE: The R32F format is different on GL vs D3D. If you use it in a shader
+    you must only use the red channel. The green, blue and alpha channels are
+    undefined.
+
+    For example:
+    \code
+    ...
+
+    // The texture sampler is used to access the texture bitmap in the fragment
+    // shader.
+    sampler texSampler0;
+
+    ...
+
+    // input parameters for our vertex shader
+    struct PixelShaderInput {
+      float4 position : POSITION;
+      float2 texcoord : TEXCOORD0;  // Texture coordinates
+    };
+
+    float4 pixelShaderFunction(PixelShaderInput input): COLOR {
+      // ** Use only valid channels. ** ---------+
+      //                                         |
+      //                                         V
+      return tex2D(texSampler0, input.texcoord).rrrr;
+    }
+    \endcode
+  %]
+  enum Format {
+    UNKNOWN_FORMAT,
+    XRGB8,
+    ARGB8,
+    ABGR16F,
+    R32F,
+    ABGR32F,
+    DXT1,
+    DXT3,
+    DXT5
+  };
+
+  %[
+    The memory format used for storing the bitmap associated with the texture
+    object.
+  %]
+  [getter] Format format;
+
+  %[
+    The number of mipmap levels used by the texture.
+  %]
+  [getter] int levels;
+
+  %[
+    True of all the alpha values in the texture are 1.0
+  %]
+  [getter, getter, setter] bool alpha_is_one;
+};  // Texture
+
+%[
+  A class for 2D textures that defines the interface for getting
+  the dimensions of the texture, its memory format and number of mipmap levels.
+%]
+[include="core/cross/texture.h"] class Texture2D : Texture {
+  %[
+    The width of the texture, in texels.
+  %]
+  [getter] int width;
+
+  %[
+    The height of the texture, in texels.
+  %]
+  [getter] int height;
+
+  %[
+    Returns a RenderSurface object associated with a mip_level of a texture.
+
+    \param mip_level The mip-level of the surface to be returned.
+    \param pack The pack in which the surface will reside.
+    \return The RenderSurface object.
+  %]
+  RenderSurface? GetRenderSurface(int mip_level, Pack pack);
+
+  // TODO: Add Get, GetRect and/or expose Bitmap.
+  %[
+    Sets the values of the data stored in the texture.
+
+    It is not recommend that you call this for large textures but it is useful
+    for making simple ramps or noise textures for shaders.
+
+    NOTE: the number of values must equal the size of the texture * the number
+     of elements. In other words, for a XRGB8 texture there must be
+     width * height * 3 values. For an ARGB8, ABGR16F or ABGR32F texture there
+     must be width * height * 4 values. For an R32F texture there must be
+     width * height values.
+
+    NOTE: the order of channels is R G B for XRGB8 textures and R G B A
+    for ARGB8, ABGR16F and ABGR32F textures so for example for XRGB8 textures\n
+    \n
+    [1, 0, 0] = a red pixel\n
+    [0, 0, 1] = a blue pixel\n
+    \n
+    For ARGB8, ABGR16F, ABGR32F textures\n
+    \n
+    [1, 0, 0, 0] = a red pixel with zero alpha\n
+    [1, 0, 0, 1] = a red pixel with one alpha\n
+    [0, 0, 1, 1] = a blue pixel with one alpha\n
+
+    \param level the mip level to update.
+    \param values Values to be stored in the buffer.
+  %]
+  [nocpp, userglue, include="core/cross/math_utilities.h"]
+  void Set(int level, float[] values);
+
+  %[
+    Sets a rectangular area of values in a texture.
+
+    Does clipping. In other words if you pass in a 10x10 pixel array
+    and give it destination of (-5, -5) it will only use the bottom 5x5
+    pixels of the array you passed in to set the top 5x5 pixels of the
+    texture.
+
+    See o3d.Texture2D.set for details on formats.
+
+    \param level the mip level to update.
+    \param destination_x The x coordinate of the area in the texture to affect.
+    \param destination_y The y coordinate of the area in the texture to affect.
+    \param source_width The width of the area to effect. The height is
+        determined by the size of the array passed in.
+    \param values Values to be stored in the buffer.
+    \see o3d.Texture2D.set
+  %]
+  [nocpp, userglue, include="core/cross/math_utilities.h"]
+  void SetRect(int level,
+               int destination_x,
+               int destination_y,
+               int source_width,
+               float[] values);
+
+
+  [verbatim=cpp_glue] %{
+    void SetRectCheck(o3d::Texture2D* self,
+                      int level,
+                      int destination_x,
+                      int destination_y,
+                      int source_width,
+                      const std::vector<float>& values,
+                      bool check_needed) {
+      if (level < 0 || level >= self->levels()) {
+        O3D_ERROR(self->service_locator())
+            << "level (" << level << " out of range";
+        return;
+      }
+      if (values.empty() || source_width <= 0) {
+        return;
+      }
+      unsigned num_values = values.size();
+      unsigned texture_width = std::max(self->width() >> level, 1);
+      unsigned texture_height = std::max(self->height() >> level, 1);
+      unsigned num_components;
+      unsigned swizzle[4] = {2, 1, 0, 3};
+      switch (self->format()) {
+        case o3d::Texture::XRGB8:
+          num_components = 3;
+          break;
+        case o3d::Texture::R32F:
+          swizzle[0] = 0;
+          num_components = 1;
+          break;
+        case o3d::Texture::ARGB8:
+        case o3d::Texture::ABGR16F:
+          num_components = 4;
+          break;
+        case o3d::Texture::ABGR32F: {
+          num_components = 4;
+          const o3d::Texture::RGBASwizzleIndices& indices =
+             self->GetABGR32FSwizzleIndices();
+          for (int ii = 0; ii < 4; ++ii) {
+            swizzle[ii] = indices[ii];
+          }
+          break;
+        }
+        default:
+          O3D_ERROR(self->service_locator())
+            << "Texture::Set not supported for this type of texture";
+          return;
+      }
+      if (num_values % num_components != 0) {
+        O3D_ERROR(self->service_locator())
+          << "The number of elements passed in must be a multiple of "
+          << num_components;
+      }
+      unsigned num_elements = num_values / num_components;
+      if (num_elements % source_width != 0) {
+        O3D_ERROR(self->service_locator())
+          << "The number of elements passed in must be a multiple of the "
+          << "width";
+        return;
+      }
+      unsigned source_height = num_elements / source_width;
+      if (check_needed) {
+        unsigned needed = num_components * texture_width * texture_height;
+        if (num_values != needed) {
+          O3D_ERROR(self->service_locator())
+            << "needed " << needed << " values but " << num_values
+            << " passed in.";
+          return;
+        }
+      }
+
+      // clip
+      int source_x = 0;
+      int source_y = 0;
+      int copy_width = source_width;
+      int copy_height = source_height;
+
+      if (destination_x < 0) {
+        copy_width += destination_x;
+        source_x -= destination_x;
+        destination_x = 0;
+      }
+      if (destination_x + copy_width > static_cast<int>(texture_width)) {
+        copy_width -= destination_x + copy_width - texture_width;
+      }
+
+      if (destination_y < 0) {
+        copy_height += destination_y;
+        source_y -= destination_y;
+        destination_y = 0;
+      }
+      if (destination_y + copy_height > static_cast<int>(texture_height)) {
+        copy_height -= destination_y + copy_height - texture_height;
+      }
+
+      if (copy_width <= 0 || copy_height <= 0) {
+        return;
+      }
+
+      void* data;
+      if (!self->Lock(level, &data)) {
+        O3D_ERROR(self->service_locator()) << "could not lock texture";
+        return;
+      }
+      const float* source =
+          &values[0] +
+          (source_y * source_width + source_x) * num_components;
+      unsigned source_stride = (source_width - copy_width) * num_components;
+      unsigned destination_stride =
+          (texture_width - copy_width) * num_components;
+      switch (self->format()) {
+        case o3d::Texture::ABGR16F: {
+          unsigned short* destination =
+              static_cast<unsigned short*>(data) +
+              (destination_y * texture_width + destination_x) * num_components;
+          while (copy_height > 0) {
+            for (int xx = 0; xx < copy_width; ++xx) {
+              for (unsigned element = 0; element < num_components; ++element) {
+                destination[element] = Vectormath::Aos::FloatToHalf(
+                    source[swizzle[element]]);
+              }
+              destination += num_components;
+              source += num_components;
+            }
+            destination += destination_stride;
+            source += source_stride;
+            --copy_height;
+          }
+          break;
+        }
+        case o3d::Texture::R32F:
+        case o3d::Texture::ABGR32F: {
+          float* destination =
+            static_cast<float*>(data) +
+            (destination_y * texture_width + destination_x) * num_components;
+          while (copy_height > 0) {
+            for (int xx = 0; xx < copy_width; ++xx) {
+              for (unsigned element = 0; element < num_components; ++element) {
+                destination[element] = source[swizzle[element]];
+              }
+              destination += num_components;
+              source += num_components;
+            }
+            destination += destination_stride;
+            source += source_stride;
+            --copy_height;
+          }
+          break;
+        }
+        default: {
+          destination_stride = (texture_width - copy_width) * 4;
+          uint8* destination =
+              static_cast<uint8*>(data) +
+             (destination_y * texture_width + destination_x) * 4;
+          while (copy_height > 0) {
+            for (int xx = 0; xx < copy_width; ++xx) {
+              destination[0] = static_cast<unsigned char>(
+                  source[swizzle[0]] * 255.0f);
+              destination[1] = static_cast<unsigned char>(
+                  source[swizzle[1]] * 255.0f);
+              destination[2] = static_cast<unsigned char>(
+                  source[swizzle[2]] * 255.0f);
+              destination[3] = (num_components == 4) ?
+                  static_cast<unsigned char>(source[swizzle[3]] * 255.0f) : 255;
+              destination += 4;
+              source += num_components;
+            }
+            destination += destination_stride;
+            source += source_stride;
+            --copy_height;
+          }
+          break;
+        }
+      }
+      if (!self->Unlock(level)) {
+        O3D_ERROR(self->service_locator()) << "could not unlock texture";
+      }
+    }
+    void userglue_method_SetRect(o3d::Texture2D* self,
+                                 int level,
+                                 int destination_x,
+                                 int destination_y,
+                                 int source_width,
+                                 const std::vector<float>& values) {
+      SetRectCheck(self,
+                   level,
+                   destination_x,
+                   destination_y,
+                   source_width,
+                   values,
+                   false);
+    }
+    void userglue_method_Set(o3d::Texture2D* self,
+                             int level,
+                             const std::vector<float>& values) {
+      SetRectCheck(self, level, 0, 0, self->width(), values, true);
+    }
+  %}
+};  // Texture2D
+
+
+%[
+TextureCUBE is a class for textures used for cube mapping.  A cube texture
+stores bitmaps for the 6 faces of a cube and is addressed via three texture
+coordinates.
+%]
+[include="core/cross/texture.h"] class TextureCUBE : Texture {
+  %[
+    \var CubeFace,
+    \li FACE_POSITIVE_X
+    \li FACE_NEGATIVE_X
+    \li FACE_POSITIVE_Y
+    \li FACE_NEGATIVE_Y
+    \li FACE_POSITIVE_Z
+    \li FACE_NEGATIVE_Z
+
+    The names of each of the six faces of a cube map texture.
+  %]
+  enum CubeFace { FACE_POSITIVE_X,
+                  FACE_NEGATIVE_X,
+                  FACE_POSITIVE_Y,
+                  FACE_NEGATIVE_Y,
+                  FACE_POSITIVE_Z,
+                  FACE_NEGATIVE_Z };
+
+  %[
+    The length of each edge of the cube, in texels.
+  %]
+  [field_access=private, getter] int edge_length;
+
+  %[
+    Returns a RenderSurface object associated with a given cube face and
+    mip_level of a texture.
+
+    \param face The cube face from which to extract the surface.
+    \param mip_level The mip-level of the surface to be returned.
+    \param pack The pack in which the surface will reside.
+    \return The RenderSurface object.
+  %]
+  RenderSurface? GetRenderSurface(CubeFace face, int mip_level, Pack pack);
+};  // TextureCUBE
+
+}  // namespace o3d

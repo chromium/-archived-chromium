@@ -1,0 +1,118 @@
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x600
+  RenderBlock {HTML} at (0,0) size 800x600
+    RenderBody {BODY} at (8,8) size 784x584
+      RenderBlock {P} at (0,0) size 784x60
+        RenderText {#text} at (0,0) size 778x59
+          text run at (0,0) width 778: "This table contains an <applet> that will not load -- you can see the space get allocated and then reflow. Notice that the final table"
+          text run at (0,20) width 528: "is clipped on the right hand side -- try shrinking the window and notice how the clipping "
+          text run at (528,20) width 233: "increases. (I couldn't really simplify this"
+          text run at (0,40) width 203: "further without losing some of the "
+          text run at (203,40) width 103: "original 'flavour'.)"
+      RenderBlock (anonymous) at (0,76) size 784x20
+        RenderBR {BR} at (0,0) size 0x19
+      RenderTable {TABLE} at (0,96) size 773x175 [border: (1px outset #808080)]
+        RenderTableSection {TBODY} at (1,1) size 771x173
+          RenderTableRow {TR} at (0,2) size 771x169
+            RenderTableCell {TD} at (2,2) size 767x169 [border: (1px inset #808080)] [r=0 c=0 rs=1 cs=1]
+              RenderTable {TABLE} at (2,2) size 763x165 [border: (1px outset #808080)]
+                RenderTableSection {TBODY} at (1,1) size 761x163
+                  RenderTableRow {TR} at (0,2) size 761x99
+                    RenderTableCell {TD} at (2,2) size 757x99 [border: (1px inset #808080)] [r=0 c=0 rs=1 cs=1]
+                      RenderTable {TABLE} at (152,2) size 452x39 [border: (2px outset #808080)]
+                        RenderTableSection {TBODY} at (2,2) size 448x35
+                          RenderTableRow {TR} at (0,2) size 448x31
+                            RenderTableCell {TD} at (2,2) size 444x31 [border: (1px inset #808080)] [r=0 c=0 rs=1 cs=1]
+                              RenderApplet {APPLET} at (2,2) size 440x27
+                              RenderText {#text} at (0,0) size 0x0
+                      RenderBlock {P} at (2,57) size 753x40
+                        RenderText {#text} at (0,0) size 738x39
+                          text run at (0,0) width 407: "The Porto Elounda Mare is built on the sea front, on a 110,000 m2 "
+                          text run at (407,0) width 331: "plot of land with a 150 meter long private sandy beach."
+                          text run at (0,20) width 91: "The view from "
+                          text run at (91,20) width 363: "decorated with antique and contemporary furniture and rugs."
+                  RenderTableRow {TR} at (0,103) size 761x58
+                    RenderTableCell {TD} at (2,103) size 757x58 [border: (1px inset #808080)] [r=1 c=0 rs=1 cs=1]
+                      RenderTable {TABLE} at (2,2) size 753x54 [border: (1px outset #808080)]
+                        RenderTableSection {TBODY} at (1,1) size 751x52
+                          RenderTableRow {TR} at (0,0) size 751x52
+                            RenderTableCell {TD} at (0,10) size 293x32 [border: (1px inset #808080)] [r=0 c=0 rs=1 cs=1]
+                              RenderText {#text} at (6,6) size 281x19
+                                text run at (6,6) width 130: "99 Rates in Drahmas "
+                                text run at (136,6) width 119: "Per Person on H/B "
+                                text run at (255,6) width 32: "Basis"
+                            RenderTableCell {TD} at (293,0) size 102x52 [border: (1px inset #808080)] [r=0 c=1 rs=1 cs=1]
+                              RenderText {#text} at (6,6) size 90x19
+                                text run at (6,6) width 90: "27/03 - 30/04 "
+                              RenderBR {BR} at (96,21) size 0x0
+                              RenderText {#text} at (6,26) size 86x19
+                                text run at (6,26) width 86: "16/10 - 31/10"
+                            RenderTableCell {TD} at (395,10) size 176x32 [border: (1px inset #808080)] [r=0 c=2 rs=1 cs=1]
+                              RenderText {#text} at (6,6) size 164x19
+                                text run at (6,6) width 164: "01/5- 21/5 & 2/10 - 15/10"
+                            RenderTableCell {TD} at (571,0) size 90x52 [border: (1px inset #808080)] [r=0 c=3 rs=1 cs=1]
+                              RenderText {#text} at (6,6) size 78x19
+                                text run at (6,6) width 78: "22/5 - 16/07"
+                              RenderBR {BR} at (84,21) size 0x0
+                              RenderText {#text} at (6,26) size 78x19
+                                text run at (6,26) width 78: "28/8 - 01/10"
+                            RenderTableCell {TD} at (661,10) size 90x32 [border: (1px inset #808080)] [r=0 c=4 rs=1 cs=1]
+                              RenderText {#text} at (6,6) size 78x19
+                                text run at (6,6) width 78: "17/07 - 27/8"
+      RenderBlock (anonymous) at (0,271) size 784x20
+        RenderBR {BR} at (0,0) size 0x19
+      RenderBlock {P} at (0,307) size 784x20
+        RenderText {#text} at (0,0) size 518x19
+          text run at (0,0) width 402: "This table repeats the previous table, but removes the 'bad applet'. "
+          text run at (402,0) width 116: "Table lays out OK."
+      RenderBlock (anonymous) at (0,343) size 784x20
+        RenderBR {BR} at (0,0) size 0x19
+      RenderTable {TABLE} at (0,363) size 773x168 [border: (1px outset #808080)]
+        RenderTableSection {TBODY} at (1,1) size 771x166
+          RenderTableRow {TR} at (0,2) size 771x162
+            RenderTableCell {TD} at (2,2) size 767x162 [border: (1px inset #808080)] [r=0 c=0 rs=1 cs=1]
+              RenderTable {TABLE} at (2,2) size 763x158 [border: (1px outset #808080)]
+                RenderTableSection {TBODY} at (1,1) size 761x156
+                  RenderTableRow {TR} at (0,2) size 761x92
+                    RenderTableCell {TD} at (2,2) size 757x92 [border: (1px inset #808080)] [r=0 c=0 rs=1 cs=1]
+                      RenderTable {TABLE} at (325,2) size 107x32 [border: (2px outset #808080)]
+                        RenderTableSection {TBODY} at (2,2) size 103x28
+                          RenderTableRow {TR} at (0,2) size 103x24
+                            RenderTableCell {TD} at (2,2) size 99x24 [border: (1px inset #808080)] [r=0 c=0 rs=1 cs=1]
+                              RenderText {#text} at (2,2) size 95x19
+                                text run at (2,2) width 95: "applet was here"
+                      RenderBlock {P} at (2,50) size 753x40
+                        RenderText {#text} at (0,0) size 738x39
+                          text run at (0,0) width 407: "The Porto Elounda Mare is built on the sea front, on a 110,000 m2 "
+                          text run at (407,0) width 331: "plot of land with a 150 meter long private sandy beach."
+                          text run at (0,20) width 91: "The view from "
+                          text run at (91,20) width 363: "decorated with antique and contemporary furniture and rugs."
+                  RenderTableRow {TR} at (0,96) size 761x58
+                    RenderTableCell {TD} at (2,96) size 757x58 [border: (1px inset #808080)] [r=1 c=0 rs=1 cs=1]
+                      RenderTable {TABLE} at (2,2) size 753x54 [border: (1px outset #808080)]
+                        RenderTableSection {TBODY} at (1,1) size 751x52
+                          RenderTableRow {TR} at (0,0) size 751x52
+                            RenderTableCell {TD} at (0,10) size 293x32 [border: (1px inset #808080)] [r=0 c=0 rs=1 cs=1]
+                              RenderText {#text} at (6,6) size 281x19
+                                text run at (6,6) width 130: "99 Rates in Drahmas "
+                                text run at (136,6) width 119: "Per Person on H/B "
+                                text run at (255,6) width 32: "Basis"
+                            RenderTableCell {TD} at (293,0) size 102x52 [border: (1px inset #808080)] [r=0 c=1 rs=1 cs=1]
+                              RenderText {#text} at (6,6) size 90x19
+                                text run at (6,6) width 90: "27/03 - 30/04 "
+                              RenderBR {BR} at (96,21) size 0x0
+                              RenderText {#text} at (6,26) size 86x19
+                                text run at (6,26) width 86: "16/10 - 31/10"
+                            RenderTableCell {TD} at (395,10) size 176x32 [border: (1px inset #808080)] [r=0 c=2 rs=1 cs=1]
+                              RenderText {#text} at (6,6) size 164x19
+                                text run at (6,6) width 164: "01/5- 21/5 & 2/10 - 15/10"
+                            RenderTableCell {TD} at (571,0) size 90x52 [border: (1px inset #808080)] [r=0 c=3 rs=1 cs=1]
+                              RenderText {#text} at (6,6) size 78x19
+                                text run at (6,6) width 78: "22/5 - 16/07"
+                              RenderBR {BR} at (84,21) size 0x0
+                              RenderText {#text} at (6,26) size 78x19
+                                text run at (6,26) width 78: "28/8 - 01/10"
+                            RenderTableCell {TD} at (661,10) size 90x32 [border: (1px inset #808080)] [r=0 c=4 rs=1 cs=1]
+                              RenderText {#text} at (6,6) size 78x19
+                                text run at (6,6) width 78: "17/07 - 27/8"

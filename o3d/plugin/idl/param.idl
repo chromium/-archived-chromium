@@ -1,0 +1,328 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+typedef Param[] ParamVector;
+
+%[
+  Params store data defined name/value pairs on ParamObjects.
+  Each Param has a name, a type and a value that can be set and queried.
+  One of their uses is to hold "uniform constants" used to parameterize shaders.
+  Params can be connected in a source/destination fashion such that a target
+  Param gets its value from the source param.
+%]
+
+[nocpp, include="core/cross/param.h"] class Param : NamedObjectBase {
+
+  [verbatim=cpp_header] %{
+  static int data_length_[NUM_PARAM_TYPES];  // Data size requirements per type
+
+  void *data_;  // Storage for Param value
+  const void *handle_;  // Handle to an implementation specific object holding
+                        // corresponding to the Param
+  %}
+
+  %[
+    If true, this param will make sure its input param is up to date when
+    using it as a source. Default = true.
+
+    This is for helping with Param cycles.
+
+    If paramA gets its value from paramB and paramB gets its value from
+    paramA:\n
+    If you go paramA.value, paramB will evaluate then copy to paramA.\n
+    If you go paramB.value, paramA will evaluate then copy to paramB.\n
+    If you set paramB.updateInput = false, then:\n
+    If you go paramA.value, paramB will evaluate then copy to paramA.\n
+    If you go paramB.value, paramB just copy paramA. paramA will NOT evaluate
+    when paramB asks for its value.
+  %]
+  [getter, setter, property=rw] bool update_input;
+
+  %[
+    Directly binds two Param elements such that this
+    parameter gets its value from the source parameter.  The
+    source must be compatible with this parameter.
+
+    \param source_param The parameter that the value originates from. Passing in
+         null will unbind any parameter currently bound.
+    \return True if the bind succeeded.
+  %]
+  bool Bind(Param? source_param);
+
+  %[
+    Breaks any input connection coming into the Param.
+  %]
+  void UnbindInput();
+
+  %[
+    Breaks a specific param-bind output connection on this param.
+
+    \param destination_param param to unbind.
+  %]
+  void UnbindOutput(Param destination_param);
+
+  %[
+    Breaks all param-bind output connections on this param.
+  %]
+  void UnbindOutputs();
+
+  %[
+    If true the param is read only. Its value can not be set nor can it be used
+    as the destination in a ParamBind
+  %]
+  [getter, property=r] bool read_only_;
+
+  %[
+    The input connection for this param.
+  %]
+  [getter, property_r] Param? input_connection;
+
+  %[
+    The output connections for this param.
+  %]
+  [getter, property=r] ParamVector output_connections;
+};
+
+%[
+  A Param class which stores a single float.
+%]
+[nocpp, include="core/cross/param.h"] class ParamFloat : Param {
+  %[
+    The float stored by the Param.
+  %]
+  [getter, setter, property=rw] float value_;
+};
+
+%[
+  A Param class which stores a Float2.
+%]
+[nocpp, include="core/cross/param.h"] class ParamFloat2 : Param {
+  %[
+    Sets the Float2 stored by the Param by an array of 2 numbers.
+  %]
+  [setter, getter, property=rw, nocpp] Float2 value;
+
+  %[
+    Sets the value of ParamFloat2 by 2 numbers.
+    \param v0 first value.
+    \param v1 second value.
+  %]
+  [userglue] void set(float v0, float v1);
+
+  [verbatim=cpp_glue] %{
+    void userglue_method_set(o3d::ParamFloat2* self,
+                             float v0,
+                             float v1) {
+      self->set_value(o3d::Float2(v0, v1));
+    }
+  %}
+};
+
+%[
+  A Param class which stores a Float3.
+%]
+[nocpp, include="core/cross/param.h"] class ParamFloat3 : Param {
+  %[
+    Sets the Float3 stored by the Param by an array of 3 numbers.
+  %]
+  [setter, getter, property=rw, nocpp] Float3 value;
+
+  %[
+    Sets the entries of the value of ParamFloat3 to the 3 given numbers.
+    \param v0 first value.
+    \param v1 second value.
+    \param v2 third value.
+  %]
+  [userglue] void set(float v0, float v1, float v2);
+
+  [verbatim=cpp_glue] %{
+    void userglue_method_set(o3d::ParamFloat3* self,
+                             float v0,
+                             float v1,
+                             float v2) {
+      self->set_value(o3d::Float3(v0, v1, v2));
+    }
+  %}
+};
+
+%[
+  A Param class which stores a Float4.
+%]
+[nocpp, include="core/cross/param.h"] class ParamFloat4 : Param {
+  %[
+    Sets the Float4 stored by the Param by an array of 4 numbers.
+  %]
+  [setter, getter, property=rw, nocpp] Float4 value;
+
+  %[
+    Sets the value of ParamFloat4 by 4 numbers.
+    \param v0 first value.
+    \param v1 second value.
+    \param v2 third value.
+    \param v3 fourth value.
+  %]
+  [userglue] void set(float v0, float v1, float v2, float v3);
+
+  [verbatim=cpp_glue] %{
+    void userglue_method_set(o3d::ParamFloat4* self,
+                             float v0,
+                             float v1,
+                             float v2,
+                             float v3) {
+      self->set_value(o3d::Float4(v0, v1, v2, v3));
+    }
+  %}
+};
+
+%[
+  A Param class which stores a 4-by-4 matrix.
+%]
+[nocpp, include="core/cross/param.h"] class ParamMatrix4 : Param {
+  %[
+    Sets the 4-by-4 matrix stored by the Param by a length-4 array of arrays of
+    4 numbers.
+  %]
+  [getter, setter, property=rw, nocpp] Vectormath::Aos::Matrix4 value;
+};
+
+%[
+  A Param class which stores an integer.
+%]
+[nocpp, include="core/cross/param.h"] class ParamInteger : Param {
+  %[
+    The integer stored by the Param.
+  %]
+  [getter, setter, property=rw] int value_;
+};
+
+%[
+  A Param class which stores a boolean.
+%]
+[nocpp, include="core/cross/param.h"] class ParamBoolean : Param {
+  %[
+    The boolean stored by the Param.
+  %]
+  [getter, setter, property=rw] bool value_;
+};
+
+%[
+  A Param which stores a string.
+%]
+[nocpp, include="core/cross/param.h"] class ParamString : Param {
+  %[
+    The string stored by the Param.
+  %]
+  [getter, setter, property=rw] String value_;
+};
+
+%[
+  A Param which stores a Sampler.
+%]
+[nocpp, include="core/cross/sampler.h"] class ParamSampler : Param {
+  %[
+    The Sampler stored by the Param.
+  %]
+  [getter, setter, property=rw] Sampler? value_;
+};
+
+%[
+ A Param which stores a Texture.
+%]
+[nocpp, include="core/cross/param.h"] class ParamTexture : Param {
+  %[
+    The Texture stored by the Param.
+  %]
+  [getter, setter, property=rw] Texture? value_;
+};
+
+%[
+  A Param which stores a Material.
+%]
+[nocpp, include="core/cross/param.h"] class ParamMaterial : Param {
+  %[
+    The Material stored by the Param.
+  %]
+  [getter, setter, property=rw] Material? value_;
+};
+
+%[
+  A Param which stores a State.
+%]
+[nocpp, include="core/cross/param.h"] class ParamState : Param {
+  %[
+    The State stored by the Param.
+  %]
+  [getter, setter, property=rw] State? value_;
+};
+
+%[
+  A Param which stores a Effect.
+%]
+[nocpp, include="core/cross/param.h"] class ParamEffect : Param {
+  %[
+    The Effect stored by the Param.
+  %]
+  [getter, setter, property=rw] Effect? value_;
+};
+
+%[
+  A Param which stores a Transform.
+%]
+[nocpp, include="core/cross/param.h"] class ParamTransform : Param {
+  %[
+    The Transform stored by the Param.
+  %]
+  [getter, setter, property=rw] Transform? value_;
+};
+
+%[
+  A Param which stores a DrawList.
+%]
+[nocpp, include="core/cross/param.h"] class ParamDrawList : Param {
+  %[
+    The DrawList stored by the Param.
+  %]
+  [getter, setter, property=rw] DrawList? value_;
+};
+
+%[
+  A Param which stores a DrawContext.
+%]
+[nocpp, include="core/cross/param.h"] class ParamDrawContext : Param {
+  %[
+    The DrawContext stored by the Param.
+  %]
+  [getter, setter, property=rw] DrawContext? value_;
+};
+
+}  // namespace o3d

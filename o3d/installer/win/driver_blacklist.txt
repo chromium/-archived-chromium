@@ -1,0 +1,12 @@
+# This file contains the GUIDs of blacklisted drivers as unsigned ints in hex.
+# File format:
+#   # comments out to the end of a line.
+#   Lines should be no longer than 256 characters.  Still, to keep things
+#     simple, just put one GUID per line.
+#   Whitespace is ignored except in that it separates GUIDs.
+#   No other characters are legal.
+
+# Sample GUID [DO NOT UNCOMMENT THIS LINE]:
+# 0xd7b71e3e
+
+# Actual blacklisted drivers:

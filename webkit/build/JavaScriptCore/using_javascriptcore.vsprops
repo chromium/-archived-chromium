@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="using_javascriptcore"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="$(IntDir)\..\JavaScriptCore;$(IntDir)\..\KJSBindings\DerivedSources;$(SolutionDir)..\third_party\WebKit\JavaScriptCore\bindings;$(SolutionDir)..\third_party\WebKit\JavaScriptCore\runtime;$(SolutionDir)..\third_party\WebKit\JavaScriptCore\parser"
+		PreprocessorDefinitions="ENABLE_CTI=1;CRASH=__debugbreak"
+		DisableSpecificWarnings="4127; 4355; 4510; 4512; 4610; 4706"
+	/>
+</VisualStudioPropertySheet>

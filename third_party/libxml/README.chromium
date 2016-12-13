@@ -1,0 +1,38 @@
+This directory contains a partial snapshot of the libxml library from
+http://xmlsoft.org, with the patch in google.patch applied. google.patch
+includes the following modifications : 
+* Modified encoding.c to fix memory leak (06/13/2008)
+* Modified win32/configure.js NOT to use iconv
+* Modified win32/configure.js to be able to clobber a read-only Makefile
+* Modified configure to enable icu.
+* Modified configure to not generate Makefiles and other unused build files..
+* Added pre-generated Linux headers to linux/.
+* Changed 'LoadLibrary' to 'LoadLibraryA' in xmlmodule.c (used with
+  'const char*' as an argument)
+* Changed bogus '(unsigned long)' cast to '(unsigned short)' in xmlregexp.c
+* Made it possible to use ICU converters instead of iconv. 
+* Added nsParent member to _xmlParseCtxt in include/libxml/parser.h, 
+  added a check to nsParent in xmlGetNamespace() in parser.c. 
+  This allows parsed entities to inherit namespaces.
+  (http://bugzilla.gnome.org/show_bug.cgi?id=502960 )
+* Applied security patch located at https://bugzilla.redhat.com/show_bug.cgi?id=461015
+
+Current version: 2.6.32
+
+To import a new snapshot of libxml:
+
+- Visit http://xmlsoft.org/downloads.html and download the latest source
+  distribution.
+- Copy the files into this directory, omitting files which have been omitted
+  here.
+- Remove include/libxml/xmlversion.h.
+- Apply the patch in google.patch and reconcile any conflict
+- Then, make any necessary changes to remove compile-time warnings.
+- Update google.patch
+- On a Linux system, 'cd linux && sh ../configure --without-iconv' to
+  generate config.h and include/libxml/xmlversion.h for Linux.
+- On a Mac, 'cd mac && sh ../configure --without-iconv' to generate config.h
+  and include/libxml/xmlversion.h for Macs.
+- On Windows, run build/generate-win32-headers.bat to re-generate config.h and
+  include/libxml/xmlversion.h for Windows builds.
+- Update this README to reflect the new version number.

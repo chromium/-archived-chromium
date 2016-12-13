@@ -1,0 +1,8 @@
+This is a copy of the parts of the bzip-1.0.5 distribution needed to build
+the bzip2 library.
+
+The current distribution is available from:
+http://www.bzip.org/downloads.html
+
+When updating, no modifications should be necessary aside from copying
+the subset of files included here.

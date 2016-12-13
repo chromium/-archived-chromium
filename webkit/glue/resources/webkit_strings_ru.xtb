@@ -1,0 +1,42 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="ru">
+<translation id="4420062214988137980">Ошибка при установке плагина</translation>
+<translation id="1235745349614807883">Очистить недавние поиски</translation>
+<translation id="3825324228893189080">Необходим дополнительный плагин</translation>
+<translation id="2965480764085142436">Плагин <ph name="PLUGIN"/> не установлен</translation>
+<translation id="5048533449481078685">маркер списка</translation>
+<translation id="4202807286478387388">перейти</translation>
+<translation id="4611115858363067980"><ph name="FILENAME"/><ph name="WIDTH"/>×<ph name="HEIGHT"/></translation>
+<translation id="4317653869502688143">Подтвердите, что хотите установить плагин <ph name="PLUGIN"/>. Устанавливать следует модули только тех издателей, которым вы доверяете.</translation>
+<translation id="7658239707568436148">Отмена</translation>
+<translation id="795667975304826397">Файл не выбран</translation>
+<translation id="1275511093094545429">Необходим плагин <ph name="PLUGIN"/></translation>
+<translation id="8662565117025751661">Загрузка подключаемого модуля...</translation>
+<translation id="8141602879876242471">Это индекс с возможностью поиска. Введите ключевые слова для поиска:</translation>
+<translation id="6845533974506654842">нажать</translation>
+<translation id="8244226242650769279">графическая карта</translation>
+<translation id="1383141426028388991">Не удалось установить подключаемый модуль со следующего адреса: <ph name="URL"/></translation>
+<translation id="2548326553472216322">Нет недавних поисков</translation>
+<translation id="5944544982112848342">2048 (Крупный размер)</translation>
+<translation id="3040011195152428237">ссылка</translation>
+<translation id="8281246460978372009">После установки подключаемого модуля нажмите здесь для обновления</translation>
+<translation id="7364796246159120393">Выберите файл</translation>
+<translation id="8964020114565522021">Перетащите файл сюда</translation>
+<translation id="838869780401515933">поставить галочку</translation>
+<translation id="2846343701378493991">1024 (Средний размер)</translation>
+<translation id="5476505524087279545">снять галочку</translation>
+<translation id="679352192834563463">Недоступен плагин для отображения этого содержания</translation>
+<translation id="3789841737615482174">Установить</translation>
+<translation id="6663448176199120256">Недавние поиски</translation>
+<translation id="3600343118165084788">Нажмите здесь, чтобы загрузить плагин</translation>
+<translation id="6807599807928161586">область Интернетеа</translation>
+<translation id="5939518447894949180">Изменить</translation>
+<translation id="3771786644471114952">Получить плагин</translation>
+<translation id="1842960171412779397">выбрать</translation>
+<translation id="6119846243427417423">активировать</translation>
+<translation id="3926627843712816530">Подтвердите, что хотите установить этот плагин. Устанавливать следует модули только тех издателей, которым вы доверяете.</translation>
+<translation id="4838490908464673667">Не установлен необходимый плагин.</translation>
+<translation id="8597182159515967513">заголовок</translation>
+<translation id="2653659639078652383">Отправить</translation>
+</translationbundle>

@@ -1,0 +1,138 @@
+# Copyright 2009, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+import os
+import sys
+
+Import('env')
+env.Replace(
+    GOOGLECLIENT = '$SCONSTRUCT_DIR',
+    THIRD_PARTY = '$GOOGLECLIENT/third_party',
+
+    # A whole bunch of third-party and internal dependencies
+    ANTLRLIBC_DIR = '$THIRD_PARTY/antlr3/runtime/C',
+    ANTLR_DIR = '$THIRD_PARTY/antlr3/lib',
+    BREAKPAD_DIR = '$THIRD_PARTY/breakpad/files/src',
+    CG_BASE_DIR = '$THIRD_PARTY/cg/files',
+    # TODO: pull from Chrome's SVN with gclient ?
+    CHROME_SRC_DIR = '$THIRD_PARTY/chrome/files',
+    COLLADA_DIR = '$THIRD_PARTY/fcollada/files',
+    DOXYGEN_DIR = '$THIRD_PARTY/doxygen',
+    GFLAGS_DIR = '$THIRD_PARTY/gflags',
+    GLEW_DIR = '$THIRD_PARTY/glew/files',
+    GMOCK_DIR = '$THIRD_PARTY/gmock/files',
+    GTEST_DIR = '$THIRD_PARTY/gtest/files',
+    # TODO: pull from Chrome's SVN with gclient ?
+    ICU38_DIR = '$THIRD_PARTY/icu38/files',
+    INTERNAL_DIR = '$SCONSTRUCT_DIR/../o3d-internal',
+    JPEG_DIR = '$THIRD_PARTY/jpeg/src',
+    JSDOCTOOLKIT_DIR = '$THIRD_PARTY/jsdoctoolkit/files',
+    # To run selenium tests you will need a tgz'ed copy of firefox.
+    # Specify the path to it below.
+    # See tests/build.scons
+    MAC_HERMETIC_FIREFOX_DIR = (
+        '$INTERNAL_DIR/third_party/firefox'),
+    # If we have directx redistributables present,
+    # then build o3dextras.
+    DIRECTX_REDIST_DIR=(
+        '$INTERNAL_DIR/third_party/dx_nov_2007_redist'),
+    # NACL has to be in this weird directory because it looks for
+    # googleclient two levels above it.
+    NACL_DIR = '$THIRD_PARTY/native_client/googleclient/native_client',
+    NIXYSA_DIR = '$THIRD_PARTY/nixysa/files',
+    NPAPI_DIR = '$THIRD_PARTY/npapi/files',
+    PDIFF_DIR = '$THIRD_PARTY/pdiff/files',
+    PLY_DIR = '$THIRD_PARTY/ply/files',
+    PNG_DIR = '$THIRD_PARTY/png/src',
+    SCONS_DIR = '$THIRD_PARTY/scons',
+    SELENIUM_JAVA_DIR = '$THIRD_PARTY/java/selenium/rev2478_mod',
+    SELENIUM_PYTHON_DIR = '$THIRD_PARTY/py/selenium',
+    # TODO: pull from SVN with gclient ?
+    SKIA_DIR = '$THIRD_PARTY/skia',
+    SWIFTSHADER_DIR = '$INTERNAL_DIR/third_party/swiftshader/files',
+    # TODO: pull from SVN with gclient ?
+    V8_SRC_DIR = '$THIRD_PARTY/v8',
+    WIX_DIR = '$THIRD_PARTY/wix_2_0_4221/files',
+    ZIP_UTILS_DIR = '$THIRD_PARTY/zip_utils/files',
+    ZLIB_DIR = '$THIRD_PARTY/zlib/files',
+    # Big stuff that we don't want to be part of the chrome tree.
+    SAMPLE_ASSETS = '$GOOGLECLIENT/o3d_assets/samples',
+    TEST_REFERENCE_IMAGES = '$GOOGLECLIENT/o3d_assets/tests/screenshots',
+)
+if env.Bit('host_windows'):
+  import _winreg
+  try:
+    dxsdk_dir = os.environ['DXSDK_DIR']
+  except KeyError:
+    print 'The DirectX SDK needs to be installed, and the DXSDK_DIR environment'
+    print 'variable must point to the installation directory.'
+    sys.exit(1)
+  try:
+    winsdk_key = _winreg.OpenKey(
+        _winreg.HKEY_LOCAL_MACHINE,
+        'SOFTWARE\\Microsoft\\Microsoft SDKs\\Windows\\v6.0\\WinSDKBuild')
+  except WindowsError:
+    try:
+      winsdk_key = _winreg.OpenKey(
+          _winreg.HKEY_LOCAL_MACHINE,
+          'SOFTWARE\\Microsoft\\Microsoft SDKs\\Windows\\v6.0A\\VistaClientHeadersLibs')
+    except WindowsError:
+      try:
+        winsdk_key = _winreg.OpenKey(
+            _winreg.HKEY_LOCAL_MACHINE,
+            'SOFTWARE\\Microsoft\\Microsoft SDKs\\Windows\\v6.1\\WinSDKBuild')
+      except WindowsError:
+        print 'The Windows SDK version 6.0 or later needs to be installed'
+        sys.exit(1)
+  try:
+    winsdk_dir, value_type = _winreg.QueryValueEx(winsdk_key,
+                                                  'InstallationFolder')
+  except WindowsError:
+    print 'The Windows SDK version 6.0 or later needs to be installed'
+    sys.exit(1)
+  _winreg.CloseKey(winsdk_key)
+  # Strip off trailing slashes
+  winsdk_dir = winsdk_dir.rstrip('\\/')
+  dxsdk_dir = dxsdk_dir.rstrip('\\/')
+  env.Replace(JAVA_EXE = '%SystemRoot%\\system32\\java.exe',
+              PLATFORM_SDK_VISTA_6_0_DIR = winsdk_dir,
+              DIRECTX9_18_944_0_PARTIAL_DIR = dxsdk_dir,
+              DOXYGEN = '$DOXYGEN_DIR/win/doxygen.exe')
+  try:
+    env['ENV']['PATH'] = "%s%s%s" % (env['ENV']['PATH'], os.pathsep,
+                                     os.path.join(winsdk_dir, 'Bin'))
+  except KeyError:
+    env['ENV']['PATH'] = os.path.join(winsdk_dir, 'Bin')
+else:
+  env.Replace(JAVA_EXE = 'java')
+  if env.Bit('host_linux'):
+    env.Replace(DOXYGEN = '$DOXYGEN_DIR/linux/doxygen')
+  else:
+    env.Replace(DOXYGEN = '$DOXYGEN_DIR/osx/doxygen')

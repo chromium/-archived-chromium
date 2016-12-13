@@ -1,0 +1,294 @@
+{!
+thisClass = data;
+!}
+
+<!-- ============================== header ================================= -->
+                <!-- begin static/header.html -->
+                {+include("static/header.html")+}
+                <!-- end static/header.html -->
+
+<div id="doxygen-ref">
+<!-- Genreated by jsdoctoolkit 2.1.0 -->
+<div class="navigation" id="top">
+  <div class="navpath">{+getHierarchicalLinksToClassByAlias(thisClass.alias,'el')+}</div>
+</div>
+
+<div class="contents">
+<h1>{+thisClass.alias+} <if test="thisClass.isNamespace">Module</if><if test="!thisClass.isNamespace">Class</if> Reference</h1>
+<if test="thisClass.inheritsFrom.length">
+  Inherits <a class="el" href="{+getLinkToClassByAlias(thisClass.inheritsFrom[0])+}">{+thisClass.inheritsFrom[0]+}</a>
+</if>
+<p/>
+
+<p/>
+<a href="{+getLinkToClassMembersByAlias(thisClass.alias)+}">List of all members.</a>
+<hr/>
+<a name="_details"></a>
+<h2>Detailed Description</h2>
+<if test="thisClass.classDesc">{+sanitizeForEZT(thisClass.classDesc)+}</if>
+<if test="!thisClass.classDesc">{+sanitizeForEZT(thisClass.desc)+}</if>
+
+<if test="thisClass.srcFile.length">
+<h2>Source</h2>
+<a name="_source" href="http://code.google.com/p/o3d/source/browse/trunk/samples/{+getSourcePath(thisClass)+}">{+getSourcePath(thisClass)+}</a>
+</if>
+
+<!-- =========== SEE ALSO =========== -->
+<if test="data.see.length">
+  <h2>See Also</h2>
+  <ul>
+  <for each="seeAlso" in="data.see">
+    <li>
+    {+linkifyTypeSpec(makeName('[Class See Also]', thisClass.alias), seeAlso)+}
+    </li>
+  </for>
+  </ul>
+</if>
+
+<!-- =========== SEE ALSO =========== -->
+
+<!-- ========== CONSTRUCTOR SUMMARY ============== -->
+<if test="!data.isPrivate && !data.isBuiltin() && !data.isNamespace && data.is('CONSTRUCTOR')">
+  <h2>Constructor</h2>
+  <ul>
+  <li><a class="el" href="{+data.name+}">{+data.alias+}</a><if test="data.classType != 'Namespace '">{+ makeSignature(data.params) +}</if></li>
+  </ul>
+</if>
+
+<!-- ========== METHOD SUMMARY =========== -->
+<if test="thisClass.methods.length">
+  {! var ownMethods = data.methods.sort(makeSortby("name")); !}
+  <if test="ownMethods.length">
+    <h2>Public Member Functions</h2>
+    <ul>
+    <for each="method" in="ownMethods">
+    <if test="!method.isPrivate">
+        <li>
+        <if test="method.isStatic||!method.memberOf">&lt;static&gt; </if>
+        <if test="method.type.length">{+linkifyTypeSpec(makeName('[Method Summary]', thisClass.alias, method.name), method.type)+}&nbsp;</if>
+        <a class="el" href="#{+method.name+}">{+method.name+}</a>{+makeSignature(method.params)+}
+        </li>
+    </if>
+    </for>
+    </ul>
+  </if>
+</if>
+
+<!-- =========== FIELD SUMMARY =========== -->
+<if test="data.properties.length">
+  {! var ownProperties = data.properties.sort(makeSortby("name")); !}
+  <if test="ownProperties.length">
+    <h2>Public Properties</h2>
+    <ul>
+    <for each="property" in="ownProperties">
+    <if test="!property.isPrivate">
+      <li>
+      <if test="property.isStatic||!property.memberOf">&lt;static&gt;&nbsp;</if>
+      {+linkifyTypeSpec(makeName('[Property Summary]', thisClass.alias, property.name), getPropertyType(property))+}
+      <a class="el" href="#{+property.name+}">{+property.name+}</a>
+      </li>
+    </if>
+    </for>
+    </ul>
+  </if>
+</if>
+
+<!-- =========== END FIELD SUMMARY =========== -->
+
+<!-- ========== CONSTRUCTOR DETAIL ============== -->
+<if test="!data.isPrivate && !data.isBuiltin() && !data.isNamespace && data.is('CONSTRUCTOR')">
+  <hr/>
+  <h2>Constructor</h2>
+  <a class="anchor" name="{+data.name+}"></a>
+  <div class="memitem">
+  <div class="memproto">
+  <table class="memname">
+    <if test="data.params && data.params.length">
+    {!
+     var tempCSS = "memname";
+     var tempName = data.alias;
+     var tempParen = "(";
+     var tempEnd = data.params.length > 1 ? "" : ")"
+    !}
+    <for each="param" in="data.params">
+    <tr>
+      <td class="{+tempCSS+}">{+tempName+}</td>
+      <td>{+tempParen+}</td>
+      <td class="paramtype">{+linkifyTypeSpec(makeName('[Constructor Param]', thisClass.alias, param.name), param.type)+}</td>
+      <td class="paramname"><em>{+param.name+}</em></td>
+      <td><if test="$param_last">)</if></td>
+      <td></td>
+    </tr>
+    {!
+      tempCSS = "paramkey";
+      tempName = "";
+      tempParen = "";
+    !}
+    </for>
+    </if>
+    <if test="!data.params || data.params.length == 0">
+    <tr>
+      <td class="memname">{+data.alias+}</td>
+      <td>(</td>
+      <td class="paramtype"></td>
+      <td class="paramname"></td>
+      <td>)</td>
+      <td></td>
+    </tr>
+    </if>
+  </table>
+  </div>
+
+  <div class="memdoc">
+  <p/>
+  {+sanitizeForEZT(data.desc)+}
+  <if test="data.params && data.params.length">
+    <dl compact><dt><b>Parameters:</b></dt>
+    <dd>
+    <table border="0" cellspacing="2" cellpadding="0">
+      <for each="param" in="data.params">
+        <tr><td valign="top"></td><td valign="top"><em>{+param.name+}</em></td><td>{+sanitizeForEZT(param.desc)+}</td></tr>
+      </for>
+    </table>
+    </dd>
+    </dl>
+  </if>
+  </div>
+
+  </div>
+</if>
+
+<!-- =========== METHOD DETAIL ============== -->
+<if test="defined(ownMethods) && ownMethods.length">
+  <hr/>
+  <h2>Member Function Documentation</h2>
+  <for each="member" in="ownMethods">
+  <if test="!member.isPrivate">
+    <a class="anchor" name="{+member.name+}"></a>
+    <div class="memitem">
+    <div class="memproto">
+      <table class="memname">
+        {! var tempInherited = member.memberOf == thisClass.alias ? "" : "[[]inherited]"; !}
+        <if test="member.params && member.params.length">
+        {!
+         var tempCSS = "memname";
+         var tempName = linkifyTypeSpecForReturn(makeName('[Method Detail]', thisClass.alias, member.name), member.type)+" "+member.memberOf+"."+member.name;
+         var tempParen = "(";
+         var tempEnd = member.params.length > 1 ? "" : ")"
+        !}
+        <for each="param" in="member.params">
+        <tr>
+          <td class="{+tempCSS+}">{+tempName+}</td>
+          <td>{+tempParen+}</td>
+          <td class="paramtype">{+linkifyTypeSpec(makeName('[Param Detail]', thisClass.alias, member.name, param.name), param.type)+}</td>
+          <td class="paramname"><em>{+param.name+}</em></td>
+          <td><if test="$param_last">)</if></td>
+          <td><if test="$param_last">{+tempInherited+}</if></td>
+        </tr>
+        {!
+          tempCSS = "paramkey";
+          tempName = "";
+          tempParen = "";
+        !}
+        </for>
+        </if>
+        <if test="!member.params || member.params.length == 0">
+        <tr>
+          <td class="memname">{+member.memberOf+"."+member.name+}</td>
+          <td>(</td>
+          <td class="paramtype"></td>
+          <td class="paramname"></td>
+          <td>)</td>
+          <td>{+tempInherited+}</td>
+        </tr>
+        </if>
+      </table>
+    </div>
+
+    <div class="memdoc">
+    <p/>
+    {+sanitizeForEZT(member.desc)+}
+    <if test="member.params && member.params.length">
+      <dl compact><dt><b>Parameters:</b></dt>
+      <dd>
+      <table border="0" cellspacing="2" cellpadding="0">
+        <for each="param" in="member.params">
+          <tr><td valign="top"></td><td valign="top"><em>{+param.name+}</em></td><td>{+sanitizeForEZT(param.desc)+}</td></tr>
+        </for>
+      </table>
+      </dd>
+      </dl>
+    </if>
+    <if test="member.type && member.type.length">
+    <dl class="return" compact><dt><b>Returns:</b></dt>
+    <dd>
+    {+linkifyTypeSpec(makeName('[Return detail]', thisClass.alias, member.name), member.type)+}.<if test="member.returns && member.returns.length">{+sanitizeForEZT(member.returns[0].desc)+}</if>
+    </dd>
+    </if>
+    </div>
+
+    <if test="member.see.length">
+      <dl compact><td><b>See Also:</b></dt>
+      <dd><ul>
+      <for each="seeAlso" in="member.see">
+        <li>
+        {+linkifyTypeSpec(makeName('[Method See Also]', thisClass.alias, '[See Also]'), seeAlso)+}
+        </li>
+      </for>
+      </ul></dd>
+      </dl>
+    </if>
+
+    </div>
+  </if>
+  </for>
+</if>
+
+<!-- =========== PROPERTY DETAIL ============== -->
+
+<if test="defined(ownProperties) && ownProperties.length">
+  <hr/>
+  <h2>Member Property Documentation</h2>
+  <for each="property" in="ownProperties">
+  <if test="!property.isPrivate">
+    <a class="anchor" name="{+property.name+}"></a>
+    <div class="memitem">
+    <div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">{+linkifyTypeSpec(makeName('[Property Detail]', thisClass.alias, property.name), getPropertyType(property))+} {+property.memberOf+"."+property.name+}</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="memdoc">
+    <p/>
+    {+sanitizeForEZT(property.desc)+}
+    </div>
+
+    <if test="property.see.length">
+      <dl compact><td><b>See Also:</b></dt>
+      <dd><ul>
+      <for each="seeAlso" in="property.see">
+        <li>
+        {+linkifyTypeSpec(makeName('[Property See Also]', thisClass.alias), seeAlso)+}
+        </li>
+      </for>
+      </ul></dd>
+      </dl>
+    </if>
+
+    </div>
+  </if>
+  </for>
+</if>
+
+</div><!-- end contents -->
+</div><!-- end doxygen-ref -->
+
+<!-- ============================== footer ================================= -->
+                <!-- begin static/footer.html -->
+                {+include("static/footer.html")+}
+                <!-- end static/footer.html -->
+
+

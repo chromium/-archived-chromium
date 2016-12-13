@@ -1,0 +1,47 @@
+<!DocType html><html> 
+<body> 
+<script>
+var fooImage = '<img src="resources/logo.gif" width=20 height=20>';
+function getRowHtml(style) {
+  return '<tr><td>' + (style || '(default)') + '</td>' +
+    '<td><button ' + (style ? 'style="' + style + '"' : '') + '>' + fooImage + '</button></td>' +
+    '<td></td>' +
+    '<td><input type="button" value="foo" style="' + style + '"></td>' +
+    '<td></td></tr>';
+}
+
+document.body.innerHTML += '<table cellspacing=0><tbody>' +
+    '<tr><td>styling</td><td>&lt;button&gt;</td><td>(offsetH,W) (clientH,W)</td>' +
+    '<td>&lt;input type=button&gt;</td><td>(offsetH,W) (clientH, -W)</td>' +
+    '</tr>' +
+    getRowHtml('') +
+    getRowHtml('padding: 0') +
+    getRowHtml('padding: 10%') +
+    getRowHtml('padding: 2px') +
+    getRowHtml('padding: 2px 6px 3px 6px') +
+    getRowHtml('padding: 3px 7px') +
+    getRowHtml('padding: 20px') +
+    '</tbody></table>';
+
+function printSize(tagname, cell) {
+  var buttons = document.getElementsByTagName(tagname);
+  for (var i = 0; i < buttons.length; i++) {
+    var button = buttons[i];
+
+    var table = document.getElementsByTagName('table')[0];
+    var rows = table.rows;
+    var thisCell = button.parentNode;
+    var thisRow = thisCell.parentNode;
+
+    button.parentNode.nextSibling.innerHTML = 
+        "(" + button.offsetHeight + ", " + button.offsetWidth + ") " +
+        "(" + button.clientHeight + ", " + button.clientWidth + ")";
+  }
+}
+
+printSize('button');
+printSize('input');
+</script>
+
+</body> 
+</html> 

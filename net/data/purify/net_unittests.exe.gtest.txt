@@ -1,0 +1,15 @@
+# bug 1339772
+# These tests leak data intentionally, so are not appropriate for Purify tests.
+# Similar list in ../valgrind/net_unittests.gtest.txt
+# TODO(dkegel): either merge the two files or keep them in sync, see
+# http://code.google.com/p/chromium/issues/detail?id=8951
+DiskCacheBackendTest.InvalidEntry
+DiskCacheBackendTest.InvalidEntryRead
+DiskCacheBackendTest.InvalidEntryWithLoad
+DiskCacheBackendTest.TrimInvalidEntry
+DiskCacheBackendTest.InvalidEntryEnumeration
+DiskCacheBackendTest.NewEvictionInvalidEntry
+DiskCacheBackendTest.NewEvictionInvalidEntryRead
+DiskCacheBackendTest.NewEvictionInvalidEntryWithLoad
+DiskCacheBackendTest.NewEvictionTrimInvalidEntry
+DiskCacheBackendTest.NewEvictionInvalidEntryEnumeration

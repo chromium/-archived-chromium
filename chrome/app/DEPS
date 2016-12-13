@@ -1,0 +1,7 @@
+include_rules = [
+  "+breakpad",
+  "+chrome/browser",
+  "+chrome/installer",
+  "+sandbox",
+  "+tools/memory_watcher",
+]

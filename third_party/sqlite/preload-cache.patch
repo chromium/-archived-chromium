@@ -1,0 +1,267 @@
+Index: build.c
+===================================================================
+--- build.c	(revision 12588)
++++ build.c	(working copy)
+@@ -27,6 +27,9 @@
+ #include "sqliteInt.h"
+ #include <ctype.h>
+ 
++#include "pager.h"
++#include "btree.h"
++
+ /*
+ ** This routine is called when a new SQL statement is beginning to
+ ** be parsed.  Initialize the pParse structure as needed.
+@@ -3359,3 +3362,28 @@
+   }
+   return pKey;
+ }
++
++/* See declaration in sqlite3.h for information */
++int sqlite3Preload(sqlite3 *db)
++{
++  Pager *pPager;
++  Btree *pBt;
++  int rc;
++  int i;
++  int dbsLoaded = 0;
++
++  for(i=0; i<db->nDb; i++) {
++    pBt = db->aDb[i].pBt;
++    if( !pBt )
++      continue;
++    pPager = sqlite3BtreePager(pBt);
++    if( pPager ) {
++      rc = sqlite3PagerLoadall(pPager);
++      if (rc == SQLITE_OK)
++        dbsLoaded++;
++    }
++  }
++  if (dbsLoaded == 0)
++    return SQLITE_ERROR;
++  return SQLITE_OK;
++}
+Index: sqlite3.h
+===================================================================
+--- sqlite3.h	(revision 12588)
++++ sqlite3.h	(working copy)
+@@ -2696,6 +2696,19 @@
+ int sqlite3_blob_write(sqlite3_blob *, const void *z, int n, int iOffset);
+ 
+ /*
++** Preload the databases into the pager cache, up to the maximum size of the
++** pager cache.
++**
++** For a database to be loaded successfully, the pager must be active. That is,
++** there must be an open statement on that database. See sqlite3pager_loadall
++**
++** There might be many databases attached to the given connection. We iterate
++** them all and try to load them. If none are loadable successfully, we return
++** an error. Otherwise, we return OK.
++*/
++int sqlite3Preload(sqlite3 *db);
++
++/*
+ ** Undo the hack that converts floating point types to integer for
+ ** builds on processors without floating point support.
+ */
+Index: pager.c
+===================================================================
+--- pager.c	(revision 12588)
++++ pager.c	(working copy)
+@@ -453,6 +453,14 @@
+ */
+ #define PAGER_MAX_PGNO 2147483647
+ 
++/* See comments above the definition. */
++int sqlite3PagerAcquire2(
++  Pager *pPager,
++  Pgno pgno,
++  DbPage **ppPage,
++  int noContent,
++  unsigned char *pDataToFill);
++
+ /*
+ ** Enable reference count tracking (for debugging) here:
+ */
+@@ -2000,14 +2008,14 @@
+   }
+   if( pPager->dbSize>=0 ){
+     n = pPager->dbSize;
+-  } else {
++  }else{
+     if( (rc = sqlite3OsFileSize(pPager->fd, &n))!=SQLITE_OK ){
+       pager_error(pPager, rc);
+       return 0;
+     }
+     if( n>0 && n<pPager->pageSize ){
+       n = 1;
+-    }else{
++    } else {
+       n /= pPager->pageSize;
+     }
+     if( pPager->state!=PAGER_UNLOCK ){
+@@ -3101,6 +3109,25 @@
+   DbPage **ppPage,    /* Write a pointer to the page here */
+   int noContent       /* Do not bother reading content from disk if true */
+ ){
++  /* This just passes through to our modified version with NULL data. */
++  return sqlite3PagerAcquire2(pPager, pgno, ppPage, noContent, 0);
++}
++
++/*
++** This is an internal version of sqlite3PagerAcquire that takes an extra
++** parameter of data to use to fill the page with. This allows more efficient
++** filling for preloaded data. If this extra parameter is NULL, we'll go to
++** the file.
++**
++** See sqlite3PagerLoadall which uses this function.
++*/
++int sqlite3PagerAcquire2(
++  Pager *pPager,      /* The pager open on the database file */
++  Pgno pgno,          /* Page number to fetch */
++  DbPage **ppPage,    /* Write a pointer to the page here */
++  int noContent,      /* Do not bother reading content from disk if true */
++  unsigned char* pDataToFill
++){
+   PgHdr *pPg;
+   int rc;
+ 
+@@ -3181,11 +3208,18 @@
+       pPg->needRead = noContent && !pPager->alwaysRollback;
+       IOTRACE(("ZERO %p %d\n", pPager, pgno));
+     }else{
+-      rc = readDbPage(pPager, pPg, pgno);
+-      if( rc!=SQLITE_OK && rc!=SQLITE_IOERR_SHORT_READ ){
+-        pPg->pgno = 0;
+-        sqlite3PagerUnref(pPg);
+-        return rc;
++      if (pDataToFill) {
++        /* Just copy from the given memory. */
++        memcpy(PGHDR_TO_DATA(pPg), pDataToFill, pPager->pageSize);
++        CODEC1(pPager, PGHDR_TO_DATA(pPg), pPg->pgno, 3);
++      } else {
++        /* Load from disk (old regular sqlite code path). */
++        rc = readDbPage(pPager, pPg, pgno);
++        if( rc!=SQLITE_OK && rc!=SQLITE_IOERR_SHORT_READ ){
++          pPg->pgno = 0;
++          sqlite3PagerUnref(pPg);
++          return rc;
++        }
+       }
+       pPg->needRead = 0;
+     }
+@@ -4416,6 +4450,89 @@
+ }
+ #endif
+ 
++/**
++** When making large allocations, there is no need to stress the heap and
++** potentially hold its lock while we allocate a bunch of memory.  If we know
++** the allocation will be large, go directly to the OS instead of the heap.
++**/
++static void* allocLarge(size_t size) {
++#if OS_WIN
++  return VirtualAlloc(NULL, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
++#else
++  return sqliteMallocRaw(size);
++#endif
++}
++
++static void freeLarge(void* ptr) {
++#if OS_WIN
++  VirtualFree(ptr, 0, MEM_RELEASE);
++#else
++  sqliteFree(ptr);
++#endif
++}
++
++/**
++** Addition: This will attempt to populate the database cache with
++** the first N bytes of the file, where N is the total size of the cache.
++** Because we can load this as one chunk from the disk, this is much faster
++** than loading a subset of the pages one at a time in random order.
++**
++** The pager must be initialized before this function is called. This means a
++** statement must be open that has initialized the pager and is keeping the
++** cache in memory.
++**/
++int sqlite3PagerLoadall(Pager* pPager)
++{
++  int i;
++  int rc;
++  int loadSize;
++  int loadPages;
++  unsigned char *fileData;
++
++  if (pPager->dbSize < 0 || pPager->pageSize < 0) {
++    /* pager not initialized, this means a statement is not open */
++    return SQLITE_MISUSE;
++  }
++
++  /* compute sizes */
++  if (pPager->mxPage < pPager->dbSize)
++    loadPages = pPager->mxPage;
++  else
++    loadPages = pPager->dbSize;
++  loadSize = loadPages * pPager->pageSize;
++
++  rc = sqlite3OsSeek(pPager->fd, 0);
++  if (rc != SQLITE_OK)
++    return rc;
++
++  /* load the file as one chunk */
++  fileData = sqliteMallocRaw(loadSize);
++  if (! fileData)
++    return SQLITE_NOMEM;
++  rc = sqlite3OsRead(pPager->fd, fileData, loadSize);
++  if (rc != SQLITE_OK) {
++    sqliteFree(fileData);
++    return rc;
++  }
++
++  /* Copy the data to each page. Note that the page numbers we pass to _get
++   * are one-based, 0 is a marker for no page. We also need to check that we
++   * haven't loaded more pages than the cache can hold total. There may have
++   * already been a few pages loaded before, so we may fill the cache before
++   * loading all of the pages we want to.
++   */
++  for(i=1; i <= loadPages && pPager->nPage < pPager->mxPage; i++) {
++    DbPage *pPage;
++    rc = sqlite3PagerAcquire2(pPager, i, &pPage, 0,
++                              &fileData[(i-1)*(i64)pPager->pageSize]);
++    if (rc != SQLITE_OK)
++      break;
++    sqlite3PagerUnref(pPage);
++  }
++  sqliteFree(fileData);
++  return SQLITE_OK;
++}
++
+ /*
+ ** Return a pointer to the data for the specified page.
+ */
+Index: pager.h
+===================================================================
+--- pager.h	(revision 12588)
++++ pager.h	(working copy)
+@@ -93,6 +93,7 @@
+ void *sqlite3PagerGetData(DbPage *); 
+ void *sqlite3PagerGetExtra(DbPage *); 
+ int sqlite3PagerLockingMode(Pager *, int);
++int sqlite3PagerLoadall(Pager*);
+ 
+ #if defined(SQLITE_ENABLE_MEMORY_MANAGEMENT) && !defined(SQLITE_OMIT_DISKIO)
+   int sqlite3PagerReleaseMemory(int);
++Index: pager.h
++===================================================================
++--- pager.h	(revision 12588)
+++++ pager.h	(working copy)
++@@ -93,6 +93,7 @@
++ void *sqlite3PagerGetData(DbPage *); 
++ void *sqlite3PagerGetExtra(DbPage *); 
++ int sqlite3PagerLockingMode(Pager *, int);
+++int sqlite3PagerLoadall(Pager*);
++ 
++ #if defined(SQLITE_ENABLE_MEMORY_MANAGEMENT) && !defined(SQLITE_OMIT_DISKIO)
++   int sqlite3PagerReleaseMemory(int);

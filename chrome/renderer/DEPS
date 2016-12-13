@@ -1,0 +1,19 @@
+include_rules = [
+  "+chrome/app",  # The plugins use the theme library to get the sad plugin bitmap.
+  "+chrome/plugin",
+  "+grit",  # For generated headers
+  "+media/audio",
+  "+media/base",
+  "+media/filters",
+  "+sandbox/src",
+  "+skia/include",
+  "+webkit/default_plugin",
+  "+webkit/extensions",
+  "+webkit/glue",
+  "+webkit/glue/plugins",
+  "+v8/include",
+
+  # FIXME - refactor code and remove these dependencies
+  "+chrome/browser/net",
+]
+

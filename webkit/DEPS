@@ -1,0 +1,23 @@
+# checkdeps.py shouldn't check include paths for files in these dirs:
+skip_child_includes = [
+  "api",
+  "build",
+  # Skip port and pending because they use webkit style for includes.
+  "pending",
+  "port",
+]
+
+include_rules = [
+  # For bridge/c/c_utility.h in npruntime_util.cc
+  "+bridge",
+  "+grit",  # For generated headers
+
+  # TODO(brettw) - review these; move up if it's ok, or remove the dependency
+  "+net/base",
+  "+net/ftp",
+  "+net/http",
+  "+net/proxy",
+  "+net/socket",
+  "+net/url_request",
+  "+third_party/npapi/bindings",
+]

@@ -1,0 +1,210 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+O3D Vertex Shader Animation Example.
+
+Demonstrates using a vertex shader for simple animation. The shader moves the
+vertices in a sin wave based on the parameter "time" and the world position
+of the vertices.
+-->
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Vertex Shader Animation
+</title>
+<style type="text/css">
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
+</style>
+<script type="text/javascript" src="o3djs/base.js"></script>
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.effect');
+
+// global variables
+var g_o3d;
+var g_o3dElement;
+var g_math;
+var g_client;
+var g_pack;
+var g_viewInfo;
+var g_timeParam;
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  // These are here so that they are visible to both the browser (so
+  // selenium sees them) and the embedded V8 engine.
+  window.g_clock = 0;
+  window.g_timeMult = 1;
+  window.g_finished = false;  // for selenium testing.
+
+  // Comment out the line below to run the sample in the browser
+  // JavaScript engine.  This may be helpful for debugging.
+  o3djs.util.setMainEngine(o3djs.util.Engine.V8);
+
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D, loads the effect, and creates the quads.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initialize global variables and libraries.
+  g_o3dElement = clientElements[0];
+  g_o3d = g_o3dElement.o3d;
+  g_math = o3djs.math;
+
+  // Set window.g_client as well.  Otherwise when the sample runs in
+  // V8, selenium won't be able to find this variable (it can only see
+  // the browser environment).
+  window.g_client = g_client = g_o3dElement.client;
+
+  // Create a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  // Create the render graph for a view.
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Create and load the effect.
+  var effect = g_pack.createObject('Effect');
+  o3djs.effect.loadEffect(effect, 'shaders/phong-vertex-anim.shader');
+
+  // Create a new Material for the quad.
+  var material = g_pack.createObject('Material');
+
+  // Set the material's drawList
+  material.drawList = g_viewInfo.performanceDrawList;
+  material.effect = effect;
+
+  // Create Params on the material for all the uniform parameters needed by
+  // the effect.
+  effect.createUniformParameters(material);
+
+  // Set the material parameters.
+  material.getParam('lightWorldPos').value = [-40, 100, 0];
+  material.getParam('lightIntensity').value = [1, 1, 1, 1];
+  material.getParam('ambientIntensity').value = [0.1, 0.1, 0.1, 1];
+  material.getParam('ambient').value = [1, 1, 1, 1];
+  material.getParam('diffuse').value = [1, 1, 1, 1];
+  material.getParam('specular').value = [1, 1, 1, 1];
+  material.getParam('shininess').value = 50;
+
+  g_timeParam = material.getParam('time');
+
+  // Create the view matrix which tells the camera which way to point to.
+  var eye = [10, 50, 20];
+  var target = [2, 0, -2];
+  var up = [0, 0, -1];
+  var view_matrix = g_math.matrix4.lookAt(eye, target, up);
+
+  g_viewInfo.drawContext.view = view_matrix;
+
+  var shape = o3djs.primitives.createPlane(g_pack, material,
+                                           10, 10, 100, 100);
+  for (var xx = 0; xx < 5; xx++) {
+    for (var yy = 0; yy < 4; yy++) {
+      var index = yy * 3 + xx;
+
+      // Make a transform for each quad.
+      var transform = g_pack.createObject('Transform');
+      transform.translate((xx - 2) * 12, 0, (2 - yy) * -12);
+      transform.addShape(shape);
+      transform.parent = g_client.root;
+      transform.createParam('diffuse', 'ParamFloat4').value = [xx * 0.2,
+                                                               yy * 0.25,
+                                                               0.5,
+                                                               1];
+    }
+  }
+
+  // Setup an onrender callback for animation.
+  g_client.setRenderCallback(onrender);
+
+  window.g_finished = true;  // for selenium testing.
+}
+
+function updateProjectionMatrix() {
+  // Create our projection matrix, with a vertical field of view of 45 degrees
+  // a near clipping plane of 0.1 and far clipping plane of 100.
+  g_viewInfo.drawContext.projection = g_math.matrix4.perspective(
+      g_math.degToRad(45),
+      g_client.width / g_client.height,
+      0.1,
+      100);
+}
+
+// spin the camera.
+function onrender(render_event) {
+  // Get the number of seconds since the last render.
+  var elapsedTime = render_event.elapsedTime;
+  // Update g_clock in the browser and cache a V8 copy that can be
+  // accessed efficiently. g_clock must be in the browser for selenium.
+  var clock = window.g_clock + elapsedTime * window.g_timeMult;
+  window.g_clock = clock;
+
+  updateProjectionMatrix();
+
+  g_timeParam.value = clock * 4;
+}
+
+function unload() {
+  if (g_client) {
+    g_client.cleanup();
+  }
+}
+
+</script>
+</head>
+<body onload="init()" onunload="unload()">
+<h1>Vertex Shader Animation Example</h1>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 100%; height: 80%"></div>
+<!-- End of O3D plugin -->
+</body>
+</html>

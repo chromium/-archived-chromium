@@ -1,0 +1,71 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="lv">
+<translation id="6676384891291319759">Piekļūt internetam</translation>
+<translation id="8579274574697852281">Google Chrome nepieciešama Windows Vista vai Windows XP ar SP1, vai jaunāka versija.</translation>
+<translation id="698670068493841342">Šī lietotāja datoram jau ir instalēts Google Chrome. Ja programmatūra nedarbojas, lūdzu, atinstalējiet Google Chrome un lejupielādējiet to vēlreiz.</translation>
+<translation id="7400722733683201933">Par Google Chrome</translation>
+<translation id="7101265395643981223">Sākt Google Chrome</translation>
+<translation id="1549918799472947005">Chrome izmanto jūsu noklusējuma meklējumprogrammu, kas šobrīd ir noteikta kā <ph name="PAGE_TITLE"/>. Vai vēlaties saglabāt savu noklusēto meklējumprogrammu?</translation>
+<translation id="2370289711218562573">Google Chrome pašlaik importē Izlasi/Grāmatzīmes.</translation>
+<translation id="8970027151245482499">Google Chrome nav instalēts, vai tam neizdevās atrast instalācijas katalogu. Lūdzu, vēlreiz lejupielādējiet Google Chrome.</translation>
+<translation id="7958215378280655655">Atjaunojot Google Chrome iespējas, jebkuras veiktās izmaiņas, tiks atgrieztas noklusējuma iestatījumos. Vai vēlaties atiestatīt Chrome iespējas?</translation>
+<translation id="4281844954008187215">Google pakalpojumu noteikumi</translation>
+<translation id="2197898401230534722">Dzēst visus profila datus</translation>
+<translation id="1137776625614346046">&quot;Visapmeklētākais&quot; apgabals rāda vietnes, ko jūs izmantojat visbiežāk. Lietojot Google Chrome ilgāku laiku, kad tiks atvērta jauna cilne, varēsiet redzēt savas visapmeklētākās vietnes. Par šo un citām funkcijām varat uzzināt vairāk <ph name="BEGIN_LINK"/>lapā Darba uzsākšana<ph name="END_LINK"/>.</translation>
+<translation id="4728575227883772061">Instalācija neizdevās nenoteiktas kļūdas dēļ. Ja Google Chrome pašlaik darbojas, lūdzu, aizveriet to un mēģiniet vēlreiz.</translation>
+<translation id="4149882025268051530">Instalētājam neizdevās atarhivēt arhīvu. Lūdzu, vēlreiz lejupielādējiet Google Chrome.</translation>
+<translation id="4343226815564935778">Šķiet, ka Google Chrome instalācijas direktorijs tiek lietots. Lūdzu, atsāknējiet datoru un mēģiniet vēlreiz.</translation>
+<translation id="4506896920521131223">Autortiesības © 2006-2009 Google, Inc. Visas tiesības paturētas.</translation>
+<translation id="6817660909204164466">Palīdziet izveidot Goole Chrome labāku, automātiski nosūtot lietošanas statistiku un avāriju atskaites uz Google</translation>
+<translation id="8227755444512189073">Google Chrome nepieciešams ieslēgt ārēju lietojumprogrammu, lai regulētu <ph name="SCHEME"/> saites. Pieprasītā saite ir <ph name="PROTOLINK"/></translation>
+<translation id="1281036569101707544">Google Chrome <ph name="TERMS_OF_SERVICE_LINK"/></translation>
+<translation id="8815061062167142136">Eh! Ir notikusi Google Chrome avārija. Restartēt tagad?</translation>
+<translation id="5016204670686360703">Ja jūs tagad atcelsit, netiks importēts neviens vienums. Jūs varat importēt vēlreiz vēlāk no Chrome izvēlnes.</translation>
+<translation id="7241541963706135274">Google Chrome veiks šādus uzdevumus:</translation>
+<translation id="8446794773162156990">Google Chrome nedarbojas atbilstoši</translation>
+<translation id="3889417619312448367">Atinstalēt Google Chrome</translation>
+<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
+<translation id="8810218179782551669">Google Chrome valoda:</translation>
+<translation id="3940866277504106378">Lai uzlabotu tīmekļa pārlūkošanas pieredzi, Google Chrome var izmantot tīmekļa pakalpojumus, lai gan šos pakalpojumus varat arī atspējot.</translation>
+<translation id="7001386529596391893">Izveidot Google Chrome īsceļus šādās vietās:</translation>
+<translation id="6134282421960734039">Vai vēlaties, lai Chrome saglabātu jūsu paroli?</translation>
+<translation id="1195935957447623558">Google Chrome netika pareizi izslēgts. Lai no jauna atvērtu iepriekš atvērtās lapas, nospiediet Atjaunot.</translation>
+<translation id="2499193704281978000">Google Chrome neatbild. Restartēt tagad?</translation>
+<translation id="7747138024166251722">Instalētājam neizdevās izveidot pagaidu katalogu. Lūdzu, pārbaudiet, vai diskā pietiek vietas un vai ir atļauja instalēt programmatūru.</translation>
+<translation id="6009537148180854585">Jūs mēģinājāt sasniegt &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, bet servera piedāvātais sertifikāts satur kļūdas. Google Chrome nevar izmantot kļūdainu sertifikātu un nevar novērtēt vietnes identitāti, ar kuru centāties savienoties. Jūsu savienojums nav drošs un jums nevajadzētu turpināt.</translation>
+<translation id="3324235665723428530">Nav iespējams izmantot jūsu profilu, jo tas atrodas uz jaunākas Google Chrome versijas.\n\nDažas no funkcijām var nebūt pieejamas. Lūdzu, norādiet citu profila direktoriju vai izmantojiet jaunāku Chrome versiju.</translation>
+<translation id="1759842336958782510">Chrome</translation>
+<translation id="2044287590254833138">Google Chrome rīkjosla</translation>
+<translation id="6481075104394517441">Jūs centāties sasniegt &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, bet servera piedāvātais sertifikāts vēl nav derīgs. Nav pieejama informācija, kas noteiktu, vai šim sertifikātam var uzticēties. Google Chrome nevar pilnībā garantēt, ka jūs sazināties ar &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; nevis ar uzbrucēju. Jums jāpārliecinās, ka jūsu datorā pulkstenis un laika zona ir pareizi iestatīti. Ja nav, jums jāatjauno rezultāti un jāatsvaidzina šī lapa. Ja tie ir pareizi, jums nevajadzētu turpināt.</translation>
+<translation id="8862326446509486874">Jums nav vajadzīgo tiesību, lai veiktu instalēšanu sistēmas līmenī. Mēģiniet vēlreiz palaist instalēšanas programmu kā administrators.</translation>
+<translation id="2874156562296220396">Pakalpojumu Google Chrome nodrošina <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> atklātā pirmkoda projekts un <ph name="BEGIN_LINK_OSS"/>atklātā pirmkoda programmatūra<ph name="END_LINK_OSS"/>.</translation>
+<translation id="6921913858457830952">Google Chrome ir gatavs pabeigt instalēšanu.</translation>
+<translation id="7100330187273168372">Google Chrome nevar nolasīt un ierakstīt savu datu direktorijā:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">Vai tiešām vēlaties atinstalēt Google Chrome?</translation>
+<translation id="5941830788786076944">Izveidot Google Chrome par noklusējuma pārlūku</translation>
+<translation id="4127951844153999091">Šādā gadījumā, sertifikātā minētā adrese neatbilst tai tīmekļa lapas adresei, kurai centās piekļūt jūsu pārlūks. Viens iemesls šim ir tas, ka jūsu savienojumus pārtver uzbrucējs, kas piedāvā sertifikātu citai tīmekļa vietnei, kas var radīt neatbilstību. Cits iespējams iemesls ir tas, ka serveris ir iestatīts tā, lai atgrieztu vienu sertifikātu vairākām vietnēm, tai skaitā tām, kuram centāties piekļūt, pat ja sertifikāts nav derīgs šīm tīmekļa vietnēm. Google Chrome var apgalvot, ka esat sasniedzis &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, bet nevar apstiprināt, ka tā ir &lt;strong&gt; vietne<ph name="DOMAIN"/>&lt;/strong&gt;, kuru centāties sasniegt. Ja jūs turpināsiet, Chrome nepārbaudīs tālākas nosaukumu neprecizitātes. Kopumā būtu labāk nedoties tālāk par šo punktu.</translation>
+<translation id="2712549016134575851">Atklāts konflikts ar citu instalētu lietojumprogrammu.</translation>
+<translation id="7161904924553537242">Laipni lūdzam Google Chrome</translation>
+<translation id="8236873504073475138">Google Chrome neatbalsta Windows 2000. Dažas funkcijas var nedarboties.</translation>
+<translation id="5046764976540625289">Iziet no Chrome</translation>
+<translation id="8865765905101981392">Interneta pārlūks</translation>
+<translation id="582763753075639530">Lai izmaiņas stātos spēkā, aizveriet visus aktīvus pārlūkprogrammas logus un restartējiet pārlūkprogrammu.</translation>
+<translation id="8776515774046280928">Google Chrome ir jau instalēts un pieejams visiem šī datora lietotājiem. Ja vēlaties instalēt Google Chrome lietotāja līmenī, jums vispirms jāatinstalē administratora instalētā sistēmas līmeņa versija.</translation>
+<translation id="3335672657969596251">Google Chrome neatbalsta <ph name="OS_NAME"/>.</translation>
+<translation id="3636771339108070045">Šim datoram jau ir instalēta jaunākā Google Chrome versija. Ja programmatūra nedarbojas, lūdzu, atinstalējiet Google Chrome un lejupielādējiet to vēlreiz.</translation>
+<translation id="3396666154568987767">Google Chrome profilam <ph name="PROFILE_NAME"/></translation>
+<translation id="1964682833763362793">Lūdzu, aizveriet visus Chrome logus un mēģiniet vēlreiz.</translation>
+<translation id="1001534784610492198">Instalētāja arhīvs ir bojāts vai nav derīgs. Lūdzu, vēlreiz lejupielādējiet Google Chrome.</translation>
+<translation id="6626317981028933585">Diemžēl, kamēr darbojas šī pārlūkprogramma, jūsu Mozilla Firefox iestatījumi nav pieejami. Lai importētu šos iestatījumus uz Google Chrome, saglabājiet savu darbu un aizveriet visus Firefox logus. Tad klikšķiniet uz Turpināt.</translation>
+<translation id="8540666473246803645">Google Chrome</translation>
+<translation id="6049075767726609708">Administrators šai sistēmai ir instalējis Google Chrome, un tas ir pieejams visiem lietotājiem. Google Chrome lietotāja līmeņa instalācija tagad aizvietota ar sistēmas līmeņa instalāciju.</translation>
+<translation id="3870154837782082782">Google Inc.</translation>
+<translation id="1446473746922165495">Mainiet Google Chrome izvēlnē izmantoto valodu, dialoga logus un padomus.</translation>
+<translation id="9189723490960700326">Jūs centāties sasniegt &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, bet serveris piedāvāja sertifikātu ar beigušos derīguma termiņu. Nav pieejama informācija, kas noteiktu, vai šis sertifikāts ir kompromitēts pēc tā derīguma termiņa beigām. Tas nozīmē, ka Google Chrome nevar garantēt sazināšanos ar &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; un nevis ar uzbrucēju. Jums nevajadzētu turpināt.</translation>
+<translation id="7106741999175697885">Uzdevumu pārvaldnieks - Google Chrome</translation>
+<translation id="8449380764213232436">Google Chrome pašlaik importē šādas vienības no <ph name="BROWSER_COMPONENT"/>:</translation>
+<translation id="3396977131400919238">Instalācijas laikā radās operētājsistēmas kļūda. Lūdzu, vēlreiz lejupielādējiet Google Chrome.</translation>
+<translation id="2618799103663374905">Pievienojiet Google Chrome īsceļus savai darbvirsmai, ātrās darbības joslai un Start izvēlnei</translation>
+<translation id="1144950271450340860">Jūs centāties sasniegt &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, bet jūsu datora operatīvā sistēma neuzticas servera piedāvātajam sertifikātam, kuru ir izdevusi entītija. Tas var nozīmēt, ka serveris ir radījis savus drošības noteikumus, kuriem Google Chrome nevar uzticēties identitātes informācijas dēļ, vai arī uzbrucējs cenšas pārtvert jūsu savienojumus. Jums nevajadzētu turpināt, &lt;strong&gt;it īpaši&lt;/strong&gt;, ja nekad iepriekš neesat redzējis šādu brīdinājumu.</translation>
+</translationbundle>

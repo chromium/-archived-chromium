@@ -1,0 +1,6 @@
+# See bug 1157381
+Pure: Trap bits found in live chunk
+
+# See bug 1128489
+NSSDecryptor::Init
+NSSDecryptor::Free

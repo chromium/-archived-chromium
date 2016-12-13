@@ -1,0 +1,145 @@
+# Copyright 2009, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+Import('env')
+env.SConscript('fcollada.scons', exports=['env'])
+
+env.Append(
+  CPPPATH=[
+    env.Dir('$CG_DIR/include'),
+    env.Dir('$COLLADA_DIR'),
+    env.Dir('$COLLADA_DIR/LibXML/include'),
+    env.Dir('$ZLIB_DIR'),
+    # Include path for generated headers.
+    env.Dir('$OBJ_ROOT/compiler/technique'),
+    # Include path for Antlr C runtime headers.
+    env.Dir('$ANTLRLIBC_DIR/include'),
+  ],
+)
+
+# Add renderer-specific includes to the environment.
+env.Append(CPPPATH = env['RENDERER_INCLUDE_PATH'])
+
+if env.Bit('windows'):
+  env.Append(
+      CCFLAGS = [
+          '/Ylo3dImport',
+          '/FIimport/cross/precompile.h',
+      ],
+  )
+  pch, pch_obj = env.PCH('cross/precompile.cc')
+  env['PCH'] = pch
+  env['PCHSTOP'] = 'import/cross/precompile.h'
+else:
+  pch_obj = 'cross/precompile.cc'
+  env.Append(CCFLAGS = [['-include', 'import/cross/precompile.h']])
+
+collada_inputs = [
+  'cross/collada.cc',
+  'cross/collada_zip_archive.cc',
+  'cross/destination_buffer.cc',
+  'cross/zip_archive.cc',
+  'cross/gz_compressor.cc',
+  'cross/file_output_stream_processor.cc',
+  'cross/tar_generator.cc',
+  'cross/targz_generator.cc',
+]
+
+archive_inputs = [
+  pch_obj,
+
+  'cross/archive_processor.cc',
+  'cross/archive_request.cc',
+  'cross/gz_decompressor.cc',
+  'cross/memory_stream.cc',
+  'cross/raw_data.cc',
+  'cross/tar_processor.cc',
+  'cross/targz_processor.cc',
+]
+
+conditioner_inputs = ['cross/collada_conditioner.cc']
+
+if env.Bit('mac'):
+  conditioner_inputs += [
+    'mac/collada_conditioner_mac.mm',
+  ]
+  FRAMEWORKS = [
+   'Foundation'
+  ]
+
+if env.Bit('windows'):
+  conditioner_inputs += [
+    'win/collada_conditioner_win.cc',
+  ]
+
+if env.Bit('linux'):
+  conditioner_inputs += [
+    'linux/collada_conditioner_linux.cc',
+  ]
+
+# Build a library called 'o3dImport' from the input sources.
+env.ComponentLibrary('o3dImport', collada_inputs)
+
+env.ComponentLibrary('o3dArchive', archive_inputs)
+
+# Build a library that ONLY includes the stubbed-out conditioner code
+# TODO: merge this back into o3dImport as soon as the import
+# lib is no longer needed by the plugin.
+env.ComponentLibrary('o3dImportNoConditioner',
+                     ['cross/collada_conditioner_stub.cc'])
+
+# Build a library that ONLY includes the active conditioner code
+# TODO: merge this back into o3dImport as soon as the import
+# lib is no longer needed by the plugin.
+conditioner_lib = env.ComponentLibrary('o3dImportConditioner',
+                                       conditioner_inputs)
+
+# The conditioner needs these regardless of what renderer we're
+# building for.
+if env.Bit('windows'):
+  env.Requires(conditioner_lib,
+               env.Replicate('$ARTIFACTS_DIR',
+                             ['$CG_DIR/bin/cgc.exe',
+                              '$CG_DIR/bin/cg.dll',
+                              '$CG_DIR/bin/cgGL.dll',
+                              '$GLEW_DIR/bin/glew32.dll',
+                              ]))
+
+if env.Bit('linux'):
+  env.Requires(conditioner_lib,
+               env.Replicate('$ARTIFACTS_DIR', ['$CG_DIR/bin/cgc',
+                                                '$CG_DIR/lib/libCg.so',
+                                                '$CG_DIR/lib/libCgGL.so',
+                                                '$GLEW_DIR/lib/libGLEW.so.1.5',
+                                                ]))
+
+if env.Bit('mac'):
+  env.Requires(conditioner_lib,
+               env.Replicate('$ARTIFACTS_DIR', ['$CG_DIR/bin/cgc']))

@@ -1,0 +1,68 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+%[
+  A Viewport is a render node that sets the render viewport and depth range for
+  its children.  It uses an array in the format [left, top, width, height] where
+  left, top, width and height are in a 0.0 to 1.0 range that represent positions
+  and dimensions relative to the size of the client's rendering area. The depth
+  range is represented by an array in the format [min Z, max Z]. The depth range
+  provides the mapping of the clip space coordinates into normalized z buffer
+  coordinates.
+%]
+[nocpp, include="core/cross/viewport.h"] class Viewport
+    : RenderNode {
+  %[
+    The position and size to set the viewport in
+    [left, top, width, height] format. The default values
+    are (0.0, 0.0, 1.0, 1.0). In other words, the full area.
+
+    Note: These values must describe a rectangle that is 100% inside the client
+    area. In other words, (0.5, 0.0, 1.0, 1.0) would describe an area that is
+    1/2 off right side of the screen. That is an invalid value and will be
+    clipped to (0.5, 0.0, 0.5, 1.0).
+
+    \sa Viewport
+  %]
+  [getter, setter] Float4 viewport;
+
+  %[
+    The min Z and max Z depth range in [min Z, max Z] format.
+    The default values are [0.0, 1.0].
+
+    \sa Viewport
+  %]
+  [getter, setter] Float2 depth_range;
+};  // Viewport
+
+}  // namespace o3d

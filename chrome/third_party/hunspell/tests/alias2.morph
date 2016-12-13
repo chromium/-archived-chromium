@@ -1,0 +1,8 @@
+> foo
+foo[footype]
+> foox
+foo[footype]/affix_x
+> fooy
+foo[footype]/affix_y
+> fooyx
+foo[footype]/affix_y/affix_x

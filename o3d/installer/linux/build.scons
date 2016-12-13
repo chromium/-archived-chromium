@@ -1,0 +1,151 @@
+# Copyright 2009, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+import os
+import subprocess
+Import('env')
+
+# Check if Debian packaging tools are installed. If so, make a .deb package.
+if subprocess.Popen(["which", "dpkg-buildpackage"],
+    stdout=open(os.devnull, "w")).wait() == 0:
+
+  print('Found dpkg-buildpackage in PATH; will create Debian packages.');
+
+  current_source_dir = os.path.join(env['SCONSTRUCT_DIR'], 'installer/linux')
+
+  def OutputFromShellCommand(command):
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+    return process.communicate()[0].strip()
+
+  def BuildDebianPackage(debian_files, package_files, output_dir=None):
+    """Creates build rules to build a Debian package from the specified sources.
+
+    Args:
+      debian_files: Array of the Debian control file sources that should be
+          copied into the package source tree, e.g., changelog, control, rules,
+          etc. Must be relative to current source dir.
+      package_files: An array of 2-tuples listing the files that should be
+          copied into the package source tree.
+          The first element is the path where the file should be placed for the
+              .install control file to find it, relative to the generated debian
+              package source directory.
+          The second element is the file source.
+      output_dir: An optional directory to place the files in. If omitted, the
+          current output directory is used.
+
+    Return:
+      A list of the (two) targets.
+    """
+    # Read the control file and changelog file to determine the package name,
+    # version, and arch that the Debian build tools will use to name the
+    # generated files.
+    control_file = None
+    changelog_file = None
+    for file in debian_files:
+      if os.path.basename(file) == "control":
+        control_file = os.path.join(current_source_dir, file)
+      elif os.path.basename(file) == "changelog":
+        changelog_file = os.path.join(current_source_dir, file)
+    if control_file == None:
+      raise Exception("Need to have a control file")
+    if changelog_file == None:
+      raise Exception("Need to have a changelog file")
+    package = OutputFromShellCommand("awk '/^Package:/ { print $2; }' "
+        + control_file)
+    version = OutputFromShellCommand("sed -nr '1 { s/.*\\((.*)\\).*/\\1/; p }' "
+        + changelog_file)
+    arch = OutputFromShellCommand("awk '/^Architecture:/ { print $2; }' "
+        + control_file)
+    package_file_name = package + "_" + version + "_" + arch
+    # Path to the outputs, minus extension.
+    if output_dir != None:
+      dest_files = os.path.join(output_dir, package_file_name)
+    else:
+      dest_files = package_file_name
+    # Path to where we will construct the debian build tree.
+    deb_build_tree = os.path.join(package_file_name, "deb_build_tree")
+    # The targets
+    targets = [dest_files + ".deb", dest_files + ".changes"]
+    # First copy the files.
+    for file in package_files:
+      env.Command(os.path.join(deb_build_tree, file[0]), file[1],
+          Copy('$TARGET', '$SOURCE'))
+      env.Depends(targets, os.path.join(deb_build_tree, file[0]))
+    # Now copy the Debian metadata sources. We have to do this all at once so
+    # that we can remove the target directory before copying, because there
+    # can't be any other stale files there or else dpkg-buildpackage may use
+    # them and give incorrect build output.
+    copied_debian_files_paths = []
+    for file in debian_files:
+      copied_debian_files_paths.append(os.path.join(deb_build_tree, "debian",
+          os.path.basename(file)))
+    env.Command(copied_debian_files_paths, debian_files,
+        """dir=$$(dirname $TARGET) && \
+           rm -Rf $$dir && \
+           mkdir -p $$dir && \
+           cp $SOURCES $$dir""")
+    env.Depends(targets, copied_debian_files_paths)
+    # TODO(tschmelcher): Change this to sign the package for Google builds once
+    # we start putting out Linux releases.
+    env.Command(targets, None,
+        """dir=$OBJ_ROOT/installer/linux/""" + deb_build_tree + """ && \
+           cd $$dir && \
+           dpkg-buildpackage -b -uc -aamd64 -D -rfakeroot && \
+           cd $$OLDPWD && \
+           mv $$dir/../""" + package_file_name + """.deb \
+               $$(dirname $TARGET) && \
+           mv $$dir/../""" + package_file_name + """.changes \
+               $$(dirname $TARGET)""")
+    return targets
+
+
+  BuildDebianPackage(["debian_amd64/changelog",
+                      "debian_amd64/control",
+                      "debian_amd64/dirs",
+                      "debian_amd64/google-o3d.install",
+                      "debian_amd64/links",
+                      "debian_amd64/postinst",
+                      "debian_amd64/prerm",
+                      "debian_amd64/rules"
+                     ],
+                     [("libnpo3dautoplugin.so",
+                           '$ARTIFACTS_DIR/libnpo3dautoplugin.so'),
+                      ("libGLEW.so.1.5", '$ARTIFACTS_DIR/libGLEW.so.1.5'),
+                      ("libCg.so", '$ARTIFACTS_DIR/libCg.so'),
+                      ("libCgGL.so", '$ARTIFACTS_DIR/libCgGL.so')
+                     ],
+                     output_dir='$ARTIFACTS_DIR')
+
+  # TODO(tschmelcher): Also build an i386 deb.
+
+else:
+  print('dpkg-buildpackage not found in PATH; Debian packages will not be '
+      'built.');
+
+# TODO(tschmelcher): Also build an RPM and a tgz.

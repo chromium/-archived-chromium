@@ -1,0 +1,48 @@
+#!/bin/sh
+
+# Copyright (c) 2009 The Chromium Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+# Make sure we got the header to write into passed to us
+if [ $# -ne 1 ]; then
+  echo "error: missing branding as an argument" >&2
+  exit 1
+fi
+
+set -ex
+
+# Skip out if we're aren't in Release mode, no need for dump_syms on debug runs.
+if [ "${CONFIGURATION}" != "Release" ] ; then
+  exit 0
+fi
+
+TOP="${SRCROOT}/.."
+BUILD_BRANDING=$1
+
+BRAND_SCRIPT="${TOP}/build/branding_value.sh"
+SRC_APP_NAME=$("${BRAND_SCRIPT}" "${BUILD_BRANDING}" PRODUCT_FULLNAME)
+. "${TOP}/chrome/VERSION"
+
+BREAKPAD_DUMP_SYMS="${BUILT_PRODUCTS_DIR}/dump_syms"
+BREAKPAD_PRODUCT_ID="${BUILD_BRANDING}_Mac"
+FULL_VERSION="${MAJOR}.${MINOR}.${BUILD}.${PATCH}"
+SRC_APP_PATH="${BUILT_PRODUCTS_DIR}/${SRC_APP_NAME}.app"
+# Created by the build/mac/strip_from_xcode script.
+UNSTRIPPED_APP="${SRC_APP_PATH}.dSYM/Contents/Resources/DWARF/${SRC_APP_NAME}"
+SYMBOL_FILE="${BUILT_PRODUCTS_DIR}/${SRC_APP_NAME}-${FULL_VERSION}-i386.breakpad"
+
+# Only run dump_syms if the file has changed since we last did a dump.
+if [ "${UNSTRIPPED_APP}" -nt "${SYMBOL_FILE}" ] ; then
+  "${BREAKPAD_DUMP_SYMS}" -a i386 "${UNSTRIPPED_APP}" > "${SYMBOL_FILE}"
+fi
+
+DSYM_NAME="${SRC_APP_NAME}.app.dSYM"
+DSYM_TAR_PATH="${BUILT_PRODUCTS_DIR}/${DSYM_NAME}.tar.bz2"
+
+# Make a .tar.bz2 out of the .dSYM
+if [ "${BUILT_PRODUCTS_DIR}/${DSYM_NAME}" -nt "${DSYM_TAR_PATH}" ] ; then
+  # we do a cd so when building the tar, we don't include the build dir in the
+  # tar paths.
+  (cd "${BUILT_PRODUCTS_DIR}" && tar -jcf "${DSYM_TAR_PATH}" "${DSYM_NAME}")
+fi

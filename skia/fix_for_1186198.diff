@@ -1,0 +1,38 @@
+Index: sgl/SkEdge.cpp
+===================================================================
+--- sgl/SkEdge.cpp	(revision 42965)
++++ sgl/SkEdge.cpp	(working copy)
+@@ -17,6 +17,7 @@
+ 
+ #include "SkEdge.h"
+ #include "SkFDot6.h"
++#include <limits>
+ 
+ /*
+     In setLine, setQuadratic, setCubic, the first thing we do is to convert
+@@ -76,8 +77,23 @@
+ 
+     fX          = SkFDot6ToFixed(x0 + SkFixedMul(slope, (32 - y0) & 63));   // + SK_Fixed1/2
+     fDX         = slope;
+-    fFirstY     = SkToS16(top);
+-    fLastY      = SkToS16(bot - 1);
++    fFirstY     = (int16_t)(top);       // inlined skToS16()
++    if (top != (long)fFirstY) {
++        if (fFirstY < top) {
++            fFirstY = std::numeric_limits<int16_t>::max();
++        } else {
++            fFirstY = std::numeric_limits<int16_t>::min();
++        }
++        fX -= fDX * (top - (long)fFirstY);
++    }
++    fLastY      = (int16_t)(bot - 1);   // inlined SkToS16()
++    if (bot-1 != (long)fLastY) {
++        if (fLastY < bot-1) {
++            fLastY = std::numeric_limits<int16_t>::max();
++        } else {
++            fLastY = std::numeric_limits<int16_t>::min();
++        }
++    }
+     fCurveCount = 0;
+     fWinding    = SkToS8(winding);
+     fCurveShift = 0;

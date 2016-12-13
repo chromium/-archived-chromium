@@ -1,0 +1,786 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="lv">
+<translation id="6779164083355903755">Noņemt</translation>
+<translation id="3581034179710640788">Šīs vietnes drošības sertifikātam ir beidzies derīguma termiņš!</translation>
+<translation id="8275038454117074363">Importēt</translation>
+<translation id="8418445294933751433">Rādīt kā cilni</translation>
+<translation id="2160383474450212653">Fonti un valodas</translation>
+<translation id="4405141258442788789">Darbības noildze.</translation>
+<translation id="5048179823246820836">Skandināvu</translation>
+<translation id="561349411957324076">Pabeigta</translation>
+<translation id="4610656722473172270">Google rīkjosla</translation>
+<translation id="2088818908407967256">Šī lapa satur nedrošus elementus.</translation>
+<translation id="1871244248791675517">Iespraušana</translation>
+<translation id="2972581237482394796">&amp;Pāratsaukt</translation>
+<translation id="6135826906199951471">Dzēst</translation>
+<translation id="528468243742722775">Beigas</translation>
+<translation id="1723824996674794290">Jauns logs</translation>
+<translation id="7567293639574541773">Pārbaudīt elementu</translation>
+<translation id="8571213806525832805">Pēdējās 4 nedēļas</translation>
+<translation id="6021004449668343960">Sans-Serif fonts:</translation>
+<translation id="4422428420715047158">Domēns:</translation>
+<translation id="4021918302616263355">Meklēt <ph name="ENGINE"/> <ph name="SEARCH_TERMS"/></translation>
+<translation id="5376169624176189338">Nospiediet, lai dotos atpakaļ, paturiet, lai redzētu vēsturi</translation>
+<translation id="6310545596129886942"><ph name="NUMBER_FEW"/> sekundes atlikušas</translation>
+<translation id="9181716872983600413">Unikoda</translation>
+<translation id="1383861834909034572">Atvēršana, kad pabeigts</translation>
+<translation id="4211171103079968550">Iespējot Java</translation>
+<translation id="1076818208934827215">Microsoft Internet Explorer</translation>
+<translation id="9154072353677278078">Lietotājvārds un parole serverī <ph name="DOMAIN"/>, kas atrodas <ph name="REALM"/>, ir obligāti.</translation>
+<translation id="2193841602817119749">Tīmekļa vietne ar &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; ir ziņota kā pikšķerēšanas vietne.  Pikšķerēšanas tīmekļa vietnes apmāna lietotājus, lai tie izpaustu personīgu vai finansiālu informāciju, bieži izliekoties par drošu iestāžu, kā banku pārstāvjiem.</translation>
+<translation id="8178665534778830238">Saturs:</translation>
+<translation id="1379170046778889619">Drošības informācija</translation>
+<translation id="1818606096021558659">Lapa</translation>
+<translation id="7982789257301363584">Tīkls</translation>
+<translation id="4108206167095122329">noņemt visu</translation>
+<translation id="7481475534986701730">Pēdējās apmeklētās vietnes</translation>
+<translation id="4565377596337484307">Slēpt paroli</translation>
+<translation id="762917759028004464">Noklusējuma pārlūks šobrīd ir <ph name="BROWSER_NAME"/>.</translation>
+<translation id="9213479837033539041"><ph name="NUMBER_MANY"/> sekundes atlikušas</translation>
+<translation id="6391832066170725637">Failu vai direktoriju nevar atrast.</translation>
+<translation id="8256087479641463867">Pielāgot savus iestatījumus</translation>
+<translation id="7070442422749762650">Tīmekļa lapa &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt; radīja pārāk daudz pārvirzes.  Šo problēmu var atrisināt jūsu pārlūkprogrammas sīkfailu iztīrīšana.  Ja nē, tas iespējams ir servera pielāgošanas rezultāts un nevis jūsu datora problēma.</translation>
+<translation id="7931071620596053769">Šāda(s) lapa(s) nesniedz atbildi. Jūs varat gaidīt līdz tās atbild vai tās iznīcināt.</translation>
+<translation id="1209866192426315618"><ph name="NUMBER_DEFAULT"/> minūtes atlikušas</translation>
+<translation id="2179052183774520942">Pievienot meklējumprogrammu</translation>
+<translation id="2956948609882871496">Importēt grāmatzīmes...</translation>
+<translation id="1621207256975573490">Saglabāt rāmi kā...</translation>
+<translation id="2278562042389100163">Atvērt pārlūka logu</translation>
+<translation id="4589279373639964403">Eksportēt grāmatzīmes...</translation>
+<translation id="5463275305984126951">Indekss <ph name="LOCATION"/></translation>
+<translation id="5154917547274118687">Atmiņa</translation>
+<translation id="873849583815421063">Pabeigšana...</translation>
+<translation id="5819484510464120153">Izveidot lietojumprogrammu un īsinājumikonas...</translation>
+<translation id="1748246833559136615">Padoties</translation>
+<translation id="8927064607636892008">Rādot šo tīmekļa lapu, kaut kas notika nepareizi. Lai turpinātu, nospiediet pārlādēt vai dodieties uz citu lapu.</translation>
+<translation id="5667293444945855280">Ļaunprātīga programmatūra</translation>
+<translation id="5613020302032141669">Kreisā bulta</translation>
+<translation id="3433489605821183222">Servera sertifikātam ir kļūda</translation>
+<translation id="6479177161510354016">Trauksme <ph name="SITE"/></translation>
+<translation id="6698381487523150993">Izveidots:</translation>
+<translation id="4684748086689879921">Izlaist importēšanu</translation>
+<translation id="5516565854418269276">Vienmēr rādīt grāmatzīmju joslu</translation>
+<translation id="6426222199977479699">SSL Kļūda</translation>
+<translation id="443008484043213881">Rīki</translation>
+<translation id="314605055819837597">Lietotāja dati</translation>
+<translation id="8534801226027872331">Šajā gadījumā jūsu pārlūkam piedāvātajam sertifikātam ir kļūdas un to nevar saprast. Tas nozīmē, ka mēs nevaram saprast identitātes informāciju sertifikātā vai noteikt citu informāciju sertifikātā, ko lieto, lai nodrošinātu savienojumu. Jums nevajadzētu turpināt.</translation>
+<translation id="4422347585044846479">Rediģēt šīs lapas grāmatzīmes</translation>
+<translation id="6370820475163108109"><ph name="ORGANIZATION_NAME"/> (<ph name="DOMAIN_NAME"/>)</translation>
+<translation id="8820817407110198400">Grāmatzīmes</translation>
+<translation id="2994458892329442723">Iespējot spraudņus</translation>
+<translation id="1669397342410349095">Ziņot par pikšķerēšanas tīmekļa vietni...</translation>
+<translation id="1674989413181946727">Datora SSL iestatījumi:</translation>
+<translation id="1773709998578631869">Šobrīd tiek lejupielādēts(-i) <ph name="DOWNLOAD_COUNT"/> fails(-i). Ja tagad aizvērsiet Google Chrome, šīs lejupielādes tiks atceltas.</translation>
+<translation id="8703575177326907206">Jūsu savienojums ar <ph name="DOMAIN"/> nav kodēts.</translation>
+<translation id="1644574205037202324">Vēsture</translation>
+<translation id="2518917559152314023">Pievienot...</translation>
+<translation id="4510290974676570902">MIME veids</translation>
+<translation id="5565725983873655007">Kad drošā (SSL) lapā ir jaukts saturs:</translation>
+<translation id="4419098590196511435">Kaut kas trūkst</translation>
+<translation id="3512466011168167042">Rādīt ieteikumus navigācijas kļūdām</translation>
+<translation id="7767960058630128695">Paroles:</translation>
+<translation id="6518014396551869914">Kopēt attēlu</translation>
+<translation id="4120898696391891645">Lapa neielādējas</translation>
+<translation id="5584537427775243893">Import</translation>
+<translation id="4181841719683918333">Valodas</translation>
+<translation id="6451650035642342749">Attīrīt auto-atvēršanas iestatījumus</translation>
+<translation id="7121570032414343252"><ph name="NUMBER_TWO"/> sekundes</translation>
+<translation id="5098629044894065541">Ebreju</translation>
+<translation id="7751559664766943798">Vienmēr rādīt grāmatzīmju joslu</translation>
+<translation id="7511635910912978956"><ph name="NUMBER_FEW"/> stundas atlikušas</translation>
+<translation id="1720675772864601791">Atļaut nedrošus attēlus</translation>
+<translation id="2167276631610992935">JavaScript</translation>
+<translation id="5233638681132016545">Jauna cilne</translation>
+<translation id="5210365745912300556">Aizvērt cilni</translation>
+<translation id="8806796506533854282">Ievadīt jaunu profila nosaukumu</translation>
+<translation id="5948410903763073882">Alt +<ph name="KEY_COMBO_NAME"/></translation>
+<translation id="8571852575982769756">Nav iestatīti spraudņi</translation>
+<translation id="7925285046818567682">Gaida <ph name="HOST_NAME"/>...</translation>
+<translation id="3280237271814976245">Saglabāt kā...</translation>
+<translation id="5300471193642408424">Rādīt lapas</translation>
+<translation id="7658239707568436148">Atcelt</translation>
+<translation id="2154710561487035718">Kopēt URL</translation>
+<translation id="4244236525807044920">Mainīt fonta un valodas iestatījumus</translation>
+<translation id="2679629658858164554">Lapas URL:</translation>
+<translation id="6746124502594467657">Pārvietot uz leju</translation>
+<translation id="3383487468758466563">Fonti un valodas:</translation>
+<translation id="6163363155248589649">Parasts</translation>
+<translation id="7222373446505536781">F11</translation>
+<translation id="3873963583678942942">(Bez nosaukuma)</translation>
+<translation id="8725178340343806893">Izlase/Grāmatzīmes</translation>
+<translation id="3605499851022050619">Droa prlkoanas diagnostikas lapa</translation>
+<translation id="4307992518367153382">Pamata</translation>
+<translation id="5912378097832178659">Rediģēt meklējumprogrammas...</translation>
+<translation id="4813345808229079766">Savienojums</translation>
+<translation id="411666854932687641">Privāta atmiņa</translation>
+<translation id="119944043368869598">Notīrīt visu</translation>
+<translation id="4200983522494130825">Jauna cilne</translation>
+<translation id="5455790498993699893"><ph name="ACTIVE_MATCH"/> no <ph name="TOTAL_MATCHCOUNT"/></translation>
+<translation id="2303544859777878640">Valodas:</translation>
+<translation id="2021921916539001817">Prsta no <ph name="HOST_NAME"/>...</translation>
+<translation id="6909042471249949473">Dzēst datus no šī perioda:</translation>
+<translation id="7615851733760445951">&lt;nav izvēlēti sīkfaili&gt;</translation>
+<translation id="3660179305079774227">Bulta augšup</translation>
+<translation id="7400418766976504921">URL</translation>
+<translation id="5392041771307264501">Atlasiet profilu, ko atvērt jaunā logā</translation>
+<translation id="68541483639528434">Aizvērt citas cilnes</translation>
+<translation id="2897878306272793870">Vai tiešām vēlaties atvērt <ph name="TAB_COUNT"/> cilnes?</translation>
+<translation id="362276910939193118">Rādīt pilnu vēsturi</translation>
+<translation id="692135145298539227">dzēst</translation>
+<translation id="2663762871503078613">Importēt:</translation>
+<translation id="1635247229519770914">Turpināt iestatīšanu</translation>
+<translation id="8945419807169257367">Servera sertifikātu nevar pārbaudīt</translation>
+<translation id="5872213955895293073">Novērst kļūdas JavaScript</translation>
+<translation id="1965338962645102116">Lai importētu Rīkjoslas grāmatzīmes programmā Chrome, jums jāpiesakās savā Google kontā. Lūdzu, piesakieties un mēģiniet vēlreiz importēt.</translation>
+<translation id="5903264686717710770">Nosaukums:</translation>
+<translation id="8899851313684471736">Atvērt saiti jaunā logā</translation>
+<translation id="6686490380836145850">Aizvērt cilnes pa labi</translation>
+<translation id="5608669887400696928"><ph name="NUMBER_DEFAULT"/> stundas</translation>
+<translation id="3990502903496589789">Labā puse</translation>
+<translation id="5303890401939113396">JavaScript defektu novēršana - Pārtraukums</translation>
+<translation id="2423578206845792524">Saglabāt attēlu kā ...</translation>
+<translation id="9068931793451030927">Ceļš:</translation>
+<translation id="7052402604161570346">Šāda veida fails var kaitēt jūsu datoram. Vai tiešām vēlaties lejupielādēt <ph name="FILE_NAME"/>?</translation>
+<translation id="8642489171979176277">Importēts no Google rīkjoslas</translation>
+<translation id="2011110593081822050">Tīmekļa darbinieks: <ph name="WORKER_NAME"/></translation>
+<translation id="350069200438440499">Faila vārds:</translation>
+<translation id="8494979374722910010">Mēģinājums savienoties ar serveri neizdevās.</translation>
+<translation id="8507996248087185956"><ph name="NUMBER_DEFAULT"/> minūtes</translation>
+<translation id="5296476177639202243">Neviena grāmatzīme neatbilst vaicājumam “<ph name="SEARCH_TEXT"/>”.</translation>
+<translation id="939736085109172342">Jauna mape</translation>
+<translation id="2009541932026160416">Lai noņemtu sīktēlu, noklikšķiniet uz <ph name="CROSS_IMAGE"/></translation>
+<translation id="5641560969478423183">Servera sertifikāts neatbilst URL</translation>
+<translation id="121827551500866099">Rādīt visas lejupielādes...</translation>
+<translation id="3115147772012638511">Gaida krtuvi...</translation>
+<translation id="1426410128494586442">Jā</translation>
+<translation id="6513615899227776181">Spraudnis: <ph name="PLUGIN_NAME"/></translation>
+<translation id="3520476450377425184"><ph name="NUMBER_MANY"/> dienas atlikušas</translation>
+<translation id="1059307158073710225">Pārbaudīt pareizrakstību:</translation>
+<translation id="7643817847124207232">Interneta savienojums ir pazaudēts.</translation>
+<translation id="758007724455091072">Izveidot šī profila darbvirsmas īsinājumikonu</translation>
+<translation id="932327136139879170">Sākumvieta</translation>
+<translation id="5600907569873192868"><ph name="NUMBER_MANY"/> minūtes atlikušas</translation>
+<translation id="908263542783690259">Dzēst pārlūkošanas vēsturi</translation>
+<translation id="7484645889979462775">Nekad šai vietnei</translation>
+<translation id="8666066831007952346"><ph name="NUMBER_TWO"/> dienas atlikušas</translation>
+<translation id="6390842777729054533"><ph name="NUMBER_ZERO"/> sekundes atlikušas</translation>
+<translation id="3909791450649380159">Izgrie&amp;zt</translation>
+<translation id="2955913368246107853">Aizvērt atrašanas joslu</translation>
+<translation id="3122464029669770682">Maksa par daļas vienību</translation>
+<translation id="1684861821302948641">iznīcināt lapas</translation>
+<translation id="5965640700983474726">Ierakstiet, lai meklētu</translation>
+<translation id="2142570832281562688">Profila nosaukuma ievade</translation>
+<translation id="5904714272463161824">Ziņot par kļūdu vai salauztu tīmekļa vietni...</translation>
+<translation id="1608306110678187802">Drukāt rāmi...</translation>
+<translation id="4948468046837535074">Atvērt šādas vietnes:</translation>
+<translation id="6978121630131642226">Meklētāji</translation>
+<translation id="7012108905414904806">Tomēr šajā lapā ir citi avoti, kas nav droši. Šos avotus var īslaicīgi apskatīt citi un tos var pārveidot uzbrucējs, lai mainītu lapas uzvedību vai izskatu.</translation>
+<translation id="4515911410595374805">Daži no lapas elementiem nāca no nepārbaudītiem avotiem un tos nevar parādīt.</translation>
+<translation id="1195447618553298278">Nezināma kļūda.</translation>
+<translation id="1087119889335281750">&amp;Nav pareizrakstības ieteikumu</translation>
+<translation id="5076340679995252485">&amp;Ielīmēt</translation>
+<translation id="14171126816530869"><ph name="ORGANIZATION"/>identitāti<ph name="LOCALITY"/>apstiprināja<ph name="ISSUER"/></translation>
+<translation id="1587275751631642843">JavaScript pults</translation>
+<translation id="5821894118254011366">Pilnīgi bloķēt trešās puses sīkfailus</translation>
+<translation id="1134009406053225289">Atvērt inkognito logā</translation>
+<translation id="3473105180351527598">Atļaut pišķerēšanas un maldu programmatūras aizsardzību</translation>
+<translation id="6151323131516309312">Nospiediet <ph name="SEARCH_KEY"/> lai meklētu <ph name="SITE_NAME"/></translation>
+<translation id="2342959293776168129">Attīrīt lejupielāžu vēsturi</translation>
+<translation id="2503522102815150840">Pārlūka avārija... boom</translation>
+<translation id="6786747875388722282">Paplašinājumi</translation>
+<translation id="2815500128677761940">Grāmatzīmju josla</translation>
+<translation id="8041183585493091279">Ieteikuma pakalpojuma URL:</translation>
+<translation id="9189691339671500905">Nosakiet meklējumprogrammu, ko lietot meklēšanas lodziņā.</translation>
+<translation id="4571852245489094179">Importēt grāmatzīmes un iestatījumus</translation>
+<translation id="6514771739083339959">Mājaslapa:</translation>
+<translation id="4421917670248123270">Aizvērt un atcelt lejupielādes</translation>
+<translation id="5605623530403479164">Citas meklējumprogrammas</translation>
+<translation id="5710435578057952990">Tīmekļa vietnes identitāte nav apstiprināta.</translation>
+<translation id="5287240709317226393">Rādīt sīkfailus</translation>
+<translation id="333371639341676808">Neļaujiet šai lapai veidot papildu dialogus.</translation>
+<translation id="5844183150118566785"><ph name="PRODUCT_NAME"/>ir modernizēta <ph name="VERSION"/>)</translation>
+<translation id="7791543448312431591">Pievienot</translation>
+<translation id="772440777491435074">Sertifikāta informācija...</translation>
+<translation id="2869459179306435079">Importēt iestatījumus no:</translation>
+<translation id="4999762576397546063">Ctrl+<ph name="KEY_COMBO_NAME"/></translation>
+<translation id="3369624026883419694">Risina saimniekdatoru...</translation>
+<translation id="3967132639560659870">Šeit ir dažas SSL kļūdas šajā lapā:</translation>
+<translation id="175196451752279553">Vēlr&amp;eiz atvērt aizvērtu cilni</translation>
+<translation id="5039804452771397117">Atļaut</translation>
+<translation id="2266011376676382776">Lapa(s) neatbild</translation>
+<translation id="1805966933547717780">http://www.google.lv/chrome/help/</translation>
+<translation id="5782620817391526544">Grāmatzīmju josla</translation>
+<translation id="3493653833301553455">Veidlapas automātiska aizpildīšana:</translation>
+<translation id="644038709730536388">Uzziniet vairāk par to, kā aizsargāt sevi no kaitīgām programmatūrām tiešsaistē.</translation>
+<translation id="4172706149171596436">Mainīt pilnvaras iestatījumus</translation>
+<translation id="5650551054760837876">Meklēšanas rezultāti nav atrasti.</translation>
+<translation id="3234408098842461169">Bulta Lejup</translation>
+<translation id="825608351287166772">Sertifikātiem ir derīguma termiņš, tāpat kā jebkuram identitātes dokumentam (kā pasei), kurš jums varētu būt. Jūsu pārlūkam piedāvātais sertifikāts vēl nav derīgs. Ja sertifikāts atrodas ārpus derīguma termiņa, noteiktu informāciju par sertifikāta statusu (vai tas ir atsaukts vai tam vairs nevar uzticēties) nav nepieciešams uzturēt. Šādu sertifikātu nevar novērtēt kā uzticamu. Jums nevajadzētu turpināt.</translation>
+<translation id="2742457360514408037">Uznirstošie logi bloķēti: <ph name="COUNT"/></translation>
+<translation id="4874539263382920044">Nosaukumā jābūt vismaz vienai rakstzīmei</translation>
+<translation id="3549657413697417275">Meklēt savā vēsturē</translation>
+<translation id="4250680216510889253">Nē</translation>
+<translation id="7905536804357499080">Izmantot esošo</translation>
+<translation id="7378810950367401542">/</translation>
+<translation id="3087734570205094154">Apakša</translation>
+<translation id="1871540228654219948">Tīmekļa vietne, kas mitināta &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt;, ietver elementus no vietnēm, kurās, domājams, tiek mitināta ļaunprātīga programmatūra — programmatūra, kas var kaitēt jūsu datoram vai citādi darboties bez jūsu piekrišanas. Apmeklējot vietni, kurā ietverta ļaunprātīga programmatūra, var tikt nodarīts kaitējums jūsu datoram.</translation>
+<translation id="8899388739470541164">Vjetnamiešu</translation>
+<translation id="4089663545127310568">Dzēst saglabātās paroles</translation>
+<translation id="6500444002471948304">Pievienot mapi...</translation>
+<translation id="2794293857160098038">Noklusētās meklēšanas opcijas</translation>
+<translation id="5935630983280450497"><ph name="NUMBER_ONE"/> minūtes atlikušas</translation>
+<translation id="5496587651328244253">Sakārtot</translation>
+<translation id="5568069709869097550">Nevarat pieteikties</translation>
+<translation id="4181898366589410653">Servera sertifikātā nav atrasts atsaukšanas mehānisms.</translation>
+<translation id="6364916375976753737">Ritināt pa kreisi</translation>
+<translation id="1665770420914915777">Izmantojiet lapu &quot;Jauna cilne&quot;</translation>
+<translation id="7789175495288668515">Mainīt noklusējuma iestatīšanas opcijas.</translation>
+<translation id="347250956943431997">Servera sertifikāts ir atsaukts</translation>
+<translation id="9087164549070846958">Ja tomēr jūs strādājat organizācijā, kas izdod savus sertifikātus, un ja mēģināt savienoties ar tās organizācijas iekšēju tīmekļa vietni, izmantojot šādu sertifikātu, jums, iespējams, izdosies šo problēmu atrisināt droši. Jūs varat importēt savas organizācijas saknes sertifikātu kā &quot;saknes sertifikātu&quot; un tad sertifikātiem, ko izdevusi vai apstiprinājusi jūsu organizācija, uzticēsies un jūs neredzēsiet šādu kļūdu nākamo reizi, kad mēģināsit savienoties ar iekšēju tīmekļa vietni. Sazinieties ar savas organizācijas atbalsta personālu palīdzībai, pievienojot jaunu saknes sertifikātu Windows.</translation>
+<translation id="7977590112176369853">&lt;ievadīt vaicājumu&gt;</translation>
+<translation id="5155632014218747366">Lai iegtu skku informciju par problmm saistb ar o vietni, ldzu, apmekljiet Google <ph name="DIAGNOSTIC_PAGE"/> for <ph name="DOMAIN"/>.</translation>
+<translation id="1120026268649657149">Atslēgvārdam jābūt tukšam vai unikālam</translation>
+<translation id="5317780077021120954">Saglabāt</translation>
+<translation id="358344266898797651">Ķeltu</translation>
+<translation id="5055518462594137986">Atcerēties manu izvēli visām šāda veida saitēm.</translation>
+<translation id="2870560284913253234">Vietne</translation>
+<translation id="4164507027399414915">Atjaunot visus noņemtos sīktēlus</translation>
+<translation id="7543025879977230179"><ph name="PRODUCT_NAME"/> opcijas</translation>
+<translation id="2648845569394238430">Meklēt:</translation>
+<translation id="2175607476662778685">Ātrās darbības josla</translation>
+<translation id="6434309073475700221">Atmest</translation>
+<translation id="1425127764082410430">Meklēt <ph name="SEARCH_ENGINE"/><ph name="SEARCH_TERMS"/></translation>
+<translation id="877010697526426622">Tīmekļa lapa &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt; var īslaicīgi nestrādāt vai tā var būt pārvietota uz jaunu tīmekļa adresi.</translation>
+<translation id="4378551569595875038">Piesldzas...</translation>
+<translation id="7029809446516969842">Paroles</translation>
+<translation id="8211437954284917092">Lai meklētu grāmatzīmēs, iepriekš redzamajā teksta laukā ievadiet vaicājumu.</translation>
+<translation id="5958418293370246440"><ph name="SAVED_FILES"/> / <ph name="TOTAL_FILES"/> faili</translation>
+<translation id="6805291412499505360">Ierobežojiet to, kā trešās puses sīkfaili var tikt izmantoti</translation>
+<translation id="1201402288615127009">Nākamais</translation>
+<translation id="370665806235115550">Notiek ielāde...</translation>
+<translation id="6592392877063354583">Lapai <ph name="SECURE_PAGE_URL"/> ir nedrošs saturs no <ph name="INSECURE_RESOURCE_URL"/>.</translation>
+<translation id="3810973564298564668">Pārvaldīt</translation>
+<translation id="254416073296957292">&amp;Valodas iestatījumi...</translation>
+<translation id="4222982218026733335">Nederīgs servera sertifikāts</translation>
+<translation id="7762841930144642410"><ph name="BEGIN_BOLD"/>Jūs esat kļuvis inkognito<ph name="END_BOLD"/>. Lapas, kuras jūs skatāt šajā logā, neparādīsies jūsu pārlūkprogrammas vēsturē vai meklēšanas vēsturē un neatstās citas pēdas, piemēram, sīkfailus, jūsu datorā pēc inkognito loga aizvēršanas. Taču visi lejupielādētie faili un izveidotās grāmatzīmes būs saglabātas.        <ph name="LINE_BREAK"/>        <ph name="BEGIN_BOLD"/>Lietojot inkognito funkciju netiks ietekmēta citu personu, serveru un programmatūras darbība. Uzmanieties no:<ph name="END_BOLD"/>        <ph name="BEGIN_LIST"/>          <ph name="BEGIN_LIST_ITEM"/>vietnēm, kas apkopo un kopīgo informāciju par jums;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>interneta pakalpojumu sniedzējiem vai darba devējiem, kas izseko jūsu apmeklētās lapas;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>ļaunprātīgas programmatūras, kas izseko jūsu taustiņsitienus, parādot smaidiņus;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>slepeno aģentu novērošanas;<ph name="END_LIST_ITEM"/>          <ph name="BEGIN_LIST_ITEM"/>cilvēkiem, kas stāv aiz jums.<ph name="END_LIST_ITEM"/>        <ph name="END_LIST"/>        <ph name="BEGIN_LINK"/>Uzziniet vairāk<ph name="END_LINK"/> par pārlūkošanu inkognito režīmā.</translation>
+<translation id="4439241094464540230">&lt;Jauns profils&gt;...</translation>
+<translation id="1813414402673211292">Dzēst pārlūkošanas datus</translation>
+<translation id="2356762928523809690">Servera atjaunināšana nav pieejama (kļūda: <ph name="ERROR_NUMBER"/>)</translation>
+<translation id="5436510242972373446">Meklēt <ph name="SITE_NAME"/>:</translation>
+<translation id="8730621377337864115">Pabeigts</translation>
+<translation id="2953767478223974804"><ph name="NUMBER_ONE"/> minūtes</translation>
+<translation id="8210608804940886430">Lejup</translation>
+<translation id="5015344424288992913">Risina pilnvaru...</translation>
+<translation id="2398703750948514961">Atcelts</translation>
+<translation id="3675321783533846350">Uzstādīt pilnvaru, lai savienotos ar tīklu.</translation>
+<translation id="1572103024875503863"><ph name="NUMBER_MANY"/> dienas</translation>
+<translation id="8453184121293348016">Nav atrasts atsaukšanas mehānisms</translation>
+<translation id="7163503212501929773"><ph name="NUMBER_MANY"/>stundas atlikušas</translation>
+<translation id="3283719377675052581">nezināms</translation>
+<translation id="374530189620960299">Šīs vietnes drošības sertifikātam nevar uzticēties!</translation>
+<translation id="5048040498971143039">Meklanas rezultti '<ph name="SEARCH_STRING"/>'</translation>
+<translation id="5453632173748266363">Kiriliska</translation>
+<translation id="5329858601952122676">Dzēst</translation>
+<translation id="6100736666660498114">Starta izvēlne</translation>
+<translation id="1120098871254928930">Atļaut visam saturam ielādēties</translation>
+<translation id="3994878504415702912">Tālummaiņa</translation>
+<translation id="5602600725402519729">Pār&amp;lādēt</translation>
+<translation id="9010612682952491200">Jauna cilne [<ph name="PROFILE_NAME"/>]</translation>
+<translation id="7965010376480416255">Koplietotā atmiņa</translation>
+<translation id="6248988683584659830">Meklt iestatjumus</translation>
+<translation id="8887733174653581061">Vienmēr augšpusē</translation>
+<translation id="610886263749567451">JavaScript trauksme</translation>
+<translation id="8413126021676339697">Rādīt pilnu vēsturi</translation>
+<translation id="8860923508273563464">Gaidīt, kamēr lejupielādes tiek pabeigtas</translation>
+<translation id="1823768272150895732">Fonts</translation>
+<translation id="4475552974751346499">Meklēt lejupielādes</translation>
+<translation id="1111153019813902504">Nesenas grāmatzīmes</translation>
+<translation id="3786934874263773074">Atrast lapā</translation>
+<translation id="6295228342562451544">Kad jūs izveidojat savienojumu ar drošu tīmekļa vietni, tās mitināšanas serveris piedāvā jūsu pārlūkam tā saukto &quot;sertifikātu&quot;, lai apstiprinātu tā identitāti. Sertifikātā ir identitātes informācija, piemēram, tīmekļa vietnes adrese, kuru apstiprinājusi trešā puse, kurai uzticas jūsu dators. Pārbaudot, vai adrese sertifikātā atbilst tīmekļa vietnes adresei, ir iespējams apstiprināt, ka jūs veidojat drošu savienojumu ar to tīmekļa vietni, kuru izvēlējāties, nevis ar trešo pusi (piemēram, uzbrucēju jūsu tīklam).</translation>
+<translation id="5502500733115278303">Importēts no Firefox</translation>
+<translation id="569109051430110155">Automātiska noteikšana</translation>
+<translation id="4408599188496843485">P&amp;alīdzība</translation>
+<translation id="2800662284745373504">Nederīgs servera sertifikāts</translation>
+<translation id="2681441671465314329">Iztīrīt kešatmiņu</translation>
+<translation id="6222380584850953107">Rādīt saglabātās paroles</translation>
+<translation id="1521442365706402292">Pārvaldīt sertifikātus</translation>
+<translation id="7887998671651498201">Šāds(i) spraudnis(ņi) nesniedz atbildi: <ph name="PLUGIN_NAME"/>Vai vēlaties to apturēt?</translation>
+<translation id="8088823334188264070"><ph name="NUMBER_MANY"/> sekundes</translation>
+<translation id="3712897371525859903">Saglabāt lapu kā...</translation>
+<translation id="3433151241941574321">Pievienot lapu</translation>
+<translation id="7910768399700579500">Jauna mape</translation>
+<translation id="6883611015375728278">Bloķēt visus sīkfailus</translation>
+<translation id="3819791248093819058">Tīmekļa adresē netika atrasta tīmekļa lapa: &lt;strong jscontent=&quot;failedUrl&quot;&gt;&lt;/strong&gt;</translation>
+<translation id="8942948210663084792">Dzēst datus:</translation>
+<translation id="6710213216561001401">Iepriekšējais</translation>
+<translation id="583281660410589416">Nezināms</translation>
+<translation id="5528368756083817449">Grāmatzīmju pārvaldnieks</translation>
+<translation id="1560991001553749272">Grāmatzīme pievienota!</translation>
+<translation id="3966072572894326936">Izvēlieties citu mapi...</translation>
+<translation id="7781829728241885113">Vakar</translation>
+<translation id="7596288230018319236">Visas lapas, ko apmeklējat, tiks parādītas šeit, ja vien jūs tās neatverat incognito logā. Jūs varat izmantot Meklēšanas pogu šajā lapā, lai meklētu visas lapas savā vēsturē.</translation>
+<translation id="2665163749053788434">Apmeklējumu vēsture</translation>
+<translation id="7434509671034404296">Izstrādātājs</translation>
+<translation id="6447842834002726250">Sīkfaili</translation>
+<translation id="5170568018924773124">Rādīt mapē</translation>
+<translation id="2674170444375937751">Vai tiešām vēlaties dzēst šīs lapas no savas vēstures?</translation>
+<translation id="7334704644505105275">JavaScript Defektu novēršana - Aizņemta</translation>
+<translation id="7629827748548208700">Cilne: <ph name="TAB_NAME"/></translation>
+<translation id="8028993641010258682">Izmērs</translation>
+<translation id="1383876407941801731">Meklēšana</translation>
+<translation id="8398877366907290961">Turpināt jebkurā gadījumā</translation>
+<translation id="290414493736480793">Apliecinājums</translation>
+<translation id="6449085810994685586">&amp;Pārbaudīt pareizrakstību šajā laukā</translation>
+<translation id="50960180632766478"><ph name="NUMBER_FEW"/> minūtes atlikušas</translation>
+<translation id="8664389313780386848">Skatīt lapas avotu</translation>
+<translation id="3089982169226026948">Profila atlase</translation>
+<translation id="57646104491463491">Modificētais datums</translation>
+<translation id="3867260226944967367">Tīmekļa lapa nav atrasta.</translation>
+<translation id="6507969014813375884">Vienkāršotā ķīniešu</translation>
+<translation id="1767991048059195456">Sūtīt ziņojumu</translation>
+<translation id="5646376287012673985">Atrašanās vieta</translation>
+<translation id="1110155001042129815">Uzgaidiet</translation>
+<translation id="7071586181848220801">Nezināms spraudnis</translation>
+<translation id="8235325155053717782">Kļūda <ph name="ERROR_NUMBER"/><ph name="ERROR_NAME"/> <ph name="ERROR_TEXT"/></translation>
+<translation id="1084824384139382525">Kopēt saites adresi</translation>
+<translation id="5042992464904238023">Tīmekļa saturs</translation>
+<translation id="1181037720776840403">Izdzēst</translation>
+<translation id="59174027418879706">Iespējots</translation>
+<translation id="8141503649579618569"><ph name="DOWNLOAD_RECEIVED"/>/<ph name="DOWNLOAD_TOTAL"/>, <ph name="TIME_LEFT"/></translation>
+<translation id="2534091581909016888"><ph name="SITE"/></translation>
+<translation id="6659594942844771486">Cilne</translation>
+<translation id="5452592754878692665">Mainīt Google Gears iestatījumus</translation>
+<translation id="5316814419223884568">Meklēt no šīs vietas</translation>
+<translation id="965674096648379287">Šī tīmekļa lapa pieprasa datus, ko ievadījāt iepriekš, lai tā varētu tikt pienācīgi atveidota. Jūs varat sūtīt šos datus vēlreiz, bet to darot, jūs atkārtosies darbības, ko lapa jau ir darījusi. Nospiediet Pārlādēt, lai pārsūtītu datus un attēlotu šo lapu.</translation>
+<translation id="43742617823094120">Šajā gadījumā jūsu pārlūkam piedāvāto sertifikātu ir atsaucis izdevējs. Tas parasti nozīmē, ka sertifikāta godīgums ir kompromitēts un ka sertifikātam nevar uzticēties. Jums noteikti nevajadzētu doties tālāk par šo punktu.</translation>
+<translation id="2065985942032347596">Nepieciešama autentiskuma noteikšana</translation>
+<translation id="1175364870820465910">Drukāt...</translation>
+<translation id="3866249974567520381">Apraksts</translation>
+<translation id="5552632479093547648">Atklāta ļaunprātīga programmatūra un pikšķerēšana!</translation>
+<translation id="9118804773997839291">Tālāk ir norādīts saraksts ar visiem lapas nedrošajiem elementiem. Lai iegūtu plašāku informāciju par noteikta elementa pavedienu, noklikšķiniet uz diagnostikas saites.</translation>
+<translation id="7754704193130578113">Jautāt, kur saglabāt ikvienu failu pirms lejuplādēšanas</translation>
+<translation id="2497284189126895209">Visi faili</translation>
+<translation id="435463392378565996">Mazi pielāgojumi</translation>
+<translation id="5360606537916580043">pēdējā dienā</translation>
+<translation id="6589689504565594563">Dzēst sīkfailus</translation>
+<translation id="6833901631330113163">Dienvideiropiešu</translation>
+<translation id="5256138355144269748">Bloķētie uznirstošie logi</translation>
+<translation id="2820806154655529776"><ph name="NUMBER_ONE"/> sekundes</translation>
+<translation id="3122496702278727796">Neizdevās radīt datu direktoriju</translation>
+<translation id="8446970197849314122">Šajā datorā varat importēt savas grāmatzīmes un iestatījumus no citām pārlūkprogrammām un lietotāju kontiem.</translation>
+<translation id="6281636957902664775">Atveriet <ph name="URL"/></translation>
+<translation id="630065524203833229">I&amp;ziet</translation>
+<translation id="2649204054376361687"><ph name="CITY"/>, <ph name="COUNTRY"/></translation>
+<translation id="5264618369089706215">Meklējumi</translation>
+<translation id="1168020859489941584">Atveras <ph name="TIME_REMAINING"/> ...</translation>
+<translation id="7814458197256864873">Ko&amp;pēt</translation>
+<translation id="4692623383562244444">Mekltjprogrammas</translation>
+<translation id="2526590354069164005">Darbvirsma</translation>
+<translation id="4890284164788142455">Thai</translation>
+<translation id="3889424535448813030">Labā bulta</translation>
+<translation id="5435666907653217300">Cita problēma</translation>
+<translation id="8382913212082956454">Kopēt un nosūtīt adresi pa e-pastu</translation>
+<translation id="6419902127459849040">Centrāleiropiešu</translation>
+<translation id="1714078437629572290">Atveriet mājaslapu</translation>
+<translation id="2544782972264605588"><ph name="NUMBER_DEFAULT"/> sekundes atlikušas</translation>
+<translation id="2454247629720664989">Atslēgvārds</translation>
+<translation id="614298788004369532">Šī lapa satur dažus nedrošus elementus</translation>
+<translation id="1628736721748648976">Kodēšana</translation>
+<translation id="6521850982405273806">Ziņot par kļūdu</translation>
+<translation id="8503813439785031346">Lietotājvārds</translation>
+<translation id="290555789621781773"><ph name="NUMBER_TWO"/> minūtes</translation>
+<translation id="7073704676847768330">Iespējams, šī nav tā vietne, ko meklējāt!</translation>
+<translation id="7642109201157405070">Turpināt importēšanu</translation>
+<translation id="6463795194797719782">Rediģēt</translation>
+<translation id="4188026131102273494">Atslēgvārds:</translation>
+<translation id="2290414052248371705">Rādīt visu saturu</translation>
+<translation id="6434892175081553796">Aizvērt cilnes, kas atvērtas šajā cilnē</translation>
+<translation id="3268761268932257769">Ielādēt attēlus automātiski</translation>
+<translation id="7227780179130368205">Atrasta Maldu programmatūra!</translation>
+<translation id="3942946088478181888">Palīdzi man saprast</translation>
+<translation id="7893393459573308604"><ph name="ENGINE_NAME"/> (Noklusējums)</translation>
+<translation id="111844081046043029">Vai jūs tiešām vēlaties pamest šo lapu?</translation>
+<translation id="4497415007571823067">Jūs centāties sasniegt &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, bet tā vietā jūs sasniedzāt serveri, kas sevi identificē kā &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. To var radīt nepareiza konfigurācija serverī vai kaut kas nopietnāks. Uzbrucējs jūsu tīklā iespējams cenšas izdarīt tā, lai jūs apmeklētu neīstu (un potenciāli kaitīgu) &lt;strong&gt;<ph name="DOMAIN3"/>&lt;/strong&gt; versiju. Jums nevajadzētu turpināt.</translation>
+<translation id="3202578601642193415">Jaunākā</translation>
+<translation id="8112886015144590373"><ph name="NUMBER_FEW"/> stundas</translation>
+<translation id="8739589585766515812">Dzēst šīs dienas vēsturi</translation>
+<translation id="1398853756734560583">Maksimizēt</translation>
+<translation id="3340262871848042885">Servera sertifikātam ir beidzies derīguma termiņš</translation>
+<translation id="8978540966440585844">Pārlūkot...</translation>
+<translation id="6690744523875189208"><ph name="NUMBER_TWO"/> stundas</translation>
+<translation id="3577682619813191010">Kopēt failu</translation>
+<translation id="5260878308685146029"><ph name="NUMBER_TWO"/> minūtes atlikušas</translation>
+<translation id="2192505247865591433">No:</translation>
+<translation id="5921544176073914576">Pikšķerēšanas lapa</translation>
+<translation id="6192792657125177640">Izņēmumi</translation>
+<translation id="2822650824848709219">Bloķēt visu nedrošo saturu</translation>
+<translation id="1901303067676059328">Izvēlēties visus</translation>
+<translation id="2168039046890040389">Augšup</translation>
+<translation id="1559333154119355392"><ph name="DOWNLOAD_SIZE"/> Pabeigts</translation>
+<translation id="2435457462613246316">Rādīt paroli</translation>
+<translation id="394984172568887996">Importēts no IE</translation>
+<translation id="5315873049536339193">Identitāte</translation>
+<translation id="6144890426075165477"><ph name="PRODUCT_NAME"/> šobrīd nav jūsu noklusējuma pārlūks.</translation>
+<translation id="9107059250669762581"><ph name="NUMBER_DEFAULT"/>dienas</translation>
+<translation id="872451400847464257">Rediģēt meklējumprogrammas</translation>
+<translation id="6463061331681402734"><ph name="NUMBER_MANY"/> minūtes</translation>
+<translation id="8717266507183354698">Skatīt visas lapas vēsturē, kurās ir <ph name="SEARCH_TERMS"/></translation>
+<translation id="5645845270586517071">Drošības kļūda</translation>
+<translation id="8695758493354644945">Skatīt<ph name="NUM_MATCHES"/> nesen atvērtās lapas vēsturē, kas satur<ph name="SEARCH_TERMS"/></translation>
+<translation id="8186012393692847636">Izmantojiet ieteikumus, lai tādējādi palīdzētu pabeigt meklējumus un URL, ko ievadāt adreses joslā</translation>
+<translation id="4711094779914110278">Turku</translation>
+<translation id="4002066346123236978">Nosaukums</translation>
+<translation id="9015241028623917394">Kontrolēt esošo lapu</translation>
+<translation id="7861215335140947162">Lejupielādes</translation>
+<translation id="5460429403253574028">Noņemt sīktēlus</translation>
+<translation id="2505402373176859469"><ph name="RECEIVED_AMOUNT"/> no <ph name="TOTAL_SIZE"/></translation>
+<translation id="6644512095122093795">Piedāvāt saglabāt paroles</translation>
+<translation id="5384051050210890146">Izvēlieties uzticamus SSL sertifikātus.</translation>
+<translation id="6865323153634004209">Pielāgot šos iestatījumus</translation>
+<translation id="154603084978752493">Pievienot kā meklējumprogrammu...</translation>
+<translation id="3254409185687681395">Grāmatot šo lapu</translation>
+<translation id="1384616079544830839">Tīmekļa vietnes identitāti ir apstiprinājis <ph name="ISSUER"/>.</translation>
+<translation id="1800035677272595847">Pikšķerēšana</translation>
+<translation id="4610637590575890427">Vai jūs vēlējāties doties uz <ph name="SITE"/>?</translation>
+<translation id="8349305172487531364">Grāmatzīmju josla</translation>
+<translation id="7208899522964477531">Meklēt<ph name="SITE_NAME"/> <ph name="SEARCH_TERMS"/></translation>
+<translation id="8004582292198964060">Pārlūkprogramma</translation>
+<translation id="2224551243087462610">Rediģēt mapes nosaukumu</translation>
+<translation id="5433207235435438329">Pareizrakstības pārbaudītāja valoda:</translation>
+<translation id="3183922693828471536">Ritināt šeit</translation>
+<translation id="2527167509808613699">Jebkāda veida savienojums</translation>
+<translation id="1234466194727942574">Cilnes josla</translation>
+<translation id="4035758313003622889">Uzdevumu pārvaldnieks</translation>
+<translation id="558442360746014982">Zemāk  ir oriģinālais kļūdas ziņojums</translation>
+<translation id="1768211415369530011">Šī lietojumprogramma tiks iedarbināta, ja jūs pieņemsit šo pieprasījumu:\n\n <ph name="APPLICATION"/></translation>
+<translation id="4552416320897244156">Lejup</translation>
+<translation id="8986267729801483565">Lejupielādes atrašanās vieta:</translation>
+<translation id="8318945219881683434">Neizdevās pārbaudīt atsaukšanu.</translation>
+<translation id="3191701650141760424">Iziet no iestatīšanas</translation>
+<translation id="3745810751851099214">Sūtīt pēc:</translation>
+<translation id="8877448029301136595">[vecāku direktorija]</translation>
+<translation id="1963227389609234879">Izņemt visu</translation>
+<translation id="7052633198403197513">F1</translation>
+<translation id="2496180316473517155">Pārlūkošanas vēsture</translation>
+<translation id="602251597322198729">No šīs vietnes mēģina lejupielādēt vairākus failus. Vai atļaut?</translation>
+<translation id="2052389551707911401"><ph name="NUMBER_MANY"/> stundas</translation>
+<translation id="6691936601825168937">Pārsūtīt</translation>
+<translation id="7736284018483078792">Mainīt pareizrakstības pārbaudes vārdnīcas valodu.</translation>
+<translation id="2148716181193084225">Šodien</translation>
+<translation id="3574305903863751447"><ph name="CITY"/>, <ph name="STATE"/> <ph name="COUNTRY"/></translation>
+<translation id="4756388243121344051">Vēsture</translation>
+<translation id="4789872672210757069">Par <ph name="PRODUCT_NAME"/></translation>
+<translation id="1017280919048282932">&amp;Pievienot vārdnīcai</translation>
+<translation id="1829244130665387512">Atrast lapā</translation>
+<translation id="4115153316875436289"><ph name="NUMBER_TWO"/> dienas</translation>
+<translation id="5107325588313356747">Lai paslēptu pieeju šai programmai, jums nepieciešams to atiestatīt izmantojot \n <ph name="CONTROL_PANEL_APPLET_NAME"/> vadības panelī.\n\n Vai jūs vēlaties sākt <ph name="CONTROL_PANEL_APPLET_NAME"/>?</translation>
+<translation id="8627795981664801467">Tikai droši savienojumi</translation>
+<translation id="2190355936436201913">(tukšs)</translation>
+<translation id="5868426874618963178">Sūtīt esošās lapas avotu</translation>
+<translation id="5818003990515275822">Korean</translation>
+<translation id="4182252350869425879">Brīdinājums: iespējama pikšķerēšanas vietne!</translation>
+<translation id="1164369517022005061"><ph name="NUMBER_DEFAULT"/> stundas atlikušas</translation>
+<translation id="2214283295778284209"><ph name="SITE"/> nav pieejama</translation>
+<translation id="7552620667503495646">Atvērt rāmi jaunā cilnē</translation>
+<translation id="8755376271068075440">Lielāks</translation>
+<translation id="8187473050234053012">Servera drošības sertifikāts ir atsaukts!</translation>
+<translation id="152482086482215392"><ph name="NUMBER_ONE"/> sekundes atlikušas</translation>
+<translation id="8447116497070723931">Augšup</translation>
+<translation id="1970746430676306437">Skatīt lapas informāciju</translation>
+<translation id="4588090240171750605">Ritināt pa labi</translation>
+<translation id="8940262601983387853">Sīkfaila nosaukums</translation>
+<translation id="8053959338015477773">Lai attēlotu dažus lapas elementus, nepieciešams papildu spraudnis.</translation>
+<translation id="4666192354592784528">Šī lapa nav pilnīgi iegūta no droša savienojuma.  Šī lapa satur dažus elementus, ko saņēma no nedroša savienojuma.</translation>
+<translation id="7414887922320653780"><ph name="NUMBER_ONE"/> stundas atlikušas</translation>
+<translation id="399179161741278232">Importēts</translation>
+<translation id="3927932062596804919">Neatļaut</translation>
+<translation id="6484929352454160200">Jauna <ph name="PRODUCT_NAME"/> versija ir pieejama</translation>
+<translation id="7035824132811506448">Nesen pievienots</translation>
+<translation id="2371076942591664043">Atvērt, kad esat beidzis</translation>
+<translation id="6069278982995177296">Dublikāts</translation>
+<translation id="2979639724566107830">Atvērt jaunā logā</translation>
+<translation id="2822854841007275488">Arābu</translation>
+<translation id="2815448242176260024">Nekad nesaglabāt paroles</translation>
+<translation id="2666092431469916601">Augša</translation>
+<translation id="4047498523333824092">Atjaunot pēdējās atvērtās lapas</translation>
+<translation id="6503077044568424649">Visapmeklētākais</translation>
+<translation id="1040471547130882189">Spraudnis neatbild</translation>
+<translation id="790025292736025802"><ph name="URL"/> nav atrasts</translation>
+<translation id="895347679606913382">Sākums...</translation>
+<translation id="3319048459796106952">Jauns &amp;inkognito logs</translation>
+<translation id="4195643157523330669">Atvērt jaunā cilnē</translation>
+<translation id="4178055285485194276">Sākumlapā:</translation>
+<translation id="1154228249304313899">Atveriet šo lapu:</translation>
+<translation id="3627588569887975815">Atvērt saiti inkognito logā</translation>
+<translation id="5578327870501192725">Jūsu savienojums ar <ph name="DOMAIN"/>ir kodēts ar <ph name="BIT_COUNT"/> bitu kodēšanu.</translation>
+<translation id="7079333361293827276">Servera sertifikāts nav uzticams</translation>
+<translation id="8331626408530291785">Ritināt augšup</translation>
+<translation id="1526560967942511387">Dokuments bez nosaukuma</translation>
+<translation id="5538307496474303926">Dzēš...</translation>
+<translation id="6783679543387074885">Ziņot par kļūdu vai salauztu tīmekļa vietni</translation>
+<translation id="5285267187067365830">Iestatīt spraudni...</translation>
+<translation id="8015746205953933323">Tīmekļa lapa nav pieejama.</translation>
+<translation id="8520668773617044689">Firefox</translation>
+<translation id="8434177709403049435">Kodēšana</translation>
+<translation id="7895330511272068835">Par spraudņiem</translation>
+<translation id="9012607008263791152">Es saprotu, ka šīs vietnes apmeklēšana var kaitēt manam datoram.</translation>
+<translation id="6004539838376062211">&amp;Pareizrakstības pārbaudītāja opcijas</translation>
+<translation id="7887334752153342268">Izveidot dublikātu</translation>
+<translation id="703748601351783580">Atvērt visas grāmatzīmes jaunā logā</translation>
+<translation id="1293699935367580298">Atsolis</translation>
+<translation id="8502249598105294518">Pielāgot un kontrolēt <ph name="PRODUCT_NAME"/></translation>
+<translation id="815598010540052116">Ritināt lejup</translation>
+<translation id="5291303148298143069">Brīdināt, kad tiek bloķēts uznirstošais logs</translation>
+<translation id="2115926821277323019">Jābūt derīgam URL</translation>
+<translation id="7397054681783221164">Dzēst šādus vienumus:</translation>
+<translation id="4891251785049117953">Dzēst saglabātās veidlapas datus</translation>
+<translation id="5230516054153933099">Logs</translation>
+<translation id="7554791636758816595">Jauna cilne</translation>
+<translation id="4400697530699263877">Izmantojiet DNS priekš-ieviešanu, lai uzlabotu lapas ielādes rezultātus</translation>
+<translation id="1086613338090581534">Sertifikāta izdevējs ir atbildīgs par tā sauktā &quot;atsaukšanas saraksta&quot; uzturēšanu sertifikātam, kuram vēl nav beidzies derīguma termiņš, Ja sertifikāts kaut reizi ir kompromitēts, izdevējs var to atsaukt, pievienojot atsaukšanas sarakstam, un tad šim sertifikātam vairs neticēs jūsu pārlūks. Atsaukšanas status nav jāpiemēro sertifikātiem ar beigušos derīguma termiņu, tāpēc, ja agrāk sertifikāts apmeklētajai tīmekļa vietnei bija derīgs, šobrīd vairs nav iespējams noteikt, vai sertifikāts tika kompromitēts un tad atsaukts, vai tas paliek drošs. Tāpat nav iespējams noteikt, vai jūs sazinājāties ar likumīgu tīmekļa vietni, vai tā sertifikāts bija kompromitēts un tagad atrodas tā uzbrucēja īpašumā, ar ko sazināties. Jums nevajadzētu doties tālāk par šo punktu.</translation>
+<translation id="3157931365184549694">Atjaunot</translation>
+<translation id="6059232451013891645">Mape:</translation>
+<translation id="8182985032676093812">Avots <ph name="PAGE_URL"/></translation>
+<translation id="7042418530779813870">Ielīmēt un meklēt</translation>
+<translation id="1570242578492689919">Fonti un kodēšana</translation>
+<translation id="3031557471081358569">Izvēlēties vienumu, ko importēt:</translation>
+<translation id="3031433885594348982">Jūsu savienojuma <ph name="DOMAIN"/> kodējums nav drošs.</translation>
+<translation id="4047345532928475040">Nav pieejama</translation>
+<translation id="5657156137487675418">Atļaut visus sīkfailus</translation>
+<translation id="3228279582454007836">Jūs neesat šo vietni apmeklējis iepriekš.</translation>
+<translation id="4890855023395992542">Pakalpojuma URL:</translation>
+<translation id="2814489978934728345">Pārtraukt šīs lapas ielādi</translation>
+<translation id="2354001756790975382">Citas grmatzmes</translation>
+<translation id="8561574028787046517"><ph name="PRODUCT_NAME"/> ir atjaunināts</translation>
+<translation id="641480858134062906"><ph name="URL"/> neizdevās ielādēt</translation>
+<translation id="3693415264595406141">Parole:</translation>
+<translation id="74568296546932365">Saglabāt <ph name="PAGE_TITLE"/> kā noklusējuma meklējumprogrammu</translation>
+<translation id="6181769708911894002">Brīdinājums: Šīs vietnes apmeklēšana var kaitēt jūsu datoram!</translation>
+<translation id="8299269255470343364">Japāņu</translation>
+<translation id="5204993535447683655">&lt;a jsvalues=&quot;href:reloadUrl&quot;&gt;Pārlādēt&lt;/a&gt; šo tīmekļa lapu vēlāk.</translation>
+<translation id="3635774677705394651">Tīmekļa vietne ar &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; iespējams mitina maldu programmatūru, kas var kaitēt jūsu datoram vai citādi darboties bez jūsu ziņas.  Vietnes, kas satur maldu programmatūru, apmeklējums var inficēt jūsu datoru.</translation>
+<translation id="7280343984261969618">Darbina spraudņus smilšu kastē bez privilēģijām. Var traucēt dažu spraudņu pareizu darbību.</translation>
+<translation id="50030952220075532"><ph name="NUMBER_ONE"/> dienas atlikušas</translation>
+<translation id="2359808026110333948">Turpināt</translation>
+<translation id="1618661679583408047">Servera drošības sertifikāts vēl nav derīgs!</translation>
+<translation id="9040508646567685134">Skripts, kas darbojas šajā lapā, pārāk ilgu laiku veic savu darbu. Vai vēlaties redzēt, vai skripts var pabeigt, vai vēlaties padoties?</translation>
+<translation id="3065140616557457172">Rakstiet, lai meklētu, vai ievadiet URL, lai pārvietotos - viss vienkārši darbojas.</translation>
+<translation id="5986279928654338866">Lietotājvārds un parole serverī <ph name="DOMAIN"/> ir obligāti.</translation>
+<translation id="7056713340842386352">Visapmeklētākais [<ph name="PROFILE_NAME"/>]</translation>
+<translation id="5765780083710877561">Apraksts:</translation>
+<translation id="7221869452894271364">Pārlādēt šo lapu</translation>
+<translation id="8646430701497924396">Izmantot SSL 2.0</translation>
+<translation id="8179976553408161302">Ievadīt</translation>
+<translation id="8261506727792406068">Dzēst</translation>
+<translation id="345693547134384690">Atvērt attēlu jaunā cilnē</translation>
+<translation id="1375198122581997741">Par versiju</translation>
+<translation id="1474307029659222435">Atvērt rāmi jaunā logā</translation>
+<translation id="3527085408025491307">Mape</translation>
+<translation id="3169621169201401257">Lai iegūtu papildinformāciju par problēmām ar šiem elementiem, apmeklējiet Google <ph name="DOMAIN"/> <ph name="DIAGNOSTIC_PAGE"/>.</translation>
+<translation id="2559292239863842334">Meklēšanas lodziņi, ko lietojat visbiežāk citās vietnēs, tiks parādīti šeit.</translation>
+<translation id="770015031906360009">Grieķu</translation>
+<translation id="4474796446011988286">Šādi sīkfaili ir saglabāti jūsu datorā:</translation>
+<translation id="884923133447025588">Nav atrasts atsaukšanas mehānisms.</translation>
+<translation id="9170848237812810038">&amp;Atsaukt</translation>
+<translation id="8135557862853121765"><ph name="NUM_KILOBYTES"/>K</translation>
+<translation id="4444364671565852729"><ph name="PRODUCT_NAME"/> ir atjaunināts uz <ph name="VERSION"/></translation>
+<translation id="6483805311199035658">Tiek atvērts fails <ph name="FILE"/>...</translation>
+<translation id="9154176715500758432">Palikt šajā lapā</translation>
+<translation id="5875565123733157100">Blusas veids:</translation>
+<translation id="2440604414813129000">Skatīt avotu</translation>
+<translation id="8200772114523450471">Kopsavilkums</translation>
+<translation id="3009731429620355204">Seansi</translation>
+<translation id="3473034187222004855">Kopēt faila ceļu</translation>
+<translation id="6325525973963619867">Neizdevās</translation>
+<translation id="1676388805288306495">Mainīt tīmekļa vietņu noklusējuma fontu un valodu.</translation>
+<translation id="4701488924964507374"><ph name="SENTENCE1"/> <ph name="SENTENCE2"/></translation>
+<translation id="1163931534039071049">Skatīt rāmja avotu</translation>
+<translation id="7564847347806291057">Pārtraukt procesu</translation>
+<translation id="7851589172948533362">Apstiprināja <ph name="ISSUER"/></translation>
+<translation id="5501358408399407103">Tīmekļa lapa, HTML Tikai\0*.htm\0Web Page, Complete\0*.htm</translation>
+<translation id="7063412606254013905">Uzziniet vairāk par pikšķerēšanas maldiem.</translation>
+<translation id="307767688111441685">Lapa izskatās dīvaina</translation>
+<translation id="5295309862264981122">Apstiprināt navigāciju</translation>
+<translation id="6847541693235449912">Atveriet</translation>
+<translation id="5333374927882515515">Importēt grāmatzīmes, paroles un citus iestatījumus no <ph name="DEF_BROWSER"/></translation>
+<translation id="4239831617079978238">Sesijas beigas</translation>
+<translation id="7377249249140280793"><ph name="RELATIVE_DATE"/> - <ph name="FULL_DATE"/></translation>
+<translation id="8954894007019320973">(turpin.)</translation>
+<translation id="3748412725338508953">Bija pārāk daudz dažādu pārviržu.</translation>
+<translation id="8929159553808058020">Pievienojiet valodas, kuras vēlaties lietot, lai lasītu tīmekļa vietnes, sarindojot tās izvēles kārtībā. Pievienojiet tikai tās, kuras tiešām vajadzēs, jo dažas rakstzīmes var tikt izmantotas, lai uzdotos par tīmekļa vietnēm citās valodās.</translation>
+<translation id="8831104962952173133">Pikšķerēšana noteikta!</translation>
+<translation id="2614223168876839822">Notīriet savus pārlūkošanas datus šajā datorā. Ņemiet vērā, ka tas var nelabvēlīgi ietekmēt lapas Jauna cilne saturu.</translation>
+<translation id="4745142959976410383">Ja jūs neveidojāt šo pieprasījumu, tas var nozīmēt iespējamu uzbrukumu jūsu sistēmai. Ja jūs nesākāt šo pieprasījumu, jums jānospiež Atcelt.</translation>
+<translation id="1897258631034940238">Tīmekļa vietnē, kas mitināta &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt;, ietverti elementi no vietnēm, par kurām ziņots kā pikšķerēšanas vietnēm. Bieži vien izliekoties pārstāvam uzticamas iestādes (piemēram, bankas), pikšķerēšanas vietnēs tiek maldināti lietotāji un tiek izkrāpta personiskā vai finanšu informācija.</translation>
+<translation id="8288345061925649502">Mainīt meklējumprogrammu</translation>
+<translation id="1095623615273566396"><ph name="NUMBER_FEW"/> sekundes</translation>
+<translation id="5139955368427980650">Atvērt</translation>
+<translation id="7088615885725309056">Vecāka</translation>
+<translation id="746319800473277382">Doties uz vietnes mājaslapu:</translation>
+<translation id="8562413501751825163">Aizveriet Firefox, pirms importēšanas</translation>
+<translation id="5034259512732355072">Izvēlieties citu direktoriju...</translation>
+<translation id="5074322878757699801">Importēt datus...</translation>
+<translation id="5706242308519462060">Noklusējuma kodēšana:</translation>
+<translation id="5280833172404792470">Iziet no pilnekrāna režīma (<ph name="ACCELERATOR"/>)</translation>
+<translation id="129553762522093515">Nesen aizvērtas</translation>
+<translation id="8355915647418390920"><ph name="NUMBER_FEW"/> dienas</translation>
+<translation id="3702416240431471861">Google Gears:</translation>
+<translation id="3891357445869647828">Iespējot JavaScript</translation>
+<translation id="6451458296329894277">Apstiprināt veidlapas atkārtotu iesniegšanu</translation>
+<translation id="3218545474413654570"><ph name="URL"/> - <ph name="WINDOW_TITLE"/></translation>
+<translation id="5116333507878097773"><ph name="NUMBER_ONE"/> stunda</translation>
+<translation id="1851266746056575977">Atjaunināt tagad</translation>
+<translation id="19901320010520290">Tīmekļa vietne, kas mitināta &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt;, ietver elementus no vietnēm, kurās, domājams, tiek mitināta ļaunprātīga programmatūra — programmatūra, kas var kaitēt jūsu datoram vai citādi darboties bez jūsu piekrišanas. Apmeklējot vietni, kurā ietverta ļaunprātīga programmatūra, var tikt nodarīts kaitējums jūsu datoram. Tīmekļa vietnē tiek mitināts saturs no vietnēm, par kurām ziņots kā pikšķerēšanas vietnēm. Bieži vien izliekoties pārstāvam uzticamas iestādes (piemēram, bankas), pikšķerēšanas vietnēs tiek maldināti lietotāji un tiek izkrāpta personiskā vai finanšu informācija.</translation>
+<translation id="9065203028668620118">Rediģēt</translation>
+<translation id="4867297348137739678">Pagājušā nedēļa</translation>
+<translation id="4881695831933465202">Atvērt</translation>
+<translation id="5981759340456370804">Statistika sistēmas administratoriem</translation>
+<translation id="6644971472240498405"><ph name="NUMBER_ONE"/> diena</translation>
+<translation id="6512448926095770873">Pamest šo lapu</translation>
+<translation id="5607455023223000189">Iestatītie spraudņi</translation>
+<translation id="7009102566764819240">Tālāk norādīts saraksts ar visiem lapas nedrošajiem elementiem. Lai iegūtu plašāku informāciju par noteikta resursa ļaunprātīgas programmatūras pavedienu, noklikšķiniet uz diagnostikas saites. Ja jums zināms, ka par kādu resursu kļūdaini ziņots kā par pikšķerēšanas resursu, noklikšķiniet uz saites “Ziņot par kļūdu”.</translation>
+<translation id="494645311413743213"><ph name="NUMBER_TWO"/> sekundes atlikušas</translation>
+<translation id="1485146213770915382">Ievietot <ph name="SEARCH_TERMS_LITERAL"/> URL, kur meklējamajam vārdam būtu jāparādās.</translation>
+<translation id="5626134646977739690">Nosaukums:</translation>
+<translation id="7125953501962311360">Noklusējuma pārlūks:</translation>
+<translation id="721197778055552897"><ph name="BEGIN_LINK"/>Uzziniet vairāk<ph name="END_LINK"/> par šo problēmu.</translation>
+<translation id="7774607445702416100">Internet Explorer</translation>
+<translation id="146000042969587795">Šis rāmis tika bloķēts, jo tas satur dažus nedrošus elementus.</translation>
+<translation id="8112223930265703044">viss</translation>
+<translation id="1983108933174595844">Sūtīt esošās lapas attēlu</translation>
+<translation id="436869212180315161">Nospiediet</translation>
+<translation id="8241707690549784388">Lapa, ko meklējāt, izmantoja jūsu ievadīto informāciju. Atgriezšanās lapā var radīt jebkuras jūsu darbības atkārtojumu. Vai vēlaties turpināt?</translation>
+<translation id="486595306984036763">Atvērt pikšķerēšanas pārskatu</translation>
+<translation id="1568162916422682473">Šāds spraudnis sabruka: <ph name="PLUGIN_NAME"/></translation>
+<translation id="2441719842399509963">Atiestatīt līdz noklusējumam</translation>
+<translation id="170407012880898501">Saglabāt veidlapu tekstu, lai atvieglotu to aizpildīšanu</translation>
+<translation id="8116972784401310538">&amp;Grāmatzīmju pārvaldnieks</translation>
+<translation id="6040143037577758943">Aizvērt</translation>
+<translation id="4943872375798546930">Nav rezultātu</translation>
+<translation id="4910619056351738551">Daži ieteikumi:</translation>
+<translation id="7451556917824271099">Tīmekļa vietnē ar &lt;strong&gt;<ph name="HOST_NAME"/>&lt;/strong&gt; ir &lt;strong&gt;<ph name="ELEMENTS_HOST_NAME"/>&lt;/strong&gt; vietnes elementi, kas mitina maldu programmatūru, kura var kaitēt jūsu datoram vai citādi darboties bez jūsu ziņas.  Vietnes, kurās ir maldu programmatūra, apmeklējums var inficēt jūsu datoru.</translation>
+<translation id="1232569758102978740">Bez nosaukuma</translation>
+<translation id="9149866541089851383">Rediģēt ...</translation>
+<translation id="7000311294523403548">Tīmekļa lapa bez nosaukuma</translation>
+<translation id="7649070708921625228">Palīdzība</translation>
+<translation id="7442246004212327644">Attīrīt</translation>
+<translation id="9002707937526687073">Drukāt...</translation>
+<translation id="5556459405103347317">Pārlādēt</translation>
+<translation id="7727721885715384408">Pārsaukt...</translation>
+<translation id="5508407262627860757">Atcelt jebkurā gadījumā</translation>
+<translation id="7587108133605326224">Baltu</translation>
+<translation id="8598751847679122414">Tīmekļa lapai ir pārvirzes cilpa.</translation>
+<translation id="5271549068863921519">Saglabāt paroli</translation>
+<translation id="2987775926667433828">Tradicionālā ķīniešu</translation>
+<translation id="6227291405321948850">Tīmekļa attēls bez nosaukuma</translation>
+<translation id="1684248949164455892">Šajā gadījumā jūsu sertifikātu nav apstiprinājusi trešā puse, kurai uzticas jūsu dators. Jebkurš var izveidot sertifikātu, kas apliecina tīmekļa vietnes esamību, tieši tāpēc tas ir jāapstiprina trešajai pusei. Bez apstiprinājuma identitātes informācija sertifikātā nav nozīmīga. Tāpēc nav iespējams apstiprināt, ka jūs sazināties ar &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, nevis uzbrucēju, kas ir radījis savu sertifikātu, nosakot sevi kā &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;. Jums nevajadzētu doties tālāk par šo punktu.</translation>
+<translation id="8045462269890919536">Rumāņu</translation>
+<translation id="3927097095400773697"><ph name="DOWNLOAD_SIZE"/>, Atcelts</translation>
+<translation id="2927657246008729253">Mainīt...</translation>
+<translation id="3478477629095836699">Sīkfailu iestatījumi:</translation>
+<translation id="2108475813351458355">Drošs savienojums ar <ph name="DOMAIN"/></translation>
+<translation id="942671148946453043">Jūs esat atvēris inkognito logu. Lapas, ko atverat šajā logā, netiks parādītas jūsu vēsturē.</translation>
+<translation id="6996505290426962909">Importēt grāmatzīmes un iestatījumus...</translation>
+<translation id="6165508094623778733">Uzzināt vairāk</translation>
+<translation id="4745438305783437565"><ph name="NUMBER_FEW"/> minūtes</translation>
+<translation id="2649911884196340328">Servera drošības sertifikātā ir kļūdas!</translation>
+<translation id="1963692530539281474"><ph name="NUMBER_DEFAULT"/> dienas atlikušas</translation>
+<translation id="668171684555832681">Cits...</translation>
+<translation id="3108416241300843963">Pieprasījums neizdevās, jo servera sertifikāts nav derīgs.</translation>
+<translation id="116506693382293616">Šajā lapā ir daži elementi, ko saņēma no savienojuma ar SSL kļūdām.</translation>
+<translation id="7887455386323777409">Iznīcināt spraudni</translation>
+<translation id="3761000923495507277">Rīkjoslā parādīt pogu Sākums</translation>
+<translation id="8709969075297564489">Pārbaudīt servera sertifikāta atsaukšanu</translation>
+<translation id="8698171900303917290">Vai radušās ar instalēšanu saistītas problēmas?</translation>
+<translation id="2552545117464357659">Jaunāka</translation>
+<translation id="5869522115854928033">Saglabātās paroles</translation>
+<translation id="1709220265083931213">Zem pārsega</translation>
+<translation id="4771973620359291008">Radās nezināma kļūda.</translation>
+<translation id="8155798677707647270">Jaunas versijas iestatīšana...</translation>
+<translation id="6886871292305414135">Atvērt saiti jaunā cilnē</translation>
+<translation id="6308937455967653460">Saglabāt saiti kā...</translation>
+<translation id="5421136146218899937">Tiek notīrīti pārlūkošanas dati...</translation>
+<translation id="3943582379552582368">Atpakaļ</translation>
+<translation id="7607002721634913082">Apturēta</translation>
+<translation id="480990236307250886">Atvērt mājas lapu</translation>
+<translation id="5906719743126878045"><ph name="NUMBER_TWO"/>stundas atlikušas</translation>
+<translation id="5040262127954254034">Privātums</translation>
+<translation id="1908748899139377733">Skatīt rāmja info</translation>
+<translation id="8400147561352026160">Shift+<ph name="KEY_COMBO_NAME"/></translation>
+<translation id="3366404380928138336">Ārējā protokola pieprasījums</translation>
+<translation id="566920818739465183">Pirmo reizi jūs šo vietni apmeklējāt <ph name="VISIT_DATE"/>.</translation>
+<translation id="2961695502793809356">Nospiediet, lai dotos uz priekšu, paturiet, lai redzētu vēsturi</translation>
+<translation id="8421864404045570940"><ph name="NUMBER_DEFAULT"/> sekundes</translation>
+<translation id="8689341121182997459">Beigsies:</translation>
+<translation id="1857842694030005096">Papildus informācija par šo kļūdu</translation>
+<translation id="4880827082731008257">Meklēšanas vēsture</translation>
+<translation id="4197700912384709145"><ph name="NUMBER_ZERO"/> sekundes</translation>
+<translation id="8609465669617005112">Virziet uz augšu</translation>
+<translation id="1702534956030472451">Rietumu</translation>
+<translation id="9141716082071217089">Nav iespējams pārbaudīt, vai servera drošības sertifikāts ir atsaukts.</translation>
+<translation id="4304224509867189079">Pieteikšanās</translation>
+<translation id="4492190037599258964">Vaicājuma “<ph name="SEARCH_STRING"/>” meklēšanas rezultāti</translation>
+<translation id="988159990683914416">Attīstītāja konstrukcija</translation>
+<translation id="3705722231355495246">-</translation>
+<translation id="4268574628540273656">URL:</translation>
+<translation id="7481312909269577407">Pārsūtīt</translation>
+<translation id="3759876923365568382"><ph name="NUMBER_FEW"/> dienas atlikušas</translation>
+<translation id="1664314758578115406">Pievienot lapu...</translation>
+<translation id="4084682180776658562">Grāmatzīme</translation>
+<translation id="4381091992796011497">Lietotājvārds:</translation>
+<translation id="7669151579173473971">Jauns logs &amp;profilā</translation>
+<translation id="5822838715583768518">Darbināt lietojumprogrammu</translation>
+<translation id="6756161853376828318">Izveidot <ph name="PRODUCT_NAME"/> par manu noklusējuma pārlūku</translation>
+<translation id="2061855250933714566"><ph name="ENCODING_CATEGORY"/> (<ph name="ENCODING_NAME"/>)</translation>
+<translation id="9147392381910171771">&amp;Iespējas</translation>
+<translation id="6264485186158353794">Atpakaļ pie drošības</translation>
+<translation id="3807747707162121253">Atcelt</translation>
+<translation id="7447718177945067973">Nevar atrast serveri.</translation>
+<translation id="715468010956678290">Atvērt rāmi inkognito logā</translation>
+<translation id="7755167023778553803">Tomēr šajā lapā ir avoti no citām tīmekļa vietnēm, kuru identitāti nevar apstiprināt.</translation>
+<translation id="1273291576878293349">Atvērt visas grāmatzīmes inkognito logā</translation>
+<translation id="3455546154539383562">Jūs centāties sasniegt &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, bet servera piedāvāto sertifikātu ir atsaucis tā izdevējs. Tas nozīmē, ka drošības akreditācijas datiem, ko piedāvāja serveris, noteikti nedrīkst uzticēties. Iespējams, ka jūs sazināties ar uzbrucēju. Jums nevajadzētu turpināt.</translation>
+<translation id="1177437665183591855">Nezināma servera sertifikāta kļūda</translation>
+<translation id="3819800052061700452">&amp;Pilnekrāna</translation>
+<translation id="3737554291183722650">Lapas nosaukums:</translation>
+<translation id="4726901538158498735">Noklusētā meklēšana:</translation>
+<translation id="5101042277149003567">Atvērt visas grāmatzīmes</translation>
+<translation id="6349678711452810642">Izveidot noklusējumu</translation>
+<translation id="3741375896128849698">Servera sertifikāts vēl nav derīgs</translation>
+<translation id="3435738964857648380">Drošība</translation>
+<translation id="2231233239095101917">Lapā esošais skripts izmantojis pārāk daudz atmiņas. Pārlādējiet, lai atkal iespējotu skriptus.</translation>
+<translation id="5119173345047096771">Mozilla Firefox</translation>
+<translation id="385051799172605136">Atpakaļ</translation>
+<translation id="1208126399996836490">Neatgriezt</translation>
+<translation id="806812017500012252">Pārkārtot pēc nosaukuma</translation>
+<translation id="2960316970329790041">Pārtraukt importu</translation>
+<translation id="1731911755844941020">Sta pieprasjumu...</translation>
+<translation id="1038842779957582377">nezināms nosaukums</translation>
+<translation id="5327248766486351172">Vārds</translation>
+<translation id="8989148748219918422"><ph name="ORGANIZATION"/> [<ph name="COUNTRY"/>]</translation>
+<translation id="3037605927509011580">Au, knipis!</translation>
+<translation id="1918141783557917887">Mazāks</translation>
+<translation id="4065006016613364460">Kopēt attēla URL</translation>
+<translation id="6965382102122355670">Labi</translation>
+<translation id="8542113417382134668">Serif fonts:</translation>
+<translation id="2149973817440762519">Rediģēt grāmatzīmes</translation>
+<translation id="430831869130657585">Piedēklis</translation>
+<translation id="4057041477816018958"><ph name="SPEED"/> - <ph name="RECEIVED_AMOUNT"/></translation>
+<translation id="4759238208242260848">Lejupielādes</translation>
+<translation id="1178581264944972037">Pauzēt</translation>
+<translation id="6314919950468685344">Noteikta platuma fonts:</translation>
+<translation id="5233231016133573565">Procesa ID</translation>
+<translation id="5941711191222866238">Minimizēt</translation>
+<translation id="7167486101654761064">Vienmēr atvērt šī veida failus</translation>
+<translation id="6053401458108962351">Tiek notīrīti &amp;pārlūka dati...</translation>
+<translation id="2339641773402824483">Atjauninājumu meklēšana...</translation>
+<translation id="2766006623206032690">Ielīmēt un doties</translation>
+<translation id="9071050381089585305">Skripts neatbild</translation>
+<translation id="969892804517981540">Oficiālā Uzbūve</translation>
+<translation id="724208122063442954">Jūs esat izvēlējies atvērt noteikta veida failus automātiski pēc lejupielādes. Jūs varat attīrīt šos iestatījumus, lai lejuplādētie faili neatvērtos automātiski.</translation>
+<translation id="4477534650265381513">Ātrai piekļuvei novietojiet savas grāmatzīmes šeit - grāmatzīmju joslā.</translation>
+<translation id="8328145009876646418">Kreisā mala</translation>
+<translation id="406259880812417922">(Atslēgvārds: <ph name="KEYWORD"/>)</translation>
+<translation id="2437750561138919253">JavaScript Defektu novēršana darbojas</translation>
+</translationbundle>

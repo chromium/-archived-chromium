@@ -1,0 +1,88 @@
+This is an import of a cygwin-based lighttpd for windows from:
+
+LightTPD-1.4.19-1-Win32-SSL.exe (http://en.wlmp-project.net/)
+LightTPD-1.4.20.tar.gz (http://www.lighttpd.net/)
+
+Modifications to the base install:
+  - Move cygwin1.dll (see no_dll/README)
+  - Remove the docs/ directory
+  - Added php5-cgi binary from php-5.2.6-Win32.zip (http://www.php.net)
+  - Non-standard php.ini and shim code in php5/
+
+LightTPD is licensed under the "revised BSD license" (see COPYING.LIGHTTPD)
+PHP is licensed under the PHP license (http://www.php.net/license/)
+
+******
+
+--- For Mac ---
+The Mac version of LigHTTPd depends on libpcre; build it and place a copy of
+libpcre.0.dylib in mac/dylib.
+
+The Mac version of LigHTTPd is built on intel from LightTPD 1.4.20 with the 
+following configure options defined:
+  --with-openssl
+  --prefix=/tmp/lighttpd so a "make install" bundles it
+     correctly
+ 
+We then use install_name_tool to fix up the hardcoded library defined that
+wants to look in /usr/local/lib
+
+  $ install_name_tool -change /usr/local/lib/liblightcomp.dylib @executable_path/../lib/liblightcomp.dylib /tmp/lighttpd/sbin/lighttpd
+ 
+This also needs to be done for many of the mac/lib/mod_* libraries.
+install_name_tool may also be needed to adjust the path to libpcre.0.dylib to
+be relative to @executable_path (@executable_path/../lib/libpcre.0.dylib).
+
+The Mac version of php-cgi is built from PHP 5.2.6 with the following
+configure options:
+
+  --prefix=/tmp/php
+  --enable-fastcgi
+  --enable-sockets
+  --enable-force-cgi-redirect
+
+--- For Linux ---
+Similar to the Mac version, grab the sources, configure, compile and move
+binaries to the correct location in third_party/lighttpd/lnx/
+
+LightTPD
+ 1) Uncompress
+   gzip -cd lighttpd-1.4.20.tar.gz | tar xf -
+ 2) You may need some libs
+   apt-get install libpcre3-dev   # required for pcre-devel
+   apt-get install libbz2-dev     # required for bzip2-headers
+ 3) configure, make and install
+   ./configure --with-openssl --prefix=/tmp/lighttpd_lnx
+   make
+   make install
+ 4) create directory and copy files
+   cd third_party/lighttpd/
+   mkdir lnx
+   cd lnx
+   mkdir bin
+   mkdir lib
+   cp /tmp/lighttpd_lnx/sbin/lighttpd bin/
+   cp /tmp/lighttpd_lnx/lib/* lib/
+
+PHP-CGI
+ 1) Uncompress 
+   gzip -cd php-5.2.6.tar.gz | tar xf -
+ 2) you may need some libs
+   apt-get install libxml2-dev     # required for xml2-config
+ 3) configure, make and install
+   ./configure --prefix=/tmp/php_lnx \
+               --enable-fastcgi \
+               --enable-sockets \
+               --enable-force-cgi-redirect
+   make
+   make install
+ 4) copy files
+   cd third_party/lighttpd/lnx
+   cp /tmp/php_lnx/bin/php_cgi bin/
+   
+Extra: You can now remove the directories where you compiled and installed.
+
+The resulting libraries and executables are then copied into the third_party
+dir in the source tree to mirror where the windows executables live. It's 
+unfortunate that we can't build this all from source as part of the build
+process, but the source isn't checked in for windows, so....

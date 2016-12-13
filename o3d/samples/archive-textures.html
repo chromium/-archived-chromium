@@ -1,0 +1,297 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+
+In this tutorial, we show how to progressively load in textures from a tar.gz archive.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Progressive Texture Loading
+</title>
+<script type="text/javascript" src="o3djs/base.js"></script>
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.io');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.effect');
+
+// Events
+// Run the init() once the page has finished loading.
+window.onload = init;
+
+// global variables
+var g_o3d;
+var g_math;
+var g_client;
+var g_pack;
+var g_viewInfo;
+var g_finished = false;  // for selenium testing
+var g_repeatDownload = false;  // for selenium testing
+var g_streamingStarted = false;
+var g_fileCount = 0;
+var g_textureCount = 0;
+
+// This is for offsetting our textures from each other as they arrive
+var g_x = -200.0;
+var g_y = -200.0;
+
+function makeShape(texture, effect) {
+  // Create a Material for the effect.
+  var myMaterial = g_pack.createObject('Material');
+
+  // Set the material's drawList for opaque objects.
+  myMaterial.drawList = g_viewInfo.performanceDrawList;
+
+  // Apply our effect to this material.
+  myMaterial.effect = effect;
+
+  // Create the parameters the effect needs on the material.
+  effect.createUniformParameters(myMaterial);
+
+  // Creates a quad.
+  var myShape = o3djs.primitives.createPlane(g_pack,
+                                             myMaterial,
+                                             300,  // width
+                                             300,  // height
+                                             1,  // quads across
+                                             1);  // quads down
+
+  // Get the material's sampler parameter and put a sampler on it.
+  var sampler_param = myMaterial.getParam('texSampler0');
+  var sampler = g_pack.createObject('Sampler');
+  sampler_param.value = sampler;
+
+  // Set the texture to use.
+  sampler.texture = texture;
+
+  // adjust the scale of our transform to match the aspect ratio of
+  // the texture. Of course we could also have waited until now to build
+  // our plane and set its width and height to match instead of scaling
+  // here.
+  var textureWidth = texture.width;
+  var textureHeight = texture.height;
+  var hScale = 1;
+  var vScale = 1;
+  if (textureWidth > textureHeight) {
+    vScale = textureHeight / textureWidth;
+  } else if (textureHeight > textureWidth) {
+    hScale = textureWidth / textureHeight;
+  }
+  // We now attach our quad to the root of the transform graph.
+  // We do this after the texture has loaded, otherwise we'd be attempting
+  // to display something invalid.
+
+  // Make a transform for each quad.
+  var transform = g_pack.createObject('Transform');
+
+  transform.translate(g_x, g_textureCount, g_y);
+  transform.scale(hScale, 1, vScale);
+  transform.addShape(myShape);
+  transform.parent = g_client.root;
+
+  // Diagonally offset the next texture we load
+  g_x += 5.0;
+  g_y += 5.0;
+
+  return myShape;
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Spawns a raw-data request, creating a textured quad for each true
+ * in the downloaded archive_textures.tar.gz file.
+ * @param {Object} effect O3D effect object for created quads.
+ */
+function createArchiveRequest(effect) {
+  // Start a request for loading the tar.gz archive containing a bunch of
+  // image files.  We'll then make textures from each one...
+  var loadInfo = o3djs.io.loadArchiveAdvanced(
+      g_pack,
+      './assets/archive_textures.o3dtgz',
+      onFileAvailable,
+      function(request, exception) {
+        // We are finished with the request so remove it.
+        g_pack.removeObject(request);
+
+        // Check for errors.
+        if (!exception) {
+          // When run in selenium this sample will continuously spawn a data
+          // request so that it can verify that a page refresh during a
+          // download does not crash or hang the browser.
+          if (g_repeatDownload) {
+            createArchiveRequest(effect);
+          }
+          g_finished = true;
+        } else {
+          alert('Failed to load archive!\n' + exception);
+        }
+      });
+
+  // This is called for each file in the archive as it arrives
+  function onFileAvailable(rawData) {
+    g_streamingStarted = true;
+
+    // Create a texture from the RawData object that was just made available.
+    var texture = g_pack.createTextureFromRawData(rawData, true);
+
+    // Free the raw data object immediately since we're done with it.
+    // If we don't call this the RawData will stay around so we can use it
+    // later. For this app we won't need it later so we discard it now.
+    rawData.discard();
+
+    // Verify that the texture was created correctly and count it if so...
+    if (texture) g_textureCount++;  // for selenium testing
+
+    // Display progress information.
+    var n = loadInfo.getTotalBytesDownloaded();
+    var streamLength = loadInfo.getTotalKnownBytesToStreamSoFar();
+
+    var progressInfo = n + ' bytes of ' + streamLength;
+    var fileInfo = 'file name = ' + rawData.uri
+    + ' :: length = ' + rawData.length + ' bytes';
+
+    var info = document.getElementById('info');
+
+    var textureInfo = 'texture = ' + texture.width + 'x' + texture.height;
+
+    // If the page is reloaded before all of the textures have been created,
+    // IE will still invoke this call-back (even after the 'info' element has
+    // been removed).
+    if (info) {
+      info.innerHTML = info.innerHTML + progressInfo + " :: " + fileInfo +
+        " :: " + textureInfo + "<br>";
+    }
+
+    g_fileCount++;
+
+    if (texture) {
+      var shape = makeShape(texture, effect);
+    }
+  }
+}
+
+/**
+ * Initializes the O3D global variables.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initialize global variables and libraries.
+  var o3dElement = clientElements[0];
+  g_o3d = o3dElement.o3d;
+  g_math = o3djs.math;
+  g_client = o3dElement.client;
+}
+
+/**
+ * Loads the O3D effect, and loads a tar.gz archive containing a bunch of image
+ * files.  We'll create textures from them as they come in.
+ */
+function startLoad() {
+  // Disallow streaming of the content more than once.
+  document.getElementById("startLoad").disabled = true;
+  var clearId = window.setInterval(function() {
+    // Wait until the page has finished loading, and the client O3D areas have
+    // been created.
+    if (!g_client) {
+      return;
+    } else {
+      window.clearInterval(clearId);
+    }
+
+    // Create a pack to manage our resources/assets
+    g_pack = g_client.createPack();
+
+    // Create the render graph for a view.
+    g_viewInfo = o3djs.rendergraph.createBasicView(
+        g_pack,
+        g_client.root,
+        g_client.renderGraphRoot);
+
+    // Set up an orthographic projection.
+    g_viewInfo.drawContext.projection = g_math.matrix4.orthographic(
+        -g_client.width * 0.5,
+        g_client.width * 0.5,
+        -g_client.height * 0.5,
+        g_client.height * 0.5,
+        0.1,
+        1000);
+
+    // Move the camera above the origin looking down.
+    g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+        [0, 500, 0], // eye
+        [0, 0, 0],   // target
+        [0, 0, -1]); // up
+
+    // Create and load the effect.
+    var effect = g_pack.createObject('Effect');
+    o3djs.effect.loadEffect(effect, 'shaders/texture-only.shader');
+
+    createArchiveRequest(effect);
+  }, 200);
+}
+
+</script>
+</head>
+<body>
+<h1>Progressive archive loading</h1>
+This tutorial shows how to load textures progressively from a compressed archive.
+<br><br/>
+
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 600px; height: 600px"></div>
+<!-- End of O3D plugin -->
+
+<br><br/>
+
+<!-- This div is for logging the progress of the progressive loading -->
+<div>
+<input type="button" id="startLoad" value="Start Loading" onclick="startLoad()" />
+</div>
+<div id="info">
+  <h1>File Loading Progress</h1>
+</div>
+
+
+</body>
+</html>

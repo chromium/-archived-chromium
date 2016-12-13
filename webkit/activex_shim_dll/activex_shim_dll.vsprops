@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="activex_shim_dll"
+	InheritedPropertySheets="$(SolutionDir)..\build\common.vsprops;$(SolutionDir)..\third_party\npapi\using_npapi.vsprops"
+	>
+	<Tool
+		Name="VCLinkerTool"
+		RegisterOutput="false"
+		IgnoreImportLibrary="true"
+		OutputFile="$(OutDir)\npaxshim.dll"
+		ModuleDefinitionFile=".\activex_shim_dll.def"
+	/>
+</VisualStudioPropertySheet>

@@ -1,0 +1,43 @@
+<html>
+<head>
+<title>Self Deleting Plugin Test - Invoke</title>
+<script src="npapi.js"></script>
+<script>
+function DeletePluginWithinScript() {
+  var plugin_div = document.getElementById("PluginDiv");
+  plugin_div.innerHTML = "Object Deleted";
+  alert('plugin deleted');
+}
+function SuccessCallback() {
+  onSuccess("self_delete_plugin_invoke_alert", 1);
+}
+function TimeoutCallback() {
+  var plg = window.document["plg"];
+  var plg2 = window.document["plg2"];
+  plg.testCallbackAndGetValue("DeletePluginWithinScript");
+  plg2.testCallback("SuccessCallback");  // will fail if the plugin crashed
+}
+</script>
+</head>
+
+<body>
+
+<h2>Test to delete a plugin during script execution</h2>
+
+<p>
+This test is for a corner case when a plugin executes a script
+that deletes the invoking plugin itself then shows a modal dialog.
+See http://code.google.com/p/chromium/issues/detail?id=4270.
+</p>
+
+<DIV ID=PluginDiv>
+<embed name="plg" type="application/x-webkit-test-netscape"></embed>
+</DIV>
+<embed name="plg2" type="application/x-webkit-test-netscape"></embed>
+<script> 
+  setTimeout('TimeoutCallback()', 0);
+</script>
+
+</body>
+</html>
+

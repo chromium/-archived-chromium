@@ -1,0 +1,429 @@
+WebCore::AllocCache<StringImpl::WebCore,5>::new(UINT) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   webkit/port/platform/alloccache.h  WebCore::AllocCache::new(UINT)
+   webkit/pending/stringimpl.cpp  WebCore::StringImpl::create(char const*)
+   webkit/pending/string.cpp  WebCore::String::String(char const*)
+   third_party/webkit/webcore/page/frameview.cpp  WebCore::FrameViewPrivate::FrameViewPrivate(FrameView::WebCore *)
+   third_party/webkit/webcore/page/frameview.cpp  WebCore::FrameView::FrameView(Frame::WebCore *)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::CreateFrameView(void)
+   webkit/glue/webframeloaderclient_impl.cc  WebFrameLoaderClient::makeDocumentView(void)
+   webkit/glue/webframeloaderclient_impl.cc  WebFrameLoaderClient::transitionToCommittedForNewPage(void)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::transitionToCommitted(PassRefPtr::WTF)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::commitProvisionalLoad(PassRefPtr::WTF)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::commitIfReady(void)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::finishedLoading(void)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::init(void)
+   webkit/pending/frame.cpp  WebCore::Frame::init(void)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::InitMainFrame(WebViewImpl *)
+   webkit/glue/webview_impl.cc  WebView::Create(WebViewDelegate *,WebPreferences const&)
+   webkit/tools/test_shell/webview_host.cc  WebViewHost::Create(HWND__ *,WebViewDelegate *,WebPreferences const&)
+   webkit/tools/test_shell/test_shell.cc  TestShell::Initialize(class std::basic_string const &)
+   webkit/tools/test_shell/test_shell.cc  TestShell::CreateNewWindow(class std::basic_string const &,class TestShell * *)
+   webkit/tools/test_shell/test_shell_test.cc  TestShellTest::CreateEmptyWindow(void)
+   webkit/tools/test_shell/test_shell_test.cc  TestShellTest::SetUp(void)
+   webkit/glue/resource_fetcher_unittest.cc  ResourceFetcherTests::SetUp(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+WebCore::AllocCache<StringImpl::WebCore,5>::new(UINT) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   webkit/port/platform/alloccache.h  WebCore::AllocCache::new(UINT)
+   webkit/pending/stringimpl.cpp  WebCore::StringImpl::create(char const*)
+   webkit/pending/string.cpp  WebCore::String::String(char const*)
+   webkit/pending/document.cpp  WebCore::Document::Document(DOMImplementation::WebCore *,Frame::WebCore *,bool)
+   third_party/webkit/webcore/html/htmldocument.cpp  WebCore::HTMLDocument::HTMLDocument(DOMImplementation::WebCore *,Frame::WebCore *)
+   third_party/webkit/webcore/dom/domimplementation.cpp  WebCore::DOMImplementation::createDocument(String::WebCore const&,Frame::WebCore *,bool)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::begin(KURL::WebCore const&,bool,SecurityOrigin::WebCore *)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::init(void)
+   webkit/pending/frame.cpp  WebCore::Frame::init(void)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::InitMainFrame(WebViewImpl *)
+   webkit/glue/webview_impl.cc  WebView::Create(WebViewDelegate *,WebPreferences const&)
+   webkit/tools/test_shell/webview_host.cc  WebViewHost::Create(HWND__ *,WebViewDelegate *,WebPreferences const&)
+   webkit/tools/test_shell/test_shell.cc  TestShell::Initialize(class std::basic_string const &)
+   webkit/tools/test_shell/test_shell.cc  TestShell::CreateNewWindow(class std::basic_string const &,class TestShell * *)
+   webkit/tools/test_shell/test_shell_test.cc  TestShellTest::CreateEmptyWindow(void)
+   webkit/tools/test_shell/test_shell_test.cc  TestShellTest::SetUp(void)
+   webkit/glue/resource_fetcher_unittest.cc  ResourceFetcherTests::SetUp(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+WebCore::DeprecatedStringData::createAndAdopt(DeprecatedStringData::WebCore&) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   webkit/pending/deprecatedstring.cpp  WebCore::DeprecatedStringData::createAndAdopt(DeprecatedStringData::WebCore&)
+   webkit/pending/deprecatedstring.cpp  WebCore::DeprecatedString::detachIfInternal(void)
+   webkit/pending/deprecatedstring.cpp  WebCore::DeprecatedString::~DeprecatedString(void)
+   chrome/release/test_shell_tests.exe  WebCore::KURL::~KURL(void)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::Start(Frame::WebCore *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::ResourceFetcher(GURL const&,Frame::WebCore *,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcherWithTimeout::ResourceFetcherWithTimeout(GURL const&,Frame::WebCore *,double,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher_unittest.cc  ResourceFetcherTests_ResourceFetcherTimeout_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+WTF::fastMalloc(UINT) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   webkit/pending/deprecatedstring.cpp  WebCore::DeprecatedStringData::initialize(char const*,UINT)
+   webkit/pending/deprecatedstring.cpp  WebCore::DeprecatedString::DeprecatedString(char const*,int)
+   webkit/port/platform/gkurl.cpp  WebCore::KURL::KURL(char const*,int,Parsed::url_parse const&,bool)
+   webkit/glue/glue_util.cc  webkit_glue::GURLToKURL(GURL const&)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::Start(Frame::WebCore *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::ResourceFetcher(GURL const&,Frame::WebCore *,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcherWithTimeout::ResourceFetcherWithTimeout(GURL const&,Frame::WebCore *,double,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher_unittest.cc  ResourceFetcherTests_ResourceFetcherTimeout_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+WTF::fastMalloc(UINT) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   webkit/pending/deprecatedstring.cpp  WebCore::allocateHandle
+   webkit/pending/deprecatedstring.cpp  WebCore::DeprecatedString::DeprecatedString(char const*,int)
+   webkit/port/platform/gkurl.cpp  WebCore::KURL::KURL(char const*,int,Parsed::url_parse const&,bool)
+   webkit/glue/glue_util.cc  webkit_glue::GURLToKURL(GURL const&)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::Start(Frame::WebCore *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::ResourceFetcher(GURL const&,Frame::WebCore *,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcherWithTimeout::ResourceFetcherWithTimeout(GURL const&,Frame::WebCore *,double,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher_unittest.cc  ResourceFetcherTests_ResourceFetcherTimeout_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+WebCore::ResourceHandle::create(ResourceRequest::WebCore const&,ResourceHandleClient::WebCore *,Frame::WebCore *,bool,bool,bool) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandle::create(ResourceRequest::WebCore const&,ResourceHandleClient::WebCore *,Frame::WebCore *,bool,bool,bool)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::Start(Frame::WebCore *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::ResourceFetcher(GURL const&,Frame::WebCore *,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcherWithTimeout::ResourceFetcherWithTimeout(GURL const&,Frame::WebCore *,double,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher_unittest.cc  ResourceFetcherTests_ResourceFetcherTimeout_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+WebCore::ResourceHandle::ResourceHandle(ResourceRequest::WebCore const&,ResourceHandleClient::WebCore *,bool,bool,bool) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandle::ResourceHandle(ResourceRequest::WebCore const&,ResourceHandleClient::WebCore *,bool,bool,bool)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandle::create(ResourceRequest::WebCore const&,ResourceHandleClient::WebCore *,Frame::WebCore *,bool,bool,bool)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::Start(Frame::WebCore *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::ResourceFetcher(GURL const&,Frame::WebCore *,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcherWithTimeout::ResourceFetcherWithTimeout(GURL const&,Frame::WebCore *,double,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher_unittest.cc  ResourceFetcherTests_ResourceFetcherTimeout_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+RevocableStore::RevocableStore(void) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   base/revocable_store.cc  RevocableStore::RevocableStore(void)
+   base/task.h  ScopedRunnableMethodFactory::ScopedRunnableMethodFactory(ResourceHandleInternal::WebCore *)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandleInternal::ResourceHandleInternal(ResourceHandle::WebCore *,ResourceRequest::WebCore const&,ResourceHandleClient::WebCore *)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandle::ResourceHandle(ResourceRequest::WebCore const&,ResourceHandleClient::WebCore *,bool,bool,bool)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandle::create(ResourceRequest::WebCore const&,ResourceHandleClient::WebCore *,Frame::WebCore *,bool,bool,bool)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::Start(Frame::WebCore *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::ResourceFetcher(GURL const&,Frame::WebCore *,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcherWithTimeout::ResourceFetcherWithTimeout(GURL const&,Frame::WebCore *,double,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher_unittest.cc  ResourceFetcherTests_ResourceFetcherTimeout_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+WTF::fastMalloc(UINT) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   third_party/webkit/javascriptcore/wtf/hashtable.h  WTF::HashTable::allocateTable(int)
+   third_party/webkit/javascriptcore/wtf/hashtable.h  WTF::HashTable::rehash(int)
+   third_party/webkit/javascriptcore/wtf/hashtable.h  WTF::HashTable::expand(void)
+   third_party/webkit/javascriptcore/wtf/hashtable.h  ???
+   third_party/webkit/javascriptcore/wtf/hashmap.h  WTF::HashMap::inlineAdd(String::WebCore const&,String::WebCore const&)
+   third_party/webkit/javascriptcore/wtf/hashmap.h  WTF::HashMap::add(String::WebCore const&,String::WebCore const&)
+   third_party/webkit/webcore/platform/network/resourcerequestbase.cpp  WebCore::ResourceRequestBase::addHTTPHeaderField(String::WebCore const&,String::WebCore const&)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandleInternal::Start(SyncLoadResponse::ResourceLoaderBridge::webkit_glue *)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandle::start(Frame::WebCore *)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandle::create(ResourceRequest::WebCore const&,ResourceHandleClient::WebCore *,Frame::WebCore *,bool,bool,bool)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::Start(Frame::WebCore *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::ResourceFetcher(GURL const&,Frame::WebCore *,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcherWithTimeout::ResourceFetcherWithTimeout(GURL const&,Frame::WebCore *,double,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher_unittest.cc  ResourceFetcherTests_ResourceFetcherTimeout_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+WTF::fastMalloc(UINT) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   webkit/pending/deprecatedstring.cpp  WebCore::DeprecatedStringData::makeUnicode(void)
+   third_party/webkit/webcore/platform/deprecatedstring.h  WebCore::DeprecatedStringData::unicode(void)
+   third_party/webkit/webcore/platform/deprecatedstring.h  WebCore::DeprecatedString::unicode(void)const
+   webkit/pending/string.cpp  WebCore::String::String(DeprecatedString::WebCore const&)
+   webkit/pending/kurl.h  WebCore::KURL::string(void)const
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandleInternal::Start(SyncLoadResponse::ResourceLoaderBridge::webkit_glue *)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandle::start(Frame::WebCore *)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandle::create(ResourceRequest::WebCore const&,ResourceHandleClient::WebCore *,Frame::WebCore *,bool,bool,bool)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::Start(Frame::WebCore *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::ResourceFetcher(GURL const&,Frame::WebCore *,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcherWithTimeout::ResourceFetcherWithTimeout(GURL const&,Frame::WebCore *,double,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher_unittest.cc  ResourceFetcherTests_ResourceFetcherTimeout_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+WebCore::StringImpl::create(char const*) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   webkit/pending/stringimpl.cpp  WebCore::StringImpl::create(char const*)
+   webkit/pending/string.cpp  WebCore::String::String(char const*)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandleInternal::Start(SyncLoadResponse::ResourceLoaderBridge::webkit_glue *)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandle::start(Frame::WebCore *)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandle::create(ResourceRequest::WebCore const&,ResourceHandleClient::WebCore *,Frame::WebCore *,bool,bool,bool)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::Start(Frame::WebCore *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::ResourceFetcher(GURL const&,Frame::WebCore *,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcherWithTimeout::ResourceFetcherWithTimeout(GURL const&,Frame::WebCore *,double,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher_unittest.cc  ResourceFetcherTests_ResourceFetcherTimeout_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+?A0x33be9879::SimpleResourceLoaderBridge::Start(Peer::ResourceLoaderBridge::webkit_glue *) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   webkit/tools/test_shell/simple_resource_loader_bridge.cc  SimpleResourceLoaderBridge::Start(Peer::ResourceLoaderBridge::webkit_glue *)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandleInternal::Start(SyncLoadResponse::ResourceLoaderBridge::webkit_glue *)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandle::start(Frame::WebCore *)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandle::create(ResourceRequest::WebCore const&,ResourceHandleClient::WebCore *,Frame::WebCore *,bool,bool,bool)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::Start(Frame::WebCore *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::ResourceFetcher(GURL const&,Frame::WebCore *,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcherWithTimeout::ResourceFetcherWithTimeout(GURL const&,Frame::WebCore *,double,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher_unittest.cc  ResourceFetcherTests_ResourceFetcherTimeout_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+webkit_glue::ResourceLoaderBridge::Create(WebFrame *,basic_string<char,char_traits<char>::std,allocator<char>::std>::std const&,GURL const&,GURL const&,basic_string<char,char_traits<char>::std,allocator<char>::std>::std const&,int,int,Type::ResourceType,bool) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   webkit/tools/test_shell/simple_resource_loader_bridge.cc  webkit_glue::ResourceLoaderBridge::Create(WebFrame *,basic_string::std const&,GURL const&,GURL const&,basic_string::std const&,int,int,Type::ResourceType,bool)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandleInternal::Start(SyncLoadResponse::ResourceLoaderBridge::webkit_glue *)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandle::start(Frame::WebCore *)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandle::create(ResourceRequest::WebCore const&,ResourceHandleClient::WebCore *,Frame::WebCore *,bool,bool,bool)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::Start(Frame::WebCore *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::ResourceFetcher(GURL const&,Frame::WebCore *,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcherWithTimeout::ResourceFetcherWithTimeout(GURL const&,Frame::WebCore *,double,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher_unittest.cc  ResourceFetcherTests_ResourceFetcherTimeout_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+WebCore::StringImpl::create(char const*) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   webkit/pending/stringimpl.cpp  WebCore::StringImpl::create(char const*)
+   webkit/pending/string.cpp  WebCore::String::String(char const*)
+   third_party/webkit/webcore/platform/network/resourcerequestbase.h  WebCore::ResourceRequestBase::ResourceRequestBase(KURL::WebCore const&,ResourceRequestCachePolicy::WebCore)
+   webkit/port/platform/network/resourcerequest.h  WebCore::ResourceRequest::ResourceRequest(KURL::WebCore const&)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::Start(Frame::WebCore *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::ResourceFetcher(GURL const&,Frame::WebCore *,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcherWithTimeout::ResourceFetcherWithTimeout(GURL const&,Frame::WebCore *,double,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher_unittest.cc  ResourceFetcherTests_ResourceFetcherTimeout_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+WebCore::AllocCache<StringImpl::WebCore,5>::new(UINT) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   webkit/port/platform/alloccache.h  WebCore::AllocCache::new(UINT)
+   webkit/pending/stringimpl.cpp  WebCore::StringImpl::create(char const*,UINT)
+   webkit/pending/string.cpp  WebCore::String::String(char const*,UINT)
+   webkit/glue/glue_util.cc  webkit_glue::StdStringToString(basic_string::std const&)
+   webkit/glue/webframeloaderclient_impl.cc  WebFrameLoaderClient::userAgent(KURL::WebCore const&)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::applyUserAgent(ResourceRequest::WebCore&)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::addExtraFieldsToRequest(ResourceRequest::WebCore&,bool,bool)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::startLoadingMainResource(DWORD)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::continueLoadAfterWillSubmitForm(PolicyAction::WebCore)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::continueLoadAfterNavigationPolicy(ResourceRequest::WebCore const&,PassRefPtr::WTF,bool)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::callContinueLoadAfterNavigationPolicy(void *,ResourceRequest::WebCore const&,PassRefPtr::WTF,bool)
+   webkit/pending/frameloader.cpp  WebCore::PolicyCheck::call(bool)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::continueAfterNavigationPolicy(PolicyAction::WebCore)
+   webkit/glue/webframeloaderclient_impl.cc  WebFrameLoaderClient::dispatchDecidePolicyForNavigationAction((FrameLoader::WebCore::*)(void),...)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::checkNavigationPolicy(ResourceRequest::WebCore const&,DocumentLoader::WebCore *,PassRefPtr::WTF,(*)(void *,ResourceRequest::WebCore const&,PassRefPtr::WTF,bool),void *)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::load(DocumentLoader::WebCore *,FrameLoadType::WebCore,PassRefPtr::WTF)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::load(DocumentLoader::WebCore *)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::load(ResourceRequest::WebCore const&,SubstituteData::WebCore const&)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::load(ResourceRequest::WebCore const&)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::LoadRequest(WebRequest *)
+   webkit/tools/test_shell/test_shell.cc  TestShell::Navigate(NavigationEntry const&,bool)
+   webkit/tools/test_shell/test_navigation_controller.cc  TestNavigationController::NavigateToPendingEntry(bool)
+   webkit/tools/test_shell/temp/navigation_controller_base.cc  NavigationControllerBase::LoadEntry(NavigationEntry *)
+   webkit/tools/test_shell/test_shell.cc  TestShell::LoadURLForFrame(wchar_t const *,wchar_t const *)
+   webkit/tools/test_shell/test_shell.cc  TestShell::LoadURL(wchar_t const *)
+   webkit/tools/test_shell/test_shell.cc  TestShell::Initialize(class std::basic_string const &)
+   webkit/tools/test_shell/test_shell.cc  TestShell::CreateNewWindow(class std::basic_string const &,class TestShell * *)
+   webkit/tools/test_shell/test_shell_test.cc  TestShellTest::CreateEmptyWindow(void)
+   webkit/tools/test_shell/test_shell_test.cc  TestShellTest::SetUp(void)
+
+WebCore::AllocCache<StringImpl::WebCore,5>::new(UINT) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   webkit/port/platform/alloccache.h  WebCore::AllocCache::new(UINT)
+   webkit/pending/stringimpl.cpp  WebCore::StringImpl::create(char const*)
+   webkit/pending/string.cpp  WebCore::String::String(char const*)
+   third_party/webkit/webcore/platform/network/resourcerequestbase.h  WebCore::ResourceRequestBase::ResourceRequestBase(KURL::WebCore const&,ResourceRequestCachePolicy::WebCore)
+   webkit/port/platform/network/resourcerequest.h  WebCore::ResourceRequest::ResourceRequest(void)
+   webkit/pending/frameloader.cpp  WebCore::PolicyCheck::clearRequest(void)
+   webkit/pending/frameloader.cpp  WebCore::PolicyCheck::cancel(void)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::stopPolicyCheck(void)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::stopAllLoaders(void)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::StopLoading(void)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::LoadRequest(WebRequest *,SubstituteData::WebCore const&)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::LoadRequest(WebRequest *)
+   webkit/tools/test_shell/test_shell.cc  TestShell::Navigate(NavigationEntry const&,bool)
+   webkit/tools/test_shell/test_navigation_controller.cc  TestNavigationController::NavigateToPendingEntry(bool)
+   webkit/tools/test_shell/temp/navigation_controller_base.cc  NavigationControllerBase::LoadEntry(NavigationEntry *)
+   webkit/tools/test_shell/test_shell.cc  TestShell::LoadURLForFrame(wchar_t const *,wchar_t const *)
+   webkit/tools/test_shell/test_shell.cc  TestShell::LoadURL(wchar_t const *)
+   webkit/tools/test_shell/test_shell.cc  TestShell::Initialize(class std::basic_string const &)
+   webkit/tools/test_shell/test_shell.cc  TestShell::CreateNewWindow(class std::basic_string const &,class TestShell * *)
+   webkit/tools/test_shell/test_shell_test.cc  TestShellTest::CreateEmptyWindow(void)
+   webkit/tools/test_shell/test_shell_test.cc  TestShellTest::SetUp(void)
+   webkit/glue/resource_fetcher_unittest.cc  ResourceFetcherTests::SetUp(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+WebCore::AllocCache<StringImpl::WebCore,5>::new(UINT) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   webkit/port/platform/alloccache.h  WebCore::AllocCache::new(UINT)
+   webkit/pending/stringimpl.cpp  WebCore::StringImpl::create(char const*)
+   webkit/pending/string.cpp  WebCore::String::String(char const*)
+   webkit/pending/frameview.cpp  WebCore::FrameViewPrivate::FrameViewPrivate(FrameView::WebCore *)
+   webkit/pending/frameview.cpp  WebCore::FrameView::FrameView(Frame::WebCore *)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::CreateFrameView(void)
+   webkit/glue/webframeloaderclient_impl.cc  WebFrameLoaderClient::makeDocumentView(void)
+   webkit/glue/webframeloaderclient_impl.cc  WebFrameLoaderClient::transitionToCommittedForNewPage(void)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::transitionToCommitted(PassRefPtr::WTF)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::commitProvisionalLoad(PassRefPtr::WTF)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::commitIfReady(void)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::finishedLoading(void)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::init(void)
+   webkit/pending/frame.cpp  WebCore::Frame::init(void)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::InitMainFrame(WebViewImpl *)
+   webkit/glue/webview_impl.cc  WebView::Create(WebViewDelegate *,WebPreferences const&)
+   webkit/tools/test_shell/webview_host.cc  WebViewHost::Create(HWND__ *,WebViewDelegate *,WebPreferences const&)
+   webkit/tools/test_shell/test_shell.cc  TestShell::Initialize(class std::basic_string const &)
+   webkit/tools/test_shell/test_shell.cc  TestShell::CreateNewWindow(class std::basic_string const &,class TestShell * *)
+   webkit/tools/test_shell/test_shell_test.cc  TestShellTest::CreateEmptyWindow(void)
+   webkit/tools/test_shell/test_shell_test.cc  TestShellTest::SetUp(void)
+   webkit/glue/resource_fetcher_unittest.cc  ResourceFetcherTests::SetUp(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+WebCore::CString::init(char const*,UINT) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   third_party/webkit/webcore/platform/text/cstring.cpp  WebCore::CString::init(char const*,UINT)
+   third_party/webkit/webcore/platform/text/cstring.cpp  WebCore::CString::CString(char const*,UINT)
+   webkit/port/platform/gkurl.cpp  WebCore::KURL::URLString::setAscii(char const*,int)
+   webkit/port/platform/gkurl.cpp  WebCore::KURL::KURL(char const*,int,Parsed::url_parse const&,bool)
+   webkit/glue/glue_util.cc  webkit_glue::GURLToKURL(GURL const&)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::Start(Frame::WebCore *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::ResourceFetcher(GURL const&,Frame::WebCore *,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcherWithTimeout::ResourceFetcherWithTimeout(GURL const&,Frame::WebCore *,double,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher_unittest.cc  ResourceFetcherTests_ResourceFetcherTimeout_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+WTF::fastMalloc(UINT) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   third_party/webkit/javascriptcore/wtf/vector.h  WTF::VectorBufferBase::allocateBuffer(UINT)
+   third_party/webkit/javascriptcore/wtf/vector.h  WTF::VectorBuffer::VectorBuffer(UINT)
+   third_party/webkit/javascriptcore/wtf/vector.h  WTF::Vector::Vector(UINT)
+   third_party/webkit/webcore/platform/text/cstring.h  WebCore::CStringBuffer::CStringBuffer(UINT)
+   third_party/webkit/webcore/platform/text/cstring.cpp  WebCore::CString::init(char const*,UINT)
+   third_party/webkit/webcore/platform/text/cstring.cpp  WebCore::CString::CString(char const*,UINT)
+   webkit/port/platform/gkurl.cpp  WebCore::KURL::URLString::setAscii(char const*,int)
+   webkit/port/platform/gkurl.cpp  WebCore::KURL::KURL(char const*,int,Parsed::url_parse const&,bool)
+   webkit/glue/glue_util.cc  webkit_glue::GURLToKURL(GURL const&)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::Start(Frame::WebCore *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::ResourceFetcher(GURL const&,Frame::WebCore *,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcherWithTimeout::ResourceFetcherWithTimeout(GURL const&,Frame::WebCore *,double,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher_unittest.cc  ResourceFetcherTests_ResourceFetcherTimeout_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+WTF::fastMalloc(UINT) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   webkit/pending/stringimpl.cpp  WebCore::newUCharVector
+   webkit/pending/stringimpl.cpp  WebCore::StringImpl::StringImpl(char const*,UINT)
+   webkit/pending/stringimpl.cpp  WebCore::StringImpl::create(char const*,UINT)
+   webkit/pending/string.cpp  WebCore::String::String(char const*,UINT)
+   webkit/port/platform/gkurl.cpp  WebCore::KURL::URLString::string(void)const
+   webkit/pending/kurl.h  WebCore::KURL::string(void)const
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandleInternal::Start(SyncLoadResponse::ResourceLoaderBridge::webkit_glue *)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandle::start(Frame::WebCore *)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandle::create(ResourceRequest::WebCore const&,ResourceHandleClient::WebCore *,Frame::WebCore *,bool,bool,bool)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::Start(Frame::WebCore *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::ResourceFetcher(GURL const&,Frame::WebCore *,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcherWithTimeout::ResourceFetcherWithTimeout(GURL const&,Frame::WebCore *,double,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher_unittest.cc  ResourceFetcherTests_ResourceFetcherTimeout_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+?A0x40e06119::ResourceLoaderBridgeImpl::Start(Peer::ResourceLoaderBridge::webkit_glue *) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   webkit/tools/test_shell/simple_resource_loader_bridge.cc  ResourceLoaderBridgeImpl::Start(Peer::ResourceLoaderBridge::webkit_glue *)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandleInternal::Start(SyncLoadResponse::ResourceLoaderBridge::webkit_glue *)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandle::start(Frame::WebCore *)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandle::create(ResourceRequest::WebCore const&,ResourceHandleClient::WebCore *,Frame::WebCore *,bool,bool,bool)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::Start(Frame::WebCore *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::ResourceFetcher(GURL const&,Frame::WebCore *,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcherWithTimeout::ResourceFetcherWithTimeout(GURL const&,Frame::WebCore *,double,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher_unittest.cc  ResourceFetcherTests_ResourceFetcherTimeout_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+WebCore::AllocCache<StringImpl::WebCore,5>::new(UINT) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   webkit/port/platform/alloccache.h  WebCore::AllocCache::new(UINT)
+   webkit/pending/stringimpl.cpp  WebCore::StringImpl::create(char const*,UINT)
+   webkit/pending/string.cpp  WebCore::String::String(char const*,UINT)
+   webkit/glue/glue_util.cc  webkit_glue::StdStringToString(basic_string::std const&)
+   webkit/glue/webframeloaderclient_impl.cc  WebFrameLoaderClient::userAgent(KURL::WebCore const&)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::applyUserAgent(ResourceRequest::WebCore&)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::addExtraFieldsToRequest(ResourceRequest::WebCore&,bool,bool)
+   third_party/webkit/webcore/loader/documentloader.cpp  WebCore::DocumentLoader::startLoadingMainResource(DWORD)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::continueLoadAfterWillSubmitForm(PolicyAction::WebCore)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::continueLoadAfterNavigationPolicy(ResourceRequest::WebCore const&,PassRefPtr::WTF,bool)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::callContinueLoadAfterNavigationPolicy(void *,ResourceRequest::WebCore const&,PassRefPtr::WTF,bool)
+   webkit/pending/frameloader.cpp  WebCore::PolicyCheck::call(bool)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::continueAfterNavigationPolicy(PolicyAction::WebCore)
+   webkit/glue/webframeloaderclient_impl.cc  WebFrameLoaderClient::dispatchDecidePolicyForNavigationAction((FrameLoader::WebCore::*)(void),...)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::checkNavigationPolicy(ResourceRequest::WebCore const&,DocumentLoader::WebCore *,PassRefPtr::WTF,(*)(void *,ResourceRequest::WebCore const&,PassRefPtr::WTF,bool),void *)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::load(DocumentLoader::WebCore *,FrameLoadType::WebCore,PassRefPtr::WTF)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::load(DocumentLoader::WebCore *)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::load(ResourceRequest::WebCore const&,SubstituteData::WebCore const&)
+   webkit/pending/frameloader.cpp  WebCore::FrameLoader::load(ResourceRequest::WebCore const&)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::LoadRequest(WebRequest *,SubstituteData::WebCore const&)
+   webkit/glue/webframe_impl.cc  WebFrameImpl::LoadRequest(WebRequest *)
+   webkit/tools/test_shell/test_shell.cc  TestShell::Navigate(NavigationEntry const&,bool)
+   webkit/tools/test_shell/test_navigation_controller.cc  TestNavigationController::NavigateToPendingEntry(bool)
+   webkit/tools/test_shell/temp/navigation_controller_base.cc  NavigationControllerBase::LoadEntry(NavigationEntry *)
+   webkit/tools/test_shell/test_shell.cc  TestShell::LoadURLForFrame(wchar_t const *,wchar_t const *)
+   webkit/tools/test_shell/test_shell.cc  TestShell::LoadURL(wchar_t const *)
+   webkit/tools/test_shell/test_shell.cc  TestShell::Initialize(class std::basic_string const &)
+   webkit/tools/test_shell/test_shell.cc  TestShell::CreateNewWindow(class std::basic_string const &,class TestShell * *)
+   webkit/tools/test_shell/test_shell_test.cc  TestShellTest::CreateEmptyWindow(void)
+
+webkit_glue::ResourceLoaderBridge::Create(WebFrame *,basic_string<char,char_traits<char>::std,allocator<char>::std>::std const&,GURL const&,GURL const&,GURL const&,basic_string<char,char_traits<char>::std,allocator<char>::std>::std const&,int,int,Type::ResourceType,bool) [test_shell_tests.exe]
+Alloc Location
+   ...  
+   webkit/tools/test_shell/simple_resource_loader_bridge.cc  webkit_glue::ResourceLoaderBridge::Create(WebFrame *,basic_string::std const&,GURL const&,GURL const&,GURL const&,basic_string::std const&,int,int,Type::ResourceType,bool)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandleInternal::Start(SyncLoadResponse::ResourceLoaderBridge::webkit_glue *)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandle::start(Frame::WebCore *)
+   webkit/glue/resource_handle_win.cc  WebCore::ResourceHandle::create(ResourceRequest::WebCore const&,ResourceHandleClient::WebCore *,Frame::WebCore *,bool,bool,bool)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::Start(Frame::WebCore *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcher::ResourceFetcher(GURL const&,Frame::WebCore *,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher.cc  ResourceFetcherWithTimeout::ResourceFetcherWithTimeout(GURL const&,Frame::WebCore *,double,Delegate::ResourceFetcher *)
+   webkit/glue/resource_fetcher_unittest.cc  ResourceFetcherTests_ResourceFetcherTimeout_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+

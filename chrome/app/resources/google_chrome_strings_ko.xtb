@@ -1,0 +1,71 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="ko">
+<translation id="6676384891291319759">인터넷 연결</translation>
+<translation id="8579274574697852281">Google 크롬은 Windows Vista 또는 Windows XP 서비스 팩 1 이상이 설치된 컴퓨터에서 사용하실 수 있습니다.</translation>
+<translation id="698670068493841342">이 사용자용 Google 크롬이 설치되어 있습니다. 실행되지 않는 경우 제거 후 다시 다운로드하세요.</translation>
+<translation id="7400722733683201933">Google 크롬 정보</translation>
+<translation id="7101265395643981223">Google 크롬 시작</translation>
+<translation id="1549918799472947005">Google 크롬은 현재 기본 검색엔진으로 설정된 <ph name="PAGE_TITLE"/> 검색엔진을 사용하고 있습니다. 기본 검색엔진을 계속 사용하시겠습니까?</translation>
+<translation id="2370289711218562573">Google 크롬에서 즐겨찾기/북마크를 가져오고 있습니다.</translation>
+<translation id="8970027151245482499">Google 크롬이 설치되지 않았거나 설치 디렉토리를 찾지 못했습니다. Google 크롬을 다시 다운로드하세요.</translation>
+<translation id="7958215378280655655">Google 크롬 옵션을 재설정하면 변경했던 모든 사항이 기본 설정으로 되돌아갑니다. 크롬 옵션을 재설정하시겠습니까?</translation>
+<translation id="4281844954008187215">서비스 약관</translation>
+<translation id="2197898401230534722">모든 프로필 데이터 삭제</translation>
+<translation id="1137776625614346046">'자주 방문한 페이지'에는 가장 자주 이용하는 사이트가 표시됩니다. 크롬을 어느 정도 사용한 다음에는 새 탭을 열 때마다 자주 방문한 페이지를 볼 수 있습니다. <ph name="BEGIN_LINK"/>시작 페이지<ph name="END_LINK"/>에서 '자주 방문한 페이지' 및 기타 기능에 대해 자세히 알아보세요.</translation>
+<translation id="4728575227883772061">확인되지 않은 오류로 설치에 실패했습니다. Google 크롬이 실행 중인 경우 종료한 후 다시 실행하세요.</translation>
+<translation id="4149882025268051530">설치 프로그램이 보관 파일 압축 풀기에 실패했습니다. Google 크롬을 다시 다운로드하세요.</translation>
+<translation id="4343226815564935778">Google 크롬 설치 디렉토리가 사용중입니다. 컴퓨터를 재부팅한 다음 다시 시도하세요.</translation>
+<translation id="4506896920521131223">Copyright © 2006-2009 Google Inc. All Rights Reserved.</translation>
+<translation id="6817660909204164466">사용 통계 및 충돌 보고서가 Google로 자동 전송되도록 선택하시면 크롬을 개선하는 데 도움이 됩니다.</translation>
+<translation id="8227755444512189073"><ph name="SCHEME"/> 링크 처리를 위해 Google 크롬에서 외부 응용 프로그램을 실행해야 합니다. 요청 링크는 <ph name="PROTOLINK"/>입니다.</translation>
+<translation id="1281036569101707544">Google 크롬 <ph name="TERMS_OF_SERVICE_LINK"/></translation>
+<translation id="8815061062167142136">헉! Google 크롬이 다운되었습니다. 다시 시작하시겠습니까?</translation>
+<translation id="5016204670686360703">지금 취소하면 일부 항목을 가져올 수 없습니다. 나중에 크롬 메뉴에서 다시 항목을 가져올 수 있습니다.</translation>
+<translation id="7241541963706135274">Google 크롬에서 다음 작업을 수행합니다.</translation>
+<translation id="8446794773162156990">Google 크롬 오작동</translation>
+<translation id="3889417619312448367">Google 크롬 제거</translation>
+<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google 크롬</translation>
+<translation id="8810218179782551669">Google 크롬 언어:</translation>
+<translation id="3940866277504106378">Google 크롬은 사용자의 만족도를 높이기 위해 웹 서비스를 이용합니다. 원하지 않는 경우 이용하지 않도록 설정할 수 있습니다.</translation>
+<translation id="7001386529596391893">다음 위치에 Google 크롬 바로가기를 만듭니다.</translation>
+<translation id="6134282421960734039">크롬에 비밀번호를 저장하시겠습니까?</translation>
+<translation id="1195935957447623558">Google 크롬이 제대로 종료되지 않았습니다. 사용 중이던 페이지를 다시 열려면 '복구'를 클릭하세요.</translation>
+<translation id="2499193704281978000">Google 크롬이 응답하지 않습니다. 다시 시작하시겠습니까?</translation>
+<translation id="7747138024166251722">설치 프로그램이 임시 디렉토리를 만들지 못했습니다. 디스크 공간 및 설치 권한을 확인해 보세요.</translation>
+<translation id="6009537148180854585">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;에 접근하려 했지만 서버에서 오류가 있는 인증서를 제출했습니다. Google 크롬은 오류가 있는 인증서를 사용할 수 없으며 연결하려고 했던 사이트의 주소를 확인할 수 없습니다. 연결이 안전하지 않아 더 이상 진행하지 않는 것이 좋습니다.</translation>
+<translation id="3324235665723428530">최신 버전의 Google 크롬에서 가져온 사용자 프로필을 사용할 수 없습니다.\n\n일부 기능만 사용 가능할 수 있습니다. 다른 프로필 디렉토리를 지정하거나 최신 버전의 Google 크롬을 사용하세요.</translation>
+<translation id="1759842336958782510">크롬</translation>
+<translation id="2044287590254833138">Google 크롬 툴바</translation>
+<translation id="6481075104394517441">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;에 접근하려 했지만 서버가 유효하지 않은 인증서를 제출했습니다. 인증서의 신뢰성을 확인할 수 있는 정보가 없습니다. Google 크롬은 통신 중인 상대가 해커가 아닌 &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;인지 보장할 수 없습니다. 컴퓨터의 시계 및 시간대가 정확하게 설정되었는지 확인하세요. 설정이 잘못된 경우 해당 설정을 수정하고 해당 페이지를 새로 고칩니다. 설정이 정확하면 더 이상 진행하지 않는 것이 좋습니다.</translation>
+<translation id="8862326446509486874">사용자에게 시스템 수준의 설치 권한이 없습니다. 관리자 권한으로 설치 프로그램을 다시 실행해 보세요.</translation>
+<translation id="2874156562296220396">Google 크롬은 <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> 오픈소스 프로젝트를 비롯한 여러 <ph name="BEGIN_LINK_OSS"/>오픈소스 소프트웨어<ph name="END_LINK_OSS"/>에 기초해 만들어진 브라우저입니다.</translation>
+<translation id="6921913858457830952">Google 크롬 설치가 곧 완료됩니다.</translation>
+<translation id="7100330187273168372">Google 크롬에서 다음 데이터 디렉토리에 읽고 쓸 수 없습니다.\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">Google 크롬을 제거하시겠습니까?</translation>
+<translation id="5941830788786076944">Google 크롬을 기본 브라우저로</translation>
+<translation id="4127951844153999091">이 경우 인증서에 나와 있는 주소가 귀하의 브라우저에서 이동하려는 웹사이트 주소와 일치하지 않습니다. 이러한 현상은 다른 웹사이트에 인증서를 제출하는 해커가 귀하의 통신을 방해해 불일치가 발생한 것이 원인일 수 있습니다. 또한 모든 사이트에 유효하지 않을 수 있는 인증서 하나가 귀하가 방문하려는 웹사이트를 포함한 여러 개의 웹사이트에 대해 반환되도록 서버가 설정된 것이 원인일 수도 있습니다. Google 크롬은 귀하가 &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;에 도달했음을 알려줄 수 있지만 해당 사이트가 귀하가 도달하려는 &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;과(와) 같은 사이트임을 확인할 수는 없습니다. 계속 진행할 경우 크롬은 이름 불일치를 더 이상 확인하지 않습니다. 일반적으로 이 시점에는 이전으로 진행하지 않는 것이 좋습니다.</translation>
+<translation id="2712549016134575851">설치된 다른 웹 애플리케이션과의 충돌이 감지되었습니다.</translation>
+<translation id="7161904924553537242">Google 크롬에 오신 것을 환영합니다.</translation>
+<translation id="8236873504073475138">Google 크롬에서는 Windows 2000을 지원하지 않습니다. 일부 기능이 작동하지 않을 수 있습니다.</translation>
+<translation id="5046764976540625289">크롬 종료</translation>
+<translation id="8865765905101981392">인터넷 브라우저</translation>
+<translation id="582763753075639530">변경 사항을 적용하려면 모든 크롬 창을 닫고, 크롬을 다시 시작하십시오.</translation>
+<translation id="8776515774046280928">Google 크롬이 설치되어 컴퓨터의 모든 사용자가 사용할 수 있습니다. 사용자 수준에서 Google 크롬을 설치하려면 관리자가 설치한 시스템 수준 버전을 제거하세요.</translation>
+<translation id="3335672657969596251">Google 크롬에서는 <ph name="OS_NAME"/>을(를) 지원하지 않습니다.</translation>
+<translation id="3636771339108070045">컴퓨터에 Google 크롬 최신 버전이 설치되어 있습니다. 실행되지 않는 경우 제거한 후 다시 다운로드하세요.</translation>
+<translation id="3396666154568987767"><ph name="PROFILE_NAME"/>용 Google 크롬</translation>
+<translation id="1964682833763362793">크롬 창을 모두 닫고 다시 시도해 보세요.</translation>
+<translation id="1001534784610492198">설치 프로그램 보관 파일이 손상되었거나 올바르지 않습니다. Google 크롬을 다시 다운로드하세요.</translation>
+<translation id="6626317981028933585">Mozilla Firefox 브라우저가 실행 중일 때는 설정 기능을 사용할 수 없습니다. 이 설정을 Google 크롬으로 가져오려면 현재 작업을 저장하고 Firefox 창을 모두 닫습니다. 그런 다음 '계속'을 클릭합니다.</translation>
+<translation id="8540666473246803645">Google 크롬</translation>
+<translation id="6049075767726609708">시스템에 모든 사용자용 Google 크롬이 설치되었습니다. 기존의 사용자 수준 Google 크롬 대신 설치된 시스템 수준 Google 크롬이 사용됩니다.</translation>
+<translation id="3870154837782082782">Google Inc.</translation>
+<translation id="1446473746922165495">Google 크롬 메뉴, 대화상자 및 툴팁에서 사용되는 언어를 변경합니다.</translation>
+<translation id="9189723490960700326">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;에 접근하려 했지만 서버에서 만료된 인증서를 제출했습니다. 인증서가 만료 후 손상되었는지를 확인할 수 있는 정보가 없습니다. Google 크롬은 통신 중인 상대가 해커가 아닌 &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;인지 보장할 수 없습니다. 더 이상 진행하지 않는 것이 좋습니다.</translation>
+<translation id="7106741999175697885">작업 관리자 - Google 크롬</translation>
+<translation id="8449380764213232436">Google 크롬이 <ph name="BROWSER_COMPONENT"/>에서 다음 항목을 가져오는 중입니다.</translation>
+<translation id="3396977131400919238">설치 중 운영체제 오류가 발생했습니다. Google 크롬을 다시 다운로드하세요.</translation>
+<translation id="2618799103663374905">데스크톱, 빠른 실행 표시줄 및 시작 메뉴에 Google 크롬 바로가기 추가</translation>
+<translation id="1144950271450340860">&lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;에 접근하려 했지만 서버에서 컴퓨터 운영체제가 신뢰하지 않는 기관에서 발행한 인증서를 제출했습니다. 이는 서버에서 생성한 자체 보안 증명서를 Google 크롬이 ID 정보로 신뢰할 수 없거나, 해커가 귀하의 통신을 방해하고 있는 것이 원인일 수 있습니다. 따라서 더 이상 진행하지 않는 것이 좋으며, &lt;strong&gt;특히&lt;/strong&gt; 해당 사이트에서 이 경고를 처음 보는 것이라면 더욱 주의해야 합니다.</translation>
+</translationbundle>

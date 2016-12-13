@@ -1,0 +1,14 @@
+LIBRARY avcodec-52
+EXPORTS
+  av_free_packet
+  av_get_bits_per_sample_format
+  av_init_packet
+  av_new_packet
+  avcodec_alloc_frame
+  avcodec_decode_audio3
+  avcodec_decode_video2
+  avcodec_find_decoder
+  avcodec_flush_buffers
+  avcodec_init
+  avcodec_open
+  avcodec_thread_init

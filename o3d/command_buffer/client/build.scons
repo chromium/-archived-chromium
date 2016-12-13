@@ -1,0 +1,70 @@
+# Copyright 2009, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+Import('env')
+
+INPUTS = [
+  'cross/buffer_sync_proxy.cc',
+  'cross/cmd_buffer_helper.cc',
+  'cross/effect_helper.cc',
+  'cross/fenced_allocator.cc',
+  'cross/id_allocator.cc',
+]
+
+# Create a target library from the sources called 'o3dCmdBuf'
+o3dcmdbuf_lib = env.ComponentLibrary('o3dCmdBuf_client', INPUTS)
+
+# Add some flags and libraries to the build environment for the unit tests
+env.Append(
+    LIBS = [
+        'o3dCmdBuf_client',
+        'o3dCmdBuf_common',
+    ] + env['NACL_HTP_LIBS'],
+    LIBPATH = ['$NACL_LIB_DIR'],
+)
+
+if env['TARGET_PLATFORM'] == 'WINDOWS':
+  env.Append(CCFLAGS = ['/Wp64'],
+             LINKFLAGS=['/SUBSYSTEM:CONSOLE'])
+
+if env['TARGET_PLATFORM'] != 'NACL':
+  env.Append(LIBS = ['o3d_base'] + env['ICU_LIBS'])
+
+# Build the big tests
+BIG_TEST_CLIENT = [
+  'cross/big_test_client.cc',
+]
+
+# Create a target executable program called 'o3dCmdBuf_bigtest_client' from the
+# list of big test client files.
+big_test_client = env.Program('o3dCmdBuf_bigtest_client', BIG_TEST_CLIENT)
+
+# Copy the resulting executable to the Artifacts directory.
+env.Replicate('$ARTIFACTS_DIR', big_test_client)

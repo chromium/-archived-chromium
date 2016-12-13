@@ -1,0 +1,78 @@
+# This file contains known patterns of crash signatures. One pattern per line.
+#
+# A crash signature is the concatenation of the top N functions, delimited by
+# '___', in chrome.dll on the crash stack. All characters are lower case.
+#
+# We use crash signature patterns as our list of known crashes. A crash
+# signature pattern is a string that can be used to identify a known crash. We
+# use the notion of patterns because crashes with the same root cause can often
+# differ somewhat in their crash stacks. A pattern is intended to be a
+# generalized, yet still identifying, form of a particular crash. Usually a
+# pattern will contain part of a crash signature, for example a prefix, but it
+# can be more sophisticated, such as a regular expression. See below for more
+# details.
+#
+# The format of known crashes in this file is as follows:
+#   TYPE : PATTERN
+#
+# PATTERN: A crash signature pattern is a potentially identifying string that
+#          can be used to match a crash signature.
+# TYPE: The type of the pattern, indicates how the pattern should be matched
+#       against crash signatures. Possible options are:
+#           PREFIX: Match any signature beginning with this pattern.
+#           SUBSTRING: Match any signature containing this pattern.
+#           REGEX: Use this pattern as a regex to match against signatures.
+#       If the type is not listed, it defaults to PREFIX.
+
+# Any crash due to out of memory is ignored.
+PREFIX : `anonymous namespace'::onnomemory
+
+# Mysterious crashes. Leave them for now.
+
+# It is too broad to exclude all purecall related crashes. Thus here we filter
+# any purecall crash immediately after runtask.
+SUBSTRING : purecall___messageloop::runtask
+REGEX : purecall___[^_]*___messageloop::runtask
+REGEX : `anonymous namespace'::purecall$
+
+# Ditto for InvalidParameter.  Unfortunately, we see a crash where that call
+# is the only one on the stack, so ignore that instance
+REGEX : `anonymous namespace'::invalidparameter$
+
+# 5359. Random memory corruption?
+PREFIX : v8::internal::sweepspace___v8::internal::markcompactcollector::sweepspaces___v8::internal::markcompactcollector::collectgarbage
+
+# End mysterious crash section.
+
+# 15547
+PREFIX : renderview::didfinishdocumentloadforframe___webframeloaderclient::dispatchdidfinishdocumentload___webcore::frameloader::finishedparsing___webcore::document::finishedparsing___webcore::htmltokenizer::end
+
+# 9615
+SUBSTRING : history::historybackend::~historybackend
+
+# 7701
+PREFIX : iat_patch::getiatfunction___iat_patch::restoreimportedfunction___iat_patch::iatpatchfunction::unpatch
+
+# 10791
+PREFIX : npapi::plugininstance::npp_destroy___webplugindelegateimpl::destroyinstance___webplugindelegateimpl::~webplugindelegateimpl
+
+# 5545
+PREFIX : npapi::plugininstance::npp_handleevent___webplugindelegateimpl::windowlesspaint___webpluginproxy::paint___webpluginproxy::onpaint
+
+# 8020
+PREFIX : passwordformdommanager::findpasswordformfields___passwordformdommanager::createpasswordform___webframeloaderclient::dispatchdidfinishdocumentload
+
+# 12156
+SUBSTRING : views::focuswindowcallback___base::messagepumpforui::dorunloop
+
+# 16276
+PREFIX : v8::internal::jsobject::locallookup___v8::internal::jsobject::lookup___v8::internal::object::lookup
+
+# 9947
+SUBSTRING : webcore::frameloader::didreceiveresponse___webcore::resourceloader::didreceiveresponse___webcore::subresourceloader::didreceiveresponse___webcore::resourceloader::didreceiveresponse___webcore::resourcehandleinternal::onreceivedresponse
+
+# 10978
+PREFIX : webcore::renderobject::localtoabsolute___webcore::layoutstate::layoutstate___webcore::renderview::pushlayoutstate___webcore::frameview::layout
+
+# 8033
+SUBSTRING : windowdragresponsetask::run___messageloop::runtask___messageloop::dowork

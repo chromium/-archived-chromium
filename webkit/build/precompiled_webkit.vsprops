@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="precompiled_webkit"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="&quot;$(SolutionDir)webkit\build&quot;"
+		UsePrecompiledHeader="2"
+		PrecompiledHeaderThrough="precompiled_webkit.h"
+		PrecompiledHeaderFile="$(IntDir)\precompiled_webkit.pch"
+		ForcedIncludeFiles="precompiled_webkit.h"
+	/>
+</VisualStudioPropertySheet>

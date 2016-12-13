@@ -1,0 +1,118 @@
+Uninitialized memory read in WriteFile
+Error Location
+   ...  
+   chrome/browser/session_backend.cc  SessionBackend::AppendCommandsToFile(void *,vector::std const&)
+   chrome/browser/session_backend.cc  SessionBackend::AppendCommands(vector::std *,bool)
+   chrome/browser/session_service.cc  SessionService::Save(void)
+   chrome/browser/session_service.cc  SessionService::~SessionService(void)
+   chrome/release/unit_tests.exe  SessionService::`vector deleting destructor'(UINT)
+   base/ref_counted.h  base::RefCountedThreadSafe::Release(void)
+   base/ref_counted.h  scoped_refptr::=(SessionService *)
+   chrome/browser/session_service_test_helper.h  SessionServiceTestHelper::set_service(SessionService *)
+   chrome/browser/session_service_unittest.cc  SessionServiceTest::ReadWindows(vector::std *)
+   chrome/browser/session_service_unittest.cc  SessionServiceTest_ClosingTabStaysClosed_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+Alloc Location
+   ...  
+   chrome/browser/session_backend.cc  SessionCommand::SessionCommand(BYTE,WORD)
+   chrome/browser/session_service.cc  SessionService::CreateTabClosedCommand(int)
+   chrome/browser/session_service.cc  SessionService::TabClosed(SessionID const&,SessionID const&)
+   chrome/browser/session_service_unittest.cc  SessionServiceTest_ClosingTabStaysClosed_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+Uninitialized memory read in WriteFile
+Error Location
+   ...  
+   chrome/browser/session_backend.cc  SessionBackend::AppendCommandsToFile(void *,vector::std const&)
+   chrome/browser/session_backend.cc  SessionBackend::AppendCommands(vector::std *,bool)
+   chrome/browser/session_service.cc  SessionService::Save(void)
+   chrome/browser/session_service.cc  SessionService::~SessionService(void)
+   chrome/release/unit_tests.exe  SessionService::`vector deleting destructor'(UINT)
+   base/ref_counted.h  base::RefCountedThreadSafe::Release(void)
+   base/ref_counted.h  scoped_refptr::=(SessionService *)
+   chrome/browser/session_service_test_helper.h  SessionServiceTestHelper::set_service(SessionService *)
+   chrome/browser/session_service_unittest.cc  SessionServiceTest::ReadWindows(vector::std *)
+   chrome/browser/session_service_unittest.cc  SessionServiceTest_WindowCloseCommittedAfterNavigate_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+Alloc Location
+   ...  
+   chrome/browser/session_backend.cc  SessionCommand::SessionCommand(BYTE,WORD)
+   chrome/browser/session_service.cc  SessionService::CreateTabClosedCommand(int)
+   chrome/browser/session_service.cc  SessionService::CommitPendingCloses(void)
+   chrome/browser/session_service.cc  SessionService::UpdateTabNavigation(SessionID const&,int,NavigationEntry const&)
+   chrome/browser/session_service_unittest.cc  SessionServiceTest::UpdateNavigation(SessionID const&,TabNavigation const&,bool)
+   chrome/browser/session_service_unittest.cc  SessionServiceTest_WindowCloseCommittedAfterNavigate_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+Uninitialized memory read in WriteFile
+Error Location
+   ...  
+   chrome/browser/session_backend.cc  SessionBackend::AppendCommandsToFile(void *,vector::std const&)
+   chrome/browser/session_backend.cc  SessionBackend::AppendCommands(vector::std *,bool)
+   chrome/browser/session_service.cc  SessionService::Save(void)
+   chrome/browser/session_service.cc  SessionService::~SessionService(void)
+   chrome/release/unit_tests.exe  SessionService::`scalar deleting destructor'(UINT)
+   base/ref_counted.h  base::RefCountedThreadSafe::Release(void)
+   base/ref_counted.h  scoped_refptr::=(SessionService *)
+   chrome/browser/session_service_test_helper.h  SessionServiceTestHelper::set_service(SessionService *)
+   chrome/browser/session_service_unittest.cc  SessionServiceTest::ReadWindows(vector::std *)
+   chrome/browser/session_service_unittest.cc  SessionServiceTest_WindowCloseCommittedAfterNavigate_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+Alloc Location
+   ...  
+   chrome/browser/session_backend.cc  SessionCommand::SessionCommand(BYTE,WORD)
+   chrome/browser/session_service.cc  SessionService::CreateTabClosedCommand(int)
+   chrome/browser/session_service.cc  SessionService::CommitPendingCloses(void)
+   chrome/browser/session_service.cc  SessionService::UpdateTabNavigation(SessionID const&,int,NavigationEntry const&)
+   chrome/browser/session_service_unittest.cc  SessionServiceTest::UpdateNavigation(SessionID const&,TabNavigation const&,bool)
+   chrome/browser/session_service_unittest.cc  SessionServiceTest_WindowCloseCommittedAfterNavigate_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+Uninitialized memory read in WriteFile
+Error Location
+   ...  
+   chrome/browser/session_backend.cc  SessionBackend::AppendCommandsToFile(void *,vector::std const&)
+   chrome/browser/session_backend.cc  SessionBackend::AppendCommands(vector::std *,bool)
+   chrome/browser/session_service.cc  SessionService::Save(void)
+   chrome/browser/session_service.cc  SessionService::~SessionService(void)
+   chrome/release/unit_tests.exe  SessionService::`scalar deleting destructor'(UINT)
+   base/ref_counted.h  base::RefCountedThreadSafe::Release(void)
+   base/ref_counted.h  scoped_refptr::=(SessionService *)
+   chrome/browser/session_service_test_helper.h  SessionServiceTestHelper::set_service(SessionService *)
+   chrome/browser/session_service_unittest.cc  SessionServiceTest::ReadWindows(vector::std *)
+   chrome/browser/session_service_unittest.cc  SessionServiceTest_ClosingTabStaysClosed_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+Alloc Location
+   ...  
+   chrome/browser/session_backend.cc  SessionCommand::SessionCommand(BYTE,WORD)
+   chrome/browser/session_service.cc  SessionService::CreateTabClosedCommand(int)
+   chrome/browser/session_service.cc  SessionService::TabClosed(SessionID const&,SessionID const&)
+   chrome/browser/session_service_unittest.cc  SessionServiceTest_ClosingTabStaysClosed_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^  
+
+Uninitialized memory read in `anonymous namespace'::PrependInteger
+Error Location
+   base/crypto/rsa_private_key_win.cc  `anonymous namespace'::PrependInteger
+   base/crypto/rsa_private_key_win.cc  base::RSAPrivateKey::ExportPrivateKey(vector::std *)
+   chrome/browser/extensions/extension_creator.cc  ExtensionCreator::GenerateKey(FilePath const&)
+   chrome/browser/extensions/extension_creator.cc  ExtensionCreator::Run(FilePath const&,FilePath const&,FilePath const&,FilePath const&)
+   chrome/browser/extensions/extensions_service_unittest.cc  ExtensionsServiceTest_PackExtension_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^
+Alloc Location
+   ...
+   base/crypto/rsa_private_key_win.cc  base::RSAPrivateKey::ExportPrivateKey(vector::std *)
+   chrome/browser/extensions/extension_creator.cc  ExtensionCreator::GenerateKey(FilePath const&)
+   chrome/browser/extensions/extension_creator.cc  ExtensionCreator::Run(FilePath const&,FilePath const&,FilePath const&,FilePath const&)
+   chrome/browser/extensions/extensions_service_unittest.cc  ExtensionsServiceTest_PackExtension_Test::TestBody(void)
+   testing/gtest/src/gtest.cc  testing::Test::Run(void)
+   ^^^
+

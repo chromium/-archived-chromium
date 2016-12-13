@@ -1,0 +1,9 @@
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x600
+  RenderBlock {HTML} at (0,0) size 800x600
+    RenderBody {BODY} at (8,8) size 784x584
+      RenderText {#text} at (0,0) size 775x36
+        text run at (0,0) width 562: "This tests loading of a HTML page when the HTTP content-type is set to \"image/bmp\" . "
+        text run at (562,0) width 213: "Expected : This page should have"
+        text run at (0,18) width 83: "NOTHING ."

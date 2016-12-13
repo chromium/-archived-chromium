@@ -1,0 +1,9 @@
+layer at (0,0) size 800x600
+  RenderView at (0,0) size 800x600
+layer at (0,0) size 800x600
+  RenderBlock {HTML} at (0,0) size 800x600
+    RenderBody {BODY} at (8,8) size 784x584
+      RenderText {#text} at (0,0) size 757x36
+        text run at (0,0) width 757: "This tests loading of a HTML page with a PNG image when the HTTP content-type is set to \"application/x-shockwave-"
+        text run at (0,18) width 49: "flash\" . "
+        text run at (49,18) width 300: "Expected : This page should have NOTHING ."

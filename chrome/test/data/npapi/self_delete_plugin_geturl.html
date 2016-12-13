@@ -1,0 +1,37 @@
+<html>
+<head>
+<title>Self Deleting Plugin Test - GetURL</title>
+<script src="npapi.js"></script>
+<script>
+function DeletePluginWithinScript() {
+  var plugin_div = document.getElementById("PluginDiv");
+  plugin_div.innerHTML = "Object Deleted";
+}
+
+function CallGetUrl() {
+  var plg = window.document["plg"];
+  plg.getURL("javascript:DeletePluginWithinScript()");
+}
+</script>
+</head>
+
+<body>
+
+<h2>Test to delete a plugin during script execution</h2>
+
+<p>
+This test is for a corner case when a plugin executes a script
+that deletes the invoking plugin itself.
+</p>
+
+<DIV ID=PluginDiv>
+<embed name="plg" type="application/x-webkit-test-netscape"></embed>
+</DIV>
+<script> 
+  CallGetUrl();
+  onSuccess("self_delete_plugin_geturl", 1);
+</script>
+
+</body>
+</html>
+

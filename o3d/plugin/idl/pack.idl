@@ -1,0 +1,311 @@
+/*
+ * Copyright 2009, Google Inc.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above
+ * copyright notice, this list of conditions and the following disclaimer
+ * in the documentation and/or other materials provided with the
+ * distribution.
+ *     * Neither the name of Google Inc. nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+namespace o3d {
+
+typedef ObjectBase[] ObjectArray;
+
+%[
+  A Pack object functions as a container for O3D objects. The Pack
+  is used to control the lifetime scope of a collection of objects in bulk. The
+  Pack object achieves this by simply storing a set of references to its
+  contained objects, which ensures that the ref-counts for those objects never
+  reach zero while the pack is alive.
+  \sa o3d.Pack.removeObject
+  \sa o3d.Pack.destroy
+%]
+[nocpp, include="core/cross/pack.h"] class Pack : NamedObject {
+
+  %[
+    Removes all internal references to the Pack from the client.
+    The pack, and all objects contained in it are permitted to be destroyed
+    after the pack's destruction.  Objects will only be destroyed after all
+    references to them have been removed.
+
+    NOTE: Calling pack.destroy does NOT free your resources. It justs releases
+    the pack's reference to those resources.  An example should hopefully make
+    it clearer.
+
+    pack.destroy() is effectively almost the same as this.
+
+    \code
+    var objectsInPack = pack.getObjectsByClassName('o3d.ObjectBase');
+    for (var ii = 0; ii < objectsInPack.length; ++ii) {
+      pack.removeObject(objectsInPack[ii]);
+    }
+    \endcode
+
+    The only difference is that after all the objects are removed the pack
+    itself will be released from the client.  See documentation on
+    pack.removeObject for why this is important.
+
+    It's important to note that many objects are only referenced by the pack.
+    Textures, Effects, Materials, for example. That means the moment you call
+    pack.destroy() those objects will be freed. If the client then tries to
+    render and some objects are missing you'll immediately get an error.
+  %]
+  void Destroy();
+
+  %[
+    Removes a pack's reference to an object. Any object created from
+    pack.create___ function can be removed. This releases the pack's reference
+    to that object so if nothing else is referencing that object it will be
+    deleted.
+
+    NOTE: Calling pack.removeObject does NOT automatically free your resource.
+    It just releases the pack's reference to that resource. An example should
+    hopefully make it clearer.
+
+    Suppose you make a transform like this:
+
+    \code
+    var myTransform = pack.createObject('Transform');
+    myTransform.parent = g_client.root;
+    pack.removeObject(myTransform);
+    \endcode
+
+    In the code above, myTransform is referenced twice. Once by the pack, and
+    again by g_client.root  So in this case, calling pack.removeObject()
+    only releases the pack's reference leaving the reference by g_client.root.
+
+    \code
+    myTransform.parent = null;
+    \endcode
+
+    Now the last reference has been removed and myTransform will be freed.
+
+    \param object Object to remove.
+    \return True if the object was successfully removed. False if the object
+        is not part of this pack.
+
+    \sa o3d.Pack.destroy
+  %]
+  bool RemoveObject(ObjectBase object);
+
+  %[
+    Creates an Object by Class name.
+
+    Note: You may omit the 'o3d.'.
+
+    \param type_name name of Class to create. Valid type names are:
+        \li o3d.Canvas
+        \li o3d.CanvasLinearGradient
+        \li o3d.CanvasPaint
+        \li o3d.ClearBuffer
+        \li o3d.Counter
+        \li o3d.Curve
+        \li o3d.DrawContext
+        \li o3d.DrawElement
+        \li o3d.DrawList
+        \li o3d.DrawPass
+        \li o3d.Effect
+        \li o3d.FunctionEval
+        \li o3d.IndexBuffer
+        \li o3d.Material
+        \li o3d.ParamArray
+        \li o3d.ParamObject
+        \li o3d.Primitive
+        \li o3d.RenderFrameCounter
+        \li o3d.RenderNode
+        \li o3d.RenderSurfaceSet
+        \li o3d.Sampler
+        \li o3d.SecondCounter
+        \li o3d.Shape
+        \li o3d.Skin
+        \li o3d.SkinEval
+        \li o3d.SourceBuffer
+        \li o3d.State
+        \li o3d.StateSet
+        \li o3d.StreamBank
+        \li o3d.Texture2D
+        \li o3d.TextureCUBE
+        \li o3d.TickCounter
+        \li o3d.Transform
+        \li o3d.TreeTraversal
+        \li o3d.VertexBuffer
+        \li o3d.Viewport
+        \li o3d.Matrix4AxisRotation
+        \li o3d.Matrix4Composition
+        \li o3d.Matrix4Scale
+        \li o3d.Matrix4Translation
+        \li o3d.ParamOp2FloatsToFloat2
+        \li o3d.ParamOp3FloatsToFloat3
+        \li o3d.ParamOp4FloatsToFloat4
+        \li o3d.ParamOp16FloatsToMatrix4
+        \li o3d.TRSToMatrix4
+    \return The created object.
+  %]
+  [noreturndocs] ObjectBase? CreateObject(String type_name);
+
+  %[
+    Creates a new Texture2D object of the specified size and format and
+    reserves the necessary resources for it.
+
+    Note: If enable_render_surfaces is true, then the dimensions must be a
+    power of two.
+
+    \param width The width of the texture area in texels (max = 2048)
+    \param height The height of the texture area in texels (max = 2048)
+    \param format The memory format of each texel
+    \param levels The number of mipmap levels.  Use zero to create the compelete
+         mipmap chain.
+    \param enable_render_surfaces If true, the texture object will expose
+         RenderSurface objects through GetRenderSurface(...).
+    \return The Texture2D object.
+
+  %]
+  Texture2D? CreateTexture2D(int width,
+                             int height,
+                             Texture::Format format,
+                             int levels,
+                             bool enable_render_surfaces);
+
+  %[
+    Creates a new TextureCUBE object of the specified size and format and
+    reserves the necessary resources for it.
+    Note:  If enable_render_surfaces is true, then the dimensions must be a
+    power of two.
+
+    \param edge_length The edge of the texture area in texels (max = 2048)
+    \param format The memory format of each texel
+    \param levels The number of mipmap levels.  Use zero to create the compelete
+         mipmap chain.
+    \param enable_render_surfaces If true, the texture object will expose
+         RenderSurface objects through GetRenderSurface(...).
+    \return The TextureCUBE object.
+  %]
+  TextureCUBE? CreateTextureCUBE(int edge_length,
+                                Texture::Format format,
+                                int levels,
+                                bool enable_render_surfaces);
+
+  %[
+    Creates a new RenderDepthStencilSurface object of a format suitable for use
+    as a depth-stencil render target.
+    Note: The dimensions of the RenderDepthStencilSurface must be a power of
+        two.
+
+    \param width The width of the RenderSurface in pixels
+    \param height The height of the RenderSurface in pixels
+    \return The RenderSurface object.
+  %]
+  RenderDepthStencilSurface? CreateDepthStencilSurface(int width, int height);
+
+  %[
+    Search the pack for all objects of a certain class with a certain name.
+
+    Note that modifications to this array [e.g. push()] will not affect
+    the underlying Pack, while modifications to the array's members
+    <strong>will</strong> affect them.
+
+    \param name Name to look for
+    \param class_type_name the Class of the object. It is okay to pass base
+         types for example "o3d.RenderNode" will return ClearBuffers,
+         DrawPasses, etc...
+    \return Array of Objects.
+  %]
+  [const, noreturndocs]
+  ObjectArray GetObjects(String name, String class_type_name);
+
+  %[
+    Search the pack for all objects of a certain class
+
+    Note that modifications to this array [e.g. push()] will not affect
+    the underlying Pack, while modifications to the array's members
+    <strong>will</strong> affect them.
+
+    \param class_type_name the Class of the object. It is okay to pass base
+         types for example "o3d.RenderNode" will return ClearBuffers,
+         DrawPasses, etc...
+    \return Array of Objects.
+  %]
+  [const, noreturndocs]
+  ObjectArray GetObjectsByClassName(String class_type_name);
+
+  %[
+    All the objects managed by this pack.
+
+    Each access to this field gets the entire list so it is best to get it
+    just once. For example:
+    \code
+    var objects = pack.objects;
+    for (var i = 0; i < objects.length; i++) {
+      var object = objects[i];
+    }
+    \endcode
+
+    Note that modifications to this array [e.g. push()] will not affect
+    the underlying Pack, while modifications to the array's members
+    <strong>will</strong> affect them.
+  %]
+  [userglue_getter, getter] ObjectBaseArray objects_;
+
+  %[
+    Creates a FileRequest to be used to asynchronously load a Texture.
+    \param type Must be "TEXTURE"
+    \return a FileRequest
+  %]
+  [noccp, userglue] FileRequest? CreateFileRequest(String type);
+  [verbatim=cpp_glue, include="core/cross/file_request.h"] %{
+    o3d::FileRequest *userglue_method_CreateFileRequest(
+        o3d::Pack *pack, const o3d::String &type) {
+      return pack->CreateFileRequest(type);
+    }
+    o3d::ObjectBaseArray userglue_getter_objects_(
+        o3d::Pack* self) {
+      return self->GetByClass<o3d::ObjectBase>();
+    }
+  %}
+
+  %[
+    Creates an ArchiveRequest so we can stream in assets from an archive
+    \return an ArchiveRequest
+  %]
+  [noccp, userglue] ArchiveRequest CreateArchiveRequest();
+  [verbatim=cpp_glue, include="import/cross/archive_request.h"] %{
+    o3d::ArchiveRequest *userglue_method_CreateArchiveRequest(
+        o3d::Pack *pack) {
+      return pack->CreateArchiveRequest();
+    }
+  %}
+
+  %[
+    Creates a Texture given a RawData object
+    \param raw_data The RawData to create the texture from.
+    \param generate_mips True if you want O3D to generate mip maps for the
+        texture.
+    \return the Texture
+  %]
+  Texture? CreateTextureFromRawData(RawData raw_data,
+                                    bool generate_mips);
+};  // Pack
+
+}  // namespace o3d

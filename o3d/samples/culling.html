@@ -1,0 +1,340 @@
+<!--
+Copyright 2009, Google Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+    * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+    * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<!--
+O3D Culling.
+
+Make sure things off screen get culled.
+
+By default nothing is culled. If you want object to be culled you must setup
+bounding boxes in the transform graph that fit the needs of your application
+and then turn on culling for those objects you want culled.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+  "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>
+Culling.
+</title>
+<!-- Include sample javascript library functions-->
+<script type="text/javascript" src="o3djs/base.js"></script>
+
+<!-- Our javascript code -->
+<script type="text/javascript">
+o3djs.require('o3djs.util');
+o3djs.require('o3djs.math');
+o3djs.require('o3djs.rendergraph');
+o3djs.require('o3djs.primitives');
+o3djs.require('o3djs.effect');
+
+// global variables
+var g_timeMult = 1.0;
+var g_framesRendered = 0;
+var g_o3d;
+var g_math;
+var g_client;
+var g_viewInfo;
+var g_pack;
+var g_totalTransformsElement;
+var g_transformsProcessedElement;
+var g_transformsCulledElement;
+var g_totalDrawElementsElement;
+var g_totalDrawableThingsElement;
+var g_drawElementsProcessedElement;
+var g_drawElementsCulledElement;
+var g_drawElementsRenderedElement;
+var g_primitivesRenderedElement;
+var g_groupTransforms = [];
+var GROUPS_ACROSS = 2;
+var UNITS_ACROSS_GROUP = 2;
+var TOTAL_ACROSS = GROUPS_ACROSS * UNITS_ACROSS_GROUP;
+var HALF_WIDTH = TOTAL_ACROSS * 0.0;
+var UNIT_SPACING = 200;
+
+function createInstances(pack, shape) {
+  // Make a grid of transforms and put a shape instance on each one.
+  for (var g = 0; g < GROUPS_ACROSS; g++) {
+    for (var h = 0; h < GROUPS_ACROSS; h++) {
+      for (var i = 0; i < GROUPS_ACROSS; i++) {
+        var groupTransform = pack.createObject('Transform');
+        g_groupTransforms[g_groupTransforms.length] = groupTransform;
+        groupTransform.parent = g_client.root;
+        // Turn on culling for this transform.
+        groupTransform.cull = true;
+        var boundingBox = g_o3d.BoundingBox([0, 0, 0],
+                                            [0, 0, 0]);
+        groupTransform.translate(
+            (g * UNITS_ACROSS_GROUP - HALF_WIDTH) * UNIT_SPACING,
+            (h * UNITS_ACROSS_GROUP - HALF_WIDTH) * UNIT_SPACING,
+            (i * UNITS_ACROSS_GROUP - HALF_WIDTH) * UNIT_SPACING);
+
+        for (var x = 0; x < UNITS_ACROSS_GROUP; x++) {
+          for (var y = 0; y < UNITS_ACROSS_GROUP; y++) {
+            for (var z = 0; z < UNITS_ACROSS_GROUP; z++) {
+              var transform = pack.createObject('Transform');
+              transform.parent = groupTransform;
+              // Turn on culling for this transform.
+              transform.cull = true;
+              transform.addShape(shape);
+              // Add up the bounding boxes of all the elements.
+              var elements = shape.elements;
+              var box = elements[0].boundingBox;
+              for (var ee = 1; ee < elements.length; ee++) {
+                box = box.add(elements[ee].boundingBox);
+              }
+              // Set the transform to have a bounding box that is the sum
+              // of all the elements under it.
+              transform.boundingBox = box;
+              transform.translate(
+                  (x - UNITS_ACROSS_GROUP * 0.5) * UNIT_SPACING,
+                  (y - UNITS_ACROSS_GROUP * 0.5) * UNIT_SPACING,
+                  (z - UNITS_ACROSS_GROUP * 0.5) * UNIT_SPACING);
+              transform.createParam('colorMult', 'ParamFloat4').value = [
+                  (g * UNITS_ACROSS_GROUP + x) * (1 / TOTAL_ACROSS),
+                  (h * UNITS_ACROSS_GROUP + y) * (1 / TOTAL_ACROSS),
+                  (i * UNITS_ACROSS_GROUP + z) * (1 / TOTAL_ACROSS),
+                  1];
+              // Add the box for this bounding box to the box for the group.
+              var box = transform.boundingBox.mul(transform.localMatrix);
+              boundingBox = boundingBox.add(box);
+
+            }
+          }
+        }
+        // Set the bounding box for the group transform to encompass all
+        // the transforms below it.
+        groupTransform.boundingBox = boundingBox;
+      }
+    }
+  }
+}
+
+/**
+ * Creates the client area.
+ */
+function init() {
+  // These are here so that they are visible to both the browser (so
+  // selenium sees them) and the embedded V8 engine.
+  window.g_clock = 0;
+  window.g_timeMult = 1;
+  window.g_finished = false;  // for selenium testing.
+
+  // Comment out the line below to run the sample in the browser
+  // JavaScript engine.  This may be helpful for debugging.
+  o3djs.util.setMainEngine(o3djs.util.Engine.V8);
+
+  o3djs.util.makeClients(initStep2);
+}
+
+/**
+ * Initializes O3D and creates one shape.
+ * @param {Array} clientElements Array of o3d object elements.
+ */
+function initStep2(clientElements) {
+  // Initializes global variables and libraries.
+  var o3dElement = clientElements[0];
+  g_o3d = o3dElement.o3d;
+  g_math = o3djs.math;
+
+  // Set window.g_client as well.  Otherwise when the sample runs in
+  // V8, selenium won't be able to find this variable (it can only see
+  // the browser environment).
+  window.g_client = g_client = o3dElement.client;
+
+  g_totalDrawableThingsElement =
+      o3djs.util.getElementById('totalDrawableThings');
+  g_totalTransformsElement =
+      o3djs.util.getElementById('totalTransforms');
+  g_transformsProcessedElement =
+      o3djs.util.getElementById('transformsProcessed');
+  g_transformsCulledElement =
+      o3djs.util.getElementById('transformsCulled');
+  g_totalDrawElementsElement =
+      o3djs.util.getElementById('totalDrawElements');
+  g_drawElementsProcessedElement =
+      o3djs.util.getElementById('drawElementsProcessed');
+  g_drawElementsCulledElement =
+      o3djs.util.getElementById('drawElementsCulled');
+  g_drawElementsRenderedElement =
+      o3djs.util.getElementById('drawElementsRendered');
+  g_primitivesRenderedElement =
+      o3djs.util.getElementById('primitivesRendered');
+
+  // Creates a pack to manage our resources/assets
+  g_pack = g_client.createPack();
+
+  g_viewInfo = o3djs.rendergraph.createBasicView(
+      g_pack,
+      g_client.root,
+      g_client.renderGraphRoot);
+
+  // Create our projection matrix, with a vertical field of view of 45
+  // degrees a near clipping plane of 0.1 and far clipping plane of 10000.
+  g_viewInfo.drawContext.projection = g_math.matrix4.perspective(
+      g_math.degToRad(45),
+      g_client.width / g_client.height,
+      0.1,
+      10000);
+
+  // Create and load the effect.
+  var effect = g_pack.createObject('Effect');
+  o3djs.effect.loadEffect(effect, 'shaders/phong-with-colormult.shader');
+
+  // Create a Material for the effect.
+  var material = g_pack.createObject('Material');
+
+  // Apply our effect to this material.
+  material.effect = effect;
+
+  // Set the material's drawList for opaque objects.
+  material.drawList = g_viewInfo.performanceDrawList;
+
+  // Create the parameters the effect needs on the material.
+  effect.createUniformParameters(material);
+
+  // Set the material parameters.
+  material.getParam('lightWorldPos').value = [1000, 1000, 0];
+  material.getParam('lightIntensity').value = [1, 1, 1, 1];
+  material.getParam('ambientIntensity').value = [0.1, 0.1, 0.1, 1];
+  material.getParam('ambient').value = [1, 1, 1, 1];
+  material.getParam('diffuse').value = [1, 1, 1, 1];
+  material.getParam('specular').value = [0.5, 0.5, 0.5, 1];
+  material.getParam('shininess').value = 50;
+
+  // Create 2 spheres.
+  var shape1 = o3djs.primitives.createSphere(
+      g_pack,
+      material,
+      40,
+      20,
+      20,
+      g_math.matrix4.translation([-50, 0, 0]));
+
+  var shape2 = o3djs.primitives.createSphere(
+      g_pack,
+      material,
+      20,
+      20,
+      20,
+      g_math.matrix4.translation([50, 0, 0]));
+  // Create a shape and move the 2 sphere primitives to the same shape.
+  // This is done to show that each of the primitives under the shape
+  // will get culled separately.
+  var shape = g_pack.createObject('Shape');
+  shape1.elements[0].owner = shape;
+  shape2.elements[0].owner = shape;
+  // delete the old shapes.
+  g_pack.removeObject(shape1);
+  g_pack.removeObject(shape2);
+  var elements = shape.elements;
+  // Turn on culling for the two sphere elements.
+  elements[0].cull = true;
+  elements[1].cull = true;
+
+  createInstances(g_pack, shape);
+
+  g_totalDrawableThingsElement.innerHTML =
+      GROUPS_ACROSS * UNITS_ACROSS_GROUP *
+      GROUPS_ACROSS * UNITS_ACROSS_GROUP *
+      GROUPS_ACROSS * UNITS_ACROSS_GROUP;
+
+  g_totalDrawElementsElement.innerHTML = g_client.getObjectsByClassName(
+      'o3d.DrawElement').length;
+  g_totalTransformsElement.innerHTML = g_client.getObjectsByClassName(
+      'o3d.Transform').length;
+
+  // Setup an onrender callback for animation.
+  g_client.setRenderCallback(onrender);
+
+  window.g_finished = true;  // for selenium testing.
+}
+
+// spin the camera.
+function onrender(renderEvent) {
+  g_framesRendered++;
+  // Get the number of seconds since the last render.
+  var elapsedTime = renderEvent.elapsedTime;
+
+  // Update g_clock in the browser and cache a V8 copy that can be
+  // accessed efficiently. g_clock must be in the browser for selenium.
+  var clock = window.g_clock + elapsedTime * window.g_timeMult;
+  window.g_clock = clock;
+
+  var x = Math.sin(clock * 0.1) * 300;
+  var z = Math.cos(clock * 0.1) * 300;
+  var y = Math.sin(clock * 0.2) * 300;
+
+  g_viewInfo.drawContext.view = g_math.matrix4.lookAt(
+      [x, y, z],
+      [0, 0, 0],
+      [0, 1, 0]);
+
+  g_transformsProcessedElement.innerHTML = renderEvent.transformsProcessed;
+  g_transformsCulledElement.innerHTML = renderEvent.transformsCulled;
+  g_drawElementsProcessedElement.innerHTML = renderEvent.drawElementsProcessed;
+  g_drawElementsCulledElement.innerHTML = renderEvent.drawElementsCulled;
+  g_drawElementsRenderedElement.innerHTML = renderEvent.drawElementsRendered;
+  g_primitivesRenderedElement.innerHTML = renderEvent.primitivesRendered;
+}
+
+/**
+ * Remove any callbacks so they don't get called after the page has unloaded.
+ */
+function unload() {
+  if (g_client) {
+    g_client.cleanup();
+  }
+}
+
+</script>
+</head>
+<body onload="init()" onunload="unload()">
+<h1>Culling</h1>
+Objects off screen should get culled.
+<br/>
+<!-- Start of O3D plugin -->
+<div id="o3d" style="width: 800px; height: 600px;"></div>
+<!-- End of O3D plugin -->
+<table>
+<tr><td>Total Drawable Things:</td><td><span id="totalDrawableThings">-</span></td></tr>
+<tr><td>Total Transforms:</td><td><span id="totalTransforms">-</span></td></tr>
+<tr><td>Transforms Processed:</td><td><span id="transformsProcessed">-</span></td></tr>
+<tr><td>Transforms Culled:</td><td><span id="transformsCulled">-</span></td></tr>
+<tr><td>Total DrawElements:</td><td><span id="totalDrawElements">-</span></td></tr>
+<tr><td>DrawElements Processed:</td><td><span id="drawElementsProcessed">-</span></td></tr>
+<tr><td>DrawElements Culled:</td><td><span id="drawElementsCulled">-</span></td></tr>
+<tr><td>DrawElements Rendered:</td><td><span id="drawElementsRendered">-</span></td></tr>
+<tr><td>Primitives Rendered:</td><td><span id="primitivesRendered">-</span></td></tr>
+</table>
+</body>
+</html>

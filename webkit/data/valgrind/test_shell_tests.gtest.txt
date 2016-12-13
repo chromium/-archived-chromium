@@ -1,0 +1,3 @@
+# Way too slow under Valgrind at the moment; http://crbug.com/9177
+BMPImageDecoderTest.ChunkedDecodingSlow
+BMPImageDecoderTest.DecodingSlow

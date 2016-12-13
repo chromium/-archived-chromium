@@ -1,0 +1,316 @@
+<!DOCTYPE HTML>
+
+<html id="t">
+  <head>
+    <title>About Stats</title>
+
+<style>
+body {
+  border-top: 10px solid #3B85E3;
+  color: #333;
+  font-family: Verdana,Arial,Helvetica,sans-serif;
+}
+body, td {
+  font-size: 11px;
+}
+a:link, a:visited {
+  color: #2C3EBA;
+  text-decoration: none;
+}
+a:hover {
+  color: red;
+  text-decoration: underline;
+}
+h1 {
+  border-left: 10px solid #FFF;
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0;
+  padding: 0.2em;
+  color: #3B85E3;
+}
+h2 {
+  border-left: 10px solid #FFF;
+  font-size: 11px;
+  font-weight: normal;
+  margin: 0;
+  padding: 0 6em 0.2em 0.2em;
+}
+.details {
+  margin: 0.4em 1.9em 0 1.2em;
+  padding: 0 0.4em 0.3em 0;
+  white-space: nowrap;
+}
+.details .outer {
+  padding-right: 0;
+  vertical-align: top;
+}
+.details .top {
+  border-top: 2px solid #333;
+  font-weight: bold;
+  margin-top: 0.4em;
+}
+.details .header2 {
+  font-weight: bold;
+  padding-left: 0.9em;
+}
+.details .key {
+  padding-left: 1.1em;
+  vertical-align: top;
+}
+.details .value {
+  text-align: right;
+  color: #333;
+  font-weight: bold;
+}
+.details .zebra {
+  background: #EEE;
+}
+.lower {
+  text-transform: lowercase;
+}
+</style>
+<script>
+
+/* Counter accessor for Name Node. */
+function getCounterNameFromCounterNode(node) {
+  return node.childNodes[1];
+}
+
+/* Counter accessor for Value Node. */
+function getCounterValueFromCounterNode(node) {
+  return node.childNodes[3];
+}
+
+/* Counter accessor for Delta Node. */
+function getCounterDeltaFromCounterNode(node) {
+  return node.childNodes[5];
+}
+
+/* Timer accessor for Name Node. */
+function getTimerNameFromTimerNode(node) {
+  return node.childNodes[1];
+}
+
+/* Timer accessor for Value Node. */
+function getTimerValueFromTimerNode(node) {
+  return node.childNodes[3];
+}
+
+/* Timer accessor for Time Node. */
+function getTimerTimeFromTimerNode(node) {
+  return node.childNodes[5];
+}
+
+/* Timer accessor for Average Time Node. */
+function getTimerAvgTimeFromTimerNode(node) {
+  return node.childNodes[7];
+}
+
+/* Do the filter work.  Hide all nodes matching node.*/
+function filterMatching(text, nodelist, functionToGetNameNode) {
+  var showAll = text.length == 0;
+  for (var i = 0, node; node = nodelist[i]; i++) {
+    var name = functionToGetNameNode(node).innerHTML.toLowerCase();
+    if (showAll || name.indexOf(text) >= 0) {
+      node.style.display = "table-row";
+    } else {
+      node.style.display = "none";
+    }
+  }
+}
+
+/* Hides or shows counters based on the user's current filter selection. */
+function doFilter() {
+  var filter = document.getElementById("filter");
+  var text = filter.value.toLowerCase();
+  var nodes = document.getElementsByName("counter");
+  filterMatching(text, nodes, getCounterNameFromCounterNode);
+  var nodes = document.getElementsByName("timer");
+  filterMatching(text, nodes, getTimerNameFromTimerNode);
+}
+
+/* Colors the counters based on increasing or decreasing value. */
+function doColor() {
+  var nodes = document.getElementsByName("counter");
+  for (var i = 0, node; node = nodes[i]; i++) {
+    var child = getCounterDeltaFromCounterNode(node);
+    var delta = child.innerHTML;
+    if (delta > 0) {
+      child.style.color = "Green";
+    } else if (delta == 0) {
+      child.style.color = "Black";
+    } else {
+      child.style.color = "Red";
+    }
+  }
+}
+
+/* Counters with no values are null. Remove them. */
+function removeNullValues() {
+  var nodes = document.getElementsByName("counter");
+  for (var i = nodes.length - 1; i >= 0; i--) {
+    var node = nodes[i];
+    var value = getCounterValueFromCounterNode(node).innerHTML;
+    if (value == "null") {
+      node.parentNode.removeChild(node);
+    }
+  }
+  var nodes = document.getElementsByName("timer");
+  for (var i = 0, node; node = nodes[i]; i++) {
+    var value_node = getTimerValueFromTimerNode(node);
+    if (value_node.innerHTML == "null") {
+      value_node.innerHTML = "";
+    }
+  }
+}
+
+/* Compute the average time for timers */
+function computeTimes() {
+  var nodes = document.getElementsByName("timer");
+  for (var i = 0, node; node = nodes[i]; i++) {
+    var count = getTimerValueFromTimerNode(node).innerHTML;
+    if (count.length > 0) {
+      var time = getTimerTimeFromTimerNode(node).innerHTML;
+      var avg = getTimerAvgTimeFromTimerNode(node);
+      avg.innerHTML = Math.round(time / count * 100) / 100;
+    }
+  }
+}
+
+/* All the work we do onload. */
+function onLoadWork() {
+  doColor();
+  removeNullValues();
+  computeTimes();
+  document.getElementById("filter").focus();
+}
+
+// The function should only be used as the event handler
+// on a table cell element. To use it, put it in a <td> element:
+//  <td onclick="sort('string')" ...>
+//
+// The function sorts rows after the row with onclick event handler.
+//
+// type: the data type, 'string', 'number'
+function sort_table(type){
+  var cell = event.target;
+  var cnum = cell.cellIndex;
+
+  var row = cell.parentNode;
+  var start_index = row.rowIndex + 1;
+
+  var tbody = row.parentNode;
+  var table = tbody.parentNode;
+
+  var rows = new Array();
+
+  var indexes = new Array();
+  // skip the first row
+  for (var i = start_index; i < table.rows.length; i++)
+    rows.push(table.rows[i]);
+
+  // a, b are strings
+  function compare_strings(a,b) {
+    if (a == b) return 0;
+    if (a < b) return -1;
+    return 1;
+  }
+
+  // a, b are numbers
+  function compare_numbers(a,b) {
+    var x = isNaN(a) ? 0 : a;
+    var y = isNaN(b) ? 0 : b;
+    return x - y;
+  }
+
+  var sort_func = undefined;
+  if (type === 'string') {
+    sort_func = function(a, b) {
+      var x = a.cells[cnum].innerText;
+      var y = b.cells[cnum].innerText;
+      return compare_strings(x, y);
+    } ;
+
+  } else if (type === 'number') {
+    sort_func = function(a, b) {
+      var x = parseFloat(a.cells[cnum].innerText);
+      var y = parseFloat(b.cells[cnum].innerText);
+      return compare_numbers(x, y);
+    }
+  }
+
+  rows.sort(sort_func);
+
+  // change tables
+  if (cell._reverse) {
+    for (var i = rows.length - 1; i >= 0; i--)
+      tbody.appendChild(rows[i]);
+    cell._reverse = false;
+  } else {
+    for (var i = 0; i < rows.length; i++)
+      tbody.appendChild(rows[i]);
+    cell._reverse = true;
+  }
+}
+
+</script>
+</head>
+<body onload="onLoadWork()">
+  <div style="float: right">
+    <br>Filter: <input id="filter" type="text" value="" onkeyup="doFilter()">
+  </div>
+  <h1 class="lower">About Stats</h1>
+  <h2>Shhh!  This page is secret!</h2><br/>
+  <table class="details" cellspacing="0" cellpadding="0" border="0">
+    <tbody>
+      <tr>
+        <td class="outer">
+          <table cellspacing="0" cellpadding="0" border="0">
+            <tbody>
+              <tr>
+                <td class="top" width="100">Counters</td>
+                <td class="top value" colspan=2></td>
+              </tr>
+              <tr>
+                <td class="header2 lower" width="200" onclick="sort_table('string')">name</td>
+                <td class="header2 lower" onclick="sort_table('number')">value</td>
+                <td class="header2 lower" onclick="sort_table('number')">delta</td>
+              </tr>
+              <tr jsselect="counters" name="counter">
+                <td class="key" width="200" jscontent="name"></td>
+                <td class="value" jscontent="value"></td>
+                <td class="value" jscontent="delta"></td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+        <td width="15"/>
+        <td class="outer">
+          <table cellspacing="0" cellpadding="0" border="0">
+            <tbody>
+              <tr>
+                <td class="top" width="100">Timers</td>
+                <td class="top value"></td>
+                <td class="top value" colspan=3></td>
+              </tr>
+              <tr>
+                <td class="header2 lower" width="200" onclick="sort_table('string')">name</td>
+                <td class="header2 lower" onclick="sort_table('number')">count</td>
+                <td class="header2 lower" onclick="sort_table('number')">time (ms)</td>
+                <td class="header2 lower" onclick="sort_table('number')">avg time (ms)</td>
+              </tr>
+              <tr jsselect="timers" name="timer">
+                <td class="key" width="200" jscontent="name"></td>
+                <td class="value" jscontent="value"></td>
+                <td class="value" jscontent="time"></td>
+                <td class="value"></td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    </tbody>
+  </table><br/>
+</body>
+</html>

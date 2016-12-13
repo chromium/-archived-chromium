@@ -1,0 +1,426 @@
+# Copyright 2009, Google Inc.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are
+# met:
+#
+#     * Redistributions of source code must retain the above copyright
+# notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above
+# copyright notice, this list of conditions and the following disclaimer
+# in the documentation and/or other materials provided with the
+# distribution.
+#     * Neither the name of Google Inc. nor the names of its
+# contributors may be used to endorse or promote products derived from
+# this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+# A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+# OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+# DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+# THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+import os.path
+import sys
+Import('env')
+env.SConscript('$SCONSTRUCT_DIR/plugin/idl_list.scons')
+Import('O3D_IDL_SOURCES')
+
+env.Tool('replace_strings')
+env.Append(O3D_PLUGIN_DESCRIPTION=
+           '$O3D_PLUGIN_NAME version:$O3D_PLUGIN_VERSION',
+           O3D_PLUGIN_MIME_TYPE='application/vnd.o3d.auto')
+
+plugin_replace_strings = [
+    ('@@@PluginName@@@', env.subst('$O3D_PLUGIN_NAME')),
+    ('@@@ProductVersionCommas@@@',
+     env.subst('$O3D_PLUGIN_VERSION_COMMAS')),
+    ('@@@ProductVersion@@@', env.subst('$O3D_PLUGIN_VERSION')),
+    ('@@@PluginDescription@@@', env.subst('$O3D_PLUGIN_DESCRIPTION')),
+    ('@@@PluginMimeType@@@', env.subst('$O3D_PLUGIN_MIME_TYPE')),
+]
+
+# TODO: collapse these if possible.
+env.Append(GLUE_DIR = env.Dir('glue'),
+           NIXYSA_STATIC_GLUE = '$NIXYSA_DIR/static_glue/npapi')
+
+if env.Bit('windows'):
+  testing_inputs = [
+    'win/plugin_metrics-win32.cc',
+    'win/plugin_logging-win32.cc',
+  ]
+elif env.Bit('mac'):
+  testing_inputs = [
+    'mac/plugin_metrics-mac.cc',
+    'mac/plugin_logging-mac.mm',
+  ]
+
+# Add Skia include paths
+env.Append(CPPPATH=['$SKIA_DIR/include/core',
+                    '$SKIA_DIR/include/effects'])
+
+# Build a library for testing.
+# Currently windows and mac.
+if env.Bit('windows') or env.Bit('mac'):
+  logging_lib = env.ComponentLibrary('o3dPlugin_logging', testing_inputs)
+
+# vista SDK provides an incompatible version of npapi.h, so make sure we
+# prepend our blessed version.
+env.Prepend(CPPPATH = ['$NPAPI_DIR/include'])
+env.Append(
+    CPPPATH = [
+        'cross',
+        '$GLUE_DIR',
+        '$NIXYSA_STATIC_GLUE',
+        '$SCONSTRUCT_DIR/plugin/win',  # for RES resource.h
+        '$WTL_71_DIR/include',
+        '$THIRD_PARTY',
+        ],
+    LIBPATH = [
+        '$NACL_LIB_DIR',
+    ],
+    LIBS = [
+#       'o3dBreakpad',
+        'o3dArchive',
+        'o3dCore',
+        'o3dArchive',
+        'o3dCorePlatform',
+        'o3dUtils',
+        'google_nacl_imc',
+        'o3d_base',
+        'v8',
+        'skia',
+    ],
+)
+
+
+if env.Bit('windows'):
+  env.Append(
+    LIBS = [
+      'advapi32',
+      'o3dBreakpad',
+      'o3dStatsreport_Common',
+      'o3dStatsreport',
+      'shell32',
+      'shlwapi',
+      ],
+    CPPDEFINES = ['XP_WIN']
+  )
+
+
+
+if env.Bit('mac'):
+  if env['DEBUG']:
+    env['MAC_BREAKPAD_CONFIG'] = 'Debug'
+  else:
+    env['MAC_BREAKPAD_CONFIG'] = 'Release'
+  env.Append(
+    MAC_BREAKPAD_SRC_DIR = '$BREAKPAD_DIR/client/mac',
+    # TODO: is there a way to tell xcodebuild to output the build in
+    # scons-out instead of the source tree ?
+    MAC_BREAKPAD_DIR = '$MAC_BREAKPAD_SRC_DIR/build/$MAC_BREAKPAD_CONFIG',
+    LIBS = [
+      'o3dStatsreport_Common',
+      'o3dStatsreport',
+      logging_lib,
+    ],
+    FRAMEWORKS = [
+      'Carbon',
+      'OpenGL',
+      'Cg',
+      'AGL',
+      'Foundation',
+      'Breakpad',
+      'Cocoa',
+      'IOKit',
+      'QuickTime',
+     ],
+     CCFLAGS = ['-F$MAC_BREAKPAD_DIR',
+                '-F$CG_DIR'],
+     CPPPATH = ['mac'],
+     CPPDEFINES = ['XP_MACOSX']
+  )
+
+if env.Bit('linux'):
+  env.Append(CPPDEFINES = ['XP_UNIX', 'MOZ_X11']);
+
+# Add libraries based on the requested renderer
+env.Append(CPPPATH = env['RENDERER_INCLUDE_PATH'],
+           LIBPATH = env['RENDERER_LIB_PATH'],
+           LIBS = env['RENDERER_LIBS'] + env['ICU_LIBS'])
+
+
+def NixysaEmitter(target, source, env):
+  bases = [os.path.splitext(s.name)[0] for s in source] + ['globals']
+  targets = ['glue/%s_glue.cc' % b for b in bases]
+  targets += ['glue/%s_glue.h' % b for b in bases]
+  return targets, source
+
+AUTOGEN_ARGS = ['$NIXYSA_DIR/codegen.py',
+                '--binding-module=o3d:plugin/o3d_binding.py',
+                '--generate=npapi',
+                '--output-dir=$GLUE_DIR',
+                '$SOURCES']
+
+env['PYTHONPATH'] = ['$NIXYSA_DIR',
+                     '$GFLAGS_DIR/python',
+                     '$PLY_DIR']
+env['BUILDERS']['Nixysa'] = Builder(action=env.Python(AUTOGEN_ARGS),
+                                    emitter=NixysaEmitter)
+AUTOGEN_OUTPUT = env.Nixysa(O3D_IDL_SOURCES)
+env.SideEffect('glue/hash', AUTOGEN_OUTPUT)
+AUTOGEN_CC_FILES = [f for f in AUTOGEN_OUTPUT if f.suffix == '.cc']
+
+inputs = AUTOGEN_CC_FILES + [
+  'cross/async_loading.cc',
+  'cross/archive_request_static_glue.cc',
+  'cross/blacklist.cc',
+  'cross/o3d_glue.cc',
+  'cross/np_v8_bridge.cc',
+  'cross/out_of_memory.cc',
+  'cross/stream_manager.cc',
+  'cross/config_common.cc',
+]
+
+env_version = env.Clone()
+env_version.Append(
+    CPPDEFINES = [
+        ('O3D_PLUGIN_NAME', '\\"$O3D_PLUGIN_NAME\\"'),
+        ('O3D_PLUGIN_DESCRIPTION', '\\"$O3D_PLUGIN_DESCRIPTION\\"'),
+        ('O3D_PLUGIN_MIME_TYPE', '\\"$O3D_PLUGIN_MIME_TYPE\\"')
+    ])
+
+idlglue_static_sources = [
+    'common',
+    'static_object',
+    'npn_api',
+]
+env_idlglue = env.Clone()
+
+# TODO: figure out resources on the mac.
+if env.Bit('windows'):
+  env.ReplaceStrings(
+      'win/o3dPlugin.rc', 'win/o3dPlugin.rc_template',
+      REPLACE_STRINGS = plugin_replace_strings
+  )
+  if env['DEBUG']:
+    # release v8 brings libcmt that conflicts with libcmtd
+    env.Append(LINKFLAGS=['/NODEFAULTLIB:LIBCMT'])
+  env_idlglue.Append(CPPDEFINES=['OS_WINDOWS'])
+  inputs += [env_idlglue.ComponentObject(s, '$NIXYSA_STATIC_GLUE/%s.cc' % s)
+             for s in idlglue_static_sources]
+  inputs += env_version.ComponentObject('cross/main', 'cross/main.cc')
+  inputs += [
+    logging_lib,
+    'win/main_win.cc',
+    'win/config.cc',
+    'win/o3dPlugin.def',
+    'win/update_lock.cc',
+    env.RES('win/o3dPlugin.rc'),
+  ]
+
+
+if env.Bit('linux'):
+  env_idlglue.Append(CPPDEFINES=['OS_LINUX'])
+  inputs += [env_idlglue.SharedObject(s, '$NIXYSA_STATIC_GLUE/%s.cc' % s)
+             for s in idlglue_static_sources]
+  inputs += env_version.SharedObject('cross/main', 'cross/main.cc')
+  inputs += [
+    'linux/main_linux.cc',
+    'linux/config.cc',
+  ]
+
+
+# SCons doesn't really know about MacOSX bundles, so we need to override a
+# lot of its behavior to make one, ie -bundle flag, no lib prefix, no .dylib suffix.
+if env.Bit('mac'):
+  breakpad_framework = env.Command(
+      env.Dir('$MAC_BREAKPAD_DIR/Breakpad.framework'),
+      env.Dir('$MAC_BREAKPAD_SRC_DIR/Breakpad.xcodeproj'),
+      ' '.join(['cd $MAC_BREAKPAD_SRC_DIR &&',
+                'xcodebuild',
+                '-project Breakpad.xcodeproj',
+                '-target Breakpad',
+                '-configuration $MAC_BREAKPAD_CONFIG']))
+  plugin_mac_object = env.SharedObject('mac/plugin_mac', 'mac/plugin_mac.mm')
+  env.Requires(plugin_mac_object, breakpad_framework)
+
+  env_idlglue.Append(CPPDEFINES=['OS_MACOSX'])
+  inputs += [env_idlglue.SharedObject(s, '$NIXYSA_STATIC_GLUE/%s.cc' % s)
+             for s in idlglue_static_sources]
+  inputs += env_version.SharedObject('cross/main', 'cross/main.cc')
+  inputs += [
+    'mac/main_mac.mm',
+    'mac/config_mac.mm',
+    'mac/graphics_utils_mac.mm',
+    plugin_mac_object
+  ]
+
+  env['SHLINKFLAGS'] = ['-bundle',
+                        '-F$MAC_BREAKPAD_DIR',
+                        '-F$CG_DIR',
+                        ]
+  env['SHLIBPREFIX'] = ['']
+  env['SHLIBSUFFIX'] = ['']
+  plugin_dll = env.SharedLibrary('o3d', inputs)
+  plugin_artifacts = env.Replicate('$ARTIFACTS_DIR/O3D.plugin/Contents/MacOS/', plugin_dll)
+
+  # insert version number into Info.plist
+  env.ReplaceStrings(
+      'mac/processed/Info.plist', '$SCONSTRUCT_DIR/plugin/mac/Info.plist',
+      REPLACE_STRINGS = plugin_replace_strings
+  )
+
+  # copy mac resource data
+  env.Replicate('$ARTIFACTS_DIR/O3D.plugin/Contents/',
+      '$SCONSTRUCT_DIR/plugin/mac/Resources')
+  env.Replicate('$ARTIFACTS_DIR/O3D.plugin/Contents',
+      'mac/processed/Info.plist')
+
+ # Make a string substituted version of o3d_plugin.r in the artifacts
+ # directory.
+  env.ReplaceStrings(
+    '$ARTIFACTS_DIR/o3d_plugin.r', 'mac/o3d_plugin.r',
+    REPLACE_STRINGS = plugin_replace_strings
+  )
+  # Compile the string substituted o3d_plugin.r to make o3d.rsrc
+  env.Command('$ARTIFACTS_DIR/O3D.plugin/Contents/Resources/o3d.rsrc',
+             ['$ARTIFACTS_DIR/o3d_plugin.r'],
+             [
+             'Rez -useDF "$ARTIFACTS_DIR/o3d_plugin.r" -o "$ARTIFACTS_DIR/O3D.plugin/Contents/Resources/o3d.rsrc"'
+             ])
+
+  if env['DEBUG']:
+    stripCmd = 'echo debug build, no strip'
+  else:
+    stripCmd = 'strip -S "$ARTIFACTS_DIR/O3D.plugin/Contents/MacOS/o3d"'
+
+  # Cleanup end result
+  created_installer = env.Command('$ARTIFACTS_DIR/plugin_done',
+              [env.Dir('$ARTIFACTS_DIR/O3D.plugin')],
+              [
+              'xcodebuild -project installer/mac/O3D_Stats/O3D_Stats.xcodeproj -configuration Release',
+              'ditto "$SCONSTRUCT_DIR/installer/mac/O3D_Stats/build/Release/O3D_Stats.bundle" "$ARTIFACTS_DIR/O3D_Stats.bundle"',
+              # Because the frameworks are inside a plugin bundle (not application bundle) the plugin executable needs to be
+              # tweaked to reference their paths via @loader_path instead of @executable_path.
+              '$SCONSTRUCT_DIR/plugin/mac/Tools/fix_install_names.sh $ARTIFACTS_DIR/O3D.plugin/Contents/MacOS/o3d',
+
+              # make a copy of the executable, before we strip all the symbols
+              'rm -f "$ARTIFACTS_DIR/o3d"',
+              'cp -f "$ARTIFACTS_DIR/O3D.plugin/Contents/MacOS/o3d" "$ARTIFACTS_DIR/o3d"',
+              stripCmd,
+              # Delete frameworks so we start fresh, and ditto can't get confused
+              Delete("$ARTIFACTS_DIR/O3D.plugin/Contents/Frameworks/"),
+              # Use ditto, not Replicate() as Replicate mangles the symlinks.
+              # The use of ditto also lets us strip the frameworks down to just i386, which saves a lot of space.
+              'ditto --arch i386 "$MAC_BREAKPAD_DIR/Breakpad.framework" "$ARTIFACTS_DIR/O3D.plugin/Contents/Frameworks/Breakpad.framework"',
+              '/usr/bin/install_name_tool -change '
+              '@executable_path/../Frameworks/Breakpad.framework/Resources/breakpadUtilities.dylib '
+              '@loader_path/Resources/breakpadUtilities.dylib '
+              '"$ARTIFACTS_DIR/O3D.plugin/Contents/Frameworks/Breakpad.framework/Breakpad"',
+              'ditto --arch i386 "$CG_DIR/Cg.framework" "$ARTIFACTS_DIR/O3D.plugin/Contents/Frameworks/Cg.framework"',
+              # Delete private frameworks headers.
+              'find "$ARTIFACTS_DIR/O3D.plugin/Contents/Frameworks" -iname "*.h" -delete',
+              'find "$ARTIFACTS_DIR/O3D.plugin/Contents/Frameworks" -iname "Headers" -type l -delete',
+              'find "$ARTIFACTS_DIR/O3D.plugin/Contents/Frameworks" -iname "Headers" -type d -prune -delete',
+              Touch('$ARTIFACTS_DIR/plugin_done')
+              ])
+
+  env['MAC_INSTALLER_DIR'] = env['SCONSTRUCT_DIR'] + '/../o3d-internal/mac_installer'
+  env['MAC_INSTALLER_PROJECT'] = 'o3d.packproj'
+  # Default is to make the installer.
+  make_installer = int(ARGUMENTS.get('MAKE_INSTALLER', 1)) and os.path.exists(env['MAC_INSTALLER_DIR'] + '/' + env['MAC_INSTALLER_PROJECT'])
+
+
+  if make_installer:
+    env.ReplaceStrings(
+      "$ARTIFACTS_DIR/postflight.sh", '$MAC_INSTALLER_DIR/postflight.sh',
+      REPLACE_STRINGS = plugin_replace_strings
+    )
+    if int(ARGUMENTS.get('MAC_KILLSWITCH', 0)):
+      kill_command = 'rm "$ARTIFACTS_DIR/O3D.plugin/Contents/MacOS/o3d"'
+    else:
+      kill_command = 'echo normal binary'
+    # Cleanup end result and build the installer
+    env.Command(env.Dir('$ARTIFACTS_DIR/O3D.mpkg'),
+                [
+                  "$ARTIFACTS_DIR/plugin_done",
+                  "$ARTIFACTS_DIR/postflight.sh",
+                ],
+                [
+                # Delete first as Copy can fail to overwrite if the packproj is locked
+                Delete("$ARTIFACTS_DIR/$MAC_INSTALLER_PROJECT"),
+                # Copy installer project file into artifacts so it can operate on files local to own directory
+                # and so work on debug or release builds without change.
+                Copy("$ARTIFACTS_DIR/$MAC_INSTALLER_PROJECT",
+                     '$MAC_INSTALLER_DIR/$MAC_INSTALLER_PROJECT'),
+                'ditto  "$MAC_INSTALLER_DIR/GoogleSoftwareUpdate.pkg" "$ARTIFACTS_DIR/GoogleSoftwareUpdate.pkg"',
+                # Make the installer.
+                kill_command,
+                'freeze "$ARTIFACTS_DIR/$MAC_INSTALLER_PROJECT"',
+                # Delete temp files in artifacts now we are done.
+                Delete("$ARTIFACTS_DIR/$MAC_INSTALLER_PROJECT")
+                ])
+
+    env.Command('$ARTIFACTS_DIR/o3d.dmg',
+              [
+                env.Dir('$ARTIFACTS_DIR/O3D.mpkg'),
+              ],
+              [
+              Delete("$ARTIFACTS_DIR/DMG_SRC"),
+              'mkdir "$ARTIFACTS_DIR/DMG_SRC"',
+              'cp "$MAC_INSTALLER_DIR/.keystone_install" "$ARTIFACTS_DIR/DMG_SRC"',
+              'ditto "$ARTIFACTS_DIR/O3D.mpkg" "$ARTIFACTS_DIR/DMG_SRC/O3D.mpkg"',
+              'hdiutil create -srcfolder "$ARTIFACTS_DIR/DMG_SRC" -size 30mb -ov -fs HFS+ -imagekey zlib-level=9 -volname "O3D $O3D_PLUGIN_VERSION" "$ARTIFACTS_DIR/o3d.dmg"',
+              Delete("$ARTIFACTS_DIR/DMG_SRC"),
+              ])
+
+
+# else build the shared library in a platform independent way
+else:
+  plugin_dll = env.SharedLibrary('npo3dautoplugin', inputs)
+# copy to artifacts
+  plugin_artifacts = env.Replicate('$ARTIFACTS_DIR', plugin_dll)
+
+if env.Bit('linux'):
+  env.Requires(plugin_artifacts, env.Replicate(
+      '$ARTIFACTS_DIR', [
+           '$CG_DIR/lib/libCg.so',
+           '$CG_DIR/lib/libCgGL.so',
+           '$GLEW_DIR/lib/libGLEW.so.1.5',
+      ]
+  ))
+
+
+# alias 'plugin' to build the plug-in in artifacts
+env.Alias('plugin', plugin_artifacts)
+
+# TODO: have a common way to do colliding installs like this.
+# Do the install step only if this variant is the first target.
+if (env['BUILD_TYPE'] == ARGUMENTS.get('MODE') or
+    (ARGUMENTS.get('MODE', 'default') == 'default' and
+     env['BUILD_TYPE'] == 'dbg-d3d')):
+  plugin_install = env.Replicate('$FIREFOX_PLUGIN_DIR', plugin_dll[0])
+  env.Alias('install', plugin_install)
+
+  if env.Bit('windows'):
+    # Copy SwiftShader to plugin dir.
+    swiftshader_path = env.subst('$SWIFTSHADER_DIR/swiftshader_d3d9.dll')
+    if os.path.exists(swiftshader_path):
+      env.Requires(plugin_install,
+          env.Replicate('$FIREFOX_PLUGIN_DIR/O3DExtras', swiftshader_path))
+
+if env.Bit('windows'):
+  # Make the logging program
+  exe = env.ComponentProgram('statsLogger',
+                             logging_lib + ['win/logger_main.cc'])
+  # Copy the resulting executable to the Artifacts directory.
+  env.Replicate('$ARTIFACTS_DIR', [exe])

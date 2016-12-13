@@ -1,0 +1,72 @@
+<?xml version="1.0" ?>
+<!DOCTYPE translationbundle>
+<translationbundle lang="fil">
+<translation id="6676384891291319759">I-access ang Internet</translation>
+<translation id="8579274574697852281">Kinakailangan ng Google Chrome ang Windows Vista o Windows XP na may SP1 o mas mataas pa.</translation>
+<translation id="698670068493841342">Na-install na ang Google Chrome para sa gumagamit na ito. Kung hindi gumagana ang software, paki-uninstall ang Google Chrome at i-download muli ito.</translation>
+<translation id="7400722733683201933">Tungkol sa Google Chrome</translation>
+<translation id="7101265395643981223">Magsimula sa Google Chrome</translation>
+<translation id="1549918799472947005">Gamit ng Chrome ang iyong default search engine na kasalukuyang nakatakda sa <ph name="PAGE_TITLE"/>. Nais mo bang panatiliin ang iyong default na search engine?</translation>
+<translation id="2370289711218562573">Ini-import ngayon ng Google Chrome ang Mga Paborito/Bookmark.</translation>
+<translation id="8970027151245482499">Hindi na-install o nabigong makahanap ng direktoryo sa pag-install ang Google Chrome. Paki-download muli ang Google Chrome.</translation>
+<translation id="7958215378280655655">Kung nai-reset ang mga pagpipilian ng Google Chrome anumang pagbabagong nagawa ay maibabaliktad sa mga setting ng default. Nais mo bang I-reset ang mga pagpipilian sa Chrome?</translation>
+<translation id="4281844954008187215">Mga Tuntunin ng Serbisyo</translation>
+<translation id="2197898401230534722">Tanggalin ang lahat ng data ng profile</translation>
+<translation id="1137776625614346046">Ang lugar na &quot;Pinakamadalas bisitahin&quot; ay ipinapakita ang mga website na pinakamadalas mong gamitin. Pagkatapos gamitin ang Google Chrome nang matagal-tagal, makikita mo ang iyong mga pinakamadalas-bisitahing mga site tuwing magbubukas ka ng isang bagong tab. Maaari mong madagdagan ang iyong nalalaman tungkol dito at iba pang mga tampok sa pahina ng <ph name="BEGIN_LINK"/>Makapagsimula<ph name="END_LINK"/>.</translation>
+<translation id="4728575227883772061">Nabigo ang pag-install dahil sa hindi natukoy na error. Kung kasalukuyang tumatakbo ang Google Chrome, paki-sara ito at subukang muli.</translation>
+<translation id="4149882025268051530">Nabigo ang installer sa pag-uncompress ng archive. Paki-download muli ang Google Chrome.</translation>
+<translation id="4343226815564935778">Tila ginagamit ang direktoryo sa pag-install ng Google Chrome. Paki-reboot ang iyong computer at subukan ulit.</translation>
+<translation id="4506896920521131223">Copyright © 2006-2009 Google Inc. All Rights Reserved.</translation>
+<translation id="6817660909204164466">Tumulong na mapagbuti ang Google Chrome sa pamamagitan ng awtomatikong pagpapadala sa Google ng mga istatistika sa paggamit at mga ulat ng pag-crash</translation>
+<translation id="8227755444512189073">Kailangan ng Chrome na maglunsad ng isang panlabas na application upang mahawakan ang mga link <ph name="SCHEME"/>. Ang hiling ng link ay <ph name="PROTOLINK"/>.</translation>
+<translation id="1281036569101707544">Google Chrome <ph name="TERMS_OF_SERVICE_LINK"/></translation>
+<translation id="8815061062167142136">Naku! Ang Google Chrome ay nasira. I-restart ngayon?</translation>
+<translation id="5016204670686360703">Kung ikinansela mo ngayon, hindi lahat mai-import ang mga item. Maaari mong muling i-import mamaya mula sa menu ng Chrome.</translation>
+<translation id="7241541963706135274">Gagawin ng Google Chrome ang mga gawain:</translation>
+<translation id="8446794773162156990">Hindi kumikilos ng tama ang Google Chrome</translation>
+<translation id="3889417619312448367">I-uninstall ang Google Chrome</translation>
+<translation id="6169866489629082767"><ph name="PAGE_TITLE"/> - Google Chrome</translation>
+<translation id="8810218179782551669">Wika ng Google Chrome:</translation>
+<translation id="3940866277504106378">Maaaring gumamit ang Google Chrome ng mga serbisyo sa web upang mapabuti ang iyong karanasan sa pagba-browse - maaari mong opsyonal na hindi paganahin ang mga serbisyong ito.</translation>
+<translation id="7001386529596391893">Lumikha ng mga shortcut sa Chrome sa mga lokasyon na ito:</translation>
+<translation id="6134282421960734039">Nais ba ng Chrome na i-save mo ang iyong password?</translation>
+<translation id="1195935957447623558">Hindi nai-shut down ng wasto ang Google Chrome. Upang muling buksan ang mga pahina na nabuksan mo na, i-click ang Restore.</translation>
+<translation id="2499193704281978000">Hindi tumutugon ang Google Chrome. I-restart ngayon?</translation>
+<translation id="7747138024166251722">Hindi makalikha ng pansamantalang direktoryo ang installer. Paki-suri para sa puwang sa disk na walang laman at pahintulot upang i-install ang software.</translation>
+<translation id="6009537148180854585">Tinatangka mong maabot &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ngunit ang sertipiko na ipinakita ng server ay naglalaman ng mga error. Hindi magagamit ng Chrome ang isang sertipiko na may mga error at hindi mapatunayan ang pagkilala ng site na tinangka mong kumunekta sa. Ang iyong koneksyon ay hindi secure at dapat hindi magpatuloy.</translation>
+<translation id="3324235665723428530">Ang iyong profile ay hindi magagamit dahil ito ay mula sa isang bagong bersyon ng Google Chrome.\n\nIlang mga tampok ay maaaring hindi magagamit. Mangyaring tukuyin ang isang kakaibang derektoryo ng profile o gamitin ang isan bagong bersyon ng Chrome.</translation>
+<translation id="1759842336958782510">Chrome</translation>
+<translation id="2044287590254833138">Toolbar ng Google Chrome</translation>
+<translation id="6481075104394517441">Tinangka mong maabot ang &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ngunit ang server ay nagpakita ng isang sertipiko na wala pang bisa. Walang impormasyong magagamit upang ipahiwatig kung ang sertipiko ay maaaring pagkatiwalaan. Ang Google Chrome ay hindi maasahang magagarantiya na makipag-kumunika ka sa &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; at hindi sa isang attacker. Dapat mong tiyakin na ang iyong orasan at time zone at wastong nakatakda sa iyong computer. Kung hindi, dapat mong iwasto ang anumang mga isyu at i-refresh ang pahinang ito. Kung tama ang mga ito, hindi ka dapat magpatuloy.</translation>
+<translation id="8862326446509486874">Wala kang naaangkop na mga karapatan para sa pag-install na antas na system. Subukan muli patakbuhin ang installer bilang Administrator.</translation>
+<translation id="2874156562296220396">Ang Google Chrome ay ginawang posible ng <ph name="BEGIN_LINK_CHROMIUM"/>Chromium<ph name="END_LINK_CHROMIUM"/> open source project at iba pang <ph name="BEGIN_LINK_OSS"/>open source software<ph name="END_LINK_OSS"/>.</translation>
+<translation id="6921913858457830952">Ang Chrome ay handang makumpleto sa iyong pag-install.</translation>
+<translation id="7100330187273168372">Hindi mababasa ang Google Chrome at isulat ito sa direktoryo ng data:\n\n<ph name="USER_DATA_DIRECTORY"/></translation>
+<translation id="2290095356545025170">Sigurado ka bang nais mong i-uninstall ang Google Chrome?</translation>
+<translation id="5941830788786076944">Gawin ang Google Chrome na default browser</translation>
+<translation id="4127951844153999091">Dahil dito, ang address ay nakalista sa sertipiko na walang katugmang address ng website na iyong sinubukang i-browse upang pumunta sa. Isang posibleng kadahilanan para sa iyong mga kumonikasyon na iyon na maaaring makuha sa pamamagitan ng isang pag-atake kung sino ang nagpapakita ng isang sertipiko para sa isang magkakaibang website, na dapat magsasanhi ng isang hindi patas. Iba pang posibleng kadahilanan na ang server ay naka-set up upang ibalik ang parehong sertipiko para sa maramihang mga website, kasama ang isang tinatangka mong bisitahin, kahit na ang sertipiko ay hindi wasto para sa lahat ng mga website na iyon. Maaaring sabihin ng Chrome na naabot mo na &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt;, ngunit hindi matukoy na parehong site bilang &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt; na nilalayon na maabot mo. Kung nagpatuloy ka, ang Chrome ay hindi na susuriin para sa anumang ilang mga hindi tugmang pangalan. Sa pangkalahatan, ito ay pinakamagandang hindi ipagpatuloy lampasan ang puntong ito.</translation>
+<translation id="2712549016134575851">Nakita ang kontrahan sa isa pang nai-install na application.</translation>
+<translation id="7161904924553537242">Maligayang pagdating sa Google Chrome</translation>
+<translation id="8236873504073475138">Hindi suportado ng Chrome ang Windows 2000. Ang ilang mga tampok ay maaaring hindi gumana.</translation>
+<translation id="5046764976540625289">Lumabas sa Chrome</translation>
+<translation id="8865765905101981392">Internet Browser</translation>
+<translation id="582763753075639530">Mangyaring isara ang lahat ng Chrome windows at i-restart ang Chrome upang makaapekto para sa pagbabago.</translation>
+<translation id="8776515774046280928">Na-install at magagamit na ang Google Chrome ng lahat ng gumagamit ng computer na ito. Kung nais mong i-install ang Google Chrome sa antas ng user, dapat mong i-uninstall muna ang bersyon sa antas ng system na in-install ng isang administrator.</translation>
+<translation id="3335672657969596251">Hindi suportado ng Google Chrome ang <ph name="OS_NAME"/>.</translation>
+<translation id="3636771339108070045">Mayroon nang mas bagong bersyon ng Google Chrome ang computer na ito. Kung hindi gumagana ang software, paki-uninstall ang Google Chrome at i-download muli ito.</translation>
+<translation id="3396666154568987767">Google Chrome para sa <ph name="PROFILE_NAME"/></translation>
+<translation id="1964682833763362793">Mangyaring isara lahat ng Chrome windows at muling subukan.</translation>
+<translation id="1001534784610492198">Na-corrupt o hindi wasto ang installer archive. Paki-download muli ang Google Chrome.</translation>
+<translation id="6626317981028933585">Nakalulungkot, ang iyong mga setting ng Mozilla Firefox ay hindi magagamit habang tumatakbo ang browser. Upang mai-import ang mga setting sa Google Chrome, i-save ang iyong ginagawa at isara ang lahat ng mga window ng Firefox. Pagkatapos i-click ang Ipagpatuloy.</translation>
+<translation id="8540666473246803645">Google Chrome</translation>
+<translation id="6049075767726609708">In-install ng isang administrator ang Google Chrome sa system na ito, at magagamit ito ng lahat ng mga gumagamit. Papalitan ngayon ng Google Chrome sa antas ng system ang iyong pag-install sa antas ng gumagamit.</translation>
+<translation id="3870154837782082782">Google Inc.</translation>
+<translation id="1446473746922165495">Baguhin ang wika na ginagamit sa mga menu ng Chrome, dialog box, at tooltip.</translation>
+<translation id="9189723490960700326">Tinangka mong maabot &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ngunit ang server ay nagpakita ng isang repasong sertipiko. Walang impormasyong magagamit upang ipahiwatig kung ang sertipiko ay nakompromiso simula noong pagrepaso. Ito ay nangangahulugang ang Google Chrome ay hindi maasahang magagarantiya na makipag-kumunika sa &lt;strong&gt;<ph name="DOMAIN2"/>&lt;/strong&gt; at hindi sa isang umatake. Hindi ka dapat magpatuloy.</translation>
+<translation id="7106741999175697885">Task Manager - Google Chrome</translation>
+<translation id="8449380764213232436">Ang Google Chrome ay nagi-import ngayon ng sumusunod na mga item mula sa <ph name="BROWSER_COMPONENT"/>:</translation>
+<translation id="3396977131400919238">Nagkaroon ng error sa operating system habang nag-i-install. Paki-download muli ang Google Chrome.</translation>
+<translation id="2618799103663374905">Magdagdag ng mga shortcut sa Chrome sa iyong desktop, quick launch bar, at Start menu</translation>
+<translation id="1144950271450340860">Tinatangka mo na maabot &lt;strong&gt;<ph name="DOMAIN"/>&lt;/strong&gt;, ngunit ang ipinakita ng server ang isang sertipiko na ibinigay ng isang nilalang na hindi pinagkatiwalaan ng operating system ng iyong computer. Maaaring ibig sabihin nito na ang server ay nakabuo ng sariling seguridad sa mga kredensyal, na hindi maaasahan ang Chrome para sa pagpapakilala ng impormasyon, o isang pag-atake ay maaaring subukang agawin ang iyong mga kumonikasyon.
+Hindi mo dapat ipinagpatuloy, &lt;strong&gt;especially&lt;/strong&gt; kung hindi mo nakita ang babalang ito bago sa site na ito.</translation>
+</translationbundle>

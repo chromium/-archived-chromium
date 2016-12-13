@@ -1,0 +1,17 @@
+<html>
+<head>
+<title>Layout Test Plugin Test</title>
+</head>
+<body>
+<embed name="plg" type="application/x-webkit-test-netscape"></embed>
+<script>
+// Test for bug 711411: http://b/issue?id=711411
+// There was a crash because of the plugin dll being unloaded before the JS
+// interpreter got a chance to drop references.
+window.plg.eventLoggingEnabled = true;
+</script>
+
+<!-- Make sure unknown plugin types don't crash either -->
+<embed name="no-plg" type="application/not-installed"></embed>
+</body>
+</html>

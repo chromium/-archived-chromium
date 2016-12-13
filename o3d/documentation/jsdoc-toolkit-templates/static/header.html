@@ -1,0 +1,28 @@
+[include "/apis/o3d/_local_variables.ezt"]  [# the _local_variables.ezt file should be at the root of your document hierarchy ]
+[define section]docs[end]  [# this should almost always be "docs," if the file lives in the "Docs" section (top nav). Otherwise, it's "home," "articles," "download," or "terms" ]
+[define page_title]O3D API[end]  [# this is the title for only this page ]
+
+[## BOILERPLATE - DO NOT EDIT THIS BLOCK - VERSION 1.66 ##]
+[#]<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtml1-transitional.dtd">
+[#]<html>
+[#]  <head>
+[#]    [include "/apis/_common_head_elements.ezt"]
+[#]    <link href="/css/semantic_headers.css" rel="stylesheet" type="text/css" />
+[#]    <link href="../stylesheet.css" rel="stylesheet" type="text/css">
+[#]    <link href="../tabs.css" rel="stylesheet" type="text/css">
+[#]  </head>
+[#]
+[#]  <body class="gc-documentation">
+[#]
+[#]    [define content_section]#gc-pagecontent[end]
+[#]    [define navigation_section]#gc-toc[end]
+[#]    [include "/_common_page_header.ezt"]
+[#]    <div class="g-section g-tpl-170">
+[#]
+[#]      <div class="g-unit g-first" id="gc-toc">
+[#]        [include toc_path]
+[#]        <a class="hidden" href="#gc-topnav-anchor">More [title] resource links</a>
+[#]      </div>
+[#]
+[#]      <div class="g-unit" id="gc-pagecontent">
+[## END OF BOILERPLATE ##]
